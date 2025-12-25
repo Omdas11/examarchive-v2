@@ -1,0 +1,56 @@
+/* =========================
+   HEADER
+========================= */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0.8rem 1rem;
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+
+.logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* =========================
+   NAV
+========================= */
+.nav {
+  display: none;
+  gap: 0.6rem;
+}
+
+.nav-link {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background: #f1f1f1;
+}
+
+/* =========================
+   HAMBURGER
+========================= */
+.menu-btn {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* =========================
+   DESKTOP
+========================= */
+@media (min-width: 768px) {
+  .nav {
+    display: flex;
+  }
+
+  .menu-btn {
+    display: none;
+  }
+}
