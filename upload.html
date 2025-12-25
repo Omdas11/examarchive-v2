@@ -6,38 +6,24 @@
 
   <title>Upload Paper | ExamArchive</title>
 
-  <!-- Global styles -->
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
 
-  <!-- HEADER (same as index, no changes) -->
-  <header class="site-header">
-    <div class="logo">ExamArchive</div>
+  <!-- Header include -->
+  <div id="header"></div>
 
-    <nav class="nav">
-      <a class="nav-link" href="index.html">Home</a>
-      <a class="nav-link" href="browse.html">Browse</a>
-      <a class="nav-link" href="upload.html">Upload</a>
-      <a class="nav-link" href="about.html">About</a>
-    </nav>
-
-    <button class="menu-btn" aria-label="Toggle menu">☰</button>
-  </header>
-
-  <!-- MAIN -->
   <main class="upload-page">
     <h1>Upload Question Paper</h1>
     <p class="page-desc">
-      Help others by uploading missing question papers.
-      Please make sure the file is clear and readable.
+      Upload a clear PDF of a question paper to help others.
     </p>
 
     <form class="upload-form">
       <label>
-        Subject / Paper Name
+        Paper / Subject Code
         <input type="text" placeholder="e.g. PHSHCC-201T" required>
       </label>
 
@@ -47,7 +33,7 @@
       </label>
 
       <label>
-        Select PDF File
+        PDF File
         <input type="file" accept="application/pdf" required>
       </label>
 
@@ -57,12 +43,9 @@
     </form>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="site-footer">
-    <p>© <span id="year"></span> ExamArchive</p>
-  </footer>
+  <!-- Footer include -->
+  <div id="footer"></div>
 
-  <!-- Scripts -->
   <script src="js/common.js"></script>
 </body>
 </html>
