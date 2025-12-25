@@ -1,19 +1,32 @@
 // ===============================
-// Mobile menu toggle
+// Load header & footer
 // ===============================
-const menuBtn = document.querySelector(".menu-btn");
-const nav = document.querySelector(".nav");
-
-if (menuBtn && nav) {
-  menuBtn.addEventListener("click", () => {
-    nav.classList.toggle("active");
-  });
+function loadPartial(id, file) {
+  fetch(file)
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById(id).innerHTML = data;
+    });
 }
 
+loadPartial("header", "partials/header.html");
+loadPartial("footer", "partials/footer.html");
+
 // ===============================
-// Auto update footer year
+// Mobile menu toggle (delegated)
 // ===============================
-const yearSpan = document.getElementById("year");
-if (yearSpan) {
-  yearSpan.textContent = new Date().getFullYear();
-}
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("menu-btn")) {
+    document.querySelector(".nav")?.classList.toggle("active");
+  }
+});
+
+// ===============================
+// Auto year
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const yearSpan = document.getElementById("year");
+  if (yearSpan) {
+    yearSpan.textContent = new Date().getFullYear();
+  }
+});
