@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Browse Papers | ExamArchive</title>
+
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+  <!-- Header include -->
+  <div id="header"></div>
+
+  <!-- MAIN -->
+  <main class="browse-page">
+
+    <!-- Page title -->
+    <section class="browse-header">
+      <h1>Browse Question Papers</h1>
+      <p>
+        Find previous year question papers by paper code or subject.
+      </p>
+    </section>
+
+    <!-- Search -->
+    <section class="browse-search">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by paper code (e.g. PHSHCC-201T)"
+        aria-label="Search papers"
+      >
+    </section>
+
+    <!-- Papers list -->
+    <section class="papers-list" id="papersList">
+      <!-- JS will inject paper cards here -->
+
+      <!-- Fallback (shown before JS loads) -->
+      <p class="loading-text">Loading papers…</p>
+    </section>
+
+  </main>
+
+  <!-- Footer include -->
+  <div id="footer"></div>
+
+  <!-- Scripts -->
+  <script src="js/common.js"></script>
+  <script src="js/browse.js"></script>
+</body>
+</html>
