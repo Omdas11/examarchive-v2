@@ -1,0 +1,345 @@
+{
+  "PHYDSC101T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 1,
+    "paper_name": "Mathematical Physics-I"
+  },
+  "PHYDSC102T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 1,
+    "paper_name": "Mechanics and Relativity"
+  },
+
+  "PHYDSM101T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 1,
+    "paper_name": "Mechanics, Relativity and Mathematical Physics"
+  },
+  "PHYSEC101": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "SEC",
+    "semester": 1,
+    "paper_name": "Workshop Skill"
+  },
+  "PHYIDC101T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "IDC",
+    "semester": 1,
+    "paper_name": "Physics in Daily Life"
+  },
+
+  "PHYDSC151T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 2,
+    "paper_name": "Electricity and Magnetism"
+  },
+  "PHYDSC152P": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 2,
+    "paper_name": "Mechanics and Electricity Lab"
+  },
+
+  "PHYDSM151T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 2,
+    "paper_name": "Mechanics, Relativity and Mathematical Physics"
+  },
+  "PHYSEC151": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "SEC",
+    "semester": 2,
+    "paper_name": "Electrical Circuits and Safety"
+  },
+  "PHYIDC151T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "IDC",
+    "semester": 2,
+    "paper_name": "Understanding the Climate"
+  },
+
+  "PHYDSC201T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 3,
+    "paper_name": "Waves and Optics"
+  },
+  "PHYDSC202T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 3,
+    "paper_name": "Thermal Physics"
+  },
+
+  "PHYDSM201T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 3,
+    "paper_name": "Electricity, Magnetism and Electronics"
+  },
+  "PHYSEC201": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "SEC",
+    "semester": 3,
+    "paper_name": "Renewable Energy and Energy Harvesting"
+  },
+  "PHYIDC201T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "IDC",
+    "semester": 3,
+    "paper_name": "Renewable Energy and Energy Harvesting"
+  },
+
+  "PHYDSC251T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 4,
+    "paper_name": "Mathematical Physics-II"
+  },
+  "PHYDSC252T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 4,
+    "paper_name": "Electronics (Analog and Digital)"
+  },
+  "PHYDSC253P": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 4,
+    "paper_name": "Thermal Physics and Analog Electronics Lab"
+  },
+
+  "PHYDSM251P": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 4,
+    "paper_name": "Mechanics & Optics and Electricity & Electronics Lab"
+  },
+  "PHYDSM252T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 4,
+    "paper_name": "Electricity, Magnetism and Electronics"
+  },
+
+  "PHYDSC301T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 5,
+    "paper_name": "Modern Physics"
+  },
+  "PHYDSC302T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 5,
+    "paper_name": "Introduction to Classical Mechanics and Electromagnetic Theory"
+  },
+  "PHYDSC303P": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 5,
+    "paper_name": "Ray Optics and Physical Optics Lab"
+  },
+
+  "PHYDSM301T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 5,
+    "paper_name": "Waves, Oscillations, Optics and Thermal Physics"
+  },
+  "PHYDSM302T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 5,
+    "paper_name": "Waves, Oscillations, Optics and Thermal Physics"
+  },
+
+  "PHYDSC351T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 6,
+    "paper_name": "Nuclear and Particle Physics"
+  },
+  "PHYDSC352T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 6,
+    "paper_name": "Statistical Mechanics and Plasma Physics"
+  },
+  "PHYDSC353T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 6,
+    "paper_name": "Solid State Physics"
+  },
+  "PHYDSC354P": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 6,
+    "paper_name": "Solid State Physics and Digital Electronics Lab"
+  },
+
+  "PHYDSM351P": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 6,
+    "paper_name": "Mechanics & Optics and Electricity & Electronics Lab"
+  },
+
+  "PHYDSC401T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 7,
+    "paper_name": "Mathematical Physics-III"
+  },
+  "PHYDSC402T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 7,
+    "paper_name": "Classical Mechanics"
+  },
+  "PHYDSC403T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 7,
+    "paper_name": "Quantum Mechanics-I"
+  },
+  "PHYDSC404P": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 7,
+    "paper_name": "Numerical Techniques and Simulation Lab"
+  },
+
+  "PHYDSM401T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 7,
+    "paper_name": "Modern Physics and Solid State Physics"
+  },
+
+  "PHYDSC451T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 8,
+    "paper_name": "Quantum Mechanics-II"
+  },
+  "PHYDSC452T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 8,
+    "paper_name": "Electromagnetic Theory"
+  },
+  "PHYDSC453AT": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 8,
+    "paper_name": "Astronomy, Astrophysics and Cosmology"
+  },
+  "PHYDSC453BT": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 8,
+    "paper_name": "Nano Science and Material Science"
+  },
+  "PHYDSC454T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSC",
+    "semester": 8,
+    "paper_name": "Atomic and Molecular Physics"
+  },
+
+  "PHYDSM451T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "FYUG",
+    "course_type": "DSM",
+    "semester": 8,
+    "paper_name": "Modern Physics and Solid State Physics"
+  }
+}
