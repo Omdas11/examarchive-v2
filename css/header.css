@@ -2,6 +2,7 @@
    HEADER
 ========================= */
 .site-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -12,20 +13,38 @@
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
   font-size: 1.1rem;
   font-weight: 700;
 }
 
 /* =========================
-   NAV
+   NAV (MOBILE DROPDOWN)
 ========================= */
 .nav {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+
   display: none;
-  gap: 0.6rem;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+  padding: 0.6rem 1rem;
+}
+
+.nav.active {
+  display: flex;
 }
 
 .nav-link {
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.6rem;
   border-radius: 0.5rem;
   font-weight: 500;
 }
@@ -47,7 +66,12 @@
 ========================= */
 @media (min-width: 768px) {
   .nav {
-    display: flex;
+    position: static;
+    display: flex !important;
+    flex-direction: row;
+    width: auto;
+    padding: 0;
+    border: none;
   }
 
   .menu-btn {
