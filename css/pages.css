@@ -1,3 +1,4 @@
+
 /* =========================
    HOME PAGE
 ========================= */
@@ -179,4 +180,93 @@
   100% {
     background-position: -100% 0;
   }
+}
+
+/* ===============================
+   ExamArchive – Paper Card
+   =============================== */
+
+.paper-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.04);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+
+  cursor: pointer;
+}
+
+/* Hover (desktop) */
+.paper-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.06);
+}
+
+/* Tap (mobile) */
+.paper-card:active {
+  transform: scale(0.98);
+}
+
+/* -------------------------------
+   Text styling
+   ------------------------------- */
+
+.paper-code {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin: 0;
+}
+
+.paper-title {
+  font-size: 0.95rem;
+  color: #444;
+  margin: 6px 0 8px;
+}
+
+.paper-meta {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* -------------------------------
+   Action (red accent)
+   ------------------------------- */
+
+.paper-action {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e11d48; /* ExamArchive red */
+}
+
+/* -------------------------------
+   Optional subtle tap overlay
+   ------------------------------- */
+
+.paper-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.paper-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.03);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.paper-card:active::after {
+  opacity: 1;
 }
