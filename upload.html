@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Upload Paper | ExamArchive</title>
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+  <!-- HEADER (same as index, no changes) -->
+  <header class="site-header">
+    <div class="logo">ExamArchive</div>
+
+    <nav class="nav">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="browse.html">Browse</a>
+      <a class="nav-link" href="upload.html">Upload</a>
+      <a class="nav-link" href="about.html">About</a>
+    </nav>
+
+    <button class="menu-btn" aria-label="Toggle menu">☰</button>
+  </header>
+
+  <!-- MAIN -->
+  <main class="upload-page">
+    <h1>Upload Question Paper</h1>
+    <p class="page-desc">
+      Help others by uploading missing question papers.
+      Please make sure the file is clear and readable.
+    </p>
+
+    <form class="upload-form">
+      <label>
+        Subject / Paper Name
+        <input type="text" placeholder="e.g. PHSHCC-201T" required>
+      </label>
+
+      <label>
+        Year
+        <input type="number" placeholder="e.g. 2023" required>
+      </label>
+
+      <label>
+        Select PDF File
+        <input type="file" accept="application/pdf" required>
+      </label>
+
+      <button type="submit" class="primary-btn">
+        Upload Paper
+      </button>
+    </form>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p>© <span id="year"></span> ExamArchive</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/common.js"></script>
+</body>
+</html>
