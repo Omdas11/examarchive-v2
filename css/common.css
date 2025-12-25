@@ -1,0 +1,71 @@
+/* =========================
+   RESET & BASE
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #f7f7f8;
+  color: #222;
+  line-height: 1.6;
+}
+
+/* =========================
+   LINKS & BUTTONS
+========================= */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  border: none;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* reusable buttons */
+.primary-btn,
+.secondary-btn {
+  display: inline-block;
+  padding: 0.65rem 1.1rem;
+  border-radius: 0.6rem;
+  font-weight: 600;
+}
+
+.primary-btn {
+  background: #e11d48; /* red (your preference 👀) */
+  color: #fff;
+}
+
+.secondary-btn {
+  background: #e5e7eb;
+  color: #111;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+main {
+  padding: 1.2rem;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.site-footer {
+  margin-top: 3rem;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #555;
+}
