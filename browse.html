@@ -12,18 +12,34 @@
 </head>
 <body>
 
-  <!-- Header include -->
+  <!-- Header -->
   <div id="header"></div>
 
-  <!-- MAIN -->
   <main class="browse-page">
 
-    <!-- Page title -->
+    <!-- Title -->
     <section class="browse-header">
       <h1>Browse Question Papers</h1>
-      <p>
-        Find previous year question papers by paper code or subject.
-      </p>
+      <p>Search and filter previous year question papers.</p>
+    </section>
+
+    <!-- Programme Toggle -->
+    <section class="filter-group">
+      <div class="toggle-row" id="programmeToggle">
+        <button class="toggle-btn active" data-programme="ALL">ALL</button>
+        <button class="toggle-btn" data-programme="CBCS">CBCS</button>
+        <button class="toggle-btn" data-programme="FYUG">FYUG</button>
+      </div>
+    </section>
+
+    <!-- Stream Toggle -->
+    <section class="filter-group">
+      <div class="toggle-row" id="streamToggle">
+        <button class="toggle-btn active" data-stream="ALL">ALL</button>
+        <button class="toggle-btn" data-stream="Science">SCIENCE</button>
+        <button class="toggle-btn" data-stream="Arts">ARTS</button>
+        <button class="toggle-btn" data-stream="Commerce">COMMERCE</button>
+      </div>
     </section>
 
     <!-- Search -->
@@ -31,25 +47,21 @@
       <input
         type="text"
         id="searchInput"
-        placeholder="Search by paper code (e.g. PHSHCC-201T)"
+        placeholder="Search by paper code, subject, or year"
         aria-label="Search papers"
       >
     </section>
 
-    <!-- Papers list -->
+    <!-- Papers -->
     <section class="papers-list" id="papersList">
-      <!-- JS will inject paper cards here -->
-
-      <!-- Fallback (shown before JS loads) -->
       <p class="loading-text">Loading papers…</p>
     </section>
 
   </main>
 
-  <!-- Footer include -->
+  <!-- Footer -->
   <div id="footer"></div>
 
-  <!-- Scripts -->
   <script src="js/common.js"></script>
   <script src="js/browse.js"></script>
 </body>
