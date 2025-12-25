@@ -53,14 +53,16 @@ function renderPapers() {
     card.className = "paper-card";
 
     card.innerHTML = `
-      <h3>${paper.paper_code}</h3>
-      <p>${paper.paper_name}</p>
-      <small>
-        ${paper.programme} • Semester ${paper.semester} • ${paper.year}
-      </small>
-      <br>
-      <a href="papers/${paper.pdf}" target="_blank">Open PDF</a>
-    `;
+  <div class="paper-main">
+    <h3 class="paper-code">${paper.paper_code}</h3>
+    <p class="paper-title">${paper.paper_name}</p>
+    <div class="paper-meta">
+      ${paper.programme} · Semester ${paper.semester} · ${paper.year}
+    </div>
+  </div>
+
+  <div class="paper-action">Open PDF →</div>
+`;
 
     papersList.appendChild(card);
   });
