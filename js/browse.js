@@ -64,6 +64,10 @@ function renderPapers() {
   <div class="paper-action">Open PDF →</div>
 `;
 
+card.addEventListener("click", () => {
+  window.open(paper.pdf, "_blank");
+});
+
     papersList.appendChild(card);
   });
 }
