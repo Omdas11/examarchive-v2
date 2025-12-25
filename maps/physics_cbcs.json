@@ -1,0 +1,18 @@
+{
+  "PHSHCC201T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "CBCS",
+    "course_type": "HCC",
+    "semester": 2,
+    "paper_name": "Electricity and Magnetism"
+  },
+  "PHSHCC202T": {
+    "subject": "Physics",
+    "stream": "Science",
+    "programme": "CBCS",
+    "course_type": "HCC",
+    "semester": 2,
+    "paper_name": "Waves and Optics"
+  }
+}
