@@ -1,10 +1,7 @@
-// paper.js — ExamArchive v2
+// paper.js — ExamArchive v2 (FIXED & CLEAN)
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
-  if (paperCode) {
-  loadSyllabus(paperCode);
-  }
   const paperCode = params.get("code");
 
   // Safety check
@@ -14,7 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
-    // Load papers.json
+    /* =========================
+       LOAD PAPERS.JSON
+    ========================== */
     const res = await fetch("data/papers.json");
     const papers = await res.json();
 
@@ -30,7 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Sort by year (latest first)
     matches.sort((a, b) => b.year - a.year);
-
     const latest = matches[0];
 
     /* =========================
@@ -58,24 +56,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     matches.forEach(paper => {
       const li = document.createElement("li");
-
       li.innerHTML = `
         <span>${paper.year}</span>
         <a href="${paper.pdf}" class="link-red" target="_blank">
           Open PDF →
         </a>
       `;
-
       list.appendChild(li);
     });
+
+    /* =========================
+       LOAD SYLLABUS (FYUG ONLY)
+    ========================== */
+    if (paperCode.startsWith("PHYDSC")) {
+      loadSyllabus(paperCode);
+    } else {
+      const el = document.getElementById("syllabus-content");
+      if (el) {
+        el.innerHTML =
+          "<p class='coming-soon'>Syllabus not available for this paper yet.</p>";
+      }
+    }
 
   } catch (err) {
     console.error("Failed to load paper data:", err);
   }
 });
 
+/* =========================
+   SYLLABUS LOADER
+========================== */
 async function loadSyllabus(paperCode) {
-  const syllabusPath = `/data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
+  const syllabusPath =
+    `/data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
 
   try {
     const res = await fetch(syllabusPath);
