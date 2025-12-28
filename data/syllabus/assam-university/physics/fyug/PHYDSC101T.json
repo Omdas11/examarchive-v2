@@ -1,0 +1,107 @@
+{
+  "paper_code": "PHYDSC101T",
+  "paper_name": "Mathematical Physics - I",
+  "programme": "FYUG",
+  "semester": 1,
+  "subject": "Physics",
+
+  "syllabus_version": "NEP 2020",
+  "last_updated": "2025-12-28",
+  "credits": 3,
+
+  "units": [
+    {
+      "unit": "Unit I",
+      "title": "Vector Algebra and Matrices",
+      "lectures": 9,
+      "topics": [
+        "Scalar and vector products",
+        "Physical interpretation of vector product",
+        "Scalar and vector triple products and their properties",
+        "Derivation of important vector identities",
+        "Preliminary ideas of scalar and vector fields",
+        "Different types of matrices",
+        "Symmetric and antisymmetric matrices",
+        "Hermitian matrix and its properties",
+        "Inverse and transpose of matrices",
+        "Solution of simultaneous linear equations",
+        "Eigenvalues and eigenvectors",
+        "Diagonalization of a matrix"
+      ]
+    },
+    {
+      "unit": "Unit II",
+      "title": "Ordinary Differential Equations",
+      "lectures": 9,
+      "topics": [
+        "Order and degree of a differential equation",
+        "General form of first order differential equations",
+        "Separation of variables",
+        "Exact differential equations",
+        "Inexact differential equations and integrating factors",
+        "Linear differential equations",
+        "Second order differential equations",
+        "Homogeneous differential equations with constant coefficients",
+        "Wronskian and general solution",
+        "Complementary function",
+        "Methods for finding particular integrals"
+      ]
+    },
+    {
+      "unit": "Unit III",
+      "title": "Vector Calculus",
+      "lectures": 10,
+      "topics": [
+        "Directional derivative",
+        "Normal derivative",
+        "Gradient of a scalar field and its geometrical interpretation",
+        "Divergence of a vector field",
+        "Curl of a vector field",
+        "Laplacian operator",
+        "Vector identities",
+        "Ordinary integrals of vectors",
+        "Line integrals of vector fields",
+        "Surface integrals of vector fields",
+        "Volume integrals of vector fields",
+        "Gauss’s divergence theorem",
+        "Stokes’ theorem"
+      ]
+    },
+    {
+      "unit": "Unit IV",
+      "title": "Orthogonal Curvilinear Coordinates",
+      "lectures": 8,
+      "topics": [
+        "Definition of orthogonal curvilinear coordinates",
+        "Examples of orthogonal curvilinear coordinate systems",
+        "Transformation between curvilinear and Cartesian coordinate systems",
+        "Infinitesimal line element",
+        "Infinitesimal surface element",
+        "Infinitesimal volume element",
+        "Gradient in curvilinear coordinate systems",
+        "Divergence in curvilinear coordinate systems",
+        "Curl in curvilinear coordinate systems",
+        "Laplacian in curvilinear coordinate systems",
+        "Spherical coordinate system",
+        "Cylindrical coordinate system"
+      ]
+    },
+    {
+      "unit": "Unit V",
+      "title": "Beta and Gamma Functions and Numerical Techniques",
+      "lectures": 9,
+      "topics": [
+        "Beta function",
+        "Gamma function",
+        "Relation between Beta and Gamma functions",
+        "Expression of integrals in terms of Gamma functions",
+        "Solution of algebraic equations by bisection method",
+        "Solution of algebraic equations by Newton-Raphson method",
+        "Solution of transcendental equations",
+        "Numerical integration using Simpson’s rule",
+        "Interpolation using Newton-Gregory forward difference formula",
+        "Interpolation using Newton-Gregory backward difference formula"
+      ]
+    }
+  ]
+}
