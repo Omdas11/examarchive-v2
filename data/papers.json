@@ -51,5 +51,488 @@
     ],
     "search_text": "PHSDSE501T Classical Dynamics / Biological Physics 2022",
     "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE501T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "DSE",
+    "semester": 5,
+    "paper_code": "PHSDSE502T",
+    "paper_name": "Nuclear and Particle Physics / Advanced Mathematical Physics",
+    "year": 2021,
+    "exam_type": "End Semester",
+    "tags": [
+      "nuclear physics",
+      "particle physics"
+    ],
+    "search_text": "PHSDSE502T Nuclear and Particle Physics / Advanced Mathematical Physics 2021",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE502T-2021.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "DSE",
+    "semester": 5,
+    "paper_code": "PHSDSE502T",
+    "paper_name": "Nuclear and Particle Physics / Advanced Mathematical Physics",
+    "year": 2022,
+    "exam_type": "End Semester",
+    "tags": [
+      "nuclear physics",
+      "particle physics"
+    ],
+    "search_text": "PHSDSE502T Nuclear and Particle Physics / Advanced Mathematical Physics 2022",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE502T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "DSE",
+    "semester": 6,
+    "paper_code": "PHSDSE601T",
+    "paper_name": "Astronomy and Astrophysics / Nano-materials and Applications",
+    "year": 2024,
+    "exam_type": "End Semester",
+    "tags": [
+      "astronomy",
+      "nanoscience"
+    ],
+    "search_text": "PHSDSE601T Astronomy and Astrophysics / Nano-materials and Applications 2024",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE601T-2024.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "DSE",
+    "semester": 6,
+    "paper_code": "PHSDSE601T",
+    "paper_name": "Astronomy and Astrophysics / Nano-materials and Applications",
+    "year": 2025,
+    "exam_type": "End Semester",
+    "tags": [
+      "astronomy",
+      "nanoscience"
+    ],
+    "search_text": "PHSDSE601T Astronomy and Astrophysics / Nano-materials and Applications 2025",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE601T-2025.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 1,
+    "paper_code": "PHSHCC101T",
+    "paper_name": "Mathematical Physics-I",
+    "year": 2024,
+    "exam_type": "End Semester",
+    "tags": [
+      "mathematical physics"
+    ],
+    "search_text": "PHSHCC101T Mathematical Physics-I 2024",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC101T-2024.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 1,
+    "paper_code": "PHSHCC102T",
+    "paper_name": "Mechanics",
+    "year": 2024,
+    "exam_type": "End Semester",
+    "tags": [
+      "mechanics"
+    ],
+    "search_text": "PHSHCC102T Mechanics 2024",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC102T-2024.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 2,
+    "paper_code": "PHSHCC201T",
+    "paper_name": "Electricity and Magnetism",
+    "year": 2022,
+    "exam_type": "End Semester",
+    "tags": [
+      "electricity",
+      "magnetism"
+    ],
+    "search_text": "PHSHCC201T Electricity and Magnetism 2022",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC201T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 2,
+    "paper_code": "PHSHCC201T",
+    "paper_name": "Electricity and Magnetism",
+    "year": 2023,
+    "exam_type": "End Semester",
+    "tags": [
+      "electricity",
+      "magnetism"
+    ],
+    "search_text": "PHSHCC201T Electricity and Magnetism 2023",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC201T-2023.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 2,
+    "paper_code": "PHSHCC202T",
+    "paper_name": "Waves and Optics",
+    "year": 2022,
+    "exam_type": "End Semester",
+    "tags": [
+      "waves",
+      "optics"
+    ],
+    "search_text": "PHSHCC202T Waves and Optics 2022",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC202T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 3,
+    "paper_code": "PHSHCC301T",
+    "paper_name": "Mathematical Physics-II",
+    "year": 2020,
+    "exam_type": "End Semester",
+    "tags": [
+      "mathematical physics"
+    ],
+    "search_text": "PHSHCC301T Mathematical Physics-II 2020",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC301T-2020.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 3,
+    "paper_code": "PHSHCC301T",
+    "paper_name": "Mathematical Physics-II",
+    "year": 2021,
+    "exam_type": "End Semester",
+    "tags": [
+      "mathematical physics"
+    ],
+    "search_text": "PHSHCC301T Mathematical Physics-II 2021",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC301T-2021.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 3,
+    "paper_code": "PHSHCC303T",
+    "paper_name": "Digital Systems and Applications",
+    "year": 2021,
+    "exam_type": "End Semester",
+    "tags": [
+      "digital electronics"
+    ],
+    "search_text": "PHSHCC303T Digital Systems and Applications 2021",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC303T-2021.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 4,
+    "paper_code": "PHSHCC401T",
+    "paper_name": "Mathematical Physics-III",
+    "year": 2022,
+    "exam_type": "End Semester",
+    "tags": [
+      "mathematical physics"
+    ],
+    "search_text": "PHSHCC401T Mathematical Physics-III 2022",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC401T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 4,
+    "paper_code": "PHSHCC401T",
+    "paper_name": "Mathematical Physics-III",
+    "year": 2023,
+    "exam_type": "End Semester",
+    "tags": [
+      "mathematical physics"
+    ],
+    "search_text": "PHSHCC401T Mathematical Physics-III 2023",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC401T-2023.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 4,
+    "paper_code": "PHSHCC402T",
+    "paper_name": "Elements of Modern Physics",
+    "year": 2022,
+    "exam_type": "End Semester",
+    "tags": [
+      "modern physics"
+    ],
+    "search_text": "PHSHCC402T Elements of Modern Physics 2022",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC402T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 4,
+    "paper_code": "PHSHCC402T",
+    "paper_name": "Elements of Modern Physics",
+    "year": 2023,
+    "exam_type": "End Semester",
+    "tags": [
+      "modern physics"
+    ],
+    "search_text": "PHSHCC402T Elements of Modern Physics 2023",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC402T-2023.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 4,
+    "paper_code": "PHSHCC403T",
+    "paper_name": "Analog Systems and Applications",
+    "year": 2022,
+    "exam_type": "End Semester",
+    "tags": [
+      "analog electronics"
+    ],
+    "search_text": "PHSHCC403T Analog Systems and Applications 2022",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC403T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 5,
+    "paper_code": "PHSHCC501T",
+    "paper_name": "Quantum Mechanics and Applications",
+    "year": 2020,
+    "exam_type": "End Semester",
+    "tags": [
+      "quantum mechanics"
+    ],
+    "search_text": "PHSHCC501T Quantum Mechanics and Applications 2020",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC501T-2020.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 5,
+    "paper_code": "PHSHCC501T",
+    "paper_name": "Quantum Mechanics and Applications",
+    "year": 2021,
+    "exam_type": "End Semester",
+    "tags": [
+      "quantum mechanics"
+    ],
+    "search_text": "PHSHCC501T Quantum Mechanics and Applications 2021",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC501T-2021.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 5,
+    "paper_code": "PHSHCC502T",
+    "paper_name": "Solid State Physics",
+    "year": 2020,
+    "exam_type": "End Semester",
+    "tags": [
+      "solid state physics"
+    ],
+    "search_text": "PHSHCC502T Solid State Physics 2020",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2020.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 5,
+    "paper_code": "PHSHCC502T",
+    "paper_name": "Solid State Physics",
+    "year": 2021,
+    "exam_type": "End Semester",
+    "tags": [
+      "solid state physics"
+    ],
+    "search_text": "PHSHCC502T Solid State Physics 2021",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2021.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 5,
+    "paper_code": "PHSHCC502T",
+    "paper_name": "Solid State Physics",
+    "year": 2022,
+    "exam_type": "End Semester",
+    "tags": [
+      "solid state physics"
+    ],
+    "search_text": "PHSHCC502T Solid State Physics 2022",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 6,
+    "paper_code": "PHSHCC601T",
+    "paper_name": "Electromagnetic Theory",
+    "year": 2021,
+    "exam_type": "End Semester",
+    "tags": [
+      "electromagnetic theory"
+    ],
+    "search_text": "PHSHCC601T Electromagnetic Theory 2021",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2021.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 6,
+    "paper_code": "PHSHCC601T",
+    "paper_name": "Electromagnetic Theory",
+    "year": 2023,
+    "exam_type": "End Semester",
+    "tags": [
+      "electromagnetic theory"
+    ],
+    "search_text": "PHSHCC601T Electromagnetic Theory 2023",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2023.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 6,
+    "paper_code": "PHSHCC601T",
+    "paper_name": "Electromagnetic Theory",
+    "year": 2024,
+    "exam_type": "End Semester",
+    "tags": [
+      "electromagnetic theory"
+    ],
+    "search_text": "PHSHCC601T Electromagnetic Theory 2024",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2024.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 6,
+    "paper_code": "PHSHCC602T",
+    "paper_name": "Statistical Mechanics",
+    "year": 2021,
+    "exam_type": "End Semester",
+    "tags": [
+      "statistical mechanics"
+    ],
+    "search_text": "PHSHCC602T Statistical Mechanics 2021",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2021.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 6,
+    "paper_code": "PHSHCC602T",
+    "paper_name": "Statistical Mechanics",
+    "year": 2023,
+    "exam_type": "End Semester",
+    "tags": [
+      "statistical mechanics"
+    ],
+    "search_text": "PHSHCC602T Statistical Mechanics 2023",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2023.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Science",
+    "subject": "Physics",
+    "course_type": "HCC",
+    "semester": 6,
+    "paper_code": "PHSHCC602T",
+    "paper_name": "Statistical Mechanics",
+    "year": 2024,
+    "exam_type": "End Semester",
+    "tags": [
+      "statistical mechanics"
+    ],
+    "search_text": "PHSHCC602T Statistical Mechanics 2024",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2024.pdf"
   }
 ]
