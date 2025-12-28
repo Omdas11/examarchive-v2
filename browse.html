@@ -41,21 +41,32 @@
       </div>
     </section>
 
-    <!-- Search -->
-    <section class="browse-search">
+    <!-- Year Filter -->
+    <section class="filter-group">
+      <div class="toggle-row" id="yearToggle">
+        <!-- Year buttons injected by JS -->
+      </div>
+    </section>
+
+    <!-- Search + Sort -->
+    <section class="browse-search sort-search-row">
       <input
         type="text"
         id="searchInput"
         placeholder="Search by paper code, subject, or year"
         aria-label="Search papers"
       >
+
+      <select id="sortSelect" aria-label="Sort papers">
+        <!-- Options injected by JS -->
+      </select>
     </section>
 
     <!-- Papers -->
     <section class="papers-list" id="papersList">
       <div class="skeleton skeleton-card"></div>
-<div class="skeleton skeleton-card"></div>
-<div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
     </section>
 
   </main>
