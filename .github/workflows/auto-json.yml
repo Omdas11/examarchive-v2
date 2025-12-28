@@ -6,15 +6,19 @@ on:
       - "papers/**"
       - "scripts/**"
       - "maps/**"
+      - "data/**"
 
 jobs:
   generate:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
+      # 1️⃣ Checkout repository (FULL history + push access)
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       # 2️⃣ Setup Node.js
       - name: Setup Node
@@ -26,15 +30,14 @@ jobs:
       - name: Run generator script
         run: node scripts/generate-papers.js
 
-      # 4️⃣ Commit updated papers.json (ONLY if changed)
+      # 4️⃣ Commit updated papers.json safely
       - name: Commit updated papers.json
         run: |
-         git config user.name "github-actions[bot]"
-         git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-         git fetch origin main
-         git pull --rebase origin main
+          git pull origin main --rebase
 
-         git add data/papers.json
-         git commit -m "Auto-update papers.json" || echo "No changes"
-         git push origin main
+          git add data/papers.json
+          git commit -m "Auto-update papers.json" || echo "No changes to commit"
+          git push origin main
