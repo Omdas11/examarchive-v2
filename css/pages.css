@@ -341,3 +341,18 @@
     align-items: center;
   }
 }
+
+/* ===============================
+   Open PDF link styling
+================================ */
+
+.open-pdf {
+  margin-top: 0.6rem;
+  font-weight: 600;
+  color: #e11d48; /* ExamArchive red */
+  cursor: pointer;
+}
+
+.open-pdf:hover {
+  text-decoration: underline;
+   }
