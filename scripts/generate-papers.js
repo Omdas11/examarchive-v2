@@ -86,6 +86,20 @@ for (const file of pdfFiles) {
 
   const meta = paperMap[paperCode];
 
+  /* 🔍 IMPROVED SEARCH TEXT (FIXED) */
+  const searchText = [
+    paperCode,
+    meta.paper_name,
+    SUBJECT,
+    meta.course_type,
+    programme,
+    `semester ${meta.semester}`,
+    meta.semester,
+    year
+  ]
+    .join(" ")
+    .toLowerCase();
+
   existingPapers.push({
     university: UNIVERSITY,
     programme: programme,
@@ -98,7 +112,7 @@ for (const file of pdfFiles) {
     year: year,
     exam_type: "End Semester",
     tags: meta.tags || [],
-    search_text: `${paperCode} ${meta.paper_name} ${year}`,
+    search_text: searchText,
     pdf: `${BASE_DIR}/${file}`
   });
 
