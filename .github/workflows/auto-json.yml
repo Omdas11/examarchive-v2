@@ -1,0 +1,23 @@
+name: Generate Papers JSON (Safe)
+
+on:
+  push:
+    paths:
+      - "papers/**"
+      - "scripts/**"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Run generator script
+        run: node scripts/generate-papers.js
