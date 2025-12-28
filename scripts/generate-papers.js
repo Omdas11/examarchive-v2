@@ -1,63 +1,92 @@
 const fs = require("fs");
 const path = require("path");
 
-/* ===== CONFIG ===== */
+/* ================= CONFIG ================= */
+
 const BASE_DIR = "papers/assam-university/physics";
-const MAP_FILE = "maps/physics-paper-map.json";
 const OUTPUT_FILE = "data/papers.json";
+
+const MAP_FILES = {
+  CBCS: "maps/physics_cbcs.json",
+  FYUG: "maps/physics_fyug.json"
+};
 
 const UNIVERSITY = "Assam University";
 const STREAM = "Science";
 const SUBJECT = "Physics";
 
-/* ===== LOAD MAP ===== */
-const paperMap = JSON.parse(fs.readFileSync(MAP_FILE, "utf-8"));
+/* ================= LOAD EXISTING PAPERS ================= */
 
-/* ===== LOAD EXISTING PAPERS ===== */
 let existingPapers = [];
 if (fs.existsSync(OUTPUT_FILE)) {
   existingPapers = JSON.parse(fs.readFileSync(OUTPUT_FILE, "utf-8"));
 }
 
-/* ===== HELPERS ===== */
+/* ================= HELPERS ================= */
+
 function parseFilename(filename) {
-  // AU-CBCS-PHSHCC201T-2021.pdf
+  // Example: AU-CBCS-PHSHCC201T-2021.pdf
   const clean = filename.replace(".pdf", "");
   const parts = clean.split("-");
 
   if (parts.length !== 4) return null;
 
   const [, programme, paperCode, year] = parts;
-  return { programme, paperCode, year: parseInt(year) };
+
+  return {
+    programme,
+    paperCode,
+    year: parseInt(year, 10)
+  };
 }
 
-function alreadyExists(papers, paperCode, year) {
+function loadPaperMap(programme) {
+  const mapPath = MAP_FILES[programme];
+  if (!mapPath || !fs.existsSync(mapPath)) {
+    console.warn(`⚠️ Map file missing for programme: ${programme}`);
+    return null;
+  }
+  return JSON.parse(fs.readFileSync(mapPath, "utf-8"));
+}
+
+function alreadyExists(papers, programme, paperCode, year) {
   return papers.some(
-    p => p.paper_code === paperCode && p.year === year
+    p =>
+      p.programme === programme &&
+      p.paper_code === paperCode &&
+      p.year === year
   );
 }
 
-/* ===== MAIN LOGIC ===== */
-const files = fs.readdirSync(BASE_DIR).filter(f => f.endsWith(".pdf"));
-const newEntries = [];
+/* ================= MAIN ================= */
 
-for (const file of files) {
+if (!fs.existsSync(BASE_DIR)) {
+  console.error("❌ Physics papers directory not found:", BASE_DIR);
+  process.exit(1);
+}
+
+const pdfFiles = fs.readdirSync(BASE_DIR).filter(f => f.endsWith(".pdf"));
+let addedCount = 0;
+
+for (const file of pdfFiles) {
   const parsed = parseFilename(file);
   if (!parsed) continue;
 
   const { programme, paperCode, year } = parsed;
+  const paperMap = loadPaperMap(programme);
+
+  if (!paperMap || !paperMap[paperCode]) {
+    console.warn(`⚠️ Missing map entry for ${paperCode} (${programme})`);
+    continue;
+  }
+
+  if (alreadyExists(existingPapers, programme, paperCode, year)) {
+    continue;
+  }
+
   const meta = paperMap[paperCode];
 
-  if (!meta) {
-    console.warn(`⚠️ No map entry for ${paperCode}, skipping`);
-    continue;
-  }
-
-  if (alreadyExists(existingPapers, paperCode, year)) {
-    continue;
-  }
-
-  newEntries.push({
+  existingPapers.push({
     university: UNIVERSITY,
     programme: programme,
     stream: STREAM,
@@ -68,14 +97,16 @@ for (const file of files) {
     paper_name: meta.paper_name,
     year: year,
     exam_type: "End Semester",
-    tags: meta.tags,
+    tags: meta.tags || [],
     search_text: `${paperCode} ${meta.paper_name} ${year}`,
     pdf: `${BASE_DIR}/${file}`
   });
+
+  addedCount++;
 }
 
-/* ===== WRITE OUTPUT ===== */
-const finalData = [...existingPapers, ...newEntries];
-fs.writeFileSync(OUTPUT_FILE, JSON.stringify(finalData, null, 2));
+/* ================= WRITE OUTPUT ================= */
 
-console.log(`✅ Added ${newEntries.length} new paper(s)`);
+fs.writeFileSync(OUTPUT_FILE, JSON.stringify(existingPapers, null, 2));
+
+console.log(`✅ Papers added: ${addedCount}`);
