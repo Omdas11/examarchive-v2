@@ -141,6 +141,12 @@ function sortHandler(a, b) {
 function renderPapers(papers) {
   papersList.innerHTML = '';
 
+  // ✅ Paper count update
+  const paperCount = document.getElementById('paperCount');
+  if (paperCount) {
+    paperCount.textContent = `Showing ${papers.length} papers`;
+  }
+
   if (papers.length === 0) {
     papersList.innerHTML = '<p class="no-results">No papers found.</p>';
     return;
