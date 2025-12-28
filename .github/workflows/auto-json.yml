@@ -8,36 +8,38 @@ on:
       - "maps/**"
       - "data/**"
 
+permissions:
+  contents: write
+
 jobs:
   generate:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository (FULL history + push access)
+      # 1️⃣ Checkout FULL repo with write access
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: true
 
-      # 2️⃣ Setup Node.js
+      # 2️⃣ Setup Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 3️⃣ Run generator script
+      # 3️⃣ Run generator
       - name: Run generator script
         run: node scripts/generate-papers.js
 
-      # 4️⃣ Commit updated papers.json safely
+      # 4️⃣ FORCE update generated JSON (SAFE)
       - name: Commit updated papers.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull origin main --rebase
-
           git add data/papers.json
-          git commit -m "Auto-update papers.json" || echo "No changes to commit"
-          git push origin main
+          git commit -m "Auto-update papers.json" || echo "No changes"
+
+          git push --force-with-lease origin main
