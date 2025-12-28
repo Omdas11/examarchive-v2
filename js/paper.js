@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 ========================== */
 async function loadSyllabus(paperCode) {
   const syllabusPath =
-    `/data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
+    `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
 
   try {
     const res = await fetch(syllabusPath);
