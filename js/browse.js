@@ -158,11 +158,11 @@ function renderPapers(papers) {
     card.onclick = () => window.open(paper.pdf, '_blank');
 
     card.innerHTML = `
-      <h3>${paper.paper_code}</h3>
-      <p>${paper.paper_name}</p>
-      <small>${paper.programme} · Semester ${paper.semester} · ${paper.year}</small>
-      <span class="open-link">Open PDF →</span>
-    `;
+     <h3>${paper.paper_code}</h3>
+     <p>${paper.paper_name}</p>
+     <small>${paper.programme} · Semester ${paper.semester} · ${paper.year}</small>
+     <div class="open-pdf">Open PDF →</div>
+`;
 
     papersList.appendChild(card);
   });
