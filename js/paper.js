@@ -2,6 +2,9 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
+  if (paperCode) {
+  loadSyllabus(paperCode);
+  }
   const paperCode = params.get("code");
 
   // Safety check
@@ -70,3 +73,45 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Failed to load paper data:", err);
   }
 });
+
+async function loadSyllabus(paperCode) {
+  const syllabusPath = `/data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
+
+  try {
+    const res = await fetch(syllabusPath);
+    if (!res.ok) throw new Error("Syllabus not found");
+
+    const syllabus = await res.json();
+
+    const metaEl = document.getElementById("syllabus-meta");
+    const contentEl = document.getElementById("syllabus-content");
+
+    if (!metaEl || !contentEl) return;
+
+    metaEl.innerHTML = `
+      <p class="syllabus-meta">
+        ${syllabus.syllabus_version} · Last updated: ${syllabus.last_updated}
+      </p>
+    `;
+
+    let html = "";
+
+    syllabus.units.forEach(unit => {
+      html += `
+        <div class="syllabus-unit">
+          <h3>${unit.unit}: ${unit.title}</h3>
+          <ul>
+            ${unit.topics.map(topic => `<li>${topic}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+    });
+
+    contentEl.classList.remove("syllabus-loading");
+    contentEl.innerHTML = html;
+
+  } catch (err) {
+    const el = document.getElementById("syllabus-content");
+    if (el) el.innerHTML = "<p>Syllabus not available.</p>";
+  }
+}
