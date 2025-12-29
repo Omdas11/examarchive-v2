@@ -238,3 +238,42 @@
 .syllabus-unit.active .unit-arrow {
   transform: rotate(90deg);
 }
+
+.unit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Download icon */
+.unit-download {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.unit-download img {
+  width: 18px;
+  height: 18px;
+  opacity: 0.75;
+}
+
+.unit-download:hover img {
+  opacity: 1;
+}
+
+/* Expand / collapse arrow */
+.unit-arrow {
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 8px solid #555; /* ▶ */
+  transition: transform 0.2s ease;
+}
+
+/* When expanded → arrow points DOWN */
+.syllabus-unit.active .unit-arrow {
+  transform: rotate(90deg);
+     }
