@@ -155,3 +155,86 @@
     font-size: 1.6rem;
   }
 }
+
+/* ===== Syllabus Accordion UI ===== */
+
+.syllabus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.syllabus-section h2 {
+  font-size: 1.15rem;
+}
+
+#download-full {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.syllabus-unit {
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+}
+
+.unit-header {
+  width: 100%;
+  background: #fafafa;
+  border: none;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.unit-header:hover {
+  background: #f2f2f2;
+}
+
+.unit-title {
+  text-align: left;
+}
+
+.unit-arrow {
+  font-size: 1rem;
+  margin-left: 0.4rem;
+  transition: transform 0.2s ease;
+}
+
+.unit-download {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.unit-content {
+  display: none;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.unit-content ul {
+  padding-left: 1rem;
+}
+
+.unit-content li {
+  margin-bottom: 0.35rem;
+}
+
+.syllabus-unit.active .unit-content {
+  display: block;
+}
+
+.syllabus-unit.active .unit-arrow {
+  transform: rotate(90deg);
+}
