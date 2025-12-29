@@ -119,9 +119,11 @@ function renderSyllabus(units, syllabus, paperCode) {
         <span class="unit-title">
           Unit ${index + 1}: ${unit.title}
         </span>
-        <span>
-          <button class="unit-download" title="Download unit">⬇️</button>
-          <span class="unit-arrow">▸</span>
+        <span class="unit-actions">
+         <button class="unit-download" title="Download unit">
+           <img src="assets/icons/download.png" alt="Download">
+         </button>
+         <span class="unit-arrow"></span>
         </span>
       </button>
 
