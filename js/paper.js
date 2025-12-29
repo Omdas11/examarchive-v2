@@ -150,9 +150,8 @@ function renderSyllabus(units, syllabus, paperCode) {
 `;
 
     // Toggle expand / collapse
-    div.querySelector(".unit-header").addEventListener("click", e => {
-      if (e.target.classList.contains("unit-download")) return;
-      div.classList.toggle("active");
+    div.querySelector(".unit-toggle").addEventListener("click", () => {
+     div.classList.toggle("active");
     });
 
     // Download single unit
