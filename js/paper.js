@@ -90,7 +90,19 @@ async function loadSyllabus(paperCode) {
     if (!res.ok) throw new Error("Syllabus not found");
 
     const syllabus = await res.json();
-    renderSyllabus(syllabus.units, syllabus, paperCode);
+
+/* ===== ADD THIS BLOCK ===== */
+const info = document.getElementById("syllabus-info");
+if (info) {
+  info.innerHTML = `
+    <span>${syllabus.credits} Credits</span>
+    &nbsp;•&nbsp;
+    <span>Last updated: ${syllabus.last_updated}</span>
+  `;
+}
+/* ===== END ===== */
+
+renderSyllabus(syllabus.units, syllabus, paperCode);
 
   } catch (err) {
     const container = document.getElementById("syllabus-container");
