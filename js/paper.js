@@ -127,24 +127,27 @@ function renderSyllabus(units, syllabus, paperCode) {
     div.className = "syllabus-unit";
 
     div.innerHTML = `
-      <button class="unit-header">
-        <span class="unit-title">
-          Unit ${index + 1}: ${unit.title}
-        </span>
-        <span class="unit-actions">
-         <button class="unit-download" title="Download unit">
-           <img src="assets/icons/download.png" alt="Download">
-         </button>
-         <span class="unit-arrow"></span>
-        </span>
-      </button>
+  <div class="unit-header">
+    <button class="unit-toggle">
+      <span class="unit-title">
+        Unit ${index + 1}: ${unit.title}
+      </span>
+    </button>
 
-      <div class="unit-content">
-        <ul>
-          ${unit.topics.map(t => `<li>${t}</li>`).join("")}
-        </ul>
-      </div>
-    `;
+    <div class="unit-actions">
+      <button class="unit-download" title="Download unit">
+        <img src="assets/icons/download.png" alt="Download">
+      </button>
+      <span class="unit-arrow"></span>
+    </div>
+  </div>
+
+  <div class="unit-content">
+    <ul>
+      ${unit.topics.map(t => `<li>${t}</li>`).join("")}
+    </ul>
+  </div>
+`;
 
     // Toggle expand / collapse
     div.querySelector(".unit-header").addEventListener("click", e => {
