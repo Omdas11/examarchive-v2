@@ -262,6 +262,26 @@
   {
     "university": "Assam University",
     "level": "UG",
+    "programme": "FYUG",
+    "stream": "Science",
+    "subject": "Physics",
+    "semester": 1,
+    "paper_code": "PHYDSC102T",
+    "paper_name": "Mechanics and Relativity",
+    "year": 2023,
+    "exam_type": "End Semester",
+    "tags": [
+      "FYUG",
+      "Physics",
+      "Semester 1",
+      "PHYDSC102T"
+    ],
+    "search_text": "phydsc102t mechanics and relativity fyug physics 2023 1",
+    "pdf": "papers/assam-university/physics/AU-FYUG-PHYDSC102T-2023.pdf"
+  },
+  {
+    "university": "Assam University",
+    "level": "UG",
     "programme": "CBCS",
     "stream": "Science",
     "subject": "Physics",
