@@ -321,3 +321,35 @@
 .syllabus-unit.active .unit-arrow {
   transform: rotate(90deg);
 }
+
+/* ===== Syllabus header fix ===== */
+
+.syllabus-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.syllabus-header h2 {
+  margin: 0;
+}
+
+/* Header download button */
+#download-full {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+}
+
+#download-full img {
+  width: 20px;      /* 👈 THIS is the key */
+  height: 20px;
+  display: block;
+  opacity: 0.75;
+}
+
+#download-full:hover img {
+  opacity: 1;
+}
