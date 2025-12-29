@@ -1,0 +1,116 @@
+{
+  "university": "Assam University",
+  "level": "UG",
+  "programme": "FYUG",
+  "subject": "Physics",
+  "paper_code": "PHYDSC102T",
+  "paper_name": "Mechanics and Relativity",
+  "semester": 1,
+  "credits": 3,
+  "contact_hours": 45,
+  "assessment": {
+    "ese": 70,
+    "cca": 30
+  },
+  "last_updated": "2023-07-08",
+  "units": [
+    {
+      "title": "Fundamentals of Dynamics",
+      "lectures": 10,
+      "topics": [
+        "Force and linear momentum",
+        "Principle of conservation of momentum",
+        "Momentum of variable-mass system: motion of rocket",
+        "Motion of a projectile in uniform gravitational field",
+        "Dynamics of a system of particles",
+        "Centre of mass",
+        "Impulse",
+        "Work–Energy theorem",
+        "Conservative and non-conservative forces",
+        "Elastic potential energy",
+        "Force as a gradient of potential energy",
+        "Law of conservation of mechanical energy",
+        "Elastic and inelastic collisions in one and two dimensions",
+        "Collisions in centre of mass and laboratory frames"
+      ]
+    },
+    {
+      "title": "Rotational Dynamics",
+      "lectures": 8,
+      "topics": [
+        "Angular momentum of a particle and system of particles",
+        "Torque",
+        "Principle of conservation of angular momentum",
+        "Moment of inertia",
+        "Calculation of moment of inertia for rectangular, cylindrical and spherical bodies",
+        "Elasticity",
+        "Hooke’s law",
+        "Poisson’s ratio and its limiting values",
+        "Relation connecting elastic constants",
+        "Twisting torque on a cylinder or wire"
+      ]
+    },
+    {
+      "title": "Gravitation and Central Force Motion",
+      "lectures": 9,
+      "topics": [
+        "Law of gravitation",
+        "Gravitational potential and potential energy",
+        "Potential and field due to spherical shell and solid sphere",
+        "Central force: definition and characteristics",
+        "Kepler’s laws with derivation",
+        "Deduction of Newton’s law of gravitation from Kepler’s law",
+        "Satellite in circular orbit",
+        "Orbital velocity",
+        "Escape velocity",
+        "Time period of satellite",
+        "Geosynchronous orbits",
+        "Weightlessness",
+        "Basic idea of global positioning system (GPS)"
+      ]
+    },
+    {
+      "title": "Oscillations",
+      "lectures": 9,
+      "topics": [
+        "Simple harmonic oscillations",
+        "Differential equation of SHM and its solution",
+        "Kinetic energy, potential energy and total energy in SHM",
+        "Time-average values",
+        "Damped oscillations",
+        "Forced oscillations",
+        "Resonance",
+        "Sharpness of resonance",
+        "Power dissipation",
+        "Quality factor",
+        "Non-inertial systems",
+        "Inertial and non-inertial frames",
+        "Fictitious forces",
+        "Uniformly rotating frame",
+        "Laws of physics in rotating coordinate systems",
+        "Coriolis theorem",
+        "Centrifugal force",
+        "Coriolis force and its applications"
+      ]
+    },
+    {
+      "title": "Relativity",
+      "lectures": 9,
+      "topics": [
+        "Galilean transformations",
+        "Galilean invariance",
+        "Michelson–Morley experiment and its outcome",
+        "Postulates of special theory of relativity",
+        "Lorentz transformations",
+        "Simultaneity and order of events",
+        "Lorentz contraction",
+        "Time dilation and its experimental verification",
+        "Twin paradox",
+        "Relativistic addition of velocities",
+        "Variation of mass with velocity",
+        "Massless particles",
+        "Mass–energy equivalence"
+      ]
+    }
+  ]
+}
