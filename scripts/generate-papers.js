@@ -29,8 +29,8 @@ const OUTPUT_FILE = path.join(
 );
 
 // Programme maps
-const CBCS_MAP = require("./maps/physics_cbcs.json");
-const FYUG_MAP = require("./maps/physics_fyug.json");
+const CBCS_MAP = require("../maps/physics_cbcs.json");
+const FYUG_MAP = require("../maps/physics_fyug.json");
 
 // ===== HELPERS =====
 
