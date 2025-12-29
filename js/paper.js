@@ -1,10 +1,9 @@
-// paper.js — ExamArchive v2 (FIXED & CLEAN)
+// paper.js — ExamArchive v2 (Syllabus Dropdown + Download)
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const paperCode = params.get("code");
 
-  // Safety check
   if (!paperCode) {
     console.error("No paper code provided in URL");
     return;
@@ -17,17 +16,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch("data/papers.json");
     const papers = await res.json();
 
-    // Filter all entries matching this paper code
-    const matches = papers.filter(
-      p => p.paper_code === paperCode
-    );
+    const matches = papers.filter(p => p.paper_code === paperCode);
 
     if (matches.length === 0) {
       console.warn("No papers found for:", paperCode);
       return;
     }
 
-    // Sort by year (latest first)
     matches.sort((a, b) => b.year - a.year);
     const latest = matches[0];
 
@@ -71,9 +66,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (paperCode.startsWith("PHYDSC")) {
       loadSyllabus(paperCode);
     } else {
-      const el = document.getElementById("syllabus-content");
-      if (el) {
-        el.innerHTML =
+      const container = document.getElementById("syllabus-container");
+      if (container) {
+        container.innerHTML =
           "<p class='coming-soon'>Syllabus not available for this paper yet.</p>";
       }
     }
@@ -95,36 +90,107 @@ async function loadSyllabus(paperCode) {
     if (!res.ok) throw new Error("Syllabus not found");
 
     const syllabus = await res.json();
-
-    const metaEl = document.getElementById("syllabus-meta");
-    const contentEl = document.getElementById("syllabus-content");
-
-    if (!metaEl || !contentEl) return;
-
-    metaEl.innerHTML = `
-      <p class="syllabus-meta">
-        ${syllabus.syllabus_version} · Last updated: ${syllabus.last_updated}
-      </p>
-    `;
-
-    let html = "";
-
-    syllabus.units.forEach(unit => {
-      html += `
-        <div class="syllabus-unit">
-          <h3>${unit.unit}: ${unit.title}</h3>
-          <ul>
-            ${unit.topics.map(topic => `<li>${topic}</li>`).join("")}
-          </ul>
-        </div>
-      `;
-    });
-
-    contentEl.classList.remove("syllabus-loading");
-    contentEl.innerHTML = html;
+    renderSyllabus(syllabus.units, syllabus, paperCode);
 
   } catch (err) {
-    const el = document.getElementById("syllabus-content");
-    if (el) el.innerHTML = "<p>Syllabus not available.</p>";
+    const container = document.getElementById("syllabus-container");
+    if (container) {
+      container.innerHTML =
+        "<p class='coming-soon'>Syllabus not available for this paper yet.</p>";
+    }
   }
+}
+
+/* =========================
+   RENDER SYLLABUS (DROPDOWN)
+========================== */
+function renderSyllabus(units, syllabus, paperCode) {
+  const container = document.getElementById("syllabus-container");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  units.forEach((unit, index) => {
+    const div = document.createElement("div");
+    div.className = "syllabus-unit";
+
+    div.innerHTML = `
+      <button class="unit-header">
+        <span class="unit-title">
+          Unit ${index + 1}: ${unit.title}
+        </span>
+        <span>
+          <button class="unit-download" title="Download unit">⬇️</button>
+          <span class="unit-arrow">▸</span>
+        </span>
+      </button>
+
+      <div class="unit-content">
+        <ul>
+          ${unit.topics.map(t => `<li>${t}</li>`).join("")}
+        </ul>
+      </div>
+    `;
+
+    // Toggle expand / collapse
+    div.querySelector(".unit-header").addEventListener("click", e => {
+      if (e.target.classList.contains("unit-download")) return;
+      div.classList.toggle("active");
+    });
+
+    // Download single unit
+    div.querySelector(".unit-download").addEventListener("click", e => {
+      e.stopPropagation();
+      downloadUnit(unit, index + 1, paperCode);
+    });
+
+    container.appendChild(div);
+  });
+
+  // Download full syllabus
+  const fullBtn = document.getElementById("download-full");
+  if (fullBtn) {
+    fullBtn.onclick = () => {
+      const text = syllabusToText(syllabus);
+      downloadFile(text, `${paperCode}-syllabus.txt`);
+    };
+  }
+}
+
+/* =========================
+   DOWNLOAD HELPERS
+========================== */
+function downloadFile(content, filename, type = "text/plain") {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function syllabusToText(syllabus) {
+  let text = `${syllabus.paper_name}\n\n`;
+
+  syllabus.units.forEach((unit, i) => {
+    text += `Unit ${i + 1}: ${unit.title}\n`;
+    unit.topics.forEach(t => {
+      text += `- ${t}\n`;
+    });
+    text += "\n";
+  });
+
+  return text;
+}
+
+function downloadUnit(unit, unitNo, paperCode) {
+  let text = `Unit ${unitNo}: ${unit.title}\n\n`;
+  unit.topics.forEach(t => {
+    text += `- ${t}\n`;
+  });
+
+  downloadFile(text, `${paperCode}-Unit-${unitNo}.txt`);
 }
