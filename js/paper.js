@@ -154,6 +154,10 @@ function renderSyllabus(units, syllabus, paperCode) {
      div.classList.toggle("active");
     });
 
+    div.querySelector(".unit-arrow").addEventListener("click", () => {
+     div.classList.toggle("active");
+    });
+
     // Download single unit
     div.querySelector(".unit-download").addEventListener("click", e => {
       e.stopPropagation();
