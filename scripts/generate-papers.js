@@ -1,126 +1,139 @@
+/**
+ * ExamArchive v2 – Paper Generator
+ * Assam University | Physics | UG
+ * Auto-adds level: "UG"
+ */
+
 const fs = require("fs");
 const path = require("path");
 
-/* ================= CONFIG ================= */
-
-const BASE_DIR = "papers/assam-university/physics";
-const OUTPUT_FILE = "data/papers.json";
-
-const MAP_FILES = {
-  CBCS: "maps/physics_cbcs.json",
-  FYUG: "maps/physics_fyug.json"
-};
-
+// ===== CONFIG =====
 const UNIVERSITY = "Assam University";
+const LEVEL = "UG";
 const STREAM = "Science";
 const SUBJECT = "Physics";
 
-/* ================= LOAD EXISTING PAPERS ================= */
+const PAPERS_DIR = path.join(
+  __dirname,
+  "..",
+  "papers",
+  "assam-university",
+  "physics"
+);
 
-let existingPapers = [];
-if (fs.existsSync(OUTPUT_FILE)) {
-  existingPapers = JSON.parse(fs.readFileSync(OUTPUT_FILE, "utf-8"));
+const OUTPUT_FILE = path.join(
+  __dirname,
+  "..",
+  "data",
+  "papers.json"
+);
+
+// Programme maps
+const CBCS_MAP = require("./maps/physics_cbcs.json");
+const FYUG_MAP = require("./maps/physics_fyug.json");
+
+// ===== HELPERS =====
+
+function detectProgramme(filename) {
+  if (filename.includes("FYUG")) return "FYUG";
+  if (filename.includes("CBCS")) return "CBCS";
+  return null;
 }
 
-/* ================= HELPERS ================= */
-
-function parseFilename(filename) {
-  // Example: AU-CBCS-PHSHCC201T-2021.pdf
-  const clean = filename.replace(".pdf", "");
-  const parts = clean.split("-");
-
-  if (parts.length !== 4) return null;
-
-  const [, programme, paperCode, year] = parts;
-
-  return {
-    programme,
-    paperCode,
-    year: parseInt(year, 10)
-  };
+function extractYear(filename) {
+  const match = filename.match(/(20\d{2})/);
+  return match ? Number(match[1]) : null;
 }
 
-function loadPaperMap(programme) {
-  const mapPath = MAP_FILES[programme];
-  if (!mapPath || !fs.existsSync(mapPath)) {
-    console.warn(`⚠️ Map file missing for programme: ${programme}`);
-    return null;
-  }
-  return JSON.parse(fs.readFileSync(mapPath, "utf-8"));
+function extractPaperCode(filename) {
+  const match = filename.match(/(PH[A-Z0-9]+T)/);
+  return match ? match[1] : null;
 }
 
-function alreadyExists(papers, programme, paperCode, year) {
-  return papers.some(
-    p =>
-      p.programme === programme &&
-      p.paper_code === paperCode &&
-      p.year === year
-  );
-}
-
-/* ================= MAIN ================= */
-
-if (!fs.existsSync(BASE_DIR)) {
-  console.error("❌ Physics papers directory not found:", BASE_DIR);
-  process.exit(1);
-}
-
-const pdfFiles = fs.readdirSync(BASE_DIR).filter(f => f.endsWith(".pdf"));
-let addedCount = 0;
-
-for (const file of pdfFiles) {
-  const parsed = parseFilename(file);
-  if (!parsed) continue;
-
-  const { programme, paperCode, year } = parsed;
-  const paperMap = loadPaperMap(programme);
-
-  if (!paperMap || !paperMap[paperCode]) {
-    console.warn(`⚠️ Missing map entry for ${paperCode} (${programme})`);
-    continue;
-  }
-
-  if (alreadyExists(existingPapers, programme, paperCode, year)) {
-    continue;
-  }
-
-  const meta = paperMap[paperCode];
-
-  /* 🔍 IMPROVED SEARCH TEXT (FIXED) */
-  const searchText = [
-    paperCode,
-    meta.paper_name,
-    SUBJECT,
-    meta.course_type,
-    programme,
-    `semester ${meta.semester}`,
-    meta.semester,
-    year
+function buildSearchText(paper) {
+  return [
+    paper.paper_code,
+    paper.paper_name,
+    paper.programme,
+    paper.subject,
+    paper.year,
+    paper.semester
   ]
     .join(" ")
     .toLowerCase();
-
-  existingPapers.push({
-    university: UNIVERSITY,
-    programme: programme,
-    stream: STREAM,
-    subject: SUBJECT,
-    course_type: meta.course_type,
-    semester: meta.semester,
-    paper_code: paperCode,
-    paper_name: meta.paper_name,
-    year: year,
-    exam_type: "End Semester",
-    tags: meta.tags || [],
-    search_text: searchText,
-    pdf: `${BASE_DIR}/${file}`
-  });
-
-  addedCount++;
 }
 
-/* ================= WRITE OUTPUT ================= */
+// ===== MAIN =====
 
-fs.writeFileSync(OUTPUT_FILE, JSON.stringify(existingPapers, null, 2));
+function generate() {
+  if (!fs.existsSync(PAPERS_DIR)) {
+    console.error("❌ Papers directory not found:", PAPERS_DIR);
+    process.exit(1);
+  }
 
-console.log(`✅ Papers added: ${addedCount}`);
+  const files = fs
+    .readdirSync(PAPERS_DIR)
+    .filter(f => f.endsWith(".pdf"));
+
+  const papers = [];
+
+  for (const file of files) {
+    const programme = detectProgramme(file);
+    if (!programme) continue;
+
+    const year = extractYear(file);
+    const paperCode = extractPaperCode(file);
+    if (!year || !paperCode) continue;
+
+    const map =
+      programme === "FYUG" ? FYUG_MAP : CBCS_MAP;
+
+    const meta = map[paperCode];
+    if (!meta) continue;
+
+    const paper = {
+      university: UNIVERSITY,
+      level: LEVEL,                 // 🔑 FUTURE-PROOF
+      programme: programme,
+      stream: STREAM,
+      subject: SUBJECT,
+
+      semester: meta.semester,
+      paper_code: paperCode,
+      paper_name: meta.paper_name,
+
+      year: year,
+      exam_type: "End Semester",
+
+      tags: [
+        programme,
+        SUBJECT,
+        `Semester ${meta.semester}`,
+        paperCode
+      ],
+
+      search_text: "",
+      pdf: `papers/assam-university/physics/${file}`
+    };
+
+    paper.search_text = buildSearchText(paper);
+    papers.push(paper);
+  }
+
+  // Sort: latest year first
+  papers.sort((a, b) => b.year - a.year);
+
+  // Ensure output dir exists
+  fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
+
+  fs.writeFileSync(
+    OUTPUT_FILE,
+    JSON.stringify(papers, null, 2),
+    "utf-8"
+  );
+
+  console.log(`✅ Generated ${papers.length} UG papers`);
+}
+
+// ===== RUN =====
+generate();
