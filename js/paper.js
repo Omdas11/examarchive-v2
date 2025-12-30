@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
        LOAD SYLLABUS
     ========================== */
     loadSyllabus(paperCode);
+    loadRepeatedQuestions(paperCode);
 
   } catch (err) {
     console.error("Failed to load paper page:", err);
