@@ -1,0 +1,30 @@
+{
+  "university": "Assam University",
+  "level": "UG",
+  "programme": "FYUG",
+  "subject": "Physics",
+  "paper_code": "PHYDSC102T",
+  "paper_name": "Mechanics and Relativity",
+  "units": [
+    {
+      "unit_title": "Fundamentals of Dynamics",
+      "questions": []
+    },
+    {
+      "unit_title": "Rotational Dynamics",
+      "questions": []
+    },
+    {
+      "unit_title": "Gravitation and Central Force Motion",
+      "questions": []
+    },
+    {
+      "unit_title": "Oscillations",
+      "questions": []
+    },
+    {
+      "unit_title": "Relativity",
+      "questions": []
+    }
+  ]
+}
