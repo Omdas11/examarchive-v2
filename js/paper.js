@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
-  const paperCode = params.get("paper");
+  const paperCode = params.get("code");
 
   if (!paperCode) {
     console.error("No paper code in URL");
