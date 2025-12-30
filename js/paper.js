@@ -207,3 +207,72 @@ function downloadUnit(unit, unitNo, paperCode) {
 
   downloadFile(text, `${paperCode}-Unit-${unitNo}.txt`);
 }
+
+/* =========================
+   LOAD REPEATED QUESTIONS
+========================== */
+async function loadRepeatedQuestions(paperCode) {
+  const path = `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`;
+  const container = document.getElementById("repeated-container");
+
+  if (!container) return;
+
+  try {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error("No repeated questions");
+
+    const data = await res.json();
+    renderRepeatedQuestions(data.units, container);
+
+  } catch (err) {
+    container.innerHTML =
+      "<p class='coming-soon'>Repeated questions not added yet.</p>";
+  }
+}
+
+/* =========================
+   RENDER REPEATED QUESTIONS
+========================== */
+function renderRepeatedQuestions(units, container) {
+  container.innerHTML = "";
+
+  units.forEach(unit => {
+    if (!unit.questions || unit.questions.length === 0) return;
+
+    const block = document.createElement("div");
+    block.className = "rq-unit";
+
+    block.innerHTML = `
+      <div class="rq-header">
+        <button class="rq-toggle">${unit.unit_title}</button>
+        <span class="rq-arrow"></span>
+      </div>
+
+      <div class="rq-content">
+        <ul>
+          ${unit.questions.map(q => `
+            <li>
+              ${q.question}
+              <span class="rq-meta">
+                (${q.years.join(", ")} • ${Math.max(...q.marks)} Marks)
+              </span>
+            </li>
+          `).join("")}
+        </ul>
+      </div>
+    `;
+
+    const toggle = block.querySelector(".rq-toggle");
+    const arrow = block.querySelector(".rq-arrow");
+
+    toggle.addEventListener("click", () => {
+      block.classList.toggle("active");
+    });
+
+    arrow.addEventListener("click", () => {
+      block.classList.toggle("active");
+    });
+
+    container.appendChild(block);
+  });
+}
