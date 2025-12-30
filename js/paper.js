@@ -130,7 +130,12 @@ function renderSyllabus(units, syllabus, paperCode) {
   <div class="unit-header">
     <button class="unit-toggle">
       <span class="unit-title">
-        Unit ${index + 1}: ${unit.title}
+  <span class="unit-name">
+    Unit ${index + 1}: ${unit.title}
+       </span>
+        <span class="unit-lectures">
+          · ${unit.lectures} lectures
+        </span>
       </span>
     </button>
 
