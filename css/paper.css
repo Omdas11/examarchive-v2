@@ -450,3 +450,67 @@
   color: #6b7280; /* light grey */
   white-space: nowrap;
 }
+
+/* =========================
+   REPEATED QUESTIONS
+========================== */
+
+.rq-unit {
+  border-bottom: 1px solid #eaeaea;
+  padding: 10px 0;
+}
+
+.rq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rq-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  color: #222;
+}
+
+.rq-arrow {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #444;
+  border-bottom: 2px solid #444;
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease;
+  margin-left: 8px;
+}
+
+.rq-unit.active .rq-arrow {
+  transform: rotate(45deg);
+}
+
+.rq-content {
+  display: none;
+  margin-top: 8px;
+}
+
+.rq-unit.active .rq-content {
+  display: block;
+}
+
+.rq-content ul {
+  padding-left: 18px;
+}
+
+.rq-content li {
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+
+.rq-meta {
+  color: #777;
+  font-size: 13px;
+  margin-left: 4px;
+}
