@@ -1,11 +1,11 @@
-// paper.js — ExamArchive v2 (Syllabus Dropdown + Download)
+// paper.js — ExamArchive v2 (Paper Page + Syllabus UI)
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
-  const paperCode = params.get("code");
+  const paperCode = params.get("paper");
 
   if (!paperCode) {
-    console.error("No paper code provided in URL");
+    console.error("No paper code in URL");
     return;
   }
 
@@ -20,28 +20,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (matches.length === 0) {
       console.warn("No papers found for:", paperCode);
-      return;
     }
 
     matches.sort((a, b) => b.year - a.year);
     const latest = matches[0];
 
     /* =========================
-       UPDATE PAPER HEADER
+       PAPER HEADER
     ========================== */
     document.querySelector(".paper-code").textContent = latest.paper_code;
     document.querySelector(".paper-title").textContent = latest.paper_name;
 
-    const metaContainer = document.querySelector(".paper-meta");
-    metaContainer.innerHTML = `
+    document.querySelector(".paper-meta").innerHTML = `
       <span class="chip">${latest.programme}</span>
       <span class="chip">Semester ${latest.semester}</span>
-      <span class="chip">${latest.course_type}</span>
       <span class="chip">${latest.subject}</span>
     `;
 
-    const latestBtn = document.querySelector(".btn-red");
-    latestBtn.href = latest.pdf;
+    const openBtn = document.querySelector(".btn-red");
+    if (openBtn && latest.pdf) {
+      openBtn.href = latest.pdf;
+    }
 
     /* =========================
        AVAILABLE QUESTION PAPERS
@@ -53,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const li = document.createElement("li");
       li.innerHTML = `
         <span>${paper.year}</span>
-        <a href="${paper.pdf}" class="link-red" target="_blank">
+        <a href="${paper.pdf}" target="_blank" class="link-red">
           Open PDF →
         </a>
       `;
@@ -61,20 +60,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     /* =========================
-       LOAD SYLLABUS (FYUG ONLY)
+       LOAD SYLLABUS
     ========================== */
-    if (paperCode.startsWith("PHYDSC")) {
-      loadSyllabus(paperCode);
-    } else {
-      const container = document.getElementById("syllabus-container");
-      if (container) {
-        container.innerHTML =
-          "<p class='coming-soon'>Syllabus not available for this paper yet.</p>";
-      }
-    }
+    loadSyllabus(paperCode);
 
   } catch (err) {
-    console.error("Failed to load paper data:", err);
+    console.error("Failed to load paper page:", err);
   }
 });
 
@@ -82,27 +73,24 @@ document.addEventListener("DOMContentLoaded", async () => {
    SYLLABUS LOADER
 ========================== */
 async function loadSyllabus(paperCode) {
-  const syllabusPath =
-    `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
+  const path = `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
 
   try {
-    const res = await fetch(syllabusPath);
+    const res = await fetch(path);
     if (!res.ok) throw new Error("Syllabus not found");
 
     const syllabus = await res.json();
 
-/* ===== ADD THIS BLOCK ===== */
-const info = document.getElementById("syllabus-info");
-if (info) {
-  info.innerHTML = `
-    <span>${syllabus.credits} Credits</span>
-    &nbsp;•&nbsp;
-    <span>Last updated: ${syllabus.last_updated}</span>
-  `;
-}
-/* ===== END ===== */
+    // Meta info
+    const info = document.getElementById("syllabus-info");
+    if (info) {
+      info.innerHTML = `
+        ${syllabus.credits} Credits •
+        Syllabus updated on: ${syllabus.last_updated}
+      `;
+    }
 
-renderSyllabus(syllabus.units, syllabus, paperCode);
+    renderSyllabus(syllabus.units, syllabus, paperCode);
 
   } catch (err) {
     const container = document.getElementById("syllabus-container");
@@ -114,12 +102,10 @@ renderSyllabus(syllabus.units, syllabus, paperCode);
 }
 
 /* =========================
-   RENDER SYLLABUS (DROPDOWN)
+   RENDER SYLLABUS (UI POLISHED)
 ========================== */
 function renderSyllabus(units, syllabus, paperCode) {
   const container = document.getElementById("syllabus-container");
-  if (!container) return;
-
   container.innerHTML = "";
 
   units.forEach((unit, index) => {
@@ -127,43 +113,44 @@ function renderSyllabus(units, syllabus, paperCode) {
     div.className = "syllabus-unit";
 
     div.innerHTML = `
-  <div class="unit-header">
-    <button class="unit-toggle">
-      <span class="unit-title">
-  <span class="unit-name">
-    Unit ${index + 1}: ${unit.title}
-       </span>
-        <span class="unit-lectures">
-          · ${unit.lectures} lectures
-        </span>
-      </span>
-    </button>
+      <div class="unit-header">
+        <button class="unit-toggle">
+          <span class="unit-title">
+            <span class="unit-name">
+              Unit ${index + 1}: ${unit.title}
+            </span>
+            <span class="unit-lectures">
+              · ${unit.lectures} lectures
+            </span>
+          </span>
+        </button>
 
-    <div class="unit-actions">
-      <button class="unit-download" title="Download unit">
-        <img src="assets/icons/download.png" alt="Download">
-      </button>
-      <span class="unit-arrow"></span>
-    </div>
-  </div>
+        <div class="unit-actions">
+          <button class="unit-download" title="Download unit">
+            <img src="assets/icons/download.png" alt="Download">
+          </button>
+          <span class="unit-arrow"></span>
+        </div>
+      </div>
 
-  <div class="unit-content">
-    <ul>
-      ${unit.topics.map(t => `<li>${t}</li>`).join("")}
-    </ul>
-  </div>
-`;
+      <div class="unit-content">
+        <ul>
+          ${unit.topics.map(t => `<li>${t}</li>`).join("")}
+        </ul>
+      </div>
+    `;
 
-    // Toggle expand / collapse
+    // Toggle by title
     div.querySelector(".unit-toggle").addEventListener("click", () => {
-     div.classList.toggle("active");
+      div.classList.toggle("active");
     });
 
+    // Toggle by arrow
     div.querySelector(".unit-arrow").addEventListener("click", () => {
-     div.classList.toggle("active");
+      div.classList.toggle("active");
     });
 
-    // Download single unit
+    // Unit download
     div.querySelector(".unit-download").addEventListener("click", e => {
       e.stopPropagation();
       downloadUnit(unit, index + 1, paperCode);
@@ -172,7 +159,7 @@ function renderSyllabus(units, syllabus, paperCode) {
     container.appendChild(div);
   });
 
-  // Download full syllabus
+  // Full syllabus download
   const fullBtn = document.getElementById("download-full");
   if (fullBtn) {
     fullBtn.onclick = () => {
