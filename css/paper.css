@@ -430,3 +430,23 @@
 .syllabus-unit.active .unit-arrow {
   transform: rotate(90deg);
 }
+
+/* ===== Syllabus unit header polish ===== */
+
+.unit-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.unit-name {
+  font-weight: 600;
+}
+
+.unit-lectures {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #6b7280; /* light grey */
+  white-space: nowrap;
+}
