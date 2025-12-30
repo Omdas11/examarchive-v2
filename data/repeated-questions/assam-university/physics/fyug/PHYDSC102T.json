@@ -7,8 +7,14 @@
   "paper_name": "Mechanics and Relativity",
   "units": [
     {
-      "unit_title": "Fundamentals of Dynamics",
-      "questions": []
+     "unit_title": "Fundamentals of Dynamics",
+     "questions": [
+    {
+      "question": "Derive the equation of motion of a rocket using conservation of linear momentum.",
+      "years": [2021],
+      "marks": [10]
+    }
+    ]
     },
     {
       "unit_title": "Rotational Dynamics",
