@@ -1,4 +1,4 @@
-// paper.js — ExamArchive v2 (Paper Page + Syllabus UI)
+// paper.js — ExamArchive v2 (Clean + Stable)
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
@@ -17,10 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const papers = await res.json();
 
     const matches = papers.filter(p => p.paper_code === paperCode);
-
-    if (matches.length === 0) {
-      console.warn("No papers found for:", paperCode);
-    }
+    if (matches.length === 0) return;
 
     matches.sort((a, b) => b.year - a.year);
     const latest = matches[0];
@@ -38,12 +35,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
 
     const openBtn = document.querySelector(".btn-red");
-    if (openBtn && latest.pdf) {
-      openBtn.href = latest.pdf;
-    }
+    if (openBtn && latest.pdf) openBtn.href = latest.pdf;
 
     /* =========================
-       AVAILABLE QUESTION PAPERS
+       AVAILABLE PAPERS
     ========================== */
     const list = document.querySelector(".paper-list");
     list.innerHTML = "";
@@ -52,21 +47,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       const li = document.createElement("li");
       li.innerHTML = `
         <span>${paper.year}</span>
-        <a href="${paper.pdf}" target="_blank" class="link-red">
-          Open PDF →
-        </a>
+        <a href="${paper.pdf}" target="_blank" class="link-red">Open PDF →</a>
       `;
       list.appendChild(li);
     });
 
-    /* =========================
-       LOAD SYLLABUS
-    ========================== */
     loadSyllabus(paperCode);
     loadRepeatedQuestions(paperCode);
 
   } catch (err) {
-    console.error("Failed to load paper page:", err);
+    console.error("Paper page failed:", err);
   }
 });
 
@@ -75,36 +65,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 ========================== */
 async function loadSyllabus(paperCode) {
   const path = `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
+  const container = document.getElementById("syllabus-container");
 
   try {
     const res = await fetch(path);
-    if (!res.ok) throw new Error("Syllabus not found");
+    if (!res.ok) throw new Error();
 
     const syllabus = await res.json();
-
-    // Meta info
-    const info = document.getElementById("syllabus-info");
-    if (info) {
-      info.innerHTML = `
-        ${syllabus.credits} Credits •
-        Syllabus updated on: ${syllabus.last_updated}
-      `;
-    }
-
     renderSyllabus(syllabus.units, syllabus, paperCode);
 
-  } catch (err) {
-    const container = document.getElementById("syllabus-container");
-    if (container) {
-      container.innerHTML =
-        "<p class='coming-soon'>Syllabus not available for this paper yet.</p>";
-    }
+  } catch {
+    container.innerHTML =
+      "<p class='coming-soon'>Syllabus not available for this paper yet.</p>";
   }
 }
 
-/* =========================
-   RENDER SYLLABUS (UI POLISHED)
-========================== */
 function renderSyllabus(units, syllabus, paperCode) {
   const container = document.getElementById("syllabus-container");
   container.innerHTML = "";
@@ -115,101 +90,23 @@ function renderSyllabus(units, syllabus, paperCode) {
 
     div.innerHTML = `
       <div class="unit-header">
-        <button class="unit-toggle">
-          <span class="unit-title">
-            <span class="unit-name">
-              Unit ${index + 1}: ${unit.title}
-            </span>
-            <span class="unit-lectures">
-              · ${unit.lectures} lectures
-            </span>
-          </span>
-        </button>
-
-        <div class="unit-actions">
-          <button class="unit-download" title="Download unit">
-            <img src="assets/icons/download.png" alt="Download">
-          </button>
-          <span class="unit-arrow"></span>
-        </div>
+        <span>Unit ${index + 1}: ${unit.title}</span>
+        <span class="unit-arrow">▾</span>
       </div>
-
       <div class="unit-content">
-        <ul>
-          ${unit.topics.map(t => `<li>${t}</li>`).join("")}
-        </ul>
+        <ul>${unit.topics.map(t => `<li>${t}</li>`).join("")}</ul>
       </div>
     `;
 
-    // Toggle by title
-    div.querySelector(".unit-toggle").addEventListener("click", () => {
+    div.querySelector(".unit-header").onclick = () =>
       div.classList.toggle("active");
-    });
-
-    // Toggle by arrow
-    div.querySelector(".unit-arrow").addEventListener("click", () => {
-      div.classList.toggle("active");
-    });
-
-    // Unit download
-    div.querySelector(".unit-download").addEventListener("click", e => {
-      e.stopPropagation();
-      downloadUnit(unit, index + 1, paperCode);
-    });
 
     container.appendChild(div);
   });
-
-  // Full syllabus download
-  const fullBtn = document.getElementById("download-full");
-  if (fullBtn) {
-    fullBtn.onclick = () => {
-      const text = syllabusToText(syllabus);
-      downloadFile(text, `${paperCode}-syllabus.txt`);
-    };
-  }
 }
 
 /* =========================
-   DOWNLOAD HELPERS
-========================== */
-function downloadFile(content, filename, type = "text/plain") {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-function syllabusToText(syllabus) {
-  let text = `${syllabus.paper_name}\n\n`;
-
-  syllabus.units.forEach((unit, i) => {
-    text += `Unit ${i + 1}: ${unit.title}\n`;
-    unit.topics.forEach(t => {
-      text += `- ${t}\n`;
-    });
-    text += "\n";
-  });
-
-  return text;
-}
-
-function downloadUnit(unit, unitNo, paperCode) {
-  let text = `Unit ${unitNo}: ${unit.title}\n\n`;
-  unit.topics.forEach(t => {
-    text += `- ${t}\n`;
-  });
-
-  downloadFile(text, `${paperCode}-Unit-${unitNo}.txt`);
-}
-
-/* =========================
-   LOAD REPEATED QUESTIONS
+   REPEATED QUESTIONS LOADER
 ========================== */
 async function loadRepeatedQuestions(paperCode) {
   const path = `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`;
@@ -219,12 +116,12 @@ async function loadRepeatedQuestions(paperCode) {
 
   try {
     const res = await fetch(path);
-    if (!res.ok) throw new Error("No repeated questions");
+    if (!res.ok) throw new Error();
 
     const data = await res.json();
     renderRepeatedQuestions(data.units, container);
 
-  } catch (err) {
+  } catch {
     container.innerHTML =
       "<p class='coming-soon'>Repeated questions not added yet.</p>";
   }
@@ -244,34 +141,27 @@ function renderRepeatedQuestions(units, container) {
 
     block.innerHTML = `
       <div class="rq-header">
-        <button class="rq-toggle">${unit.unit_title}</button>
-        <span class="rq-arrow"></span>
+        <span class="rq-title">${unit.unit_title}</span>
+        <span class="rq-arrow">▾</span>
       </div>
 
       <div class="rq-content">
-        <ul>
+        <ol class="rq-list">
           ${unit.questions.map(q => `
-            <li>
-              ${q.question}
-              <span class="rq-meta">
-                (${q.years.join(", ")} • ${Math.max(...q.marks)} Marks)
-              </span>
+            <li class="rq-question">
+              <div class="rq-text">${q.question}</div>
+              <div class="rq-meta">
+                <span>Years: ${q.years.join(", ")}</span>
+                <span>Marks: ${Math.max(...q.marks)}</span>
+              </div>
             </li>
           `).join("")}
-        </ul>
+        </ol>
       </div>
     `;
 
-    const toggle = block.querySelector(".rq-toggle");
-    const arrow = block.querySelector(".rq-arrow");
-
-    toggle.addEventListener("click", () => {
+    block.querySelector(".rq-header").onclick = () =>
       block.classList.toggle("active");
-    });
-
-    arrow.addEventListener("click", () => {
-      block.classList.toggle("active");
-    });
 
     container.appendChild(block);
   });
