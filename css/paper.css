@@ -514,3 +514,72 @@
   font-size: 13px;
   margin-left: 4px;
 }
+
+/* =========================
+   REPEATED QUESTIONS (POLISHED)
+========================= */
+
+.rq-unit {
+  margin-bottom: 14px;
+}
+
+.rq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 16px;
+  background: #f7f7f7;
+  border-radius: 8px;
+
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.rq-arrow {
+  transition: transform 0.25s ease;
+}
+
+.rq-unit.active .rq-arrow {
+  transform: rotate(180deg);
+}
+
+.rq-content {
+  display: none;
+  margin-top: 10px;
+}
+
+.rq-unit.active .rq-content {
+  display: block;
+}
+
+.rq-list {
+  padding-left: 0;
+  margin: 0;
+}
+
+.rq-question {
+  list-style-position: inside;
+
+  padding: 12px 14px;
+  margin-bottom: 12px;
+
+  background: #fafafa;
+  border-radius: 8px;
+
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.rq-text {
+  margin-bottom: 6px;
+}
+
+.rq-meta {
+  font-size: 0.8rem;
+  color: #666;
+  display: flex;
+  gap: 12px;
+}
