@@ -591,3 +591,10 @@ summary {
 summary::-webkit-details-marker {
   display: none;
 }
+
+/* REMOVE small default chevron in Repeated Questions */
+.repeated-questions .rq-header::after,
+.repeated-questions .rq-header::before {
+  content: none !important;
+  background: none !important;
+}
