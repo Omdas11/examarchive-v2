@@ -380,3 +380,12 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* 🔥 NUCLEAR: remove ALL chevrons/arrows from Repeated Questions */
+.repeated-questions *,
+.repeated-questions *::before,
+.repeated-questions *::after {
+  content: none !important;
+  background-image: none !important;
+  background: none !important;
+}
