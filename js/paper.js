@@ -91,7 +91,7 @@ function renderSyllabus(units, syllabus, paperCode) {
     div.innerHTML = `
       <div class="unit-header">
         <span>Unit ${index + 1}: ${unit.title}</span>
-        <span class="unit-arrow">▾</span>
+        <span class="unit-arrow"></span>
       </div>
       <div class="unit-content">
         <ul>${unit.topics.map(t => `<li>${t}</li>`).join("")}</ul>
