@@ -142,7 +142,7 @@ function renderRepeatedQuestions(units, container) {
     block.innerHTML = `
       <div class="rq-header">
         <span class="rq-title">${unit.unit_title}</span>
-        <span class="rq-arrow">▾</span>
+        <span class="rq-arrow"></span>
       </div>
 
       <div class="rq-content">
