@@ -5,201 +5,260 @@
   "subject": "Physics",
   "paper_code": "PHYDSC102T",
   "paper_name": "Mechanics and Relativity",
-  "units": [
+
+  "sections": [
     {
-      "unit_title": "Fundamentals of Dynamics",
-      "questions": [
+      "section": "A",
+      "instruction": "Answer ten questions, selecting two from each Unit. Each question carries 2 marks.",
+      "marks_per_question": 2,
+      "units": [
         {
-          "question": "State with examples the principle of conservation of linear momentum.",
-          "years": [2023],
-          "marks": [2]
+          "unit": "Unit-I",
+          "questions": [
+            { "question": "State with examples the principle of conservation of linear momentum.", "marks": 2 },
+            { "question": "What are conservative and non-conservative forces? Give examples.", "marks": 2 },
+            { "question": "Explain why a cricket player lowers his hands while catching a cricket ball.", "marks": 2 }
+          ]
         },
         {
-          "question": "What are conservative and non-conservative forces? Give examples.",
-          "years": [2023],
-          "marks": [2]
+          "unit": "Unit-II",
+          "questions": [
+            { "question": "Show that torque is given by the time rate of change of angular momentum.", "marks": 2 },
+            { "question": "Explain elasticity and reason of elasticity.", "marks": 2 },
+            { "question": "What do you mean by restoring torque?", "marks": 2 }
+          ]
         },
         {
-          "question": "Explain why a cricket player lowers his hands while catching a cricket ball.",
-          "years": [2023],
-          "marks": [2]
+          "unit": "Unit-III",
+          "questions": [
+            { "question": "Define gravitational potential and gravitational potential energy.", "marks": 2 },
+            { "question": "What is the difference between inertial mass and gravitational mass?", "marks": 2 },
+            { "question": "Describe in brief global positioning system (GPS).", "marks": 2 }
+          ]
         },
         {
-          "question": "Define centre of mass of a system. Calculate the position, velocity and acceleration of centre of mass of two particles.",
-          "years": [2023],
-          "marks": [10]
+          "unit": "Unit-IV",
+          "questions": [
+            { "question": "What are fictitious and Coriolis forces?", "marks": 2 },
+            { "question": "Define resonance and sharpness of resonance.", "marks": 2 },
+            { "question": "Find an expression of kinetic energy of a body executing SHM.", "marks": 2 }
+          ]
         },
         {
-          "question": "State work-energy theorem with examples. Show that force is gradient of potential energy.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Explain what is meant by elastic potential energy of a spring. Obtain an expression for it and discuss the nature of its variation.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Define coefficient of restitution. Show that in an elastic one-dimensional collision, when a body collides with another body of same mass at rest, they just interchange their velocities after collision.",
-          "years": [2023],
-          "marks": [10]
+          "unit": "Unit-V",
+          "questions": [
+            { "question": "What do you mean by mass-energy equivalence?", "marks": 2 },
+            { "question": "What do you mean by massless particle? Find the velocity of such particle.", "marks": 2 },
+            { "question": "What is the aim of Michelson–Morley experiment?", "marks": 2 }
+          ]
         }
       ]
     },
+
     {
-      "unit_title": "Rotational Dynamics",
-      "questions": [
+      "section": "B",
+      "instruction": "Answer five questions, selecting one from each Unit. Each full question carries 10 marks.",
+      "units": [
         {
-          "question": "Show that torque is given by the time rate of change of angular momentum.",
-          "years": [2023],
-          "marks": [2]
+          "unit": "Unit-I",
+          "choices": [
+            {
+              "question_no": 16,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "Define centre of mass of a system. Calculate the position, velocity and acceleration of centre of mass of two particles.",
+                  "marks": 5,
+                  "breakup": [1, 4]
+                },
+                {
+                  "label": "b",
+                  "question": "State work-energy theorem with examples. Show that force is gradient of potential energy.",
+                  "marks": 5,
+                  "breakup": [2, 3]
+                }
+              ]
+            },
+            {
+              "question_no": 17,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "Explain elastic potential energy of a spring. Obtain an expression for it and discuss the nature of its variation.",
+                  "marks": 5,
+                  "breakup": [2, 3]
+                },
+                {
+                  "label": "b",
+                  "question": "Define coefficient of restitution. Show that in an elastic one-dimensional collision between equal masses, velocities are interchanged.",
+                  "marks": 5,
+                  "breakup": [1, 4]
+                }
+              ]
+            }
+          ]
         },
+
         {
-          "question": "Explain elasticity and reason of elasticity.",
-          "years": [2023],
-          "marks": [2]
+          "unit": "Unit-II",
+          "choices": [
+            {
+              "question_no": 18,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "Define angular momentum of a particle and show that its time rate of change is equal to torque.",
+                  "marks": 5,
+                  "breakup": [1, 4]
+                },
+                {
+                  "label": "b",
+                  "question": "Define moment of inertia and calculate the moment of inertia of a uniform circular disc about its diameter.",
+                  "marks": 5,
+                  "breakup": [1, 1, 3]
+                }
+              ]
+            },
+            {
+              "question_no": 19,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "Derive the relation connecting the three elastic constants.",
+                  "marks": 5,
+                  "breakup": [5]
+                },
+                {
+                  "label": "b",
+                  "question": "Establish the expression for restoring torque developed in a twisted cylinder.",
+                  "marks": 5,
+                  "breakup": [5]
+                }
+              ]
+            }
+          ]
         },
+
         {
-          "question": "What do you mean by restoring torque?",
-          "years": [2023],
-          "marks": [2]
+          "unit": "Unit-III",
+          "choices": [
+            {
+              "question_no": 20,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "Obtain an expression for gravitational potential due to a solid sphere and find the potential on the surface.",
+                  "marks": 5,
+                  "breakup": [4, 1]
+                },
+                {
+                  "label": "b",
+                  "question": "State the characteristics of motion in a central force field and state Kepler’s laws.",
+                  "marks": 5,
+                  "breakup": [2, 3]
+                }
+              ]
+            },
+            {
+              "question_no": 21,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "Explain how a satellite is placed in orbit and derive expressions for its orbital velocity and time period.",
+                  "marks": 5,
+                  "breakup": [5]
+                },
+                {
+                  "label": "b",
+                  "question": "Calculate gravitational potential on the surface of the earth and explain geosynchronous orbit and weightlessness.",
+                  "marks": 5,
+                  "breakup": [2, 3]
+                }
+              ]
+            }
+          ]
         },
+
         {
-          "question": "Define angular momentum of a particle. Show that time rate of change of angular momentum of a particle is equal to the torque acting on it.",
-          "years": [2023],
-          "marks": [10]
+          "unit": "Unit-IV",
+          "choices": [
+            {
+              "question_no": 22,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "State the important characteristics of SHM and derive the expression for its time period.",
+                  "marks": 5,
+                  "breakup": [2, 3]
+                },
+                {
+                  "label": "b",
+                  "question": "Explain forced and damped oscillations and obtain the general equation of displacement.",
+                  "marks": 5,
+                  "breakup": [2, 3]
+                }
+              ]
+            },
+            {
+              "question_no": 23,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "Differentiate inertial and non-inertial frames of reference and show that a rotating frame is non-inertial.",
+                  "marks": 5,
+                  "breakup": [2, 3]
+                },
+                {
+                  "label": "b",
+                  "question": "Set up the differential equation of motion of a body executing simple harmonic motion.",
+                  "marks": 5,
+                  "breakup": [2, 3]
+                }
+              ]
+            }
+          ]
         },
+
         {
-          "question": "Define moment of inertia. What is its physical significance? Calculate the moment of inertia of a uniform circular disc about a diameter of the disc.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Connecting the three elastic constants, derive the relation 9/Y = 3/η + 1/K, where the symbols have their usual meanings.",
-          "years": [2023],
-          "marks": [5]
-        },
-        {
-          "question": "A cylinder of length l and of radius a is clamped at one end and a torque is applied at the other end. Establish the restoring torque during twisting of the cylinder.",
-          "years": [2023],
-          "marks": [5]
-        }
-      ]
-    },
-    {
-      "unit_title": "Gravitation and Central Force Motion",
-      "questions": [
-        {
-          "question": "Define gravitational potential and gravitational potential energy.",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "What is the difference between inertial mass and gravitational mass?",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "Describe in brief global positioning system (GPS).",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "Obtain an expression for gravitational potential due to a solid sphere at a point outside the sphere and on its surface.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Write the characteristics of motion of a particle in a central force field and state Kepler's laws of planetary motion.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Explain how a satellite may be placed in its orbit round the earth and obtain expressions for its orbital velocity and time period.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Calculate the gravitational potential on the surface of the earth and explain geosynchronous orbit and weightlessness.",
-          "years": [2023],
-          "marks": [10]
-        }
-      ]
-    },
-    {
-      "unit_title": "Oscillations and Non-Inertial Frames",
-      "questions": [
-        {
-          "question": "What are fictitious and Coriolis forces?",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "Define resonance and sharpness of resonance.",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "Find an expression for kinetic energy of a body executing simple harmonic motion.",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "What are the important characteristics of SHM? Show that the time period of a simple harmonic oscillator is given by T = 2π√(displacement/acceleration).",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Explain forced and damped oscillations and solve the differential equation of damped oscillation.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Write the differences between inertial and non-inertial frames and show that a rotating frame is non-inertial.",
-          "years": [2023],
-          "marks": [10]
-        }
-      ]
-    },
-    {
-      "unit_title": "Relativity",
-      "questions": [
-        {
-          "question": "What do you mean by mass-energy equivalence?",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "What do you mean by massless particle? Find the velocity of such a particle.",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "What is the aim of Michelson-Morley experiment?",
-          "years": [2023],
-          "marks": [2]
-        },
-        {
-          "question": "Discuss time dilation on the basis of Lorentz transformation equations.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Describe the Michelson-Morley experiment.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "State the fundamental postulates of special theory of relativity and explain length contraction.",
-          "years": [2023],
-          "marks": [10]
-        },
-        {
-          "question": "Explain reference frames and Galilean transformations and show the reduction of Lorentz transformations to Galilean transformations when velocity is much smaller than the velocity of light.",
-          "years": [2023],
-          "marks": [10]
+          "unit": "Unit-V",
+          "choices": [
+            {
+              "question_no": 24,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "Discuss the phenomenon of time dilation on the basis of Lorentz transformation.",
+                  "marks": 5,
+                  "breakup": [5]
+                },
+                {
+                  "label": "b",
+                  "question": "Describe the Michelson–Morley experiment.",
+                  "marks": 5,
+                  "breakup": [5]
+                }
+              ]
+            },
+            {
+              "question_no": 25,
+              "parts": [
+                {
+                  "label": "a",
+                  "question": "State the fundamental postulates of special relativity and explain length contraction.",
+                  "marks": 5,
+                  "breakup": [2.5, 2.5]
+                },
+                {
+                  "label": "b",
+                  "question": "Explain reference frames and Galilean transformations and show the low-velocity limit of Lorentz transformations.",
+                  "marks": 5,
+                  "breakup": [3, 2]
+                }
+              ]
+            }
+          ]
         }
       ]
     }
   ]
-        }
+            }
