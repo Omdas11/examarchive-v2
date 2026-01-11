@@ -1,166 +1,138 @@
-// paper.js — ExamArchive v2 (Clean, Stable, Header-Tappable)
+// paper.js — NEW schema renderer (sections + a/b support)
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const paperCode = params.get("code");
 
-  if (!paperCode) {
-    console.error("No paper code in URL");
-    return;
-  }
+  if (!paperCode) return;
 
   try {
-    /* =========================
-       LOAD PAPERS.JSON
-    ========================== */
-    const res = await fetch("data/papers.json");
-    const papers = await res.json();
+    const res = await fetch(
+      `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`
+    );
+    if (!res.ok) throw new Error("JSON not found");
 
-    const matches = papers.filter(p => p.paper_code === paperCode);
-    if (matches.length === 0) return;
+    const data = await res.json();
 
-    matches.sort((a, b) => b.year - a.year);
-    const latest = matches[0];
-
-    /* =========================
-       PAPER HEADER
-    ========================== */
-    document.querySelector(".paper-code").textContent = latest.paper_code;
-    document.querySelector(".paper-title").textContent = latest.paper_name;
-
-    document.querySelector(".paper-meta").innerHTML = `
-      <span class="chip">${latest.programme}</span>
-      <span class="chip">Semester ${latest.semester}</span>
-      <span class="chip">${latest.subject}</span>
-    `;
-
-    const openBtn = document.querySelector(".btn-red");
-    if (openBtn && latest.pdf) openBtn.href = latest.pdf;
-
-    /* =========================
-       AVAILABLE PAPERS
-    ========================== */
-    const list = document.querySelector(".paper-list");
-    list.innerHTML = "";
-
-    matches.forEach(paper => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span>${paper.year}</span>
-        <a href="${paper.pdf}" target="_blank" class="link-red">Open PDF →</a>
-      `;
-      list.appendChild(li);
-    });
-
-    loadSyllabus(paperCode);
-    loadRepeatedQuestions(paperCode);
+    renderPaperHeader(data);
+    renderRepeatedQuestions(data.sections);
 
   } catch (err) {
-    console.error("Paper page failed:", err);
+    console.error(err);
+    const container = document.getElementById("repeated-container");
+    if (container) {
+      container.innerHTML =
+        "<p class='coming-soon'>Repeated questions not available.</p>";
+    }
   }
 });
 
 /* =========================
-   SYLLABUS
-========================== */
-async function loadSyllabus(paperCode) {
-  const container = document.getElementById("syllabus-container");
-  const path = `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
+   PAPER HEADER
+========================= */
+function renderPaperHeader(data) {
+  const titleEl = document.querySelector(".paper-title");
+  const codeEl = document.querySelector(".paper-code");
 
-  try {
-    const res = await fetch(path);
-    if (!res.ok) throw new Error();
-
-    const syllabus = await res.json();
-    renderSyllabus(syllabus.units, container);
-
-  } catch {
-    container.innerHTML =
-      "<p class='coming-soon'>Syllabus not available for this paper yet.</p>";
-  }
-}
-
-function renderSyllabus(units, container) {
-  container.innerHTML = "";
-
-  units.forEach((unit, index) => {
-    const block = document.createElement("div");
-    block.className = "syllabus-unit";
-
-    block.innerHTML = `
-      <div class="unit-header">
-        <span>Unit ${index + 1}: ${unit.title}</span>
-      </div>
-      <div class="unit-content">
-        <ul>
-          ${unit.topics.map(t => `<li>${t}</li>`).join("")}
-        </ul>
-      </div>
-    `;
-
-    block.querySelector(".unit-header").addEventListener("click", () => {
-      block.classList.toggle("active");
-    });
-
-    container.appendChild(block);
-  });
+  if (titleEl) titleEl.textContent = data.paper_name;
+  if (codeEl) codeEl.textContent = data.paper_code;
 }
 
 /* =========================
    REPEATED QUESTIONS
-========================== */
-async function loadRepeatedQuestions(paperCode) {
+========================= */
+function renderRepeatedQuestions(sections) {
   const container = document.getElementById("repeated-container");
-  const path = `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`;
-
   if (!container) return;
 
-  try {
-    const res = await fetch(path);
-    if (!res.ok) throw new Error();
-
-    const data = await res.json();
-    renderRepeatedQuestions(data.units, container);
-
-  } catch {
-    container.innerHTML =
-      "<p class='coming-soon'>Repeated questions not added yet.</p>";
-  }
-}
-
-function renderRepeatedQuestions(units, container) {
   container.innerHTML = "";
 
-  units.forEach(unit => {
-    if (!unit.questions || unit.questions.length === 0) return;
+  sections.forEach(section => {
+    const sectionBlock = document.createElement("div");
+    sectionBlock.className = "rq-section";
 
-    const block = document.createElement("div");
-    block.className = "rq-unit";
-
-    block.innerHTML = `
-      <div class="rq-header">
-        <span class="rq-title">${unit.unit_title}</span>
-      </div>
-
-      <div class="rq-content">
-        <ol class="rq-list">
-          ${unit.questions.map(q => `
-            <li class="rq-question">
-              <div class="rq-text">${q.question}</div>
-              <div class="rq-meta">
-                <span>Years: ${q.years.join(", ")}</span>
-                <span>Marks: ${Math.max(...q.marks)}</span>
-              </div>
-            </li>
-          `).join("")}
-        </ol>
-      </div>
+    sectionBlock.innerHTML = `
+      <h3 class="rq-section-title">Section ${section.section}</h3>
+      ${section.instruction ? `<p class="rq-instruction">${section.instruction}</p>` : ""}
     `;
 
-    block.querySelector(".rq-header").addEventListener("click", () => {
-      block.classList.toggle("active");
+    section.units.forEach(unit => {
+      const unitBlock = document.createElement("div");
+      unitBlock.className = "rq-unit";
+
+      unitBlock.innerHTML = `
+        <div class="rq-header">
+          <span class="rq-title">${unit.unit}</span>
+        </div>
+        <div class="rq-content"></div>
+      `;
+
+      const content = unitBlock.querySelector(".rq-content");
+
+      // SECTION A
+      if (section.section === "A") {
+        const ol = document.createElement("ol");
+        ol.className = "rq-list";
+
+        unit.questions.forEach(q => {
+          const li = document.createElement("li");
+          li.className = "rq-question";
+
+          li.innerHTML = `
+            <div class="rq-text">${q.question}</div>
+            <div class="rq-meta">Marks: ${q.marks}</div>
+          `;
+          ol.appendChild(li);
+        });
+
+        content.appendChild(ol);
+      }
+
+      // SECTION B
+      if (section.section === "B") {
+        unit.choices.forEach(choice => {
+          const choiceBlock = document.createElement("div");
+          choiceBlock.className = "rq-choice";
+
+          choiceBlock.innerHTML = `
+            <div class="rq-choice-title">
+              Question ${choice.question_no}
+            </div>
+          `;
+
+          choice.parts.forEach(part => {
+            const partDiv = document.createElement("div");
+            partDiv.className = "rq-part";
+
+            partDiv.innerHTML = `
+              <div class="rq-part-label">(${part.label})</div>
+              <div class="rq-text">${part.question}</div>
+              <div class="rq-meta">Marks: ${part.marks}</div>
+            `;
+
+            choiceBlock.appendChild(partDiv);
+          });
+
+          content.appendChild(choiceBlock);
+
+          // OR divider if multiple choices
+          if (unit.choices.length > 1 && choice !== unit.choices.at(-1)) {
+            const orDiv = document.createElement("div");
+            orDiv.className = "rq-or";
+            orDiv.textContent = "OR";
+            content.appendChild(orDiv);
+          }
+        });
+      }
+
+      // toggle open/close
+      unitBlock.querySelector(".rq-header").addEventListener("click", () => {
+        unitBlock.classList.toggle("active");
+      });
+
+      sectionBlock.appendChild(unitBlock);
     });
 
-    container.appendChild(block);
+    container.appendChild(sectionBlock);
   });
 }
