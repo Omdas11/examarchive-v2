@@ -639,3 +639,60 @@ summary::-webkit-details-marker {
   display: flex;
   gap: 16px;
 }
+
+/* ========== Repeated Questions Layout ========== */
+
+.rq-unit {
+  margin-bottom: 16px;
+}
+
+.rq-unit-header {
+  font-weight: 600;
+  padding: 12px;
+  border-bottom: 1px solid #e5e5e5;
+  cursor: pointer;
+}
+
+.rq-question,
+.rq-part {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  align-items: flex-start;
+}
+
+.rq-number {
+  min-width: 28px;
+  font-weight: 600;
+}
+
+.rq-text {
+  flex: 1;
+}
+
+.rq-marks {
+  min-width: 32px;
+  text-align: center;
+  border-radius: 12px;
+  background: #f2f2f2;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+}
+
+.rq-choice {
+  margin-top: 8px;
+}
+
+.rq-or {
+  text-align: center;
+  font-weight: 600;
+  color: #999;
+  margin: 8px 0;
+}
+
+/* Desktop tweak */
+@media (min-width: 768px) {
+  .rq-unit-header {
+    font-size: 1.1rem;
+  }
+}
