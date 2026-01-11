@@ -55,23 +55,24 @@ function renderSyllabus(data) {
     block.className = "syllabus-unit";
 
     block.innerHTML = `
-      <div class="syllabus-header">${unit.unit_title}</div>
+      <div class="syllabus-header">
+        ${unit.unit} · ${unit.title}
+      </div>
       <div class="syllabus-content" hidden>
         <ul>
-          ${unit.topics.map(t => `<li>${t}</li>`).join("")}
+          ${(unit.topics || []).map(t => `<li>${t}</li>`).join("")}
         </ul>
       </div>
     `;
 
     block.querySelector(".syllabus-header").onclick = () => {
-      block.querySelector(".syllabus-content").hidden =
-        !block.querySelector(".syllabus-content").hidden;
+      const content = block.querySelector(".syllabus-content");
+      content.hidden = !content.hidden;
     };
 
     container.appendChild(block);
   });
 }
-
 /* =========================
    REPEATED QUESTIONS (FIXED)
 ========================= */
