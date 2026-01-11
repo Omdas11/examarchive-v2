@@ -1,4 +1,4 @@
-// paper.js — NEW schema renderer (sections + a/b support)
+// paper.js — Phase 1 simplified structure (unit-based, numbered)
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch(
       `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`
     );
-    if (!res.ok) throw new Error("JSON not found");
+    if (!res.ok) throw new Error("Repeated questions JSON not found");
 
     const data = await res.json();
 
@@ -47,67 +47,63 @@ function renderRepeatedQuestions(sections) {
 
   container.innerHTML = "";
 
+  let globalQuestionNumber = 1;
+
   sections.forEach(section => {
-    const sectionBlock = document.createElement("div");
-    sectionBlock.className = "rq-section";
-
-    sectionBlock.innerHTML = `
-      <h3 class="rq-section-title">Section ${section.section}</h3>
-      ${section.instruction ? `<p class="rq-instruction">${section.instruction}</p>` : ""}
-    `;
-
     section.units.forEach(unit => {
       const unitBlock = document.createElement("div");
       unitBlock.className = "rq-unit";
 
       unitBlock.innerHTML = `
-        <div class="rq-header">
-          <span class="rq-title">${unit.unit}</span>
+        <div class="rq-unit-header">
+          ${unit.unit}
         </div>
-        <div class="rq-content"></div>
+        <div class="rq-unit-content"></div>
       `;
 
-      const content = unitBlock.querySelector(".rq-content");
+      const content = unitBlock.querySelector(".rq-unit-content");
 
-      // SECTION A
-      if (section.section === "A") {
-        const ol = document.createElement("ol");
-        ol.className = "rq-list";
-
+      /* -------- Section A questions (simple) -------- */
+      if (section.section === "A" && unit.questions) {
         unit.questions.forEach(q => {
-          const li = document.createElement("li");
-          li.className = "rq-question";
+          const qDiv = document.createElement("div");
+          qDiv.className = "rq-question";
 
-          li.innerHTML = `
-            <div class="rq-text">${q.question}</div>
-            <div class="rq-meta">Marks: ${q.marks}</div>
+          qDiv.innerHTML = `
+            <span class="rq-number">${globalQuestionNumber}.</span>
+            <span class="rq-text">${q.question}</span>
+            <span class="rq-marks">${q.marks}</span>
           `;
-          ol.appendChild(li);
-        });
 
-        content.appendChild(ol);
+          content.appendChild(qDiv);
+          globalQuestionNumber++;
+        });
       }
 
-      // SECTION B
-      if (section.section === "B") {
-        unit.choices.forEach(choice => {
+      /* -------- Section B questions (choices with a/b) -------- */
+      if (section.section === "B" && unit.choices) {
+        unit.choices.forEach((choice, index) => {
           const choiceBlock = document.createElement("div");
           choiceBlock.className = "rq-choice";
 
-          choiceBlock.innerHTML = `
-            <div class="rq-choice-title">
-              Question ${choice.question_no}
-            </div>
-          `;
+          const qNoDiv = document.createElement("div");
+          qNoDiv.className = "rq-number rq-long-number";
+          qNoDiv.textContent = `${choice.question_no}.`;
+          choiceBlock.appendChild(qNoDiv);
 
           choice.parts.forEach(part => {
             const partDiv = document.createElement("div");
             partDiv.className = "rq-part";
 
+            const breakup =
+              Array.isArray(part.breakup) && part.breakup.length
+                ? part.breakup.join("+")
+                : part.marks;
+
             partDiv.innerHTML = `
-              <div class="rq-part-label">(${part.label})</div>
-              <div class="rq-text">${part.question}</div>
-              <div class="rq-meta">Marks: ${part.marks}</div>
+              <span class="rq-part-label">(${part.label})</span>
+              <span class="rq-text">${part.question}</span>
+              <span class="rq-marks">${breakup}</span>
             `;
 
             choiceBlock.appendChild(partDiv);
@@ -115,8 +111,8 @@ function renderRepeatedQuestions(sections) {
 
           content.appendChild(choiceBlock);
 
-          // OR divider if multiple choices
-          if (unit.choices.length > 1 && choice !== unit.choices.at(-1)) {
+          // OR separator
+          if (unit.choices.length > 1 && index < unit.choices.length - 1) {
             const orDiv = document.createElement("div");
             orDiv.className = "rq-or";
             orDiv.textContent = "OR";
@@ -125,14 +121,7 @@ function renderRepeatedQuestions(sections) {
         });
       }
 
-      // toggle open/close
-      unitBlock.querySelector(".rq-header").addEventListener("click", () => {
-        unitBlock.classList.toggle("active");
-      });
-
-      sectionBlock.appendChild(unitBlock);
+      container.appendChild(unitBlock);
     });
-
-    container.appendChild(sectionBlock);
   });
 }
