@@ -1,4 +1,4 @@
-// paper.js — ExamArchive v2 (Clean + Stable)
+// paper.js — ExamArchive v2 (Clean, Stable, Header-Tappable)
 
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
@@ -61,18 +61,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* =========================
-   SYLLABUS LOADER
+   SYLLABUS
 ========================== */
 async function loadSyllabus(paperCode) {
-  const path = `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
   const container = document.getElementById("syllabus-container");
+  const path = `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
 
   try {
     const res = await fetch(path);
     if (!res.ok) throw new Error();
 
     const syllabus = await res.json();
-    renderSyllabus(syllabus.units, syllabus, paperCode);
+    renderSyllabus(syllabus.units, container);
 
   } catch {
     container.innerHTML =
@@ -80,37 +80,38 @@ async function loadSyllabus(paperCode) {
   }
 }
 
-function renderSyllabus(units, syllabus, paperCode) {
-  const container = document.getElementById("syllabus-container");
+function renderSyllabus(units, container) {
   container.innerHTML = "";
 
   units.forEach((unit, index) => {
-    const div = document.createElement("div");
-    div.className = "syllabus-unit";
+    const block = document.createElement("div");
+    block.className = "syllabus-unit";
 
-    div.innerHTML = `
+    block.innerHTML = `
       <div class="unit-header">
         <span>Unit ${index + 1}: ${unit.title}</span>
-        <span class="unit-arrow"></span>
       </div>
       <div class="unit-content">
-        <ul>${unit.topics.map(t => `<li>${t}</li>`).join("")}</ul>
+        <ul>
+          ${unit.topics.map(t => `<li>${t}</li>`).join("")}
+        </ul>
       </div>
     `;
 
-    div.querySelector(".unit-header").onclick = () =>
-      div.classList.toggle("active");
+    block.querySelector(".unit-header").addEventListener("click", () => {
+      block.classList.toggle("active");
+    });
 
-    container.appendChild(div);
+    container.appendChild(block);
   });
 }
 
 /* =========================
-   REPEATED QUESTIONS LOADER
+   REPEATED QUESTIONS
 ========================== */
 async function loadRepeatedQuestions(paperCode) {
-  const path = `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`;
   const container = document.getElementById("repeated-container");
+  const path = `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`;
 
   if (!container) return;
 
@@ -127,9 +128,6 @@ async function loadRepeatedQuestions(paperCode) {
   }
 }
 
-/* =========================
-   RENDER REPEATED QUESTIONS
-========================== */
 function renderRepeatedQuestions(units, container) {
   container.innerHTML = "";
 
@@ -142,7 +140,6 @@ function renderRepeatedQuestions(units, container) {
     block.innerHTML = `
       <div class="rq-header">
         <span class="rq-title">${unit.unit_title}</span>
-        <span class="rq-arrow"></span>
       </div>
 
       <div class="rq-content">
@@ -160,8 +157,9 @@ function renderRepeatedQuestions(units, container) {
       </div>
     `;
 
-    block.querySelector(".rq-header").onclick = () =>
+    block.querySelector(".rq-header").addEventListener("click", () => {
       block.classList.toggle("active");
+    });
 
     container.appendChild(block);
   });
