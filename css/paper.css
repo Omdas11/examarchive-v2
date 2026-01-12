@@ -696,3 +696,57 @@ summary::-webkit-details-marker {
     font-size: 1.1rem;
   }
 }
+
+/* Remove bullet dot from syllabus list */
+#syllabus-container ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+/* ===============================
+   REPEATED QUESTIONS – FINAL FIX
+================================ */
+
+/* Short questions */
+.rq-question {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.rq-question .rq-number {
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Long questions (a), (b) block */
+.rq-choice {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 10px;
+  align-items: start;
+  margin-top: 8px;
+}
+
+.rq-long-number {
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Parts inside long questions */
+.rq-part {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* OR separator */
+.rq-or {
+  text-align: center;
+  font-weight: 600;
+  margin: 8px 0;
+  color: #777;
+   }
