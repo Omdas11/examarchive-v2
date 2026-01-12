@@ -1,24 +1,29 @@
-// paper.js — FINAL fixed version (syllabus + correct numbering)
-
+// paper.js — fixed & hardened version
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const paperCode = params.get("code");
   if (!paperCode) return;
 
   try {
-    // Load syllabus
+    /* =========================
+       LOAD SYLLABUS
+    ========================= */
     const syllabusRes = await fetch(
       `data/syllabus/assam-university/physics/fyug/${paperCode}.json`
     );
+
     if (syllabusRes.ok) {
       const syllabusData = await syllabusRes.json();
       renderSyllabus(syllabusData);
     }
 
-    // Load repeated questions
+    /* =========================
+       LOAD REPEATED QUESTIONS
+    ========================= */
     const rqRes = await fetch(
       `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`
     );
+
     if (!rqRes.ok) throw new Error("Repeated questions JSON not found");
 
     const rqData = await rqRes.json();
@@ -26,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderRepeatedQuestions(rqData.sections);
 
   } catch (err) {
-    console.error(err);
+    console.error("Paper page error:", err);
   }
 });
 
@@ -37,26 +42,38 @@ function renderPaperHeader(data) {
   const titleEl = document.querySelector(".paper-title");
   const codeEl = document.querySelector(".paper-code");
 
-  if (titleEl) titleEl.textContent = data.paper_name;
-  if (codeEl) codeEl.textContent = data.paper_code;
+  if (titleEl) titleEl.textContent = data.paper_name || "";
+  if (codeEl) codeEl.textContent = data.paper_code || "";
 }
 
 /* =========================
-   SYLLABUS (RESTORED)
+   SYLLABUS (FIXED)
 ========================= */
 function renderSyllabus(data) {
   const container = document.getElementById("syllabus-container");
-  if (!container || !data.units) return;
+  if (!container || !Array.isArray(data.units)) return;
 
   container.innerHTML = "";
 
   data.units.forEach(unit => {
+    const unitLabel =
+      unit.unit ||
+      unit.unit_no ||
+      unit.unit_number ||
+      "";
+
+    const unitTitle =
+      unit.title ||
+      unit.topics_title ||
+      unit.name ||
+      "";
+
     const block = document.createElement("div");
     block.className = "syllabus-unit";
 
     block.innerHTML = `
       <div class="syllabus-header">
-        ${unit.unit} · ${unit.title}
+        ${unitLabel}${unitTitle ? " · " + unitTitle : ""}
       </div>
       <div class="syllabus-content" hidden>
         <ul>
@@ -73,28 +90,36 @@ function renderSyllabus(data) {
     container.appendChild(block);
   });
 }
+
 /* =========================
-   REPEATED QUESTIONS (FIXED)
+   REPEATED QUESTIONS (SAFE)
 ========================= */
 function renderRepeatedQuestions(sections) {
   const container = document.getElementById("repeated-container");
-  if (!container) return;
+  if (!container || !Array.isArray(sections)) return;
+
   container.innerHTML = "";
 
   // Merge Section A & B by unit
   const unitMap = {};
 
   sections.forEach(section => {
+    if (!Array.isArray(section.units)) return;
+
     section.units.forEach(unit => {
       if (!unitMap[unit.unit]) {
-        unitMap[unit.unit] = { unit: unit.unit, short: [], long: [] };
+        unitMap[unit.unit] = {
+          unit: unit.unit,
+          short: [],
+          long: []
+        };
       }
 
-      if (section.section === "A" && unit.questions) {
+      if (section.section === "A" && Array.isArray(unit.questions)) {
         unitMap[unit.unit].short.push(...unit.questions);
       }
 
-      if (section.section === "B" && unit.choices) {
+      if (section.section === "B" && Array.isArray(unit.choices)) {
         unitMap[unit.unit].long.push(...unit.choices);
       }
     });
@@ -113,7 +138,7 @@ function renderRepeatedQuestions(sections) {
 
     const content = unitBlock.querySelector(".rq-unit-content");
 
-    // Short questions
+    /* ---------- Short Questions ---------- */
     unitData.short.forEach(q => {
       content.insertAdjacentHTML(
         "beforeend",
@@ -121,14 +146,14 @@ function renderRepeatedQuestions(sections) {
         <div class="rq-question">
           <span class="rq-number">${counter}.</span>
           <span class="rq-text">${q.question}</span>
-          <span class="rq-marks">${q.marks}</span>
+          <span class="rq-marks">${q.marks || ""}</span>
         </div>
         `
       );
       counter++;
     });
 
-    // Long questions
+    /* ---------- Long Questions ---------- */
     unitData.long.forEach((choice, idx) => {
       const choiceBlock = document.createElement("div");
       choiceBlock.className = "rq-choice";
@@ -138,9 +163,10 @@ function renderRepeatedQuestions(sections) {
       `;
 
       choice.parts.forEach(part => {
-        const breakup = Array.isArray(part.breakup)
-          ? part.breakup.join("+")
-          : part.marks;
+        const marks =
+          Array.isArray(part.breakup)
+            ? part.breakup.join("+")
+            : part.marks || "";
 
         choiceBlock.insertAdjacentHTML(
           "beforeend",
@@ -148,7 +174,7 @@ function renderRepeatedQuestions(sections) {
           <div class="rq-part">
             <span class="rq-part-label">(${part.label})</span>
             <span class="rq-text">${part.question}</span>
-            <span class="rq-marks">${breakup}</span>
+            <span class="rq-marks">${marks}</span>
           </div>
           `
         );
