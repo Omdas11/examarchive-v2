@@ -130,3 +130,74 @@
   color: #888;
   margin: 8px 0;
 }
+
+/* =========================
+   PAPER PAGE FIXES
+========================= */
+
+/* Card layout */
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.06),
+    0 8px 20px rgba(0,0,0,0.04);
+}
+
+/* Paper sections */
+.paper-section {
+  margin-top: 1.2rem;
+}
+
+/* Muted text */
+.muted {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* Chips */
+.chip {
+  display: inline-block;
+  background: #f1f1f1;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  margin-right: 6px;
+}
+
+/* Red button */
+.btn-red {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 8px 14px;
+  background: #e11d48;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* Red links */
+.link-red {
+  color: #e11d48;
+  font-weight: 500;
+}
+
+/* REMOVE BULLETS (this kills the dot) */
+.paper-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.paper-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.paper-list li:last-child {
+  border-bottom: none;
+}
