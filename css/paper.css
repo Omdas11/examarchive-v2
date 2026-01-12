@@ -1,631 +1,133 @@
 /* ===============================
-   PAPER PAGE LAYOUT
+   PAPER PAGE (CLEAN)
 ================================ */
+
 .paper-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
   max-width: 900px;
   margin: auto;
-}
-
-.paper-header {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1.2rem;
 }
 
-.paper-code {
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
-}
+/* -------------------------------
+   HEADER
+-------------------------------- */
 
 .paper-title {
   font-size: 1.4rem;
   font-weight: 600;
 }
 
-.paper-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.4rem 0 0.8rem;
-}
-
-.chip {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #f1f1f1;
-  color: #333;
-}
-
-/* ===============================
-   BUTTONS & LINKS
-================================ */
-.btn-red {
-  display: inline-block;
-  width: fit-content;
-  margin-top: 0.5rem;
-  padding: 8px 14px;
-  border-radius: 8px;
-  background: #d32f2f;
-  color: #fff;
-  font-size: 0.9rem;
-  text-decoration: none;
-}
-
-.btn-red:hover {
-  opacity: 0.9;
-}
-
-.link-red {
-  color: #d32f2f;
+.paper-code {
   font-size: 0.85rem;
-  text-decoration: none;
-}
-
-.link-red:hover {
-  text-decoration: underline;
+  color: #666;
 }
 
 /* ===============================
-   AVAILABLE PAPERS LIST
+   SYLLABUS
 ================================ */
-.paper-list {
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0;
-}
 
-.paper-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.paper-list li:last-child {
-  border-bottom: none;
-}
-
-/* ===============================
-   SKELETON LOADERS
-================================ */
-.skeleton-group {
+#syllabus-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 0.6rem 0;
+  gap: 10px;
 }
 
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    #e6e6e6 25%,
-    #f2f2f2 37%,
-    #e6e6e6 63%
-  );
-  background-size: 400% 100%;
-  animation: skeleton-loading 1.4s ease infinite;
-  border-radius: 6px;
-}
-
-.skeleton-line {
-  height: 12px;
-}
-
-.skeleton-box {
-  height: 80px;
-}
-
-/* Width helpers */
-.w-90 { width: 90%; }
-.w-85 { width: 85%; }
-.w-80 { width: 80%; }
-.w-75 { width: 75%; }
-.w-70 { width: 70%; }
-.w-60 { width: 60%; }
-
-/* Skeleton animation */
-@keyframes skeleton-loading {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
-}
-
-/* ===============================
-   COMING SOON TEXT
-================================ */
-.coming-soon {
-  font-size: 0.8rem;
-  color: #777;
-  margin-top: 6px;
-}
-
-/* ===============================
-   DESKTOP ENHANCEMENT
-================================ */
-@media (min-width: 768px) {
-  .paper-title {
-    font-size: 1.6rem;
-  }
-}
-
-/* ===== Syllabus Accordion UI ===== */
-
-.syllabus-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.syllabus-section h2 {
-  font-size: 1.15rem;
-}
-
-#download-full {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-
+/* syllabus card */
 .syllabus-unit {
   border: 1px solid #e6e6e6;
-  border-radius: 8px;
-  margin-bottom: 0.6rem;
-  overflow: hidden;
-}
-
-.unit-header {
-  width: 100%;
+  border-radius: 10px;
   background: #fafafa;
-  border: none;
-  padding: 0.65rem 0.8rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-}
-
-.unit-header:hover {
-  background: #f2f2f2;
-}
-
-.unit-title {
-  text-align: left;
-}
-
-.unit-arrow {
-  font-size: 1rem;
-  margin-left: 0.4rem;
-  transition: transform 0.2s ease;
-}
-
-.unit-download {
-  background: none;
-  border: none;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.unit-content {
-  display: none;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.unit-content ul {
-  padding-left: 1rem;
-}
-
-.unit-content li {
-  margin-bottom: 0.35rem;
-}
-
-.syllabus-unit.active .unit-content {
-  display: block;
-}
-
-.syllabus-unit.active .unit-arrow {
-  transform: rotate(90deg);
-}
-
-.unit-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-/* Download icon */
-.unit-download {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.unit-download img {
-  width: 18px;
-  height: 18px;
-  opacity: 0.75;
-}
-
-.unit-download:hover img {
-  opacity: 1;
-}
-
-/* Expand / collapse arrow */
-.unit-arrow {
-  width: 0;
-  height: 0;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  border-left: 8px solid #555; /* ▶ */
-  transition: transform 0.2s ease;
-}
-
-/* When expanded → arrow points DOWN */
-.syllabus-unit.active .unit-arrow {
-  transform: rotate(90deg);
-     }
-
-/* ===== Unit action icons fix ===== */
-
-.unit-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Download icon */
-.unit-download {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  line-height: 0;
-}
-
-.unit-download img {
-  width: 16px;
-  height: 16px;
-  display: block;
-  opacity: 0.7;
-}
-
-.unit-download:hover img {
-  opacity: 1;
-}
-
-/* Dropdown arrow (CSS triangle) */
-.unit-arrow {
-  width: 0;
-  height: 0;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  border-left: 7px solid #555; /* ▶ */
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-/* Expanded state → ▼ */
-.syllabus-unit.active .unit-arrow {
-  transform: rotate(90deg);
-}
-
-/* ===== Syllabus header fix ===== */
-
-.syllabus-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.syllabus-header h2 {
-  margin: 0;
-}
-
-/* Header download button */
-#download-full {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  line-height: 0;
-}
-
-#download-full img {
-  width: 20px;      /* 👈 THIS is the key */
-  height: 20px;
-  display: block;
-  opacity: 0.75;
-}
-
-#download-full:hover img {
-  opacity: 1;
-}
-
-/* ===== FINAL FIX: Unit header layout ===== */
-
-.unit-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;   /* 👈 IMPORTANT */
-}
-
-.unit-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-/* Clean CSS arrow */
-.unit-arrow {
-  width: 0;
-  height: 0;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  border-left: 8px solid #444; /* ▶ */
-  transition: transform 0.2s ease;
-}
-
-/* Expanded = ▼ */
-.syllabus-unit.active .unit-arrow {
-  transform: rotate(90deg);
-}
-
-/* ===== Syllabus meta info ===== */
-
-.syllabus-info {
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 0.6rem;
-}
-
-/* ===== FINAL UNIT HEADER STRUCTURE ===== */
-
-.unit-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.unit-toggle {
-  background: none;
-  border: none;
-  padding: 0.6rem 0.8rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-}
-
-.unit-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding-right: 0.8rem;
-}
-
-/* Proper arrow (no stretching now) */
-.unit-arrow {
-  width: 0;
-  height: 0;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  border-left: 8px solid #444; /* ▶ */
-  transition: transform 0.2s ease;
-}
-
-/* Expanded → ▼ */
-.syllabus-unit.active .unit-arrow {
-  transform: rotate(90deg);
-}
-
-/* ===== Syllabus unit header polish ===== */
-
-.unit-title {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.unit-name {
-  font-weight: 600;
-}
-
-.unit-lectures {
-  font-size: 0.8rem;
-  font-weight: 400;
-  color: #6b7280; /* light grey */
-  white-space: nowrap;
-}
-
-/* =========================
-   REPEATED QUESTIONS
-========================== */
-
-.rq-unit {
-  border-bottom: 1px solid #eaeaea;
-  padding: 10px 0;
-}
-
-.rq-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.rq-toggle {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 15px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  color: #222;
-}
-
-.rq-arrow {
-  width: 10px;
-  height: 10px;
-  border-right: 2px solid #444;
-  border-bottom: 2px solid #444;
-  transform: rotate(-45deg);
-  transition: transform 0.2s ease;
-  margin-left: 8px;
-}
-
-.rq-unit.active .rq-arrow {
-  transform: rotate(45deg);
-}
-
-.rq-content {
-  display: none;
-  margin-top: 8px;
-}
-
-.rq-unit.active .rq-content {
-  display: block;
-}
-
-.rq-content ul {
-  padding-left: 18px;
-}
-
-.rq-content li {
-  margin-bottom: 8px;
-  line-height: 1.45;
-}
-
-.rq-meta {
-  color: #777;
-  font-size: 13px;
-  margin-left: 4px;
-}
-
-/* =========================
-   REPEATED QUESTIONS (POLISHED)
-========================= */
-
-.rq-unit {
-  margin-bottom: 14px;
-}
-
-.rq-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 14px 16px;
-  background: #f7f7f7;
-  border-radius: 8px;
-
-  font-size: 1.05rem;
-  font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-}
-
-.rq-arrow {
-  transition: transform 0.25s ease;
-}
-
-.rq-unit.active .rq-arrow {
-  transform: rotate(180deg);
-}
-
-.rq-content {
-  display: none;
-  margin-top: 10px;
-}
-
-.rq-unit.active .rq-content {
-  display: block;
-}
-
-.rq-list {
-  padding-left: 0;
-  margin: 0;
-}
-
-.rq-question {
-  list-style-position: inside;
-
   padding: 12px 14px;
-  margin-bottom: 12px;
-
-  background: #fafafa;
-  border-radius: 8px;
-
-  line-height: 1.5;
   font-size: 0.95rem;
+}
+
+/* REMOVE ALL DOTS FOREVER */
+.syllabus-unit::before,
+.syllabus-unit *::before {
+  content: none !important;
+}
+
+/* ===============================
+   REPEATED QUESTIONS
+================================ */
+
+#repeated-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* unit title */
+.rq-unit-header {
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* short question */
+.rq-question {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 10px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 10px;
+  align-items: start;
+}
+
+.rq-number {
+  font-weight: 600;
+  text-align: right;
 }
 
 .rq-text {
-  margin-bottom: 6px;
+  line-height: 1.5;
 }
 
-.rq-meta {
+.rq-marks {
+  background: #f1f1f1;
+  padding: 2px 8px;
+  border-radius: 999px;
   font-size: 0.8rem;
-  color: #666;
-  display: flex;
-  gap: 12px;
 }
 
-summary {
-  list-style: none;
-}
-
-summary::-webkit-details-marker {
-  display: none;
-}
-
-/* REMOVE small default chevron in Repeated Questions */
-.repeated-questions .rq-header::after,
-.repeated-questions .rq-header::before {
-  content: none !important;
-  background: none !important;
-}
-
-/* 🔥 NUCLEAR: remove ALL chevrons/arrows from Repeated Questions */
-.repeated-questions *,
-.repeated-questions *::before,
-.repeated-questions *::after {
-  content: none !important;
-  background-image: none !important;
-  background: none !important;
-}
-
-/* ===============================
-   Repeated Questions – Redesign
-================================ */
-
-/* Ordered list spacing */
-.rq-list {
-  padding-left: 20px;
-}
-
-/* Each question card */
-.rq-question {
-  padding: 14px;
-  margin-bottom: 12px;
-  border-radius: 10px;
+/* long question */
+.rq-choice {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+  padding: 12px;
   background: #fafafa;
+  border-radius: 10px;
 }
 
-/* Keep number + question on same line */
+.rq-long-number {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* parts (a), (b) */
+.rq-part {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.rq-part-label {
+  font-weight: 600;
+}
+
+/* OR */
+.rq-or {
+  text-align: center;
+  font-weight: 600;
+  color: #888;
+  margin: 8px 0;
+}e */
 .rq-text {
   display: inline;
   line-height: 1.5;
