@@ -122,3 +122,38 @@
     0 2px 6px rgba(0,0,0,.06),
     0 10px 24px rgba(0,0,0,.04);
 }
+
+/* =========================
+   BROWSE PAGE CARDS
+========================= */
+
+.paper-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.06),
+    0 10px 24px rgba(0,0,0,0.04);
+  cursor: pointer;
+}
+
+.paper-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.paper-card p {
+  font-size: 0.9rem;
+  margin: 4px 0;
+  color: #444;
+}
+
+.paper-card small {
+  color: #777;
+}
+
+.open-pdf {
+  margin-top: 8px;
+  color: #e11d48;
+  font-weight: 600;
+}
