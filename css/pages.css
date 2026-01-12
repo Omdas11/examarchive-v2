@@ -1,39 +1,101 @@
 /* =========================
-   GLOBAL PAGES (SAFE)
+   HERO / HOME
 ========================= */
-
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+.hero {
+  text-align: center;
+  margin-top: 2rem;
 }
 
-/* buttons */
-.btn-red {
-  background: #e11d48;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 8px;
-  text-decoration: none;
+.hero h1 {
+  font-size: 2rem;
+  margin-bottom: 0.6rem;
+}
+
+.hero p {
+  max-width: 520px;
+  margin: 0 auto 1.4rem;
+  color: #444;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* =========================
+   BROWSE HEADER
+========================= */
+.browse-header {
+  margin-bottom: 1.5rem;
+}
+
+.browse-header h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.browse-header p {
+  color: #555;
   font-size: 0.9rem;
 }
 
-/* paper cards */
+/* =========================
+   SEARCH
+========================= */
+.browse-search input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.6rem;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.browse-search input:focus {
+  outline: none;
+  border-color: #e11d48;
+}
+
+/* =========================
+   PAPER CARDS
+========================= */
 .paper-card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 14px;
   box-shadow:
-    0 2px 6px rgba(0,0,0,0.06),
-    0 8px 20px rgba(0,0,0,0.04);
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.paper-code {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.paper-title {
+  font-size: 0.95rem;
+  color: #444;
+  margin: 6px 0 8px;
+}
+
+.paper-meta {
+  font-size: 0.8rem;
+  color: #777;
 }
 
 .paper-action {
-  color: #e11d48;
+  margin-top: 12px;
+  font-size: 0.85rem;
   font-weight: 600;
+  color: #e11d48;
 }
 
-/* grid */
+/* =========================
+   PAPERS GRID
+========================= */
 .papers-list {
   display: grid;
   grid-template-columns: 1fr;
