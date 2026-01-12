@@ -750,3 +750,55 @@ summary::-webkit-details-marker {
   margin: 8px 0;
   color: #777;
    }
+
+/* === FORCE REMOVE syllabus dot === */
+#syllabus-container *::before {
+  content: none !important;
+}
+
+/* ================================
+   REPEATED QUESTIONS – HARD FIX
+================================ */
+
+/* Short questions (1,2,3) */
+.rq-question {
+  display: grid !important;
+  grid-template-columns: 32px 1fr auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.rq-question .rq-number {
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Long question container (4,5,…) */
+.rq-choice {
+  display: grid !important;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+/* Number for long question */
+.rq-long-number {
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Each (a), (b) part */
+.rq-part {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+
+/* OR separator */
+.rq-or {
+  text-align: center;
+  font-weight: 600;
+  margin: 10px 0;
+  color: #777;
+}
