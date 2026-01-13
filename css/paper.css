@@ -1,213 +1,6 @@
-body {
-  background: lime !important;
-}
-
-/* Remove bullets ONLY on paper page */
-.paper-page ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-/* ===============================
-   PAPER PAGE
-================================ */
-.paper-page {
-  max-width: 900px;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-}
-
 /* ===============================
    SYLLABUS
 ================================ */
-#syllabus-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.syllabus-unit {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.syllabus-header {
-  padding: 12px 14px;
-  font-weight: 600;
-  background: #fafafa;
-  cursor: pointer;
-}
-
-.syllabus-content {
-  padding: 12px 16px;
-  font-size: 0.9rem;
-}
-
-/* ❌ NO BULLETS HERE */
-.syllabus-content ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-.syllabus-content li {
-  margin-bottom: 6px;
-}
-
-/* ===============================
-   REPEATED QUESTIONS
-================================ */
-#repeated-container {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.rq-unit-header {
-  font-weight: 600;
-  font-size: 1.05rem;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 6px;
-  cursor: pointer;
-}
-
-/* Short questions */
-.rq-question {
-  display: grid;
-  grid-template-columns: 32px 1fr auto;
-  gap: 10px;
-  padding: 12px;
-  background: #fafafa;
-  border-radius: 10px;
-  align-items: start;
-}
-
-.rq-number {
-  font-weight: 600;
-  text-align: right;
-}
-
-.rq-text {
-  line-height: 1.5;
-}
-
-.rq-marks {
-  background: #f1f1f1;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-}
-
-/* Long questions */
-.rq-choice {
-  display: grid;
-  grid-template-columns: 32px 1fr;
-  gap: 10px;
-  padding: 12px;
-  background: #fafafa;
-  border-radius: 10px;
-}
-
-.rq-long-number {
-  font-weight: 600;
-  text-align: right;
-}
-
-/* (a), (b) parts */
-.rq-part {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-.rq-part-label {
-  font-weight: 600;
-}
-
-.rq-or {
-  text-align: center;
-  font-weight: 600;
-  color: #888;
-  margin: 8px 0;
-}
-
-/* =========================
-   PAPER PAGE FIXES
-========================= */
-
-/* Card layout */
-.card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow:
-    0 2px 6px rgba(0,0,0,0.06),
-    0 8px 20px rgba(0,0,0,0.04);
-}
-
-/* Paper sections */
-.paper-section {
-  margin-top: 1.2rem;
-}
-
-/* Muted text */
-.muted {
-  color: #666;
-  font-size: 0.85rem;
-}
-
-/* Chips */
-.chip {
-  display: inline-block;
-  background: #f1f1f1;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  margin-right: 6px;
-}
-
-/* Red button */
-.btn-red {
-  display: inline-block;
-  margin-top: 0.6rem;
-  padding: 8px 14px;
-  background: #e11d48;
-  color: #fff;
-  border-radius: 8px;
-  font-size: 0.9rem;
-}
-
-/* Red links */
-.link-red {
-  color: #e11d48;
-  font-weight: 500;
-}
-
-/* REMOVE BULLETS (this kills the dot) */
-.paper-list {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-.paper-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.paper-list li:last-child {
-  border-bottom: none;
-}
-
-/* ===== Syllabus ===== */
-
 .syllabus-list {
   list-style: none;
   padding: 0;
@@ -215,39 +8,41 @@ body {
 }
 
 .syllabus-list li {
-  padding: 12px 14px;
-  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 14px 16px;
+  border-radius: 12px;
   margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
 }
 
-.syllabus-list li::marker {
-  content: none;
-}
-
-.syllabus-download {
-  font-size: 20px;
-}
-
-/* ===== Repeated Questions ===== */
-
+/* ===============================
+   REPEATED QUESTIONS
+================================ */
 .rq-unit {
   font-weight: 700;
-  padding: 14px;
-  border-bottom: 1px solid #e5e7eb;
+  margin: 18px 0 8px;
 }
 
 .rq-question {
   background: #fff;
   border-radius: 12px;
-  padding: 14px;
-  margin: 10px 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .rq-number {
   font-weight: 700;
-  color: #e11d48;
   margin-right: 6px;
+}
+
+/* ===============================
+   NOTES & RESOURCES
+================================ */
+.notes-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
