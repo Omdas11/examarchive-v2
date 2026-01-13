@@ -1,165 +1,6 @@
-/* =========================
-   HERO / HOME
-========================= */
-.hero {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.hero h1 {
-  font-size: 2rem;
-  margin-bottom: 0.6rem;
-}
-
-.hero p {
-  max-width: 520px;
-  margin: 0 auto 1.4rem;
-  color: #444;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 0.8rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* =========================
-   BROWSE HEADER
-========================= */
-.browse-header {
-  margin-bottom: 1.5rem;
-}
-
-.browse-header h1 {
-  font-size: 1.6rem;
-  margin-bottom: 0.4rem;
-}
-
-.browse-header p {
-  color: #555;
-  font-size: 0.9rem;
-}
-
-/* =========================
-   SEARCH
-========================= */
-.browse-search input {
-  width: 100%;
-  padding: 0.7rem 0.8rem;
-  border-radius: 0.6rem;
-  border: 1px solid #ccc;
-  font-size: 0.9rem;
-}
-
-.browse-search input:focus {
-  outline: none;
-  border-color: #e11d48;
-}
-
-/* =========================
-   PAPER CARDS
-========================= */
-.paper-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 14px;
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.06),
-    0 8px 20px rgba(0, 0, 0, 0.04);
-}
-
-.paper-code {
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.paper-title {
-  font-size: 0.95rem;
-  color: #444;
-  margin: 6px 0 8px;
-}
-
-.paper-meta {
-  font-size: 0.8rem;
-  color: #777;
-}
-
-.paper-action {
-  margin-top: 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #e11d48;
-}
-
-/* =========================
-   PAPERS GRID
-========================= */
-.papers-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-@media (min-width: 640px) {
-  .papers-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .papers-list {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.paper-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow:
-    0 2px 6px rgba(0,0,0,.06),
-    0 10px 24px rgba(0,0,0,.04);
-}
-
-/* =========================
-   BROWSE PAGE CARDS
-========================= */
-
-.paper-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 1rem;
-  box-shadow:
-    0 2px 6px rgba(0,0,0,0.06),
-    0 10px 24px rgba(0,0,0,0.04);
-  cursor: pointer;
-}
-
-.paper-card h3 {
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.paper-card p {
-  font-size: 0.9rem;
-  margin: 4px 0;
-  color: #444;
-}
-
-.paper-card small {
-  color: #777;
-}
-
-.open-pdf {
-  margin-top: 8px;
-  color: #e11d48;
-  font-weight: 600;
-}
-
-/* ===== Browse Filters ===== */
-
+/* ===============================
+   FILTERS (Browse Page)
+================================ */
 .filter-group {
   display: flex;
   flex-wrap: wrap;
@@ -168,9 +9,10 @@
 }
 
 .filter-chip {
-  padding: 6px 14px;
+  padding: 8px 14px;
   border-radius: 999px;
-  background: #f1f5f9;
+  background: #ececec;
+  font-weight: 600;
   font-size: 14px;
   cursor: pointer;
 }
@@ -180,16 +22,39 @@
   color: #fff;
 }
 
+/* ===============================
+   SEARCH + SORT
+================================ */
 .search-box {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
   margin: 12px 0;
 }
 
 .sort-select {
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-   }
+  margin-top: 8px;
+}
+
+/* ===============================
+   PAPER CARDS (Browse)
+================================ */
+.paper-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.paper-card h3 {
+  margin: 0 0 6px 0;
+}
+
+.paper-meta {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.paper-link {
+  color: #e11d48;
+  font-weight: 600;
+}
