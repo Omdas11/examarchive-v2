@@ -105,3 +105,84 @@ button {
     text-align: center;
   }
 }
+
+/* ===== Core UI Utilities ===== */
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  margin-bottom: 16px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+}
+
+.btn-red {
+  background: #e11d48;
+  color: #fff;
+}
+
+.btn-light {
+  background: #f1f5f9;
+  color: #111;
+}
+
+.link-red {
+  color: #e11d48;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link-red:hover {
+  text-decoration: underline;
+}
+
+.chip {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  font-size: 13px;
+  margin-right: 6px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 24px 0 12px;
+}
+
+/* Skeleton */
+.skeleton {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #eee 25%,
+    #f5f5f5 37%,
+    #eee 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
