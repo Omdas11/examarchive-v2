@@ -201,3 +201,49 @@
 .paper-list li:last-child {
   border-bottom: none;
 }
+
+/* ===== Syllabus ===== */
+
+.syllabus-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.syllabus-list li {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 10px;
+}
+
+.syllabus-list li::marker {
+  content: none;
+}
+
+.syllabus-download {
+  font-size: 20px;
+}
+
+/* ===== Repeated Questions ===== */
+
+.rq-unit {
+  font-weight: 700;
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rq-question {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 10px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.rq-number {
+  font-weight: 700;
+  color: #e11d48;
+  margin-right: 6px;
+}
