@@ -1,60 +1,107 @@
-/* ===============================
-   FILTERS (Browse Page)
-================================ */
-.filter-group {
+/* =========================
+   HOME / INDEX PAGE
+========================= */
+
+.home {
+  padding: 1.5rem 1.25rem;
+}
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.home .hero {
+  max-width: 900px;
+  margin: 0 auto 2.5rem;
+}
+
+.home .hero h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.home .hero p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+  max-width: 600px;
+  margin-bottom: 1.4rem;
+}
+
+/* =========================
+   HERO ACTIONS
+========================= */
+
+.hero-actions {
   display: flex;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
 }
 
-.filter-chip {
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: #ececec;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.filter-chip.active {
+/* Primary button */
+.primary-btn {
   background: #e11d48;
-  color: #fff;
+  color: #ffffff;
+  padding: 0.65rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  display: inline-block;
 }
 
-/* ===============================
-   SEARCH + SORT
-================================ */
-.search-box {
-  margin: 12px 0;
+.primary-btn:hover {
+  opacity: 0.9;
 }
 
-.sort-select {
-  margin-top: 8px;
+/* Secondary button */
+.secondary-btn {
+  background: #f1f1f1;
+  color: #111;
+  padding: 0.65rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  display: inline-block;
 }
 
-/* ===============================
-   PAPER CARDS (Browse)
-================================ */
-.paper-card {
-  background: #fff;
+/* =========================
+   FEATURES SECTION
+========================= */
+
+.features {
+  max-width: 900px;
+  margin: 0 auto 2.5rem;
+  display: grid;
+  gap: 1.2rem;
+}
+
+.feature {
+  background: #ffffff;
   border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 1.1rem 1.2rem;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
-.paper-card h3 {
-  margin: 0 0 6px 0;
+.feature h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.35rem;
 }
 
-.paper-meta {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
+.feature p {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0;
 }
 
-.paper-link {
-  color: #e11d48;
-  font-weight: 600;
+/* =========================
+   MOBILE TUNING
+========================= */
+
+@media (max-width: 480px) {
+  .home .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .home .hero p {
+    font-size: 0.95rem;
+  }
 }
