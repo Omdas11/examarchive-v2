@@ -131,3 +131,21 @@
     grid-column: span 4;
   }
 }
+
+/* ---------- Mobile Nav ---------- */
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  background: #fff;
+  border-top: 1px solid var(--border);
+  padding: 0.8rem 1rem;
+}
+
+.mobile-nav a {
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.mobile-nav.open {
+  display: flex;
+}
