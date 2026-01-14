@@ -67,16 +67,18 @@ function renderPaperHeaderFromPapers(papers) {
 
   const pdfLink = document.getElementById("latestPdfLink");
   pdfLink.href = latest.pdf;
+  pdfLink.target = "_blank";
+  pdfLink.rel = "noopener";
 }
 
 /* =========================
-   AVAILABLE PAPERS
+   AVAILABLE PAPERS (LINK ONLY)
 ========================= */
 function renderAvailablePapers(papers) {
   const list = document.getElementById("availablePapers");
   list.innerHTML = "";
 
-  papers.forEach((p, index) => {
+  papers.forEach(p => {
     const li = document.createElement("li");
     li.className = "paper-row";
 
@@ -84,8 +86,9 @@ function renderAvailablePapers(papers) {
       <span>${p.year}</span>
       <a
         href="${p.pdf}"
-        class="${index === 0 ? "btn btn-red" : "link-red"}"
+        class="link-red"
         target="_blank"
+        rel="noopener"
       >
         Open PDF →
       </a>
@@ -96,7 +99,7 @@ function renderAvailablePapers(papers) {
 }
 
 /* =========================
-   SYLLABUS (DOT FIXED)
+   SYLLABUS
 ========================= */
 function renderSyllabus(data) {
   const container = document.getElementById("syllabus-container");
