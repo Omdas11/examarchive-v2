@@ -1,11 +1,17 @@
 // ===============================
-// Load header & footer
+// Load header & footer partials
 // ===============================
 function loadPartial(id, file) {
   fetch(file)
     .then(res => res.text())
     .then(data => {
-      document.getElementById(id).innerHTML = data;
+      const container = document.getElementById(id);
+      if (container) {
+        container.innerHTML = data;
+      }
+    })
+    .catch(err => {
+      console.error(`Failed to load ${file}:`, err);
     });
 }
 
@@ -16,13 +22,25 @@ loadPartial("footer", "partials/footer.html");
 // Mobile menu toggle (delegated)
 // ===============================
 document.addEventListener("click", (e) => {
+  // Hamburger button
   if (e.target.classList.contains("menu-btn")) {
-    document.querySelector(".nav")?.classList.toggle("active");
+    const mobileNav = document.getElementById("mobileNav");
+    if (mobileNav) {
+      mobileNav.classList.toggle("open");
+    }
+  }
+
+  // Optional: close menu when clicking a mobile link
+  if (e.target.closest(".mobile-nav a")) {
+    const mobileNav = document.getElementById("mobileNav");
+    if (mobileNav) {
+      mobileNav.classList.remove("open");
+    }
   }
 });
 
 // ===============================
-// Auto year
+// Auto-update footer year
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
   const yearSpan = document.getElementById("year");
