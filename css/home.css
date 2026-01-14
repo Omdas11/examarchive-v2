@@ -63,21 +63,20 @@
   color: var(--text-muted);
 }
 
-/* ---------- Desktop Layout ---------- */
-@media (min-width: 768px) {
+/* ---------- Desktop Layout (Improved) ---------- */
+@media (min-width: 1024px) {
   .home {
-    padding-top: 2.5rem;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 2.5rem;
+    align-items: start;
   }
 
   .hero {
-    max-width: 700px;
-  }
-
-  .hero-actions {
-    justify-content: flex-start; /* 👈 looks better on desktop */
+    max-width: none;
   }
 
   .features {
-    max-width: 720px;
+    margin-top: 0.5rem;
   }
 }
