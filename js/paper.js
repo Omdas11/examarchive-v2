@@ -26,9 +26,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       `data/syllabus/assam-university/physics/fyug/${paperCode}.json`
     );
 
+    const syllabusInfo = document.getElementById("syllabus-info");
+
     if (syllabusRes.ok) {
-      const syllabusData = await syllabusRes.json();
-      renderSyllabus(syllabusData);
+     const syllabusData = await syllabusRes.json();
+     renderSyllabus(syllabusData);
+    } else if (syllabusInfo) {
+      syllabusInfo.innerHTML = `
+       <p class="coming-soon">
+        Syllabus will be added soon.
+       </p>
+    `;
     }
 
     /* =========================
