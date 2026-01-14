@@ -1,87 +1,133 @@
 /* ================================
    ExamArchive – header.css
-   Header & navigation only
+   Header + Footer styles
    ================================ */
 
-/* ---------- Header Wrapper ---------- */
+/* ---------- Header ---------- */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 100;
   background: #fff;
   border-bottom: 1px solid var(--border);
-}
-
-/* ---------- Header Inner ---------- */
-.header-inner {
-  max-width: var(--max-width);
-  margin: 0 auto;
   padding: 0.6rem 1rem;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-/* ---------- Logo ---------- */
-.site-logo {
+.logo {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   letter-spacing: 0.3px;
 }
 
-.site-logo span {
-  color: var(--red);
-}
-
-/* ---------- Nav ---------- */
-.nav-links {
+/* ---------- Desktop Nav ---------- */
+.nav {
   display: flex;
   gap: 1rem;
 }
 
-.nav-links a {
+.nav-link {
   font-size: 0.9rem;
   color: var(--text-muted);
+  text-decoration: none;
 }
 
-.nav-links a.active {
+.nav-link:hover {
+  color: var(--red);
+}
+
+.nav-link.active {
   color: var(--red);
   font-weight: 600;
 }
 
-/* ---------- Hamburger ---------- */
-.hamburger {
+/* ---------- Mobile Menu Button ---------- */
+.menu-btn {
   display: none;
+  background: none;
+  border: none;
   font-size: 1.4rem;
   cursor: pointer;
 }
 
-/* ---------- Mobile Menu ---------- */
-.mobile-nav {
-  display: none;
-  flex-direction: column;
-  padding: 0.75rem 1rem;
+/* ---------- Footer ---------- */
+.site-footer {
+  margin-top: 3rem;
   border-top: 1px solid var(--border);
   background: #fff;
 }
 
-.mobile-nav a {
-  padding: 0.5rem 0;
-  font-size: 0.9rem;
-  color: var(--text);
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.5rem 1rem 1.8rem;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+}
+
+/* Brand */
+.footer-logo {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.footer-tagline {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+/* Sections */
+.footer-section h4 {
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
+.footer-section a {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+  text-decoration: none;
+}
+
+.footer-section a:hover {
+  color: var(--red);
+}
+
+/* Meta */
+.footer-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.6rem;
+}
+
+.footer-note {
+  margin-top: 0.3rem;
 }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
-  .nav-links {
+  .nav {
     display: none;
   }
 
-  .hamburger {
+  .menu-btn {
     display: block;
   }
+}
 
-  .mobile-nav.open {
-    display: flex;
+@media (min-width: 768px) {
+  .footer-inner {
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  }
+
+  .footer-meta {
+    grid-column: span 4;
   }
 }
