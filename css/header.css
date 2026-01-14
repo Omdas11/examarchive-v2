@@ -1,80 +1,87 @@
-/* =========================
-   HEADER
-========================= */
+/* ================================
+   ExamArchive – header.css
+   Header & navigation only
+   ================================ */
+
+/* ---------- Header Wrapper ---------- */
 .site-header {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------- Header Inner ---------- */
+.header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0.6rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  padding: 0.8rem 1rem;
-  background: #ffffff;
-  border-bottom: 1px solid #ddd;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-
-  font-size: 1.1rem;
+/* ---------- Logo ---------- */
+.site-logo {
   font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
 }
 
-/* =========================
-   NAV (MOBILE DROPDOWN)
-========================= */
-.nav {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
+.site-logo span {
+  color: var(--red);
+}
 
+/* ---------- Nav ---------- */
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-links a {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.nav-links a.active {
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* ---------- Hamburger ---------- */
+.hamburger {
+  display: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* ---------- Mobile Menu ---------- */
+.mobile-nav {
   display: none;
   flex-direction: column;
-  gap: 0.3rem;
-
-  background: #ffffff;
-  border-bottom: 1px solid #ddd;
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  background: #fff;
 }
 
-.nav.active {
-  display: flex;
+.mobile-nav a {
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text);
 }
 
-.nav-link {
-  padding: 0.5rem 0.6rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-}
-
-.nav-link:hover {
-  background: #f1f1f1;
-}
-
-/* =========================
-   HAMBURGER
-========================= */
-.menu-btn {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-/* =========================
-   DESKTOP
-========================= */
-@media (min-width: 768px) {
-  .nav {
-    position: static;
-    display: flex !important;
-    flex-direction: row;
-    width: auto;
-    padding: 0;
-    border: none;
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
   }
 
-  .menu-btn {
-    display: none;
+  .hamburger {
+    display: block;
+  }
+
+  .mobile-nav.open {
+    display: flex;
   }
 }
