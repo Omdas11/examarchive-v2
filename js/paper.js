@@ -6,13 +6,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const downloadBtn = document.getElementById("download-full");
   const noSyllabusMsg = document.getElementById("no-syllabus");
 
-  // Hide by default
   if (downloadBtn) downloadBtn.style.display = "none";
   if (noSyllabusMsg) noSyllabusMsg.hidden = true;
 
   try {
     /* =========================
-       LOAD PAPERS.JSON (SOURCE OF TRUTH)
+       LOAD PAPERS.JSON
     ========================= */
     const papersRes = await fetch("data/papers.json");
     const papers = await papersRes.json();
@@ -38,9 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (downloadBtn) {
         downloadBtn.style.display = "inline-flex";
-        downloadBtn.onclick = () => {
-          window.open(syllabusPath, "_blank");
-        };
+        downloadBtn.onclick = () => window.open(syllabusPath, "_blank");
       }
     } else {
       if (noSyllabusMsg) noSyllabusMsg.hidden = false;
@@ -64,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* =========================
-   PAPER HEADER (FROM PAPERS.JSON)
+   PAPER HEADER
 ========================= */
 function renderPaperHeaderFromPapers(papers) {
   const latest = papers[0];
@@ -72,8 +69,7 @@ function renderPaperHeaderFromPapers(papers) {
   document.getElementById("paperTitle").textContent = latest.paper_name;
   document.getElementById("paperCode").textContent = latest.paper_code;
 
-  const meta = document.getElementById("paperMeta");
-  meta.innerHTML = `
+  document.getElementById("paperMeta").innerHTML = `
     <span class="chip">${latest.programme}</span>
     <span class="chip">Semester ${latest.semester}</span>
     <span class="chip">${latest.course_type}</span>
@@ -87,7 +83,7 @@ function renderPaperHeaderFromPapers(papers) {
 }
 
 /* =========================
-   AVAILABLE PAPERS (LINK ONLY)
+   AVAILABLE PAPERS
 ========================= */
 function renderAvailablePapers(papers) {
   const list = document.getElementById("availablePapers");
@@ -99,16 +95,10 @@ function renderAvailablePapers(papers) {
 
     li.innerHTML = `
       <span>${p.year}</span>
-      <a
-        href="${p.pdf}"
-        class="link-red"
-        target="_blank"
-        rel="noopener"
-      >
+      <a href="${p.pdf}" class="link-red" target="_blank" rel="noopener">
         Open PDF →
       </a>
     `;
-
     list.appendChild(li);
   });
 }
@@ -123,22 +113,10 @@ function renderSyllabus(data) {
   container.innerHTML = "";
 
   data.units.forEach(unit => {
-    const unitLabel =
-      unit.unit ||
-      unit.unit_no ||
-      unit.unit_number ||
-      "";
-
-    const unitTitle =
-      unit.title ||
-      unit.topics_title ||
-      unit.name ||
-      "";
-
     const heading =
-      unitLabel && unitTitle
-        ? `${unitLabel} · ${unitTitle}`
-        : unitLabel || unitTitle;
+      unit.unit && unit.title
+        ? `${unit.unit} · ${unit.title}`
+        : unit.unit || unit.title || "";
 
     const block = document.createElement("div");
     block.className = "syllabus-unit";
@@ -161,7 +139,7 @@ function renderSyllabus(data) {
 }
 
 /* =========================
-   REPEATED QUESTIONS
+   REPEATED QUESTIONS (FIXED)
 ========================= */
 function renderRepeatedQuestions(sections) {
   const container = document.getElementById("repeated-container");
@@ -170,7 +148,7 @@ function renderRepeatedQuestions(sections) {
   container.innerHTML = "";
 
   const unitMap = {};
-  let counter = 1;
+  let shortCounter = 1;
 
   sections.forEach(section => {
     if (!Array.isArray(section.units)) return;
@@ -199,12 +177,13 @@ function renderRepeatedQuestions(sections) {
 
     const content = block.querySelector(".rq-unit-content");
 
+    /* ---- Section A (short) ---- */
     data.short.forEach(q => {
       content.insertAdjacentHTML(
         "beforeend",
         `
         <div class="rq-question">
-          <span class="rq-number">${counter++}.</span>
+          <span class="rq-number">${shortCounter++}.</span>
           <span class="rq-text">${q.question}</span>
           <span class="rq-marks">${q.marks || ""}</span>
         </div>
@@ -212,15 +191,18 @@ function renderRepeatedQuestions(sections) {
       );
     });
 
+    /* ---- Section B (long, FIXED) ---- */
     data.long.forEach((choice, idx) => {
-      const base = counter++;
+      const mainNo = choice.question_no;
 
-      choice.parts.forEach(part => {
+      choice.parts.forEach((part, pIndex) => {
+        const sub = pIndex === 0 ? "i" : "ii";
+
         content.insertAdjacentHTML(
           "beforeend",
           `
           <div class="rq-part">
-            <span class="rq-number">${base}.</span>
+            <span class="rq-number">${mainNo}.${sub}</span>
             <span class="rq-text">${part.question}</span>
             <span class="rq-marks">${
               Array.isArray(part.breakup)
@@ -230,12 +212,19 @@ function renderRepeatedQuestions(sections) {
           </div>
           `
         );
+
+        if (pIndex === 0) {
+          content.insertAdjacentHTML(
+            "beforeend",
+            `<div class="rq-or">OR</div>`
+          );
+        }
       });
 
       if (idx < data.long.length - 1) {
         content.insertAdjacentHTML(
           "beforeend",
-          `<div class="rq-or">OR</div>`
+          `<div class="rq-choice-gap"></div>`
         );
       }
     });
@@ -246,4 +235,4 @@ function renderRepeatedQuestions(sections) {
 
     container.appendChild(block);
   });
-      }
+}
