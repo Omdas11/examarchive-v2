@@ -1,205 +1,208 @@
 /* ================================
    ExamArchive – paper.css
-   Styles only for paper.html
+   Paper detail page styles
    ================================ */
 
-/* ---------- Page Wrapper ---------- */
 .paper-page {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.2rem 1rem;
 }
-
-/* ---------- Section Blocks ---------- */
-.paper-section {
-  margin-top: 1.5rem;
-}
-
-.paper-section h2 {
-  font-size: 1.05rem;
-  margin-bottom: 0.75rem;
-}
-
-/* ---------- Syllabus ---------- */
-.syllabus-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.syllabus-unit {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 0.75rem;
-  background: #fff;
-}
-
-/* ---------- Repeated Questions ---------- */
-.rq-unit {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  margin-bottom: 0.75rem;
-  overflow: hidden;
-}
-
-/* Unit Header (clickable) */
-.rq-unit-header {
-  padding: 0.75rem 0.9rem;
-  background: var(--bg-soft);
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Arrow */
-.rq-unit-header span {
-  transition: transform 0.2s ease;
-}
-
-.rq-unit.open .rq-unit-header span {
-  transform: rotate(90deg);
-}
-
-/* Questions container */
-.rq-questions {
-  padding: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-/* Individual Question */
-.rq-question {
-  background: var(--bg-soft);
-  border-radius: var(--radius-sm);
-  padding: 0.6rem 0.7rem;
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-/* Question Number */
-.rq-question strong {
-  margin-right: 0.3rem;
-}
-
-/* ---------- Empty State ---------- */
-.empty {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-/* ================================
-   Paper page – visual polish
-   ================================ */
 
 /* ---------- Paper Header ---------- */
 .paper-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+
+.paper-code {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .paper-title {
-  font-size: 1.25rem;
-  line-height: 1.3;
+  font-size: 1.4rem;
+  margin: 0.2rem 0 0.6rem;
 }
 
 .paper-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.chip {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text-muted);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.btn-red {
+  background: var(--red);
+  color: #fff;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* ---------- Sections ---------- */
+.paper-section {
+  margin-top: 1.4rem;
+}
+
+.paper-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.6rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* ---------- Available Papers ---------- */
 .paper-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 0.6rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.paper-list li {
+.paper-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0.75rem;
+  justify-content: space-between;
+  padding: 0.7rem 0.8rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-soft);
-  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 0.6rem;
+  background: #fff;
+}
+
+.paper-row span {
+  font-size: 0.85rem;
+}
+
+.link-red {
+  color: var(--red);
+  font-size: 0.85rem;
 }
 
 /* ---------- Syllabus ---------- */
 .syllabus-section {
-  margin-top: 1.5rem;
-}
-
-.syllabus-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
+  margin-top: 1.6rem;
 }
 
 .download-btn {
   background: none;
   border: none;
-  padding: 0.25rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--red);
+}
+
+.syllabus-unit {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.7rem;
+  overflow: hidden;
+}
+
+.syllabus-header {
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--bg-soft);
   cursor: pointer;
 }
 
-.download-btn img {
-  width: 20px;
-  height: 20px;
-  opacity: 0.7;
+.syllabus-content {
+  padding: 0.6rem 1rem 0.8rem;
 }
 
-.download-btn:hover img {
-  opacity: 1;
+.syllabus-content ul {
+  list-style: none; /* remove dots */
+  padding: 0;
+  margin: 0;
 }
 
-#syllabus-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+.syllabus-content li {
+  font-size: 0.85rem;
+  padding: 0.35rem 0;
+  color: var(--text-muted);
 }
 
 /* ---------- Repeated Questions ---------- */
-#repeated-container {
-  margin-top: 0.75rem;
+.rq-unit {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.7rem;
+  overflow: hidden;
 }
 
-/* ---------- Coming Soon / Loading ---------- */
+.rq-unit-header {
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--bg-soft);
+  cursor: pointer;
+}
+
+.rq-unit-content {
+  padding: 0.8rem 1rem;
+}
+
+.rq-question,
+.rq-part {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.45rem;
+}
+
+.rq-number {
+  font-weight: 600;
+}
+
+.rq-marks {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.rq-or {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0.4rem 0;
+}
+
+/* ---------- Skeleton / Coming Soon ---------- */
 .coming-soon {
   font-size: 0.85rem;
   color: var(--text-muted);
-  padding: 0.6rem 0;
-}
-
-/* ---------- Skeleton ---------- */
-.skeleton-group {
-  margin: 0.75rem 0;
-}
-
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    #eee 25%,
-    #f5f5f5 37%,
-    #eee 63%
-  );
-  background-size: 400% 100%;
-  animation: shimmer 1.2s ease-in-out infinite;
 }
 
 .skeleton-box {
-  height: 70px;
+  height: 90px;
   border-radius: var(--radius-md);
 }
 
-@keyframes shimmer {
-  0% { background-position: 100% 0; }
-  100% { background-position: 0 0; }
+/* ---------- Desktop ---------- */
+@media (min-width: 768px) {
+  .paper-title {
+    font-size: 1.6rem;
+  }
 }
