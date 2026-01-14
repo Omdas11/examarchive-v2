@@ -15,41 +15,101 @@
         {
           "unit": "Unit-I",
           "questions": [
-            { "question": "State with examples the principle of conservation of linear momentum.", "marks": 2 },
-            { "question": "What are conservative and non-conservative forces? Give examples.", "marks": 2 },
-            { "question": "Explain why a cricket player lowers his hands while catching a cricket ball.", "marks": 2 }
+            {
+              "question": "State with examples the principle of conservation of linear momentum.",
+              "marks": 2,
+              "years": [2023]
+            },
+            {
+              "question": "What are conservative and non-conservative forces? Give examples.",
+              "marks": 2,
+              "years": [2022, 2023]
+            },
+            {
+              "question": "Explain why a cricket player lowers his hands while catching a cricket ball.",
+              "marks": 2,
+              "years": [2023]
+            }
           ]
         },
         {
           "unit": "Unit-II",
           "questions": [
-            { "question": "Show that torque is given by the time rate of change of angular momentum.", "marks": 2 },
-            { "question": "Explain elasticity and reason of elasticity.", "marks": 2 },
-            { "question": "What do you mean by restoring torque?", "marks": 2 }
+            {
+              "question": "Show that torque is given by the time rate of change of angular momentum.",
+              "marks": 2,
+              "years": [2023]
+            },
+            {
+              "question": "Explain elasticity and reason of elasticity.",
+              "marks": 2,
+              "years": [2022, 2023]
+            },
+            {
+              "question": "What do you mean by restoring torque?",
+              "marks": 2,
+              "years": [2023]
+            }
           ]
         },
         {
           "unit": "Unit-III",
           "questions": [
-            { "question": "Define gravitational potential and gravitational potential energy.", "marks": 2 },
-            { "question": "What is the difference between inertial mass and gravitational mass?", "marks": 2 },
-            { "question": "Describe in brief global positioning system (GPS).", "marks": 2 }
+            {
+              "question": "Define gravitational potential and gravitational potential energy.",
+              "marks": 2,
+              "years": [2023]
+            },
+            {
+              "question": "What is the difference between inertial mass and gravitational mass?",
+              "marks": 2,
+              "years": [2022, 2023]
+            },
+            {
+              "question": "Describe in brief global positioning system (GPS).",
+              "marks": 2,
+              "years": [2023]
+            }
           ]
         },
         {
           "unit": "Unit-IV",
           "questions": [
-            { "question": "What are fictitious and Coriolis forces?", "marks": 2 },
-            { "question": "Define resonance and sharpness of resonance.", "marks": 2 },
-            { "question": "Find an expression of kinetic energy of a body executing SHM.", "marks": 2 }
+            {
+              "question": "What are fictitious and Coriolis forces?",
+              "marks": 2,
+              "years": [2023]
+            },
+            {
+              "question": "Define resonance and sharpness of resonance.",
+              "marks": 2,
+              "years": [2022, 2023]
+            },
+            {
+              "question": "Find an expression of kinetic energy of a body executing SHM.",
+              "marks": 2,
+              "years": [2023]
+            }
           ]
         },
         {
           "unit": "Unit-V",
           "questions": [
-            { "question": "What do you mean by mass-energy equivalence?", "marks": 2 },
-            { "question": "What do you mean by massless particle? Find the velocity of such particle.", "marks": 2 },
-            { "question": "What is the aim of Michelson–Morley experiment?", "marks": 2 }
+            {
+              "question": "What do you mean by mass-energy equivalence?",
+              "marks": 2,
+              "years": [2023]
+            },
+            {
+              "question": "What do you mean by massless particle? Find the velocity of such particle.",
+              "marks": 2,
+              "years": [2023]
+            },
+            {
+              "question": "What is the aim of Michelson–Morley experiment?",
+              "marks": 2,
+              "years": [2022, 2023]
+            }
           ]
         }
       ]
@@ -63,7 +123,7 @@
           "unit": "Unit-I",
           "choices": [
             {
-              "question_no": 16,
+              "years": [2023],
               "parts": [
                 {
                   "label": "a",
@@ -80,7 +140,7 @@
               ]
             },
             {
-              "question_no": 17,
+              "years": [2022, 2023],
               "parts": [
                 {
                   "label": "a",
@@ -103,7 +163,7 @@
           "unit": "Unit-II",
           "choices": [
             {
-              "question_no": 18,
+              "years": [2023],
               "parts": [
                 {
                   "label": "a",
@@ -120,7 +180,7 @@
               ]
             },
             {
-              "question_no": 19,
+              "years": [2022, 2023],
               "parts": [
                 {
                   "label": "a",
@@ -143,7 +203,7 @@
           "unit": "Unit-III",
           "choices": [
             {
-              "question_no": 20,
+              "years": [2023],
               "parts": [
                 {
                   "label": "a",
@@ -160,7 +220,7 @@
               ]
             },
             {
-              "question_no": 21,
+              "years": [2022, 2023],
               "parts": [
                 {
                   "label": "a",
@@ -177,88 +237,8 @@
               ]
             }
           ]
-        },
-
-        {
-          "unit": "Unit-IV",
-          "choices": [
-            {
-              "question_no": 22,
-              "parts": [
-                {
-                  "label": "a",
-                  "question": "State the important characteristics of SHM and derive the expression for its time period.",
-                  "marks": 5,
-                  "breakup": [2, 3]
-                },
-                {
-                  "label": "b",
-                  "question": "Explain forced and damped oscillations and obtain the general equation of displacement.",
-                  "marks": 5,
-                  "breakup": [2, 3]
-                }
-              ]
-            },
-            {
-              "question_no": 23,
-              "parts": [
-                {
-                  "label": "a",
-                  "question": "Differentiate inertial and non-inertial frames of reference and show that a rotating frame is non-inertial.",
-                  "marks": 5,
-                  "breakup": [2, 3]
-                },
-                {
-                  "label": "b",
-                  "question": "Set up the differential equation of motion of a body executing simple harmonic motion.",
-                  "marks": 5,
-                  "breakup": [2, 3]
-                }
-              ]
-            }
-          ]
-        },
-
-        {
-          "unit": "Unit-V",
-          "choices": [
-            {
-              "question_no": 24,
-              "parts": [
-                {
-                  "label": "a",
-                  "question": "Discuss the phenomenon of time dilation on the basis of Lorentz transformation.",
-                  "marks": 5,
-                  "breakup": [5]
-                },
-                {
-                  "label": "b",
-                  "question": "Describe the Michelson–Morley experiment.",
-                  "marks": 5,
-                  "breakup": [5]
-                }
-              ]
-            },
-            {
-              "question_no": 25,
-              "parts": [
-                {
-                  "label": "a",
-                  "question": "State the fundamental postulates of special relativity and explain length contraction.",
-                  "marks": 5,
-                  "breakup": [2.5, 2.5]
-                },
-                {
-                  "label": "b",
-                  "question": "Explain reference frames and Galilean transformations and show the low-velocity limit of Lorentz transformations.",
-                  "marks": 5,
-                  "breakup": [3, 2]
-                }
-              ]
-            }
-          ]
         }
       ]
     }
   ]
-            }
+}
