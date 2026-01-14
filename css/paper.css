@@ -108,9 +108,18 @@
 .download-btn {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  padding: 0.25rem;
   cursor: pointer;
-  color: var(--red);
+}
+
+.download-btn img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+.download-btn:hover img {
+  opacity: 1;
 }
 
 .syllabus-unit {
