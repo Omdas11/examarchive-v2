@@ -139,7 +139,7 @@ function renderSyllabus(data) {
 }
 
 /* =========================
-   REPEATED QUESTIONS (FINAL)
+   REPEATED QUESTIONS (FINAL WITH YEARS)
 ========================= */
 function renderRepeatedQuestions(sections) {
   const container = document.getElementById("repeated-container");
@@ -168,7 +168,7 @@ function renderRepeatedQuestions(sections) {
     });
   });
 
-  /* ---- Render each unit ONCE ---- */
+  /* ---- Render units ONCE ---- */
   Object.entries(unitMap).forEach(([unitName, data]) => {
     const block = document.createElement("div");
     block.className = "rq-unit";
@@ -180,51 +180,85 @@ function renderRepeatedQuestions(sections) {
 
     const content = block.querySelector(".rq-unit-content");
 
-    /* ---------- SECTION A ---------- */
+    /* ---------- SECTION A (YEAR-WISE) ---------- */
+    const shortByYear = {};
+
     data.short.forEach(q => {
-      content.insertAdjacentHTML(
-        "beforeend",
-        `
-        <div class="rq-question">
-          <span class="rq-number">${qNo++}.</span>
-          <span class="rq-text">${q.question}</span>
-          <span class="rq-marks">${q.marks || ""}</span>
-        </div>
-        `
-      );
+      const years = q.years?.length ? q.years : ["Unknown"];
+      years.forEach(y => {
+        shortByYear[y] ||= [];
+        shortByYear[y].push(q);
+      });
     });
 
-    /* ---------- SECTION B ---------- */
+    Object.keys(shortByYear).sort().forEach(year => {
+      content.insertAdjacentHTML(
+        "beforeend",
+        `<div class="rq-year">${year}</div>`
+      );
+
+      shortByYear[year].forEach(q => {
+        content.insertAdjacentHTML(
+          "beforeend",
+          `
+          <div class="rq-question">
+            <span class="rq-number">${qNo++}.</span>
+            <span class="rq-text">${q.question}</span>
+            <span class="rq-marks">${q.marks || ""}</span>
+          </div>
+          `
+        );
+      });
+    });
+
+    /* ---------- SECTION B (YEAR-WISE) ---------- */
+    const longByYear = {};
+
     data.long.forEach(choice => {
-      const baseNo = qNo++;
+      const years = choice.years?.length ? choice.years : ["Unknown"];
+      years.forEach(y => {
+        longByYear[y] ||= [];
+        longByYear[y].push(choice);
+      });
+    });
 
-      if (Array.isArray(choice.parts) && choice.parts.length) {
-        choice.parts.forEach((part, idx) => {
-          const sub = ["i", "ii", "iii", "iv"][idx] || idx + 1;
+    Object.keys(longByYear).sort().forEach(year => {
+      content.insertAdjacentHTML(
+        "beforeend",
+        `<div class="rq-year">${year}</div>`
+      );
 
-          content.insertAdjacentHTML(
-            "beforeend",
-            `
-            <div class="rq-part">
-              <span class="rq-number">${baseNo}.${sub}</span>
-              <span class="rq-text">${part.question}</span>
-              <span class="rq-marks">${
-                Array.isArray(part.breakup)
-                  ? part.breakup.join("+")
-                  : part.marks || ""
-              }</span>
-            </div>
-            `
-          );
+      longByYear[year].forEach(choice => {
+        const baseNo = qNo++;
 
-          if (idx === 0 && choice.parts.length > 1) {
+        if (Array.isArray(choice.parts)) {
+          choice.parts.forEach((part, idx) => {
+            const sub = ["i", "ii", "iii", "iv"][idx] || idx + 1;
+
             content.insertAdjacentHTML(
               "beforeend",
-              `<div class="rq-or">OR</div>`
+              `
+              <div class="rq-part">
+                <span class="rq-number">${baseNo}.${sub}</span>
+                <span class="rq-text">${part.question}</span>
+                <span class="rq-marks">${
+                  Array.isArray(part.breakup)
+                    ? part.breakup.join("+")
+                    : part.marks || ""
+                }</span>
+              </div>
+              `
             );
-          }
-        });
-      }
+
+            if (idx === 0 && choice.parts.length > 1) {
+              content.insertAdjacentHTML(
+                "beforeend",
+                `<div class="rq-or">OR</div>`
+              );
+            }
+          });
+        }
+      });
     });
 
     block.querySelector(".rq-unit-header").onclick = () => {
