@@ -1,0 +1,156 @@
+/* ================================
+   ExamArchive – browse.css
+   Browse page only
+   ================================ */
+
+.browse-page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.2rem 1rem;
+}
+
+/* ---------- Header ---------- */
+.browse-header h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.browse-header p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.paper-count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+}
+
+/* ---------- Filters ---------- */
+.filter-group {
+  margin-top: 0.9rem;
+}
+
+.toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Toggle Buttons */
+.toggle-btn {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle-btn.active {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.toggle-btn:hover {
+  background: var(--bg-soft);
+}
+
+/* ---------- Search + Sort ---------- */
+.sort-search-row {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+#searchInput {
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+#sortSelect {
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+/* ---------- Papers Grid ---------- */
+.papers-list {
+  margin-top: 1.3rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+}
+
+/* ---------- Paper Card ---------- */
+.paper-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.paper-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.paper-code {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.paper-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.paper-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.open-pdf {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--red);
+  font-weight: 500;
+}
+
+/* ---------- Skeleton ---------- */
+.skeleton-card {
+  height: 120px;
+  border-radius: var(--radius-md);
+}
+
+/* ---------- Desktop ---------- */
+@media (min-width: 768px) {
+  .sort-search-row {
+    flex-direction: row;
+  }
+
+  #searchInput {
+    flex: 1;
+  }
+
+  .papers-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .papers-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
