@@ -3,6 +3,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const paperCode = params.get("code");
   if (!paperCode) return;
 
+  const downloadBtn = document.getElementById("download-full");
+  const noSyllabusMsg = document.getElementById("no-syllabus");
+
+  // Hide by default
+  if (downloadBtn) downloadBtn.style.display = "none";
+  if (noSyllabusMsg) noSyllabusMsg.hidden = true;
+
   try {
     /* =========================
        LOAD PAPERS.JSON (SOURCE OF TRUTH)
@@ -22,21 +29,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* =========================
        LOAD SYLLABUS
     ========================= */
-    const syllabusRes = await fetch(
-      `data/syllabus/assam-university/physics/fyug/${paperCode}.json`
-    );
-
-    const syllabusInfo = document.getElementById("syllabus-info");
+    const syllabusPath = `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
+    const syllabusRes = await fetch(syllabusPath);
 
     if (syllabusRes.ok) {
-     const syllabusData = await syllabusRes.json();
-     renderSyllabus(syllabusData);
-    } else if (syllabusInfo) {
-      syllabusInfo.innerHTML = `
-       <p class="coming-soon">
-        Syllabus will be added soon.
-       </p>
-    `;
+      const syllabusData = await syllabusRes.json();
+      renderSyllabus(syllabusData);
+
+      if (downloadBtn) {
+        downloadBtn.style.display = "inline-flex";
+        downloadBtn.onclick = () => {
+          window.open(syllabusPath, "_blank");
+        };
+      }
+    } else {
+      if (noSyllabusMsg) noSyllabusMsg.hidden = false;
     }
 
     /* =========================
@@ -239,4 +246,4 @@ function renderRepeatedQuestions(sections) {
 
     container.appendChild(block);
   });
-}
+      }
