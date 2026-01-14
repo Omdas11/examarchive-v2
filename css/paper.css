@@ -154,6 +154,14 @@
 }
 
 /* ---------- Repeated Questions ---------- */
+
+/* Repeated Questions – Year heading */
+.rq-year {
+  text-align: center;
+  font-weight: 600;
+  margin: 1.2rem 0 0.8rem;
+  opacity: 0.8;
+}
 .rq-unit {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
