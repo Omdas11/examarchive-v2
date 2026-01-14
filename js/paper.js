@@ -139,7 +139,7 @@ function renderSyllabus(data) {
 }
 
 /* =========================
-   REPEATED QUESTIONS (FINAL WITH YEARS)
+   REPEATED QUESTIONS (FINAL POLISHED)
 ========================= */
 function renderRepeatedQuestions(sections) {
   const container = document.getElementById("repeated-container");
@@ -147,9 +147,9 @@ function renderRepeatedQuestions(sections) {
 
   container.innerHTML = "";
 
-  let qNo = 1; // GLOBAL continuous numbering
+  let qNo = 1; // global continuous numbering
 
-  /* ---- Merge units from all sections ---- */
+  /* ---- Merge units ---- */
   const unitMap = {};
 
   sections.forEach(section => {
@@ -168,7 +168,7 @@ function renderRepeatedQuestions(sections) {
     });
   });
 
-  /* ---- Render units ONCE ---- */
+  /* ---- Render units once ---- */
   Object.entries(unitMap).forEach(([unitName, data]) => {
     const block = document.createElement("div");
     block.className = "rq-unit";
@@ -180,58 +180,46 @@ function renderRepeatedQuestions(sections) {
 
     const content = block.querySelector(".rq-unit-content");
 
-    /* ---------- SECTION A (YEAR-WISE) ---------- */
-    const shortByYear = {};
+    /* ---- Collect years in this unit ---- */
+    const yearSet = new Set();
 
-    data.short.forEach(q => {
-      const years = q.years?.length ? q.years : ["Unknown"];
-      years.forEach(y => {
-        shortByYear[y] ||= [];
-        shortByYear[y].push(q);
-      });
-    });
+    data.short.forEach(q =>
+      (q.years || ["Unknown"]).forEach(y => yearSet.add(y))
+    );
 
-    Object.keys(shortByYear).sort().forEach(year => {
+    data.long.forEach(c =>
+      (c.years || ["Unknown"]).forEach(y => yearSet.add(y))
+    );
+
+    Array.from(yearSet).sort().forEach(year => {
+      /* ---- Year heading (ONCE) ---- */
       content.insertAdjacentHTML(
         "beforeend",
         `<div class="rq-year">${year}</div>`
       );
 
-      shortByYear[year].forEach(q => {
-        content.insertAdjacentHTML(
-          "beforeend",
-          `
-          <div class="rq-question">
-            <span class="rq-number">${qNo++}.</span>
-            <span class="rq-text">${q.question}</span>
-            <span class="rq-marks">${q.marks || ""}</span>
-          </div>
-          `
-        );
-      });
-    });
+      /* ---- Section A (for this year) ---- */
+      data.short
+        .filter(q => (q.years || ["Unknown"]).includes(year))
+        .forEach(q => {
+          content.insertAdjacentHTML(
+            "beforeend",
+            `
+            <div class="rq-question">
+              <span class="rq-number">${qNo++}.</span>
+              <span class="rq-text">${q.question}</span>
+              <span class="rq-marks">${q.marks || ""}</span>
+            </div>
+            `
+          );
+        });
 
-    /* ---------- SECTION B (YEAR-WISE) ---------- */
-    const longByYear = {};
+      /* ---- Section B (for this year) ---- */
+      data.long
+        .filter(c => (c.years || ["Unknown"]).includes(year))
+        .forEach(choice => {
+          const baseNo = qNo++;
 
-    data.long.forEach(choice => {
-      const years = choice.years?.length ? choice.years : ["Unknown"];
-      years.forEach(y => {
-        longByYear[y] ||= [];
-        longByYear[y].push(choice);
-      });
-    });
-
-    Object.keys(longByYear).sort().forEach(year => {
-      content.insertAdjacentHTML(
-        "beforeend",
-        `<div class="rq-year">${year}</div>`
-      );
-
-      longByYear[year].forEach(choice => {
-        const baseNo = qNo++;
-
-        if (Array.isArray(choice.parts)) {
           choice.parts.forEach((part, idx) => {
             const sub = ["i", "ii", "iii", "iv"][idx] || idx + 1;
 
@@ -257,8 +245,7 @@ function renderRepeatedQuestions(sections) {
               );
             }
           });
-        }
-      });
+        });
     });
 
     block.querySelector(".rq-unit-header").onclick = () => {
@@ -267,4 +254,4 @@ function renderRepeatedQuestions(sections) {
 
     container.appendChild(block);
   });
-}
+              }
