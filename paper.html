@@ -20,48 +20,37 @@
   <main class="page paper-page">
 
     <!-- =========================
-         PAPER HEADER
+         PAPER HEADER (DYNAMIC)
     ========================== -->
     <section class="paper-header card">
-      <p class="paper-code text-muted">PHSHCC351T</p>
-      <h1 class="paper-title">Nuclear and Particle Physics</h1>
+      <p class="paper-code text-muted" id="paperCode"></p>
+      <h1 class="paper-title" id="paperTitle"></h1>
 
-      <div class="paper-meta">
-        <span class="chip">CBCS</span>
-        <span class="chip">Semester VI</span>
-        <span class="chip">DSC</span>
-        <span class="chip">Physics</span>
-      </div>
+      <div class="paper-meta" id="paperMeta"></div>
 
-      <a href="#" class="btn btn-red full-width">
+      <a
+        id="latestPdfLink"
+        href="#"
+        class="btn btn-red full-width"
+        target="_blank"
+      >
         Open Latest PDF →
       </a>
     </section>
 
     <!-- =========================
-         AVAILABLE PAPERS
+         AVAILABLE PAPERS (DYNAMIC)
     ========================== -->
     <section class="paper-section card">
       <h2>Available Question Papers</h2>
 
-      <ul class="paper-list">
-        <li class="paper-row">
-          <span>2023</span>
-          <a href="#" class="btn btn-red">Open PDF →</a>
-        </li>
-        <li class="paper-row">
-          <span>2022</span>
-          <a href="#" class="link-red">Open PDF →</a>
-        </li>
-        <li class="paper-row">
-          <span>2021</span>
-          <a href="#" class="link-red">Open PDF →</a>
-        </li>
+      <ul class="paper-list" id="availablePapers">
+        <!-- injected by paper.js -->
       </ul>
     </section>
 
     <!-- =========================
-         SYLLABUS
+         SYLLABUS (DYNAMIC)
     ========================== -->
     <section class="paper-section syllabus-section">
       <div class="section-header">
@@ -78,9 +67,8 @@
       </div>
 
       <div id="syllabus-info" class="syllabus-info"></div>
-
       <div id="syllabus-container">
-        <!-- syllabus units injected by JS -->
+        <!-- syllabus injected by JS -->
       </div>
     </section>
 
