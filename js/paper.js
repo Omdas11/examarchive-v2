@@ -139,7 +139,7 @@ function renderSyllabus(data) {
 }
 
 /* =========================
-   REPEATED QUESTIONS (FIXED)
+   REPEATED QUESTIONS (YEAR-WISE, CONTINUOUS)
 ========================= */
 function renderRepeatedQuestions(sections) {
   const container = document.getElementById("repeated-container");
@@ -147,92 +147,112 @@ function renderRepeatedQuestions(sections) {
 
   container.innerHTML = "";
 
-  const unitMap = {};
-  let shortCounter = 1;
+  let qNo = 1; // ✅ GLOBAL continuous counter
 
   sections.forEach(section => {
     if (!Array.isArray(section.units)) return;
 
     section.units.forEach(unit => {
-      unitMap[unit.unit] ||= { short: [], long: [] };
+      const block = document.createElement("div");
+      block.className = "rq-unit";
 
-      if (section.section === "A" && unit.questions) {
-        unitMap[unit.unit].short.push(...unit.questions);
-      }
+      block.innerHTML = `
+        <div class="rq-unit-header">${unit.unit}</div>
+        <div class="rq-unit-content" hidden></div>
+      `;
 
-      if (section.section === "B" && unit.choices) {
-        unitMap[unit.unit].long.push(...unit.choices);
-      }
-    });
-  });
+      const content = block.querySelector(".rq-unit-content");
 
-  Object.entries(unitMap).forEach(([unitName, data]) => {
-    const block = document.createElement("div");
-    block.className = "rq-unit";
+      /* ---------- SECTION A (SHORT QUESTIONS) ---------- */
+      if (section.section === "A" && Array.isArray(unit.questions)) {
+        const yearMap = {};
 
-    block.innerHTML = `
-      <div class="rq-unit-header">${unitName}</div>
-      <div class="rq-unit-content" hidden></div>
-    `;
+        unit.questions.forEach(q => {
+          const years = q.years && q.years.length ? q.years : ["Unknown"];
+          years.forEach(y => {
+            yearMap[y] ||= [];
+            yearMap[y].push(q);
+          });
+        });
 
-    const content = block.querySelector(".rq-unit-content");
-
-    /* ---- Section A (short) ---- */
-    data.short.forEach(q => {
-      content.insertAdjacentHTML(
-        "beforeend",
-        `
-        <div class="rq-question">
-          <span class="rq-number">${shortCounter++}.</span>
-          <span class="rq-text">${q.question}</span>
-          <span class="rq-marks">${q.marks || ""}</span>
-        </div>
-        `
-      );
-    });
-
-    /* ---- Section B (long, FIXED) ---- */
-    data.long.forEach((choice, idx) => {
-      const mainNo = choice.question_no;
-
-      choice.parts.forEach((part, pIndex) => {
-        const sub = pIndex === 0 ? "i" : "ii";
-
-        content.insertAdjacentHTML(
-          "beforeend",
-          `
-          <div class="rq-part">
-            <span class="rq-number">${mainNo}.${sub}</span>
-            <span class="rq-text">${part.question}</span>
-            <span class="rq-marks">${
-              Array.isArray(part.breakup)
-                ? part.breakup.join("+")
-                : part.marks || ""
-            }</span>
-          </div>
-          `
-        );
-
-        if (pIndex === 0) {
+        Object.keys(yearMap).sort().forEach(year => {
           content.insertAdjacentHTML(
             "beforeend",
-            `<div class="rq-or">OR</div>`
+            `<div class="rq-year">${year}</div>`
           );
-        }
-      });
 
-      if (idx < data.long.length - 1) {
-        content.insertAdjacentHTML(
-          "beforeend",
-          `<div class="rq-choice-gap"></div>`
-        );
+          yearMap[year].forEach(q => {
+            content.insertAdjacentHTML(
+              "beforeend",
+              `
+              <div class="rq-question">
+                <span class="rq-number">${qNo++}.</span>
+                <span class="rq-text">${q.question}</span>
+                <span class="rq-marks">${q.marks || ""}</span>
+              </div>
+              `
+            );
+          });
+        });
       }
+
+      /* ---------- SECTION B (LONG QUESTIONS) ---------- */
+      if (section.section === "B" && Array.isArray(unit.choices)) {
+        const yearMap = {};
+
+        unit.choices.forEach(choice => {
+          const years = choice.years && choice.years.length ? choice.years : ["Unknown"];
+          years.forEach(y => {
+            yearMap[y] ||= [];
+            yearMap[y].push(choice);
+          });
+        });
+
+        Object.keys(yearMap).sort().forEach(year => {
+          content.insertAdjacentHTML(
+            "beforeend",
+            `<div class="rq-year">${year}</div>`
+          );
+
+          yearMap[year].forEach(choice => {
+            const baseNo = qNo++;
+
+            if (Array.isArray(choice.parts) && choice.parts.length) {
+              choice.parts.forEach((part, idx) => {
+                const sub = ["i", "ii", "iii", "iv"][idx] || idx + 1;
+
+                content.insertAdjacentHTML(
+                  "beforeend",
+                  `
+                  <div class="rq-part">
+                    <span class="rq-number">${baseNo}.${sub}</span>
+                    <span class="rq-text">${part.question}</span>
+                    <span class="rq-marks">${
+                      Array.isArray(part.breakup)
+                        ? part.breakup.join("+")
+                        : part.marks || ""
+                    }</span>
+                  </div>
+                  `
+                );
+
+                if (idx === 0 && choice.parts.length > 1) {
+                  content.insertAdjacentHTML(
+                    "beforeend",
+                    `<div class="rq-or">OR</div>`
+                  );
+                }
+              });
+            }
+          });
+        });
+      }
+
+      block.querySelector(".rq-unit-header").onclick = () => {
+        content.hidden ^= true;
+      };
+
+      container.appendChild(block);
     });
-
-    block.querySelector(".rq-unit-header").onclick = () => {
-      content.hidden ^= true;
-    };
-
-    container.appendChild(block);
   });
-}
+      }
