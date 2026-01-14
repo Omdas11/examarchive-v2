@@ -20,7 +20,7 @@
   <main class="page paper-page">
 
     <!-- =========================
-         PAPER HEADER (DYNAMIC)
+         PAPER HEADER
     ========================== -->
     <section class="paper-header card">
       <p class="paper-code text-muted" id="paperCode"></p>
@@ -39,7 +39,7 @@
     </section>
 
     <!-- =========================
-         AVAILABLE PAPERS (DYNAMIC)
+         AVAILABLE PAPERS
     ========================== -->
     <section class="paper-section card">
       <h2>Available Question Papers</h2>
@@ -50,28 +50,30 @@
     </section>
 
     <!-- =========================
-         SYLLABUS (DYNAMIC)
+         SYLLABUS
     ========================== -->
     <section class="paper-section syllabus-section">
       <div class="section-header">
         <h2>Syllabus</h2>
 
         <button
-  id="download-full"
-  class="download-btn"
-  title="Download full syllabus"
-  aria-label="Download syllabus"
->
-   <img src="assets/icons/download.png" alt="Download syllabus">
-        </button>
-          ⬇
+          id="download-full"
+          class="download-btn"
+          title="Download full syllabus"
+          aria-label="Download syllabus"
+        >
+          <img src="assets/icons/download.png" alt="Download syllabus">
         </button>
       </div>
 
-      <div id="syllabus-info" class="syllabus-info"></div>
       <div id="syllabus-container">
         <!-- syllabus injected by JS -->
       </div>
+
+      <!-- fallback -->
+      <p id="no-syllabus" class="coming-soon" hidden>
+        Syllabus is not available for this paper yet.
+      </p>
     </section>
 
     <!-- =========================
