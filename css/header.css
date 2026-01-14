@@ -149,6 +149,7 @@
   box-shadow: var(--shadow-sm);
 
   padding: 0.8rem 1rem;
+  pointer-events: none; /* 👈 ADD THIS */
 }
 
 .mobile-nav a {
@@ -158,4 +159,5 @@
 
 .mobile-nav.open {
   display: flex;
+  pointer-events: none; /* 👈 ADD THIS */
 }
