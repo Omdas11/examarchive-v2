@@ -1,23 +1,19 @@
 // ===============================
 // Theme & Night Mode Controller
+// (Settings page interactions only)
 // ===============================
 
 // Elements
 const themeButtons = document.querySelectorAll(".theme-btn[data-theme]");
 const nightButton = document.querySelector(".night-btn");
 
-// Load saved values
+// Load saved values (for UI sync only)
 const savedTheme = localStorage.getItem("theme") || "light";
 const savedNight = localStorage.getItem("night") || "off";
 
-// Apply saved theme on load
-document.body.setAttribute("data-theme", savedTheme);
-
-// Apply saved night mode
-if (savedNight === "on") {
-  document.body.setAttribute("data-night", "on");
-  if (nightButton) nightButton.classList.add("active");
-}
+// ===============================
+// Sync UI state on load
+// ===============================
 
 // Highlight active theme button
 themeButtons.forEach(btn => {
@@ -25,6 +21,11 @@ themeButtons.forEach(btn => {
     btn.classList.add("active");
   }
 });
+
+// Highlight night mode button if enabled
+if (savedNight === "on" && nightButton) {
+  nightButton.classList.add("active");
+}
 
 // ===============================
 // Theme button click
