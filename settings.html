@@ -15,34 +15,39 @@
 </head>
 
 <body>
-  <!-- Header injected here -->
   <div id="header"></div>
 
   <main class="settings">
     <h1>Settings</h1>
 
     <section class="settings-card">
-      <h2>Theme</h2>
+      <h2>Appearance</h2>
 
-      <label>
-        <input type="radio" name="theme" value="light">
-        Light
-      </label>
+      <!-- Theme selector -->
+      <div class="setting-group">
+        <p class="setting-label">Theme</p>
 
-      <label>
-        <input type="radio" name="theme" value="dark">
-        Dark
-      </label>
+        <div class="theme-options">
+          <button class="theme-btn" data-theme="light">Light</button>
+          <button class="theme-btn" data-theme="dark">Dark</button>
+          <button class="theme-btn" data-theme="amoled">AMOLED</button>
+        </div>
+      </div>
+
+      <!-- Night mode -->
+      <div class="setting-group">
+        <p class="setting-label">Eye comfort</p>
+
+        <button class="theme-btn night-btn" data-night="toggle">
+          Night mode
+        </button>
+      </div>
     </section>
   </main>
 
-  <!-- Footer injected here -->
   <div id="footer"></div>
 
-  <!-- Shared layout loader -->
   <script src="js/common.js"></script>
-
-  <!-- Theme logic -->
   <script src="js/theme.js"></script>
 </body>
 </html>
