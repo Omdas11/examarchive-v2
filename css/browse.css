@@ -6,6 +6,8 @@
 /* ---------- Mobile overflow fix ---------- */
 .browse-page {
   overflow-x: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 /* ---------- Page Wrapper ---------- */
