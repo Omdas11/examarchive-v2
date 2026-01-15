@@ -7,7 +7,7 @@
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 9999; /* FORCE above all content */
 
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -17,7 +17,7 @@
   align-items: center;
   justify-content: space-between;
 
-  position: relative;
+  isolation: isolate; /* NEW: prevents overlap issues */
 }
 
 .logo {
@@ -58,66 +58,6 @@
   color: var(--text);
 }
 
-/* ---------- Footer ---------- */
-.site-footer {
-  margin-top: 3rem;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.footer-inner {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 1.5rem 1rem 1.8rem;
-
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.2rem;
-}
-
-/* Brand */
-.footer-logo {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text);
-}
-
-.footer-tagline {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 0.3rem;
-}
-
-/* Sections */
-.footer-section h4 {
-  font-size: 0.85rem;
-  margin-bottom: 0.4rem;
-  color: var(--text);
-}
-
-.footer-section a {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 0.3rem;
-  text-decoration: none;
-}
-
-.footer-section a:hover {
-  color: var(--red);
-}
-
-/* Meta */
-.footer-meta {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.6rem;
-}
-
-.footer-note {
-  margin-top: 0.3rem;
-}
-
 /* ---------- Mobile Nav ---------- */
 .mobile-nav {
   position: absolute;
@@ -133,7 +73,7 @@
   box-shadow: var(--shadow-sm);
 
   padding: 0.8rem 1rem;
-  z-index: 200;
+  z-index: 10000; /* ABOVE header content */
 }
 
 .mobile-nav.open {
@@ -228,6 +168,23 @@
 
 .site-header .theme-toggle:has(.theme-btn[data-theme="amoled"].active)::before {
   transform: translateX(72px);
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.5rem 1rem 1.8rem;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
 }
 
 /* ---------- Responsive ---------- */
