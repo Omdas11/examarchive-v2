@@ -152,6 +152,41 @@
   margin-top: 0.35rem;
 }
 
+/* ---------- Theme Toggle ---------- */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  padding: 0.25rem;
+  border-radius: 999px;
+
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+}
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 28px;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+
+  cursor: pointer;
+}
+
+.theme-btn img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .nav {
