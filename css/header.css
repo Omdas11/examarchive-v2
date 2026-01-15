@@ -211,3 +211,7 @@
     grid-column: span 4;
   }
 }
+
+.site-header, .site-header * {
+  pointer-events: auto !important;
+}
