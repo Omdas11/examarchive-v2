@@ -3,16 +3,18 @@
    Browse page only
    ================================ */
 
+/* ---------- Page Wrapper ---------- */
 .browse-page {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1.2rem 1rem;
+  padding: 1.2rem 1rem 1.5rem;
 }
 
 /* ---------- Header ---------- */
 .browse-header h1 {
   font-size: 1.6rem;
   margin-bottom: 0.3rem;
+  color: var(--text);
 }
 
 .browse-header p {
@@ -44,7 +46,8 @@
   font-size: 0.85rem;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--surface);
+  color: var(--text);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -75,6 +78,8 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   font-size: 0.9rem;
+  background: var(--surface);
+  color: var(--text);
 }
 
 /* ---------- Year Toggle (Single Row Scroll) ---------- */
@@ -85,7 +90,7 @@
 }
 
 #yearToggle::-webkit-scrollbar {
-  display: none; /* clean look on mobile */
+  display: none;
 }
 
 #yearToggle .toggle-btn {
@@ -105,18 +110,13 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 1rem;
-  background: #fff;
+  background: var(--surface);
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.paper-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 .paper-card:hover {
@@ -132,6 +132,7 @@
 .paper-name {
   font-size: 0.95rem;
   font-weight: 600;
+  color: var(--text);
 }
 
 .paper-meta {
@@ -150,6 +151,7 @@
 .skeleton-card {
   height: 120px;
   border-radius: var(--radius-md);
+  background: var(--bg-soft);
 }
 
 /* ---------- Desktop ---------- */
