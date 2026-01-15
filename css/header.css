@@ -152,8 +152,8 @@
   margin-top: 0.35rem;
 }
 
-/* ---------- Theme Toggle ---------- */
-.theme-toggle {
+/* ---------- Theme Toggle (HEADER ONLY) ---------- */
+.site-header .theme-toggle {
   position: relative;
 
   display: flex;
@@ -166,11 +166,10 @@
   background: var(--bg-soft);
   border: 1px solid var(--border);
 
-  /* push slightly toward hamburger */
   margin-right: 0.4rem;
 }
 
-.theme-btn {
+.site-header .theme-btn {
   position: relative;
   z-index: 1;
 
@@ -189,20 +188,19 @@
   cursor: pointer;
 }
 
-.theme-btn img {
+.site-header .theme-btn img {
   width: 16px;
   height: 16px;
   display: block;
   opacity: 0.7;
 }
 
-/* ---------- Active Icon ---------- */
-.theme-btn.active img {
+.site-header .theme-btn.active img {
   opacity: 1;
 }
 
-/* ---------- Theme Toggle Slider ---------- */
-.theme-toggle::before {
+/* Slider */
+.site-header .theme-toggle::before {
   content: "";
   position: absolute;
   top: 4px;
@@ -216,21 +214,19 @@
   box-shadow: var(--shadow-sm);
 
   transition: transform 0.25s ease;
-
-  /* IMPORTANT: do not block touch */
   pointer-events: none;
 }
 
 /* Slider positions */
-.theme-toggle:has(.theme-btn[data-theme="light"].active)::before {
+.site-header .theme-toggle:has(.theme-btn[data-theme="light"].active)::before {
   transform: translateX(0);
 }
 
-.theme-toggle:has(.theme-btn[data-theme="dark"].active)::before {
+.site-header .theme-toggle:has(.theme-btn[data-theme="dark"].active)::before {
   transform: translateX(36px);
 }
 
-.theme-toggle:has(.theme-btn[data-theme="amoled"].active)::before {
+.site-header .theme-toggle:has(.theme-btn[data-theme="amoled"].active)::before {
   transform: translateX(72px);
 }
 
@@ -244,7 +240,7 @@
     display: block;
   }
 
-  .theme-toggle {
+  .site-header .theme-toggle {
     margin-right: 0.25rem;
   }
 }
