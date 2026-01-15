@@ -201,6 +201,48 @@
   opacity: 0.7;
 }
 
+/* ---------- Theme Toggle Slider ---------- */
+.theme-toggle {
+  position: relative;
+}
+
+.theme-toggle::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+
+  width: 32px;
+  height: 28px;
+
+  background: var(--surface);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+
+  transition: transform 0.25s ease;
+  z-index: 0;
+}
+
+/* Move slider based on active button */
+.theme-btn[data-theme="light"].active ~ .theme-toggle::before,
+.theme-toggle:has(.theme-btn[data-theme="light"].active)::before {
+  transform: translateX(0);
+}
+
+.theme-toggle:has(.theme-btn[data-theme="dark"].active)::before {
+  transform: translateX(36px);
+}
+
+.theme-toggle:has(.theme-btn[data-theme="amoled"].active)::before {
+  transform: translateX(72px);
+}
+
+/* Keep buttons above slider */
+.theme-btn {
+  position: relative;
+  z-index: 1;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .nav {
