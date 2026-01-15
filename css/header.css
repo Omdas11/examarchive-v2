@@ -8,7 +8,8 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #fff;
+
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   padding: 0.95rem 1rem;
 
@@ -23,6 +24,7 @@
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.3px;
+  color: var(--text);
 }
 
 /* ---------- Desktop Nav ---------- */
@@ -53,13 +55,14 @@
   border: none;
   font-size: 1.4rem;
   cursor: pointer;
+  color: var(--text);
 }
 
 /* ---------- Footer ---------- */
 .site-footer {
   margin-top: 3rem;
   border-top: 1px solid var(--border);
-  background: #fff;
+  background: var(--surface);
 }
 
 .footer-inner {
@@ -76,6 +79,7 @@
 .footer-logo {
   font-weight: 700;
   font-size: 0.95rem;
+  color: var(--text);
 }
 
 .footer-tagline {
@@ -88,6 +92,7 @@
 .footer-section h4 {
   font-size: 0.85rem;
   margin-bottom: 0.4rem;
+  color: var(--text);
 }
 
 .footer-section a {
@@ -123,7 +128,7 @@
   display: none;
   flex-direction: column;
 
-  background: #fff;
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
 
@@ -140,11 +145,12 @@
   padding: 0.8rem 0;
   font-size: 0.95rem;
   line-height: 1.4;
+  color: var(--text);
 }
 
 .mobile-nav a + a {
   margin-top: 0.35rem;
-   }
+}
 
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
