@@ -12,6 +12,18 @@ const savedTheme = localStorage.getItem("theme") || "light";
 const savedNight = localStorage.getItem("night") || "off";
 
 // ===============================
+// Apply saved state on load
+// ===============================
+
+// Apply theme
+document.body.setAttribute("data-theme", savedTheme);
+
+// Apply night mode
+if (savedNight === "on") {
+  document.body.setAttribute("data-night", "on");
+}
+
+// ===============================
 // Sync UI state on load
 // ===============================
 
