@@ -1,21 +1,17 @@
 // ===============================
 // Theme & Night Mode Controller
-// (Settings page interactions only)
 // ===============================
 
-// Elements
 const themeButtons = document.querySelectorAll(".theme-btn[data-theme]");
 const nightButton = document.querySelector(".night-btn");
+const nightRange = document.querySelector("#nightRange");
 
-// Load saved values (for UI sync only)
+// Load saved values
 const savedTheme = localStorage.getItem("theme") || "light";
 const savedNight = localStorage.getItem("night") || "off";
+const savedStrength = localStorage.getItem("nightStrength") || "8";
 
-// ===============================
-// Apply saved state on load
-// ===============================
-
-// Apply theme
+// Apply saved theme
 document.body.setAttribute("data-theme", savedTheme);
 
 // Apply night mode
@@ -23,47 +19,43 @@ if (savedNight === "on") {
   document.body.setAttribute("data-night", "on");
 }
 
-// ===============================
-// Sync UI state on load
-// ===============================
+// Apply strength
+document.documentElement.style.setProperty(
+  "--night-strength",
+  Number(savedStrength) / 100
+);
 
-// Highlight active theme button
+// Sync UI
 themeButtons.forEach(btn => {
-  if (btn.dataset.theme === savedTheme) {
-    btn.classList.add("active");
-  }
+  if (btn.dataset.theme === savedTheme) btn.classList.add("active");
 });
 
-// Highlight night mode button if enabled
 if (savedNight === "on" && nightButton) {
   nightButton.classList.add("active");
 }
 
-// ===============================
-// Theme button click
-// ===============================
+if (nightRange) {
+  nightRange.value = savedStrength;
+}
+
+// Theme switching
 themeButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     const theme = btn.dataset.theme;
-
-    // Apply theme
     document.body.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
 
-    // Update active state
     themeButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
   });
 });
 
-// ===============================
-// Night mode toggle
-// ===============================
+// Night toggle
 if (nightButton) {
   nightButton.addEventListener("click", () => {
-    const isNightOn = document.body.getAttribute("data-night") === "on";
+    const isOn = document.body.getAttribute("data-night") === "on";
 
-    if (isNightOn) {
+    if (isOn) {
       document.body.removeAttribute("data-night");
       localStorage.setItem("night", "off");
       nightButton.classList.remove("active");
@@ -72,5 +64,17 @@ if (nightButton) {
       localStorage.setItem("night", "on");
       nightButton.classList.add("active");
     }
+  });
+}
+
+// Strength slider
+if (nightRange) {
+  nightRange.addEventListener("input", () => {
+    const value = nightRange.value;
+    document.documentElement.style.setProperty(
+      "--night-strength",
+      value / 100
+    );
+    localStorage.setItem("nightStrength", value);
   });
 }
