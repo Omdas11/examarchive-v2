@@ -83,6 +83,30 @@ body::after {
 }
 
 /* ================================
+   NIGHT MODE STRENGTH (VARIABLE)
+   ================================ */
+
+/* default strength */
+:root {
+  --night-strength: 0.08;
+}
+
+/* when night mode is on */
+body[data-night="on"] {
+  --night-overlay: rgba(255, 183, 77, var(--night-strength));
+}
+
+/* overlay layer */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: var(--night-overlay, transparent);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ================================
    RESET
    ================================ */
 *,
