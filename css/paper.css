@@ -227,6 +227,13 @@
   background: var(--bg-soft);
 }
 
+/* ---------- Dark theme contrast fix ---------- */
+body[data-theme="dark"] .paper-row,
+body[data-theme="amoled"] .paper-row,
+body[data-night="on"] .paper-row {
+  background: var(--surface);
+}
+
 /* ---------- Desktop ---------- */
 @media (min-width: 768px) {
   .paper-title {
