@@ -2,13 +2,13 @@
 // Theme & Night Mode Controller
 // ===============================
 
-// Apply saved state immediately
+// Read saved state
 const savedTheme = localStorage.getItem("theme") || "light";
 const savedNight = localStorage.getItem("night") || "off";
 const savedStrength = localStorage.getItem("nightStrength") || "8";
 
+// Apply theme immediately
 document.body.setAttribute("data-theme", savedTheme);
-
 if (savedNight === "on") {
   document.body.setAttribute("data-night", "on");
 }
@@ -18,24 +18,32 @@ document.documentElement.style.setProperty(
   Number(savedStrength) / 100
 );
 
-// Delegate clicks (works for injected header)
+// ---------- GLOBAL SYNC ----------
+function syncThemeUI(theme) {
+  document.querySelectorAll(".theme-btn[data-theme]").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.theme === theme);
+  });
+}
+
+// Initial sync (for pages where buttons already exist)
+syncThemeUI(savedTheme);
+
+// ---------- EVENT DELEGATION ----------
 document.addEventListener("click", (e) => {
   const themeBtn = e.target.closest(".theme-btn[data-theme]");
   const nightBtn = e.target.closest(".night-btn");
 
-  // Theme toggle
+  // Theme change
   if (themeBtn) {
     const theme = themeBtn.dataset.theme;
 
     document.body.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
 
-    document.querySelectorAll(".theme-btn").forEach(b =>
-      b.classList.toggle("active", b === themeBtn)
-    );
+    syncThemeUI(theme);
   }
 
-  // Night toggle
+  // Night mode toggle
   if (nightBtn) {
     const isOn = document.body.getAttribute("data-night") === "on";
 
@@ -51,7 +59,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Night strength slider
+// ---------- Night strength ----------
 document.addEventListener("input", (e) => {
   if (e.target.id === "nightRange") {
     const value = e.target.value;
@@ -63,17 +71,16 @@ document.addEventListener("input", (e) => {
   }
 });
 
-// Sync UI after header/settings load
+// ---------- RESYNC AFTER HEADER LOAD ----------
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".theme-btn").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.theme === savedTheme);
-  });
+  // Run once header/settings are injected
+  syncThemeUI(localStorage.getItem("theme") || "light");
+
+  const nightRange = document.querySelector("#nightRange");
+  if (nightRange) nightRange.value = savedStrength;
 
   const nightBtn = document.querySelector(".night-btn");
   if (nightBtn && savedNight === "on") {
     nightBtn.classList.add("active");
   }
-
-  const nightRange = document.querySelector("#nightRange");
-  if (nightRange) nightRange.value = savedStrength;
 });
