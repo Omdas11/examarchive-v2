@@ -137,7 +137,7 @@
 /* ---------- Mobile Nav ---------- */
 .mobile-nav {
   position: absolute;
-  top: 100%;               /* directly below header */
+  top: 100%;
   left: 0;
   width: 100%;
 
@@ -149,15 +149,9 @@
   box-shadow: var(--shadow-sm);
 
   padding: 0.8rem 1rem;
-  pointer-events: none; /* 👈 ADD THIS */
-}
-
-.mobile-nav a {
-  padding: 0.6rem 0;
-  font-size: 0.9rem;
+  z-index: 200;
 }
 
 .mobile-nav.open {
   display: flex;
-  pointer-events: none; /* 👈 ADD THIS */
 }
