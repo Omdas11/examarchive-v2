@@ -3,6 +3,11 @@
    Browse page only
    ================================ */
 
+/* ---------- Mobile overflow fix ---------- */
+.browse-page {
+  overflow-x: hidden;
+}
+
 /* ---------- Page Wrapper ---------- */
 .browse-page {
   max-width: var(--max-width);
