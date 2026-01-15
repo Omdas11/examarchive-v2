@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Settings · ExamArchive</title>
+
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/header.css">
+
+  <!-- Page-specific CSS -->
+  <link rel="stylesheet" href="/css/settings.css">
+</head>
+
+<body>
+  <!-- Header injected here -->
+  <div id="header"></div>
+
+  <main class="settings">
+    <h1>Settings</h1>
+
+    <section class="settings-card">
+      <h2>Theme</h2>
+
+      <label>
+        <input type="radio" name="theme" value="light">
+        Light
+      </label>
+
+      <label>
+        <input type="radio" name="theme" value="dark">
+        Dark
+      </label>
+    </section>
+  </main>
+
+  <!-- Footer injected here -->
+  <div id="footer"></div>
+
+  <!-- Shared layout loader -->
+  <script src="/js/common.js"></script>
+
+  <!-- Theme logic -->
+  <script src="/js/theme.js"></script>
+</body>
+</html>
