@@ -8,6 +8,11 @@ function loadPartial(id, file) {
       const container = document.getElementById(id);
       if (container) {
         container.innerHTML = data;
+
+        // After header loads, enhance nav
+        if (id === "header") {
+          highlightActiveNav();
+        }
       }
     })
     .catch(err => {
@@ -19,10 +24,26 @@ loadPartial("header", "partials/header.html");
 loadPartial("footer", "partials/footer.html");
 
 // ===============================
-// Mobile menu toggle (delegated)
+// Highlight active nav link
+// ===============================
+function highlightActiveNav() {
+  const currentPage =
+    window.location.pathname.split("/").pop() || "index.html";
+
+  document.querySelectorAll(".nav-link").forEach(link => {
+    const href = link.getAttribute("href");
+    if (href === currentPage) {
+      link.classList.add("active");
+    }
+  });
+}
+
+// ===============================
+// Mobile menu toggle + auto close
+// (event delegation)
 // ===============================
 document.addEventListener("click", (e) => {
-  // Hamburger button
+  // Toggle menu (hamburger)
   if (e.target.classList.contains("menu-btn")) {
     const mobileNav = document.getElementById("mobileNav");
     if (mobileNav) {
@@ -30,7 +51,7 @@ document.addEventListener("click", (e) => {
     }
   }
 
-  // Optional: close menu when clicking a mobile link
+  // Close menu when clicking a mobile link
   if (e.target.closest(".mobile-nav a")) {
     const mobileNav = document.getElementById("mobileNav");
     if (mobileNav) {
