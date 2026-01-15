@@ -1,4 +1,18 @@
 // ===============================
+// Apply saved theme early (GLOBAL)
+// ===============================
+(function () {
+  const theme = localStorage.getItem("theme") || "light";
+  const night = localStorage.getItem("night");
+
+  document.body.setAttribute("data-theme", theme);
+
+  if (night === "on") {
+    document.body.setAttribute("data-night", "on");
+  }
+})();
+
+// ===============================
 // Load header & footer partials
 // ===============================
 function loadPartial(id, file) {
