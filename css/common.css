@@ -66,19 +66,20 @@ body[data-theme="amoled"] {
 }
 
 /* ================================
-   NIGHT MODE (WARM OVERLAY)
+   NIGHT MODE (EYE COMFORT OVERLAY)
    ================================ */
 body[data-night="on"] {
-  --bg: #1b160e;
-  --bg-soft: #241c12;
-  --surface: #1f180f;
+  --night-overlay: rgba(255, 183, 77, 0.08); /* warm amber */
+}
 
-  --text: #f3e7cf;
-  --text-muted: #cbbd9e;
-  --border: #3a2f1f;
-
-  /* softer red for night */
-  --red: #e57373;
+/* Night overlay layer */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: var(--night-overlay, transparent);
+  pointer-events: none;
+  z-index: 9999;
 }
 
 /* ================================
