@@ -1,0 +1,12 @@
+version: 1
+
+breakdown:
+  enabled: true
+  group_by: subject
+  label: "Subjects covered"
+
+display:
+  show_total_papers: true
+  show_total_pdfs: true
+  show_last_content_update: true
+  show_last_system_update: true
