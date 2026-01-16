@@ -1,19 +1,21 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const timelineContainer = document.querySelector(".timeline");
+  const timeline = document.querySelector(".timeline");
+  if (!timeline) return;
 
-  if (!timelineContainer) return;
-
+  /* ---------------------------------
+     Load timeline data
+  --------------------------------- */
   try {
     const res = await fetch("./data/about/timeline.json");
     if (!res.ok) throw new Error("Timeline data not found");
 
     const milestones = await res.json();
+    timeline.innerHTML = "";
 
-    timelineContainer.innerHTML = "";
-
+    // Newest at top
     milestones
-      .slice()               // copy array
-      .reverse()             // newest at top
+      .slice()
+      .reverse()
       .forEach(item => {
         const entry = document.createElement("div");
         entry.className = "timeline-item";
@@ -27,12 +29,38 @@ document.addEventListener("DOMContentLoaded", async () => {
           </div>
         `;
 
-        timelineContainer.appendChild(entry);
+        timeline.appendChild(entry);
       });
 
   } catch (err) {
-    timelineContainer.innerHTML =
-      "<p class='muted'>Timeline unavailable.</p>";
+    timeline.innerHTML =
+      "<p class='section-note'>Timeline unavailable.</p>";
     console.error(err);
+    return;
   }
+
+  /* ---------------------------------
+     Scroll-based animation
+  --------------------------------- */
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+        }
+      });
+    },
+    {
+      threshold: 0.2
+    }
+  );
+
+  // Animate timeline line
+  observer.observe(timeline);
+
+  // Animate each timeline item
+  document
+    .querySelectorAll(".timeline-item")
+    .forEach(item => observer.observe(item));
 });
