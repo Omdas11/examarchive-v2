@@ -10,23 +10,28 @@
     <a class="nav-link" href="settings.html">Settings</a>
   </nav>
 
-  <!-- Theme Toggle (Light / Dark / AMOLED) -->
-  <div class="theme-toggle" aria-label="Theme selector">
-    <button class="theme-btn" data-theme="light" title="Light mode">
+  <!-- Theme + Night Toggle -->
+  <div class="theme-toggle" aria-label="Theme & night mode">
+    <button type="button" class="theme-btn" data-theme="light" title="Light mode">
       <img src="assets/icons/theme-light.png" alt="Light">
     </button>
 
-    <button class="theme-btn" data-theme="dark" title="Dark mode">
+    <button type="button" class="theme-btn" data-theme="dark" title="Dark mode">
       <img src="assets/icons/theme-dark.png" alt="Dark">
     </button>
 
-    <button class="theme-btn" data-theme="amoled" title="AMOLED mode">
+    <button type="button" class="theme-btn" data-theme="amoled" title="AMOLED mode">
       <img src="assets/icons/theme-amoled.png" alt="AMOLED">
+    </button>
+
+    <!-- 🔥 MISSING PIECE -->
+    <button type="button" class="night-btn" title="Night mode">
+      🌙
     </button>
   </div>
 
   <!-- Mobile menu button -->
-  <button class="menu-btn" aria-label="Toggle menu">☰</button>
+  <button type="button" class="menu-btn" aria-label="Toggle menu">☰</button>
 
   <!-- Mobile nav -->
   <div class="mobile-nav" id="mobileNav">
