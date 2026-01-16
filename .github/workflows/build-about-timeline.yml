@@ -1,0 +1,29 @@
+name: Build About Timeline
+
+on:
+  push:
+    paths:
+      - "data/about/timeline.yaml"
+      - "scripts/build-about-timeline.js"
+
+jobs:
+  build-timeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Run About Timeline Generator
+        run: node scripts/build-about-timeline.js
+
+      - name: Commit generated timeline.json
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update about timeline data"
+          file_pattern: data/about/timeline.json
