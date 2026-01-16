@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – about.css
-   About Page (Timeline Complete + Highlight)
+   About Page (Timeline + Status Final)
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -87,6 +87,62 @@
 .about-status [data-stat] {
   font-weight: 600;
   color: var(--red);
+}
+
+/* ---------- Status Breakdown Dropdown ---------- */
+.status-breakdown {
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.status-breakdown summary {
+  cursor: pointer;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.status-breakdown summary::marker {
+  display: none;
+}
+
+.status-breakdown summary::after {
+  content: "▾";
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+}
+
+.status-breakdown[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.status-breakdown-list {
+  list-style: none;
+  padding: 0.4rem 0.85rem 0.7rem;
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.status-breakdown-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.status-breakdown-list li span:last-child {
+  font-weight: 600;
+  color: var(--text);
 }
 
 /* ==================================================
@@ -190,18 +246,13 @@
   line-height: 1.5;
 }
 
-/* ---------- MAJOR MILESTONE HIGHLIGHT ---------- */
-
+/* ---------- Major Milestone Highlight ---------- */
 .timeline-item.is-major .timeline-dot {
   background: var(--red);
 }
 
 .timeline-item.is-major .timeline-content h4 {
   font-weight: 600;
-}
-
-.timeline-item.is-major .timeline-content {
-  position: relative;
 }
 
 .timeline-item.is-major .timeline-content::before {
@@ -212,7 +263,6 @@
   color: var(--red);
 }
 
-/* Position star correctly */
 .timeline-item:nth-child(odd).is-major .timeline-content::before {
   right: -1.2rem;
 }
