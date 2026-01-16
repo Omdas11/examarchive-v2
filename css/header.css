@@ -157,16 +157,22 @@
   pointer-events: none;
 }
 
-/* Slider positions */
-.site-header .theme-toggle:has(.theme-btn[data-theme="light"].active)::before {
+/* ================================
+   Theme toggle – MOBILE SAFE
+   ================================ */
+
+/* Default (light) */
+.site-header .theme-toggle::before {
   transform: translateX(0);
 }
 
-.site-header .theme-toggle:has(.theme-btn[data-theme="dark"].active)::before {
+/* Dark */
+.site-header .theme-btn[data-theme="dark"].active ~ ::before {
   transform: translateX(36px);
 }
 
-.site-header .theme-toggle:has(.theme-btn[data-theme="amoled"].active)::before {
+/* AMOLED */
+.site-header .theme-btn[data-theme="amoled"].active ~ ::before {
   transform: translateX(72px);
 }
 
