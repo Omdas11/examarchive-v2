@@ -7,7 +7,7 @@
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 1000; /* safely above main */
+  z-index: 10000;
 
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -73,8 +73,8 @@
 
   padding: 0.8rem 1rem;
 
-  z-index: 1001;
-  pointer-events: none; /* IMPORTANT */
+  z-index: 10001;
+  pointer-events: none;
 }
 
 .mobile-nav.open {
@@ -102,10 +102,14 @@
   border: 1px solid var(--border);
 
   margin-right: 0.4rem;
+
+  position: relative;
+  z-index: 10002;
 }
 
 /* Theme buttons */
-.site-header .theme-btn {
+.site-header .theme-btn,
+.site-header .night-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,16 +123,41 @@
   border-radius: 999px;
 
   cursor: pointer;
+  position: relative;
+  z-index: 10003;
 }
 
-.site-header .theme-btn img {
+.site-header .theme-btn img,
+.site-header .night-btn img {
   width: 16px;
   height: 16px;
   opacity: 0.7;
 }
 
-.site-header .theme-btn.active img {
+/* ---------- Active highlight (HEADER) ---------- */
+.site-header .theme-btn.active,
+.site-header .night-btn.active {
+  background: rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+body[data-theme="dark"] .site-header .theme-btn.active,
+body[data-theme="amoled"] .site-header .theme-btn.active,
+body[data-theme="dark"] .site-header .night-btn.active,
+body[data-theme="amoled"] .site-header .night-btn.active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.site-header .theme-btn.active img,
+.site-header .night-btn.active img {
   opacity: 1;
+}
+
+/* ---------- Night button separator ---------- */
+.site-header .night-btn {
+  margin-left: 0.25rem;
+  border-left: 1px solid var(--border);
+  padding-left: 0.4rem;
 }
 
 /* ---------- Footer ---------- */
@@ -164,39 +193,6 @@
     margin-right: 0.25rem;
   }
 }
-/* ================================
-   FORCE HEADER CONTROLS CLICKABLE
-   ================================ */
-
-/* Ensure header is topmost touch layer */
-.site-header {
-  position: sticky;
-  z-index: 10000;
-}
-
-/* Theme toggle must receive touch */
-.site-header .theme-toggle {
-  position: relative;
-  z-index: 10001;
-  pointer-events: auto;
-}
-
-/* Buttons explicitly clickable */
-.site-header .theme-btn,
-.site-header .night-btn {
-  position: relative;
-  z-index: 10002;
-  pointer-events: auto;
-}
-
-/* Mobile nav must NOT block header when closed */
-.mobile-nav {
-  pointer-events: none;
-}
-
-.mobile-nav.open {
-  pointer-events: auto;
-   }
 
 @media (min-width: 768px) {
   .footer-inner {
