@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     /* ---------- Last System Update (GitHub API) ---------- */
     try {
-      const repo = "omdas11/examarchive-ai";
+      const repo = "omdas11/examarchive-v2";
       const apiRes = await fetch(
         `https://api.github.com/repos/${repo}/commits?per_page=1`
       );
