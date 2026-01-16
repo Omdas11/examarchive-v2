@@ -1,0 +1,43 @@
+name: Update Last Content Timestamp
+
+on:
+  push:
+    paths:
+      - "data/syllabus/**"
+      - "data/repeated-questions/**"
+      - "papers/**"
+      - "data/papers.json"
+      - "maps/**"
+
+jobs:
+  update-content-meta:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate IST timestamp
+        id: time
+        run: |
+          TIMESTAMP=$(TZ="Asia/Kolkata" date +"%Y-%m-%dT%H:%M:%S%z")
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+
+      - name: Write content-meta.json
+        run: |
+          mkdir -p data/about
+          cat > data/about/content-meta.json << EOF
+          {
+            "last_content_update": "${{ steps.time.outputs.timestamp }}",
+            "generated_by": "github-actions",
+            "description": "Auto-updated only when academic content changes (syllabus, papers, repeated questions)."
+          }
+          EOF
+
+      - name: Commit content update timestamp
+        run: |
+          git config user.name "examarchive-bot"
+          git config user.email "actions@github.com"
+          git add data/about/content-meta.json
+          git commit -m "chore(content): update last content timestamp" || echo "No changes to commit"
+          git push
