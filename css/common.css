@@ -93,14 +93,15 @@ body[data-night="on"] {
   );
 }
 
-/* Overlay layer */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: var(--night-overlay, transparent);
-  pointer-events: none;
-  z-index: 100;
+/* Night mode overlay — MOBILE SAFE */
+body[data-night="on"] {
+  box-shadow: inset 0 0 0 100vmax
+    rgba(
+      255,
+      183,
+      77,
+      calc(var(--night-strength) * var(--night-strength-multiplier))
+    );
 }
 
 /* ================================
