@@ -1,6 +1,26 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
   /* ==================================================
+     HELPERS
+     ================================================== */
+
+  function formatIST(dateString) {
+    if (!dateString) return "—";
+
+    const date = new Date(dateString);
+
+    return date.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata"
+    }) + " IST";
+  }
+
+  /* ==================================================
      PROJECT TIMELINE
      ================================================== */
 
@@ -87,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const contentMeta = await contentRes.json();
 
       document.querySelector('[data-stat="content-update"]').textContent =
-        contentMeta.last_content_update || "—";
+        formatIST(contentMeta.last_content_update);
 
     } catch {
       document.querySelector('[data-stat="content-update"]').textContent = "—";
@@ -106,11 +126,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const lastCommitDate = commits[0]?.commit?.committer?.date;
 
       document.querySelector('[data-stat="system-update"]').textContent =
-        lastCommitDate
-          ? new Date(lastCommitDate).toLocaleString("en-IN", {
-              timeZone: "Asia/Kolkata"
-            })
-          : "—";
+        formatIST(lastCommitDate);
 
     } catch {
       document.querySelector('[data-stat="system-update"]').textContent = "—";
