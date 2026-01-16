@@ -164,6 +164,39 @@
     margin-right: 0.25rem;
   }
 }
+/* ================================
+   FORCE HEADER CONTROLS CLICKABLE
+   ================================ */
+
+/* Ensure header is topmost touch layer */
+.site-header {
+  position: sticky;
+  z-index: 10000;
+}
+
+/* Theme toggle must receive touch */
+.site-header .theme-toggle {
+  position: relative;
+  z-index: 10001;
+  pointer-events: auto;
+}
+
+/* Buttons explicitly clickable */
+.site-header .theme-btn,
+.site-header .night-btn {
+  position: relative;
+  z-index: 10002;
+  pointer-events: auto;
+}
+
+/* Mobile nav must NOT block header when closed */
+.mobile-nav {
+  pointer-events: none;
+}
+
+.mobile-nav.open {
+  pointer-events: auto;
+   }
 
 @media (min-width: 768px) {
   .footer-inner {
