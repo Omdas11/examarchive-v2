@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Idea conceived",
+    "date": "Aug 2025",
+    "description": "Initial motivation to preserve and centralize examination papers.",
+    "importance": "major",
+    "order": 1
+  },
+  {
+    "title": "First working prototype",
+    "date": "Oct 2025",
+    "description": "Basic browsing and PDF access implemented.",
+    "importance": "normal",
+    "order": 2
+  },
+  {
+    "title": "Automation pipeline stabilized",
+    "date": "Dec 2025",
+    "description": "Automatic indexing and structured data generation introduced.",
+    "importance": "major",
+    "order": 3
+  },
+  {
+    "title": "ExamArchive v2 launched (beta)",
+    "date": "Jan 2026",
+    "description": "Expanded architecture with syllabus and repeated-question support.",
+    "importance": "major",
+    "order": 4
+  }
+]
