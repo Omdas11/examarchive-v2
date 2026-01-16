@@ -1,12 +1,12 @@
 // ===============================
 // Theme & Night Mode Controller
-// FINAL — injection safe
+// FINAL — injection safe (FILTER MODE)
 // ===============================
 
 // ---------- LOAD SAVED STATE ----------
 const savedTheme = localStorage.getItem("theme") || "light";
 const savedNight = localStorage.getItem("night") || "off";
-const savedStrength = localStorage.getItem("nightStrength") || "8";
+const savedStrength = localStorage.getItem("nightStrength") || "50";
 
 // Apply immediately
 document.body.setAttribute("data-theme", savedTheme);
@@ -15,8 +15,9 @@ if (savedNight === "on") {
   document.body.setAttribute("data-night", "on");
 }
 
+// Apply night strength (FILTER-based)
 document.documentElement.style.setProperty(
-  "--night-strength",
+  "--night-filter-strength",
   Number(savedStrength) / 100
 );
 
@@ -30,7 +31,7 @@ function syncThemeUI(theme) {
 // Initial sync (safe even if header not loaded yet)
 syncThemeUI(savedTheme);
 
-// ---------- GLOBAL CLICK HANDLER (KEY FIX) ----------
+// ---------- GLOBAL CLICK HANDLER ----------
 document.addEventListener("click", (e) => {
   const themeBtn = e.target.closest(".theme-btn[data-theme]");
   const nightBtn = e.target.closest(".night-btn");
@@ -59,14 +60,16 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ---------- NIGHT STRENGTH ----------
+// ---------- NIGHT STRENGTH (FILTER) ----------
 document.addEventListener("input", (e) => {
   if (e.target.id === "nightRange") {
     const value = e.target.value;
+
     document.documentElement.style.setProperty(
-      "--night-strength",
+      "--night-filter-strength",
       value / 100
     );
+
     localStorage.setItem("nightStrength", value);
   }
 });
