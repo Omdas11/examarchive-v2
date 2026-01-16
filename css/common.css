@@ -100,7 +100,7 @@ body::after {
   inset: 0;
   background: var(--night-overlay, transparent);
   pointer-events: none;
-  z-index: 9999;
+  z-index: 100;
 }
 
 /* ================================
