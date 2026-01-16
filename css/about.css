@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – about.css
-   About Page (Timeline Complete)
+   About Page (Timeline Complete + Highlight)
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -90,7 +90,7 @@
 }
 
 /* ==================================================
-   PROJECT TIMELINE – FINAL
+   PROJECT TIMELINE – FINAL + HIGHLIGHT
    ================================================== */
 
 .about-timeline {
@@ -118,7 +118,6 @@
   transition: transform 1s ease;
 }
 
-/* Activate line animation */
 .timeline.is-visible::before {
   transform: translateX(-50%) scaleY(1);
 }
@@ -134,7 +133,6 @@
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-/* Reveal animation */
 .timeline-item.is-visible {
   opacity: 1;
   transform: translateY(0);
@@ -176,6 +174,7 @@
 .timeline-content h4 {
   font-size: 1rem;
   margin-bottom: 0.25rem;
+  font-weight: 500;
 }
 
 .timeline-date {
@@ -191,8 +190,39 @@
   line-height: 1.5;
 }
 
+/* ---------- MAJOR MILESTONE HIGHLIGHT ---------- */
+
+.timeline-item.is-major .timeline-dot {
+  background: var(--red);
+}
+
+.timeline-item.is-major .timeline-content h4 {
+  font-weight: 600;
+}
+
+.timeline-item.is-major .timeline-content {
+  position: relative;
+}
+
+.timeline-item.is-major .timeline-content::before {
+  content: "★";
+  position: absolute;
+  top: 0;
+  font-size: 0.75rem;
+  color: var(--red);
+}
+
+/* Position star correctly */
+.timeline-item:nth-child(odd).is-major .timeline-content::before {
+  right: -1.2rem;
+}
+
+.timeline-item:nth-child(even).is-major .timeline-content::before {
+  left: -1.2rem;
+}
+
 /* ==================================================
-   MOBILE – SINGLE COLUMN, NO OVERLAP
+   MOBILE – SINGLE COLUMN
    ================================================== */
 @media (max-width: 720px) {
 
@@ -214,6 +244,11 @@
 
   .timeline-dot {
     left: 18px !important;
+    right: auto;
+  }
+
+  .timeline-item.is-major .timeline-content::before {
+    left: -1.4rem;
     right: auto;
   }
 }
