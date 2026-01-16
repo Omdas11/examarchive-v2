@@ -82,14 +82,16 @@ body {
   filter: none;
 }
 
-/* Night mode ON */
+/* ================================
+   NIGHT MODE – STRONGER & CLEAR
+   ================================ */
 body[data-night="on"] {
   filter:
-    sepia(calc(0.35 * var(--night-filter-strength)))
-    saturate(1.1)
-    hue-rotate(-10deg);
+    sepia(calc(0.6 * var(--night-filter-strength)))
+    saturate(calc(1.4 + var(--night-filter-strength)))
+    brightness(calc(1 - (0.15 * var(--night-filter-strength))))
+    hue-rotate(-12deg);
 }
-
 /* ================================
    RESET
    ================================ */
