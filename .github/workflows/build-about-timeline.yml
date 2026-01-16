@@ -1,6 +1,7 @@
 name: Build About Timeline
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "data/about/timeline.yaml"
