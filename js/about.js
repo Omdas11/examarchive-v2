@@ -12,13 +12,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const milestones = await res.json();
     timeline.innerHTML = "";
 
-    // Newest at top
     milestones
       .slice()
       .reverse()
       .forEach(item => {
         const entry = document.createElement("div");
         entry.className = "timeline-item";
+
+        if (item.importance === "major") {
+          entry.classList.add("is-major");
+        }
 
         entry.innerHTML = `
           <div class="timeline-dot"></div>
@@ -44,22 +47,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   --------------------------------- */
 
   const observer = new IntersectionObserver(
-    (entries) => {
+    entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add("is-visible");
         }
       });
     },
-    {
-      threshold: 0.2
-    }
+    { threshold: 0.2 }
   );
 
-  // Animate timeline line
   observer.observe(timeline);
 
-  // Animate each timeline item
   document
     .querySelectorAll(".timeline-item")
     .forEach(item => observer.observe(item));
