@@ -1,0 +1,19 @@
+- title: Idea conceived
+  date: Aug 2025
+  description: Initial motivation to preserve and centralize examination papers.
+  importance: major
+
+- title: First working prototype
+  date: Oct 2025
+  description: Basic browsing and PDF access implemented.
+  importance: normal
+
+- title: Automation pipeline stabilized
+  date: Dec 2025
+  description: Automatic indexing and structured data generation introduced.
+  importance: major
+
+- title: ExamArchive v2 launched
+  date: Jan 2026
+  description: Expanded architecture with syllabus and repeated-question support.
+  importance: major
