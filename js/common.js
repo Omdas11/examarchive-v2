@@ -20,13 +20,16 @@ function loadPartial(id, file) {
     .then(res => res.text())
     .then(data => {
       const container = document.getElementById(id);
-      if (container) {
-        container.innerHTML = data;
+      if (!container) return;
 
-        // After header loads, enhance nav
-        if (id === "header") {
-          highlightActiveNav();
-        }
+      container.innerHTML = data;
+
+      // Header-specific actions
+      if (id === "header") {
+        highlightActiveNav();
+
+        // 🔥 KEY FIX: notify other scripts (theme.js)
+        document.dispatchEvent(new CustomEvent("header:loaded"));
       }
     })
     .catch(err => {
@@ -45,8 +48,7 @@ function highlightActiveNav() {
     window.location.pathname.split("/").pop() || "index.html";
 
   document.querySelectorAll(".nav-link").forEach(link => {
-    const href = link.getAttribute("href");
-    if (href === currentPage) {
+    if (link.getAttribute("href") === currentPage) {
       link.classList.add("active");
     }
   });
@@ -54,23 +56,16 @@ function highlightActiveNav() {
 
 // ===============================
 // Mobile menu toggle + auto close
-// (event delegation)
 // ===============================
 document.addEventListener("click", (e) => {
-  // Toggle menu (hamburger)
   if (e.target.classList.contains("menu-btn")) {
     const mobileNav = document.getElementById("mobileNav");
-    if (mobileNav) {
-      mobileNav.classList.toggle("open");
-    }
+    if (mobileNav) mobileNav.classList.toggle("open");
   }
 
-  // Close menu when clicking a mobile link
   if (e.target.closest(".mobile-nav a")) {
     const mobileNav = document.getElementById("mobileNav");
-    if (mobileNav) {
-      mobileNav.classList.remove("open");
-    }
+    if (mobileNav) mobileNav.classList.remove("open");
   }
 });
 
@@ -79,7 +74,5 @@ document.addEventListener("click", (e) => {
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
   const yearSpan = document.getElementById("year");
-  if (yearSpan) {
-    yearSpan.textContent = new Date().getFullYear();
-  }
+  if (yearSpan) yearSpan.textContent = new Date().getFullYear();
 });
