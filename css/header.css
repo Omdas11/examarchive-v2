@@ -7,7 +7,7 @@
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 9999; /* FORCE above all content */
+  z-index: 1000; /* safely above main */
 
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -16,10 +16,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  isolation: isolate; /* NEW: prevents overlap issues */
 }
 
+/* Logo */
 .logo {
   font-weight: 700;
   font-size: 0.95rem;
@@ -73,29 +72,25 @@
   box-shadow: var(--shadow-sm);
 
   padding: 0.8rem 1rem;
-  z-index: 10000; /* ABOVE header content */
+
+  z-index: 1001;
+  pointer-events: none; /* IMPORTANT */
 }
 
 .mobile-nav.open {
   display: flex;
+  pointer-events: auto;
 }
 
 .mobile-nav a {
   display: block;
   padding: 0.8rem 0;
   font-size: 0.95rem;
-  line-height: 1.4;
   color: var(--text);
 }
 
-.mobile-nav a + a {
-  margin-top: 0.35rem;
-}
-
-/* ---------- Theme Toggle (HEADER ONLY) ---------- */
+/* ---------- Theme Toggle ---------- */
 .site-header .theme-toggle {
-  position: relative;
-
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -109,10 +104,8 @@
   margin-right: 0.4rem;
 }
 
+/* Theme buttons */
 .site-header .theme-btn {
-  position: relative;
-  z-index: 1;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,7 +124,6 @@
 .site-header .theme-btn img {
   width: 16px;
   height: 16px;
-  display: block;
   opacity: 0.7;
 }
 
@@ -139,48 +131,13 @@
   opacity: 1;
 }
 
-/* Slider */
-.site-header .theme-toggle::before {
-  content: "";
-  position: absolute;
-  top: 4px;
-  left: 4px;
-
-  width: 32px;
-  height: 28px;
-
-  background: var(--surface);
-  border-radius: 999px;
-  box-shadow: var(--shadow-sm);
-
-  transition: transform 0.25s ease;
-  pointer-events: none;
-}
-
-/* ================================
-   Theme toggle – MOBILE SAFE
-   ================================ */
-
-/* Default (light) */
-.site-header .theme-toggle::before {
-  transform: translateX(0);
-}
-
-/* Dark */
-.site-header .theme-btn[data-theme="dark"].active ~ ::before {
-  transform: translateX(36px);
-}
-
-/* AMOLED */
-.site-header .theme-btn[data-theme="amoled"].active ~ ::before {
-  transform: translateX(72px);
-}
-
 /* ---------- Footer ---------- */
 .site-footer {
   margin-top: 3rem;
   border-top: 1px solid var(--border);
   background: var(--surface);
+  position: relative;
+  z-index: 1;
 }
 
 .footer-inner {
@@ -216,17 +173,4 @@
   .footer-meta {
     grid-column: span 4;
   }
-}
-
-.site-header, .site-header * {
-  pointer-events: auto !important;
-}
-
-/* DEBUG: show click-blocking overlays */
-* {
-  outline: 0px solid red;
-}
-
-body > * {
-  outline: 1px dashed rgba(255,0,0,0.15);
 }
