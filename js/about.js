@@ -33,7 +33,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           timeline.appendChild(entry);
         });
 
-      /* Scroll animation */
       const observer = new IntersectionObserver(
         entries => {
           entries.forEach(entry => {
@@ -65,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!statusSection) return;
 
   try {
-    /* ---------- Load status totals & breakdown ---------- */
+    /* ---------- Status totals ---------- */
     const statusRes = await fetch("./data/about/status.json");
     if (!statusRes.ok) throw new Error("Status data not found");
 
@@ -80,7 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector('[data-stat="subjects"]').textContent =
       status.totals.subjects;
 
-    /* ---------- Load LAST CONTENT UPDATE (AUTO) ---------- */
+    /* ---------- Last Content Update (AUTO) ---------- */
     try {
       const contentRes = await fetch("./data/about/content-meta.json");
       if (!contentRes.ok) throw new Error("Content meta not found");
@@ -90,16 +89,35 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.querySelector('[data-stat="content-update"]').textContent =
         contentMeta.last_content_update || "—";
 
-    } catch (err) {
-      console.warn("Content update timestamp unavailable");
+    } catch {
       document.querySelector('[data-stat="content-update"]').textContent = "—";
     }
 
-    /* ---------- SYSTEM UPDATE (placeholder for now) ---------- */
-    document.querySelector('[data-stat="system-update"]').textContent = "—";
+    /* ---------- Last System Update (GitHub API) ---------- */
+    try {
+      const repo = "omdas11/examarchive-ai";
+      const apiRes = await fetch(
+        `https://api.github.com/repos/${repo}/commits?per_page=1`
+      );
+
+      if (!apiRes.ok) throw new Error("GitHub API error");
+
+      const commits = await apiRes.json();
+      const lastCommitDate = commits[0]?.commit?.committer?.date;
+
+      document.querySelector('[data-stat="system-update"]').textContent =
+        lastCommitDate
+          ? new Date(lastCommitDate).toLocaleString("en-IN", {
+              timeZone: "Asia/Kolkata"
+            })
+          : "—";
+
+    } catch {
+      document.querySelector('[data-stat="system-update"]').textContent = "—";
+    }
 
     /* ---------- Subject-wise breakdown ---------- */
-    if (status.breakdown && status.breakdown.items.length) {
+    if (status.breakdown?.items?.length) {
       const breakdownContainer = document.createElement("details");
       breakdownContainer.className = "status-breakdown";
 
