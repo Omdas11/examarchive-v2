@@ -1,22 +1,21 @@
 /* ================================
    ExamArchive – about.css
-   About page styles
+   About Page (Final)
    ================================ */
 
-/* Page wrapper */
+/* ---------- Page Wrapper ---------- */
 .about-page {
-  max-width: 920px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;
   color: var(--text);
 }
 
-/* Common section spacing */
 .about-page section {
   margin-bottom: 3rem;
 }
 
-/* Section titles */
+/* ---------- Headings ---------- */
 .about-page h1 {
   font-size: 2rem;
   margin-bottom: 1rem;
@@ -24,40 +23,35 @@
 
 .about-page h2 {
   font-size: 1.35rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.8rem;
   position: relative;
 }
 
-/* Subtle section divider */
 .about-page h2::after {
   content: "";
   display: block;
-  width: 40px;
+  width: 42px;
   height: 2px;
   background: var(--red);
-  margin-top: 0.4rem;
+  margin-top: 0.45rem;
 }
 
-/* Paragraphs */
+/* ---------- Text ---------- */
 .about-page p {
   line-height: 1.65;
   margin-bottom: 0.9rem;
-  color: var(--text);
 }
 
-/* Muted helper text */
 .section-note {
   font-size: 0.9rem;
   color: var(--text-muted);
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
 }
 
-/* ================================
-   Core Principles
-   ================================ */
+/* ---------- Core Principles ---------- */
 .about-principles ul {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
 }
 
 .about-principles li {
@@ -70,12 +64,10 @@
   border-bottom: none;
 }
 
-/* ================================
-   Project Status (Live Stats)
-   ================================ */
+/* ---------- Project Status ---------- */
 .about-status .status-list {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
   margin-top: 1rem;
 }
 
@@ -97,64 +89,144 @@
   color: var(--red);
 }
 
-/* ================================
-   Timeline (Placeholder version)
-   ================================ */
-.about-timeline .timeline-placeholder {
-  margin-top: 1.5rem;
-  padding-left: 1rem;
-  border-left: 2px solid var(--border);
-}
+/* ==================================================
+   TIMELINE – CENTERED, INVERTED, ANIMATED
+   ================================================== */
 
-.about-timeline ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-.about-timeline li {
+.about-timeline {
   position: relative;
-  padding: 0 0 1.8rem 1.2rem;
+}
+
+/* Timeline container */
+.timeline-placeholder {
+  position: relative;
+  margin-top: 2.5rem;
+  padding: 2rem 0;
+}
+
+/* Central vertical bar */
+.timeline-placeholder::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: bottom;
+  animation: timeline-grow 1.2s ease-out forwards;
+}
+
+/* Invert order: oldest bottom → latest top */
+.timeline-placeholder ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+/* Timeline item base */
+.timeline-placeholder li {
+  position: relative;
+  width: 50%;
+  padding: 1.5rem 2rem;
+  box-sizing: border-box;
+  opacity: 0;
+  animation-duration: 0.8s;
+  animation-fill-mode: forwards;
+}
+
+/* Left side */
+.timeline-placeholder li:nth-child(odd) {
+  left: 0;
+  text-align: right;
+  animation-name: slide-in-left;
+}
+
+/* Right side */
+.timeline-placeholder li:nth-child(even) {
+  left: 50%;
+  text-align: left;
+  animation-name: slide-in-right;
 }
 
 /* Timeline node */
-.about-timeline li::before {
+.timeline-placeholder li::before {
   content: "";
   position: absolute;
-  left: -9px;
-  top: 0.25rem;
-  width: 10px;
-  height: 10px;
+  top: 1.7rem;
+  width: 12px;
+  height: 12px;
   background: var(--surface);
   border: 2px solid var(--red);
   border-radius: 50%;
+  z-index: 2;
 }
 
-/* Timeline title */
-.about-timeline strong {
+/* Node positioning */
+.timeline-placeholder li:nth-child(odd)::before {
+  right: -6px;
+}
+
+.timeline-placeholder li:nth-child(even)::before {
+  left: -6px;
+}
+
+/* Timeline text */
+.timeline-placeholder strong {
   display: block;
   font-size: 1rem;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
 }
 
-/* Timeline date */
 .timeline-date {
+  display: block;
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-bottom: 0.4rem;
-  display: block;
 }
 
-/* Timeline description */
-.about-timeline li p {
+.timeline-placeholder li p {
   margin: 0;
   font-size: 0.95rem;
-  color: var(--text);
+  line-height: 1.5;
 }
 
-/* ================================
-   Future & Transparency
-   ================================ */
+/* ---------- Animations ---------- */
+@keyframes timeline-grow {
+  from {
+    transform: translateX(-50%) scaleY(0);
+  }
+  to {
+    transform: translateX(-50%) scaleY(1);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-32px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ---------- Future + Transparency ---------- */
 .about-future ul {
   padding-left: 1.2rem;
   margin: 0.8rem 0 1rem;
@@ -175,19 +247,21 @@
   color: var(--text-muted);
 }
 
-/* ================================
-   Responsive tweaks
-   ================================ */
-@media (max-width: 600px) {
-  .about-page {
-    padding: 1.2rem 0.9rem 2.5rem;
+/* ==================================================
+   MOBILE – STILL CENTERED
+   ================================================== */
+@media (max-width: 720px) {
+
+  .timeline-placeholder li {
+    width: 100%;
+    left: 0 !important;
+    text-align: left;
+    padding: 1.5rem 1.5rem 1.5rem 3rem;
+    animation-name: slide-in-right;
   }
 
-  .about-page h1 {
-    font-size: 1.7rem;
-  }
-
-  .about-page h2 {
-    font-size: 1.25rem;
+  .timeline-placeholder li::before {
+    left: calc(50% - 6px);
+    right: auto;
   }
 }
