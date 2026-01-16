@@ -21,10 +21,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           const entry = document.createElement("div");
           entry.className = "timeline-item";
 
-          if (item.importance === "major") {
-            entry.classList.add("is-major");
-          }
-
           entry.innerHTML = `
             <div class="timeline-dot"></div>
             <div class="timeline-content">
@@ -37,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           timeline.appendChild(entry);
         });
 
-      /* Timeline animation */
+      /* Scroll animation */
       const observer = new IntersectionObserver(
         entries => {
           entries.forEach(entry => {
@@ -74,7 +70,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const status = await res.json();
 
-    /* Fill totals */
     document.querySelector('[data-stat="papers"]').textContent =
       status.totals.papers;
 
@@ -90,7 +85,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector('[data-stat="system-update"]').textContent =
       status.last_system_update;
 
-    /* Build subject breakdown dropdown */
     if (status.breakdown && status.breakdown.items.length) {
       const breakdownContainer = document.createElement("details");
       breakdownContainer.className = "status-breakdown";
