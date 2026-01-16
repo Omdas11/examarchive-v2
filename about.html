@@ -9,7 +9,6 @@
   <!-- Global styles -->
   <link rel="stylesheet" href="css/common.css" />
   <link rel="stylesheet" href="css/header.css" />
-  <!-- Page-specific CSS will be added later -->
   <link rel="stylesheet" href="css/about.css" />
 </head>
 <body>
@@ -85,36 +84,11 @@
       <h2>Project Timeline</h2>
 
       <p class="section-note">
-        A visual timeline will be added here to show the evolution of ExamArchive.
+        This timeline is generated automatically from project history data.
       </p>
 
-      <div class="timeline-placeholder">
-        <ul>
-          <li>
-            <strong>Idea conceived</strong>
-            <span class="timeline-date">(Month Year)</span>
-            <p>Initial motivation to preserve and centralize examination papers.</p>
-          </li>
-
-          <li>
-            <strong>First working prototype</strong>
-            <span class="timeline-date">(Month Year)</span>
-            <p>Basic browsing and PDF access implemented.</p>
-          </li>
-
-          <li>
-            <strong>Automation pipeline stabilized</strong>
-            <span class="timeline-date">(Month Year)</span>
-            <p>Automatic indexing and structured data generation introduced.</p>
-          </li>
-
-          <li>
-            <strong>ExamArchive v2 launched</strong>
-            <span class="timeline-date">(Month Year)</span>
-            <p>Expanded architecture with syllabus and repeated-question support.</p>
-          </li>
-        </ul>
-      </div>
+      <!-- Timeline rendered dynamically from timeline.json -->
+      <div class="timeline"></div>
     </section>
 
     <!-- =====================
@@ -159,9 +133,10 @@
   <!-- Footer include -->
   <div id="footer"></div>
 
-  <!-- Common scripts -->
+  <!-- Scripts -->
   <script src="js/common.js"></script>
   <script src="js/theme.js"></script>
+  <script src="js/about.js"></script>
 
 </body>
 </html>
