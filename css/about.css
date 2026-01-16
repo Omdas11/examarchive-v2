@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – about.css
-   About Page (Final)
+   About Page (Timeline Complete)
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -90,7 +90,7 @@
 }
 
 /* ==================================================
-   TIMELINE – CENTERED, INVERTED, ANIMATED
+   PROJECT TIMELINE – FINAL
    ================================================== */
 
 .about-timeline {
@@ -98,14 +98,14 @@
 }
 
 /* Timeline container */
-.timeline-placeholder {
+.timeline {
   position: relative;
-  margin-top: 2.5rem;
+  margin-top: 3rem;
   padding: 2rem 0;
 }
 
-/* Central vertical bar */
-.timeline-placeholder::before {
+/* Central vertical line */
+.timeline::before {
   content: "";
   position: absolute;
   left: 50%;
@@ -115,48 +115,46 @@
   background: var(--border);
   transform: translateX(-50%) scaleY(0);
   transform-origin: bottom;
-  animation: timeline-grow 1.2s ease-out forwards;
+  transition: transform 1s ease;
 }
 
-/* Invert order: oldest bottom → latest top */
-.timeline-placeholder ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column-reverse;
+/* Activate line animation */
+.timeline.is-visible::before {
+  transform: translateX(-50%) scaleY(1);
 }
 
-/* Timeline item base */
-.timeline-placeholder li {
+/* Timeline item */
+.timeline-item {
   position: relative;
   width: 50%;
   padding: 1.5rem 2rem;
   box-sizing: border-box;
   opacity: 0;
-  animation-duration: 0.8s;
-  animation-fill-mode: forwards;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-/* Left side */
-.timeline-placeholder li:nth-child(odd) {
+/* Reveal animation */
+.timeline-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Alternating sides */
+.timeline-item:nth-child(odd) {
   left: 0;
   text-align: right;
-  animation-name: slide-in-left;
 }
 
-/* Right side */
-.timeline-placeholder li:nth-child(even) {
+.timeline-item:nth-child(even) {
   left: 50%;
   text-align: left;
-  animation-name: slide-in-right;
 }
 
-/* Timeline node */
-.timeline-placeholder li::before {
-  content: "";
+/* Timeline dot */
+.timeline-dot {
   position: absolute;
-  top: 1.7rem;
+  top: 1.65rem;
   width: 12px;
   height: 12px;
   background: var(--surface);
@@ -165,18 +163,17 @@
   z-index: 2;
 }
 
-/* Node positioning */
-.timeline-placeholder li:nth-child(odd)::before {
+/* Dot positioning */
+.timeline-item:nth-child(odd) .timeline-dot {
   right: -6px;
 }
 
-.timeline-placeholder li:nth-child(even)::before {
+.timeline-item:nth-child(even) .timeline-dot {
   left: -6px;
 }
 
-/* Timeline text */
-.timeline-placeholder strong {
-  display: block;
+/* Timeline content */
+.timeline-content h4 {
   font-size: 1rem;
   margin-bottom: 0.25rem;
 }
@@ -188,41 +185,36 @@
   margin-bottom: 0.4rem;
 }
 
-.timeline-placeholder li p {
+.timeline-content p {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-/* ---------- Animations ---------- */
-@keyframes timeline-grow {
-  from {
-    transform: translateX(-50%) scaleY(0);
-  }
-  to {
-    transform: translateX(-50%) scaleY(1);
-  }
-}
+/* ==================================================
+   MOBILE – SINGLE COLUMN, NO OVERLAP
+   ================================================== */
+@media (max-width: 720px) {
 
-@keyframes slide-in-left {
-  from {
-    transform: translateX(-32px);
-    opacity: 0;
+  .timeline::before {
+    left: 24px;
+    transform: scaleY(0);
   }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
 
-@keyframes slide-in-right {
-  from {
-    transform: translateX(32px);
-    opacity: 0;
+  .timeline.is-visible::before {
+    transform: scaleY(1);
   }
-  to {
-    transform: translateX(0);
-    opacity: 1;
+
+  .timeline-item {
+    width: 100%;
+    left: 0 !important;
+    text-align: left;
+    padding: 1.25rem 1rem 1.25rem 3rem;
+  }
+
+  .timeline-dot {
+    left: 18px !important;
+    right: auto;
   }
 }
 
@@ -245,23 +237,4 @@
 .about-transparency p {
   font-size: 0.95rem;
   color: var(--text-muted);
-}
-
-/* ==================================================
-   MOBILE – STILL CENTERED
-   ================================================== */
-@media (max-width: 720px) {
-
-  .timeline-placeholder li {
-    width: 100%;
-    left: 0 !important;
-    text-align: left;
-    padding: 1.5rem 1.5rem 1.5rem 3rem;
-    animation-name: slide-in-right;
-  }
-
-  .timeline-placeholder li::before {
-    left: calc(50% - 6px);
-    right: auto;
-  }
 }
