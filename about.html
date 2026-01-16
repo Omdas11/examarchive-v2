@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>About | ExamArchive</title>
 
-  <link rel="stylesheet" href="css/common.css">
-  <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/pages.css">
+  <!-- Global styles -->
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <!-- Page-specific CSS will be added later -->
 </head>
 <body>
 
@@ -17,27 +18,149 @@
   <div id="header"></div>
 
   <main class="about-page">
-    <h1>About ExamArchive</h1>
 
-    <p>
-      ExamArchive is a student-driven initiative to preserve and share
-      university question papers in one clean and accessible place.
-    </p>
+    <!-- =====================
+         INTRO / TRUTH SECTION
+         ===================== -->
+    <section class="about-intro">
+      <h1>About ExamArchive</h1>
 
-    <p>
-      The goal is to help students prepare better by having easy access
-      to previous year question papers — especially on mobile devices.
-    </p>
+      <p>
+        ExamArchive is a <strong>student-driven academic archive</strong> created to
+        preserve, organize, and make university examination papers easily accessible —
+        especially for students studying on mobile devices.
+      </p>
 
-    <p>
-      This project is lightweight, open, and community supported.
-    </p>
+      <p>
+        This project is built with the assistance of <strong>AI tools</strong>, used as
+        development support. All architectural decisions, data organization, verification,
+        and academic direction are <strong>human-guided and reviewed</strong>.
+      </p>
+
+      <p>
+        ExamArchive began as a personal initiative to solve a practical problem faced by
+        students: scattered and unreliable access to previous-year question papers. It
+        continues to evolve as a structured and maintainable academic archive.
+      </p>
+    </section>
+
+    <!-- =====================
+         CORE PRINCIPLES
+         ===================== -->
+    <section class="about-principles">
+      <h2>Core Principles</h2>
+
+      <ul>
+        <li><strong>Accessibility first</strong> — Resources should be easy to find and usable on any device.</li>
+        <li><strong>Clarity over clutter</strong> — Focused on exam relevance, not distractions.</li>
+        <li><strong>Sustainability-aware development</strong> — Built to remain maintainable over time.</li>
+        <li><strong>Built gradually, improved continuously</strong> — Stability over speed.</li>
+      </ul>
+    </section>
+
+    <!-- =====================
+         LIVE PROJECT STATUS
+         ===================== -->
+    <section class="about-status">
+      <h2>Project Status</h2>
+
+      <p class="section-note">
+        This section is intended to auto-update based on repository data.
+      </p>
+
+      <ul class="status-list">
+        <li><strong>Total papers archived:</strong> <span data-stat="papers">—</span></li>
+        <li><strong>Subjects covered:</strong> <span data-stat="subjects">—</span></li>
+        <li><strong>Total PDFs stored:</strong> <span data-stat="pdfs">—</span></li>
+        <li><strong>Last content update:</strong> <span data-stat="content-update">—</span></li>
+        <li><strong>Last system update:</strong> <span data-stat="system-update">—</span></li>
+      </ul>
+    </section>
+
+    <!-- =====================
+         PROJECT TIMELINE
+         ===================== -->
+    <section class="about-timeline">
+      <h2>Project Timeline</h2>
+
+      <p class="section-note">
+        A visual timeline will be added here to show the evolution of ExamArchive.
+      </p>
+
+      <div class="timeline-placeholder">
+        <ul>
+          <li>
+            <strong>Idea conceived</strong>
+            <span class="timeline-date">(Month Year)</span>
+            <p>Initial motivation to preserve and centralize examination papers.</p>
+          </li>
+
+          <li>
+            <strong>First working prototype</strong>
+            <span class="timeline-date">(Month Year)</span>
+            <p>Basic browsing and PDF access implemented.</p>
+          </li>
+
+          <li>
+            <strong>Automation pipeline stabilized</strong>
+            <span class="timeline-date">(Month Year)</span>
+            <p>Automatic indexing and structured data generation introduced.</p>
+          </li>
+
+          <li>
+            <strong>ExamArchive v2 launched</strong>
+            <span class="timeline-date">(Month Year)</span>
+            <p>Expanded architecture with syllabus and repeated-question support.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- =====================
+         FUTURE DIRECTION
+         ===================== -->
+    <section class="about-future">
+      <h2>Looking Ahead</h2>
+
+      <p>
+        ExamArchive is an ongoing project. Areas currently being explored include:
+      </p>
+
+      <ul>
+        <li>Expansion to additional subjects and streams</li>
+        <li>Improved accessibility and readability</li>
+        <li>Smarter search, filtering, and metadata organization</li>
+        <li>Long-term sustainability options for maintaining and expanding the archive</li>
+      </ul>
+
+      <p>
+        Development decisions will continue to prioritize
+        <strong>usefulness, clarity, and reliability</strong>.
+      </p>
+    </section>
+
+    <!-- =====================
+         TRANSPARENCY NOTE
+         ===================== -->
+    <section class="about-transparency">
+      <h2>Transparency</h2>
+
+      <p>
+        ExamArchive is developed using modern web tools and workflows, including
+        AI-assisted development. AI is treated as a <strong>support tool</strong>, not
+        an author — responsibility for structure, accuracy, and content decisions
+        remains human.
+      </p>
+    </section>
+
   </main>
 
   <!-- Footer include -->
   <div id="footer"></div>
 
+  <!-- Common scripts -->
   <script src="js/common.js"></script>
   <script src="js/theme.js"></script>
+
 </body>
 </html>
