@@ -74,17 +74,13 @@ body[data-theme="amoled"] {
 }
 
 /* ================================
-   NIGHT MODE – FINAL (FILTER)
+   NIGHT MODE – FILTER (GLOBAL)
    ================================ */
-
-/* Default */
 body {
   filter: none;
 }
 
-/* ================================
-   NIGHT MODE – STRONGER & CLEAR
-   ================================ */
+/* Strong, visible night warmth */
 body[data-night="on"] {
   filter:
     sepia(calc(0.6 * var(--night-filter-strength)))
@@ -92,6 +88,22 @@ body[data-night="on"] {
     brightness(calc(1 - (0.15 * var(--night-filter-strength))))
     hue-rotate(-12deg);
 }
+
+/* ================================
+   NIGHT MODE – BACKGROUND SUPPORT
+   ================================ */
+
+/* Light theme needs darker base at night */
+body[data-theme="light"][data-night="on"] {
+  background-color: #1a1a1a;
+}
+
+/* Dark & AMOLED already correct */
+body[data-theme="dark"][data-night="on"],
+body[data-theme="amoled"][data-night="on"] {
+  background-color: var(--bg);
+}
+
 /* ================================
    RESET
    ================================ */
