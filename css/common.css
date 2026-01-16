@@ -75,7 +75,7 @@ body[data-theme="amoled"] {
 }
 
 /* ================================
-   NIGHT MODE (CONTENT ONLY – SAFE)
+   NIGHT MODE – GLOBAL (FINAL)
    ================================ */
 
 /* Light theme needs stronger tint */
@@ -83,29 +83,33 @@ body[data-theme="light"] {
   --night-strength-multiplier: 1.6;
 }
 
-/* Apply night tint ONLY to main content */
-main {
+body {
   position: relative;
 }
 
-body[data-night="on"] main::before {
+/* Global eye-comfort overlay */
+body[data-night="on"]::before {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
+
   background: rgba(
     255,
     183,
     77,
     calc(var(--night-strength) * var(--night-strength-multiplier))
   );
+
   pointer-events: none;
-  z-index: 0;
+  z-index: 999999;
 }
 
-/* Keep content above tint */
-main > * {
+/* Ensure UI remains interactive */
+.site-header,
+.site-footer,
+main {
   position: relative;
-  z-index: 1;
+  z-index: 1000000;
 }
 
 /* ================================
@@ -205,7 +209,7 @@ p {
   filter: brightness(0.92);
 }
 
-/* Night button (theme-independent) */
+/* Night button (generic active state) */
 .night-btn.active {
   background: rgba(255, 183, 77, 0.25);
   border-color: #f4b860;
