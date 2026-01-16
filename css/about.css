@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – about.css
-   About Page (Timeline + Status Final)
+   About Page (Timeline Uniform)
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -48,22 +48,6 @@
   margin-bottom: 1.2rem;
 }
 
-/* ---------- Core Principles ---------- */
-.about-principles ul {
-  list-style: none;
-  padding: 0;
-}
-
-.about-principles li {
-  padding: 0.6rem 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.95rem;
-}
-
-.about-principles li:last-child {
-  border-bottom: none;
-}
-
 /* ---------- Project Status ---------- */
 .about-status .status-list {
   list-style: none;
@@ -80,22 +64,17 @@
   font-size: 0.95rem;
 }
 
-.about-status .status-list li:last-child {
-  border-bottom: none;
-}
-
 .about-status [data-stat] {
   font-weight: 600;
   color: var(--red);
 }
 
-/* ---------- Status Breakdown Dropdown ---------- */
+/* ---------- Status Breakdown ---------- */
 .status-breakdown {
   margin-top: 1.25rem;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg-soft);
-  overflow: hidden;
 }
 
 .status-breakdown summary {
@@ -103,21 +82,13 @@
   padding: 0.65rem 0.85rem;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text);
   list-style: none;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-}
-
-.status-breakdown summary::marker {
-  display: none;
 }
 
 .status-breakdown summary::after {
   content: "▾";
-  font-size: 0.75rem;
-  color: var(--text-muted);
   transition: transform 0.25s ease;
 }
 
@@ -128,39 +99,25 @@
 .status-breakdown-list {
   list-style: none;
   padding: 0.4rem 0.85rem 0.7rem;
-  margin: 0;
   border-top: 1px solid var(--border);
 }
 
 .status-breakdown-list li {
   display: flex;
   justify-content: space-between;
-  padding: 0.35rem 0;
   font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-.status-breakdown-list li span:last-child {
-  font-weight: 600;
-  color: var(--text);
 }
 
 /* ==================================================
-   PROJECT TIMELINE – FINAL + HIGHLIGHT
+   PROJECT TIMELINE – UNIFORM
    ================================================== */
 
-.about-timeline {
-  position: relative;
-}
-
-/* Timeline container */
 .timeline {
   position: relative;
   margin-top: 3rem;
   padding: 2rem 0;
 }
 
-/* Central vertical line */
 .timeline::before {
   content: "";
   position: absolute;
@@ -178,12 +135,10 @@
   transform: translateX(-50%) scaleY(1);
 }
 
-/* Timeline item */
 .timeline-item {
   position: relative;
   width: 50%;
   padding: 1.5rem 2rem;
-  box-sizing: border-box;
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -194,7 +149,6 @@
   transform: translateY(0);
 }
 
-/* Alternating sides */
 .timeline-item:nth-child(odd) {
   left: 0;
   text-align: right;
@@ -205,7 +159,6 @@
   text-align: left;
 }
 
-/* Timeline dot */
 .timeline-dot {
   position: absolute;
   top: 1.65rem;
@@ -214,10 +167,8 @@
   background: var(--surface);
   border: 2px solid var(--red);
   border-radius: 50%;
-  z-index: 2;
 }
 
-/* Dot positioning */
 .timeline-item:nth-child(odd) .timeline-dot {
   right: -6px;
 }
@@ -226,63 +177,21 @@
   left: -6px;
 }
 
-/* Timeline content */
 .timeline-content h4 {
   font-size: 1rem;
   margin-bottom: 0.25rem;
-  font-weight: 500;
 }
 
 .timeline-date {
-  display: block;
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-bottom: 0.4rem;
 }
 
-.timeline-content p {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-/* ---------- Major Milestone Highlight ---------- */
-.timeline-item.is-major .timeline-dot {
-  background: var(--red);
-}
-
-.timeline-item.is-major .timeline-content h4 {
-  font-weight: 600;
-}
-
-.timeline-item.is-major .timeline-content::before {
-  content: "★";
-  position: absolute;
-  top: 0;
-  font-size: 0.75rem;
-  color: var(--red);
-}
-
-.timeline-item:nth-child(odd).is-major .timeline-content::before {
-  right: -1.2rem;
-}
-
-.timeline-item:nth-child(even).is-major .timeline-content::before {
-  left: -1.2rem;
-}
-
-/* ==================================================
-   MOBILE – SINGLE COLUMN
-   ================================================== */
+/* ---------- Mobile ---------- */
 @media (max-width: 720px) {
-
   .timeline::before {
     left: 24px;
-    transform: scaleY(0);
-  }
-
-  .timeline.is-visible::before {
-    transform: scaleY(1);
   }
 
   .timeline-item {
@@ -294,32 +203,5 @@
 
   .timeline-dot {
     left: 18px !important;
-    right: auto;
   }
-
-  .timeline-item.is-major .timeline-content::before {
-    left: -1.4rem;
-    right: auto;
-  }
-}
-
-/* ---------- Future + Transparency ---------- */
-.about-future ul {
-  padding-left: 1.2rem;
-  margin: 0.8rem 0 1rem;
-}
-
-.about-future li {
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
-}
-
-.about-transparency {
-  border-top: 1px solid var(--border);
-  padding-top: 2rem;
-}
-
-.about-transparency p {
-  font-size: 0.95rem;
-  color: var(--text-muted);
 }
