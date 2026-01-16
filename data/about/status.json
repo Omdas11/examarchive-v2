@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-01-16T13:06:52.050Z",
+  "totals": {
+    "papers": 34,
+    "pdfs": 34,
+    "subjects": 1
+  },
+  "breakdown": {
+    "group_by": "subject",
+    "items": [
+      {
+        "name": "Physics",
+        "count": 34
+      }
+    ]
+  },
+  "last_content_update": "Papers up to 2025",
+  "last_system_update": "16 Jan 2026"
+}
