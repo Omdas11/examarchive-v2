@@ -1,0 +1,193 @@
+/* ================================
+   ExamArchive – about.css
+   About page styles
+   ================================ */
+
+/* Page wrapper */
+.about-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  color: var(--text);
+}
+
+/* Common section spacing */
+.about-page section {
+  margin-bottom: 3rem;
+}
+
+/* Section titles */
+.about-page h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.about-page h2 {
+  font-size: 1.35rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+/* Subtle section divider */
+.about-page h2::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--red);
+  margin-top: 0.4rem;
+}
+
+/* Paragraphs */
+.about-page p {
+  line-height: 1.65;
+  margin-bottom: 0.9rem;
+  color: var(--text);
+}
+
+/* Muted helper text */
+.section-note {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* ================================
+   Core Principles
+   ================================ */
+.about-principles ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.about-principles li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.about-principles li:last-child {
+  border-bottom: none;
+}
+
+/* ================================
+   Project Status (Live Stats)
+   ================================ */
+.about-status .status-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.about-status .status-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 0.95rem;
+}
+
+.about-status .status-list li:last-child {
+  border-bottom: none;
+}
+
+.about-status [data-stat] {
+  font-weight: 600;
+  color: var(--red);
+}
+
+/* ================================
+   Timeline (Placeholder version)
+   ================================ */
+.about-timeline .timeline-placeholder {
+  margin-top: 1.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--border);
+}
+
+.about-timeline ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.about-timeline li {
+  position: relative;
+  padding: 0 0 1.8rem 1.2rem;
+}
+
+/* Timeline node */
+.about-timeline li::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 0.25rem;
+  width: 10px;
+  height: 10px;
+  background: var(--surface);
+  border: 2px solid var(--red);
+  border-radius: 50%;
+}
+
+/* Timeline title */
+.about-timeline strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+/* Timeline date */
+.timeline-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+/* Timeline description */
+.about-timeline li p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+/* ================================
+   Future & Transparency
+   ================================ */
+.about-future ul {
+  padding-left: 1.2rem;
+  margin: 0.8rem 0 1rem;
+}
+
+.about-future li {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.about-transparency {
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+
+.about-transparency p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+/* ================================
+   Responsive tweaks
+   ================================ */
+@media (max-width: 600px) {
+  .about-page {
+    padding: 1.2rem 0.9rem 2.5rem;
+  }
+
+  .about-page h1 {
+    font-size: 1.7rem;
+  }
+
+  .about-page h2 {
+    font-size: 1.25rem;
+  }
+}
