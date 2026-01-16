@@ -75,7 +75,7 @@ body[data-theme="amoled"] {
 }
 
 /* ================================
-   NIGHT MODE – GLOBAL (FINAL)
+   NIGHT MODE – GLOBAL (STABLE)
    ================================ */
 
 /* Light theme needs stronger tint */
@@ -83,33 +83,39 @@ body[data-theme="light"] {
   --night-strength-multiplier: 1.6;
 }
 
-body {
-  position: relative;
-}
-
-/* Global eye-comfort overlay */
-body[data-night="on"]::before {
-  content: "";
+/* Real overlay layer (NOT pseudo-element) */
+#night-layer {
   position: fixed;
   inset: 0;
+  pointer-events: none;
+  background: transparent;
+  z-index: 10;
+}
 
+body[data-night="on"] #night-layer {
   background: rgba(
     255,
     183,
     77,
     calc(var(--night-strength) * var(--night-strength-multiplier))
   );
-
-  pointer-events: none;
-  z-index: 999999;
 }
 
-/* Ensure UI remains interactive */
-.site-header,
-.site-footer,
+/* Content layers above night tint */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
 main {
   position: relative;
-  z-index: 1000000;
+  z-index: 20;
+}
+
+.site-footer {
+  position: relative;
+  z-index: 20;
 }
 
 /* ================================
