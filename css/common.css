@@ -95,7 +95,7 @@ body[data-night="on"] {
 
 /* Light theme needs darker base at night */
 body[data-theme="light"][data-night="on"] {
-  background-color: #1a1a1a;
+  background-color: #f3efe6;
 }
 
 /* Dark & AMOLED already correct */
