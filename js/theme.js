@@ -1,6 +1,6 @@
 // ===============================
 // Theme & Night Mode Controller
-// FINAL — injection safe (FILTER MODE)
+// FINAL — WORKING & STABLE
 // ===============================
 
 // ---------- LOAD SAVED STATE ----------
@@ -8,15 +8,18 @@ const savedTheme = localStorage.getItem("theme") || "light";
 const savedNight = localStorage.getItem("night") || "off";
 const savedStrength = localStorage.getItem("nightStrength") || "50";
 
-// Apply immediately
+// Apply theme
 document.body.setAttribute("data-theme", savedTheme);
 
+// Apply night state
 if (savedNight === "on") {
   document.body.setAttribute("data-night", "on");
+} else {
+  document.body.removeAttribute("data-night");
 }
 
-// Apply night strength (FILTER-based)
-document.documentElement.style.setProperty(
+// Apply night strength (THIS WAS THE BUG)
+document.body.style.setProperty(
   "--night-filter-strength",
   Number(savedStrength) / 100
 );
@@ -28,10 +31,7 @@ function syncThemeUI(theme) {
   });
 }
 
-// Initial sync (safe even if header not loaded yet)
-syncThemeUI(savedTheme);
-
-// ---------- GLOBAL CLICK HANDLER ----------
+// ---------- CLICK HANDLER ----------
 document.addEventListener("click", (e) => {
   const themeBtn = e.target.closest(".theme-btn[data-theme]");
   const nightBtn = e.target.closest(".night-btn");
@@ -60,12 +60,12 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ---------- NIGHT STRENGTH (FILTER) ----------
+// ---------- NIGHT STRENGTH SLIDER ----------
 document.addEventListener("input", (e) => {
   if (e.target.id === "nightRange") {
     const value = e.target.value;
 
-    document.documentElement.style.setProperty(
+    document.body.style.setProperty(
       "--night-filter-strength",
       value / 100
     );
@@ -74,7 +74,7 @@ document.addEventListener("input", (e) => {
   }
 });
 
-// ---------- FINAL SYNC AFTER LOAD ----------
+// ---------- FINAL SYNC ----------
 document.addEventListener("DOMContentLoaded", () => {
   syncThemeUI(savedTheme);
 
