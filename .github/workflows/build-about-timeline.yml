@@ -19,6 +19,9 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install dependencies
+        run: npm install js-yaml
+
       - name: Run About Timeline Generator
         run: node scripts/build-about-timeline.js
 
