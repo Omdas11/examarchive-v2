@@ -65,10 +65,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!statusSection) return;
 
   try {
-    const res = await fetch("./data/about/status.json");
-    if (!res.ok) throw new Error("Status data not found");
+    /* ---------- Load status totals & breakdown ---------- */
+    const statusRes = await fetch("./data/about/status.json");
+    if (!statusRes.ok) throw new Error("Status data not found");
 
-    const status = await res.json();
+    const status = await statusRes.json();
 
     document.querySelector('[data-stat="papers"]').textContent =
       status.totals.papers;
@@ -79,12 +80,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector('[data-stat="subjects"]').textContent =
       status.totals.subjects;
 
-    document.querySelector('[data-stat="content-update"]').textContent =
-      status.last_content_update;
+    /* ---------- Load LAST CONTENT UPDATE (AUTO) ---------- */
+    try {
+      const contentRes = await fetch("./data/about/content-meta.json");
+      if (!contentRes.ok) throw new Error("Content meta not found");
 
-    document.querySelector('[data-stat="system-update"]').textContent =
-      status.last_system_update;
+      const contentMeta = await contentRes.json();
 
+      document.querySelector('[data-stat="content-update"]').textContent =
+        contentMeta.last_content_update || "—";
+
+    } catch (err) {
+      console.warn("Content update timestamp unavailable");
+      document.querySelector('[data-stat="content-update"]').textContent = "—";
+    }
+
+    /* ---------- SYSTEM UPDATE (placeholder for now) ---------- */
+    document.querySelector('[data-stat="system-update"]').textContent = "—";
+
+    /* ---------- Subject-wise breakdown ---------- */
     if (status.breakdown && status.breakdown.items.length) {
       const breakdownContainer = document.createElement("details");
       breakdownContainer.className = "status-breakdown";
