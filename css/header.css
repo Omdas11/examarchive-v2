@@ -221,3 +221,12 @@
 .site-header, .site-header * {
   pointer-events: auto !important;
 }
+
+/* DEBUG: show click-blocking overlays */
+* {
+  outline: 0px solid red;
+}
+
+body > * {
+  outline: 1px dashed rgba(255,0,0,0.15);
+}
