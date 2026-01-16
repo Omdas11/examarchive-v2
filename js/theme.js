@@ -1,13 +1,14 @@
 // ===============================
 // Theme & Night Mode Controller
+// FINAL — injection safe
 // ===============================
 
-// Load saved state
+// ---------- LOAD SAVED STATE ----------
 const savedTheme = localStorage.getItem("theme") || "light";
 const savedNight = localStorage.getItem("night") || "off";
 const savedStrength = localStorage.getItem("nightStrength") || "8";
 
-// Apply theme immediately
+// Apply immediately
 document.body.setAttribute("data-theme", savedTheme);
 
 if (savedNight === "on") {
@@ -19,21 +20,22 @@ document.documentElement.style.setProperty(
   Number(savedStrength) / 100
 );
 
-// ---------- GLOBAL SYNC ----------
+// ---------- UI SYNC ----------
 function syncThemeUI(theme) {
   document.querySelectorAll(".theme-btn[data-theme]").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.theme === theme);
   });
 }
 
-// Initial sync (for settings page)
+// Initial sync (safe even if header not loaded yet)
 syncThemeUI(savedTheme);
 
-// ---------- CLICK HANDLING (WORKS EVERYWHERE) ----------
+// ---------- GLOBAL CLICK HANDLER (KEY FIX) ----------
 document.addEventListener("click", (e) => {
   const themeBtn = e.target.closest(".theme-btn[data-theme]");
   const nightBtn = e.target.closest(".night-btn");
 
+  // Theme switch
   if (themeBtn) {
     const theme = themeBtn.dataset.theme;
     document.body.setAttribute("data-theme", theme);
@@ -41,8 +43,10 @@ document.addEventListener("click", (e) => {
     syncThemeUI(theme);
   }
 
+  // Night mode toggle
   if (nightBtn) {
     const isOn = document.body.getAttribute("data-night") === "on";
+
     if (isOn) {
       document.body.removeAttribute("data-night");
       localStorage.setItem("night", "off");
@@ -67,24 +71,11 @@ document.addEventListener("input", (e) => {
   }
 });
 
-// ---------- OBSERVE HEADER INJECTION ----------
-const observer = new MutationObserver(() => {
-  const headerButtons = document.querySelectorAll(".site-header .theme-btn");
-  if (headerButtons.length) {
-    syncThemeUI(localStorage.getItem("theme") || "light");
-  }
-});
-
-observer.observe(document.body, {
-  childList: true,
-  subtree: true
-});
-
-// ---------- FINAL UI SYNC ----------
+// ---------- FINAL SYNC AFTER LOAD ----------
 document.addEventListener("DOMContentLoaded", () => {
   syncThemeUI(savedTheme);
 
-  const nightRange = document.querySelector("#nightRange");
+  const nightRange = document.getElementById("nightRange");
   if (nightRange) nightRange.value = savedStrength;
 
   const nightBtn = document.querySelector(".night-btn");
