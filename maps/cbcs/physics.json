@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+
+  "subject": "physics",
+  "stream": "science",
+  "programme": "CBCS",
+
+  "university": "assam-university",
+
+  "paper_code_patterns": [
+    "PHSHCC###T",
+    "PHSHCC###P",
+    "PHSDSE###T",
+    "PHSGEC###T"
+  ],
+
+  "paper_name_map": {
+    "PHSHCC101T": "Mathematical Physics – I",
+    "PHSHCC102T": "Mechanics"
+  },
+
+  "defaults": {
+    "level": "UG",
+    "exam_type": "End Semester"
+  }
+}
