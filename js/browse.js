@@ -14,7 +14,7 @@ let view = [];
 
 let filters = {
   programme: "ALL",
-  stream: "Science",
+  stream: "ALL",
   year: "ALL",
   search: "",
   sort: "newest"
@@ -51,8 +51,10 @@ async function loadPapers() {
 function applyFilters() {
   view = [...allPapers];
 
-  if (filters.programme !== "ALL") {
-    view = view.filter(p => p.programme === filters.programme);
+  if (filters.stream !== "ALL") {
+   view = view.filter(
+    p => String(p.stream).toLowerCase() === filters.stream.toLowerCase()
+   );
   }
 
   if (filters.stream !== "ALL") {
