@@ -4,9 +4,8 @@ on:
   push:
     paths:
       - "papers/**"
-      - "scripts/**"
       - "maps/**"
-      - "data/**"
+      - "scripts/generate-papers.js"
 
 permissions:
   contents: write
@@ -16,29 +15,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout FULL repo with write access
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true
 
-      # 2️⃣ Setup Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 3️⃣ Run generator
-      - name: Run generator script
+      - name: Run generator
         run: node scripts/generate-papers.js
 
-      # 4️⃣ FORCE update generated JSON (SAFE)
       - name: Commit updated papers.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add data/papers.json
           git commit -m "Auto-update papers.json" || echo "No changes"
-          git push origin main
+          git pull --rebase
+          git push
