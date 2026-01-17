@@ -3,7 +3,15 @@
  * Handles OBJECT-based papers.json correctly
  */
 alert("browse.js loaded");
-const DATA_URL = "./data/papers.json";
+const DATA_URL = "/examarchive-v2/data/papers.json";
+
+fetch(DATA_URL)
+  .then(r => {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  })
+  .then(d => alert("Loaded papers: " + (Array.isArray(d) ? d.length : Object.keys(d).length)))
+  .catch(e => alert("JSON load failed: " + e.message));
 
 /* -------------------------------
    State
