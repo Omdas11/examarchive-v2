@@ -1,4 +1,5 @@
 {
-  "last_content_update": "2026-01-16T18:30:00+05:30",
-  "note": "This timestamp updates ONLY when academic content changes (syllabus, question papers, repeated questions, etc.). UI, CSS, or system changes must not modify this."
+  "last_content_update": "2026-01-17T17:44:22+0530",
+  "generated_by": "github-actions",
+  "description": "Auto-updated only when academic content changes (syllabus, papers, repeated questions)."
 }
