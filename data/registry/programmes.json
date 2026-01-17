@@ -1,0 +1,16 @@
+{
+  "FYUG": {
+    "name": "Four-Year Undergraduate Programme",
+    "level": "UG",
+    "slug": "fyug",
+    "status": "active",
+    "order": 1
+  },
+  "CBCS": {
+    "name": "Choice Based Credit System",
+    "level": "UG",
+    "slug": "cbcs",
+    "status": "active",
+    "order": 2
+  }
+}
