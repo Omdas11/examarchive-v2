@@ -1,25 +1,16 @@
 /**
- * ExamArchive v2 – Browse Logic (Registry-aware)
- * OVERWRITE-SAFE VERSION
+ * ExamArchive v2 – Browse Logic
+ * Registry-aware, case-safe, SEO-stable
+ * OVERWRITE-ONLY VERSION
  */
 
 const PAPERS_URL = "./data/papers.json";
-const REGISTRY_BASE = "./data/registry/";
 
 let papers = [];
 let filters = {
-  programme: "ALL",
-  stream: "ALL",
-  year: "ALL"
+  programme: "all",
+  stream: "all"
 };
-
-// ================================
-// Load registries
-// ================================
-async function loadRegistry(name) {
-  const res = await fetch(`${REGISTRY_BASE}${name}.json`);
-  return res.json();
-}
 
 // ================================
 // Load papers
@@ -30,17 +21,28 @@ async function loadPapers() {
 }
 
 // ================================
+// Normalize helpers
+// ================================
+function norm(value) {
+  return String(value || "").toLowerCase();
+}
+
+// ================================
 // Apply filters
 // ================================
 function applyFilters() {
   let filtered = [...papers];
 
-  if (filters.programme !== "ALL") {
-    filtered = filtered.filter(p => p.programme === filters.programme);
+  if (filters.programme !== "all") {
+    filtered = filtered.filter(
+      p => norm(p.programme) === filters.programme
+    );
   }
 
-  if (filters.stream !== "ALL") {
-    filtered = filtered.filter(p => p.stream === filters.stream);
+  if (filters.stream !== "all") {
+    filtered = filtered.filter(
+      p => norm(p.stream) === filters.stream
+    );
   }
 
   renderPapers(filtered);
@@ -77,18 +79,18 @@ function renderPapers(list) {
 }
 
 // ================================
-// Event bindings
+// Bind filter buttons
 // ================================
 document.querySelectorAll("[data-programme]").forEach(btn => {
   btn.addEventListener("click", () => {
-    filters.programme = btn.dataset.programme;
+    filters.programme = norm(btn.dataset.programme);
     applyFilters();
   });
 });
 
 document.querySelectorAll("[data-stream]").forEach(btn => {
   btn.addEventListener("click", () => {
-    filters.stream = btn.dataset.stream;
+    filters.stream = norm(btn.dataset.stream);
     applyFilters();
   });
 });
