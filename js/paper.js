@@ -1,257 +1,118 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const params = new URLSearchParams(window.location.search);
-  const paperCode = params.get("code");
-  if (!paperCode) return;
+/**
+ * ExamArchive v2 — Paper Page (RESTORED & ALIGNED)
+ * Works with existing paper.html layout
+ */
 
-  const downloadBtn = document.getElementById("download-full");
-  const noSyllabusMsg = document.getElementById("no-syllabus");
+const PAPERS_URL = "./data/papers.json";
+const SYLLABUS_BASE = "./data/syllabus/";
+const RQ_BASE = "./data/repeated-questions/";
 
-  if (downloadBtn) downloadBtn.style.display = "none";
-  if (noSyllabusMsg) noSyllabusMsg.hidden = true;
+const params = new URLSearchParams(window.location.search);
+const SHORT_CODE = params.get("code");
 
-  try {
-    /* =========================
-       LOAD PAPERS.JSON
-    ========================= */
-    const papersRes = await fetch("data/papers.json");
-    const papers = await papersRes.json();
-
-    const samePaper = papers
-      .filter(p => p.paper_code === paperCode)
-      .sort((a, b) => b.year - a.year);
-
-    if (!samePaper.length) return;
-
-    renderPaperHeaderFromPapers(samePaper);
-    renderAvailablePapers(samePaper);
-
-    /* =========================
-       LOAD SYLLABUS
-    ========================= */
-    const syllabusPath = `data/syllabus/assam-university/physics/fyug/${paperCode}.json`;
-    const syllabusRes = await fetch(syllabusPath);
-
-    if (syllabusRes.ok) {
-      const syllabusData = await syllabusRes.json();
-      renderSyllabus(syllabusData);
-
-      if (downloadBtn) {
-        downloadBtn.style.display = "inline-flex";
-        downloadBtn.onclick = () => window.open(syllabusPath, "_blank");
-      }
-    } else {
-      if (noSyllabusMsg) noSyllabusMsg.hidden = false;
-    }
-
-    /* =========================
-       LOAD REPEATED QUESTIONS
-    ========================= */
-    const rqRes = await fetch(
-      `data/repeated-questions/assam-university/physics/fyug/${paperCode}.json`
-    );
-
-    if (rqRes.ok) {
-      const rqData = await rqRes.json();
-      renderRepeatedQuestions(rqData.sections);
-    }
-
-  } catch (err) {
-    console.error("Paper page error:", err);
-  }
-});
-
-/* =========================
-   PAPER HEADER
-========================= */
-function renderPaperHeaderFromPapers(papers) {
-  const latest = papers[0];
-
-  document.getElementById("paperTitle").textContent = latest.paper_name;
-  document.getElementById("paperCode").textContent = latest.paper_code;
-
-  document.getElementById("paperMeta").innerHTML = `
-    <span class="chip">${latest.programme}</span>
-    <span class="chip">Semester ${latest.semester}</span>
-    <span class="chip">${latest.course_type}</span>
-    <span class="chip">${latest.subject}</span>
-  `;
-
-  const pdfLink = document.getElementById("latestPdfLink");
-  pdfLink.href = latest.pdf;
-  pdfLink.target = "_blank";
-  pdfLink.rel = "noopener";
+if (!SHORT_CODE) {
+  document.querySelector(".paper-page").innerHTML =
+    "<p class='coming-soon'>Invalid paper link.</p>";
+  throw new Error("Missing paper code");
 }
 
-/* =========================
-   AVAILABLE PAPERS
-========================= */
-function renderAvailablePapers(papers) {
+// ---------------- Helpers ----------------
+function extractYear(path) {
+  const m = path.match(/(20\d{2})/);
+  return m ? m[1] : "—";
+}
+
+function extractShort(code) {
+  return code.replace(/^AU(CBCS|FYUG)?/i, "");
+}
+
+function extractSemester(code) {
+  // e.g. PHSDSE601T → Sem 6
+  const m = code.match(/(\d)(0[1-8])/);
+  if (!m) return "—";
+  return `Sem ${m[2][1]}`;
+}
+
+// ---------------- Load Paper ----------------
+async function loadPaper() {
+  const res = await fetch(PAPERS_URL);
+  const all = await res.json();
+
+  const matches = all.filter(p =>
+    extractShort(p.paper_code) === SHORT_CODE.toUpperCase()
+  );
+
+  if (!matches.length) {
+    document.querySelector(".paper-page").innerHTML =
+      "<p class='coming-soon'>Paper not found.</p>";
+    return;
+  }
+
+  const base = matches[0];
+  const semester = extractSemester(base.paper_code);
+
+  // Header
+  document.getElementById("paperTitle").textContent =
+    base.paper_name || "Paper title pending";
+
+  document.getElementById("paperCode").textContent =
+    extractShort(base.paper_code);
+
+  document.getElementById("paperMeta").textContent =
+    `Assam University • ${base.programme} • ${base.stream.toUpperCase()} • ${semester}`;
+
+  // Latest PDF
+  const sorted = [...matches].sort(
+    (a, b) => extractYear(b.pdf) - extractYear(a.pdf)
+  );
+
+  const latest = sorted[0];
+  const latestBtn = document.getElementById("latestPdfLink");
+  latestBtn.href = latest.pdf;
+  latestBtn.textContent = `Open Latest PDF (${extractYear(latest.pdf)}) →`;
+
+  // Available papers
   const list = document.getElementById("availablePapers");
   list.innerHTML = "";
 
-  papers.forEach(p => {
+  sorted.forEach(p => {
     const li = document.createElement("li");
-    li.className = "paper-row";
-
     li.innerHTML = `
-      <span>${p.year}</span>
-      <a href="${p.pdf}" class="link-red" target="_blank" rel="noopener">
-        Open PDF →
+      <a href="${p.pdf}" target="_blank">
+        ${extractYear(p.pdf)} Question Paper →
       </a>
     `;
     list.appendChild(li);
   });
+
+  // Optional sections
+  loadOptional(
+    `${SYLLABUS_BASE}${base.paper_code}.json`,
+    "syllabus-container",
+    "no-syllabus"
+  );
+
+  loadOptional(
+    `${RQ_BASE}${base.paper_code}.json`,
+    "repeated-container"
+  );
 }
 
-/* =========================
-   SYLLABUS
-========================= */
-function renderSyllabus(data) {
-  const container = document.getElementById("syllabus-container");
-  if (!container || !Array.isArray(data.units)) return;
+// ---------------- Optional loaders ----------------
+async function loadOptional(url, containerId, fallbackId) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error();
 
-  container.innerHTML = "";
-
-  data.units.forEach(unit => {
-    const heading =
-      unit.unit && unit.title
-        ? `${unit.unit} · ${unit.title}`
-        : unit.unit || unit.title || "";
-
-    const block = document.createElement("div");
-    block.className = "syllabus-unit";
-
-    block.innerHTML = `
-      <div class="syllabus-header">${heading}</div>
-      <div class="syllabus-content" hidden>
-        <ul>
-          ${(unit.topics || []).map(t => `<li>${t}</li>`).join("")}
-        </ul>
-      </div>
-    `;
-
-    block.querySelector(".syllabus-header").onclick = () => {
-      block.querySelector(".syllabus-content").hidden ^= true;
-    };
-
-    container.appendChild(block);
-  });
+    const data = await res.json();
+    document.getElementById(containerId).textContent =
+      JSON.stringify(data, null, 2);
+  } catch {
+    if (fallbackId) {
+      document.getElementById(fallbackId).hidden = false;
+    }
+  }
 }
 
-/* =========================
-   REPEATED QUESTIONS (FINAL POLISHED)
-========================= */
-function renderRepeatedQuestions(sections) {
-  const container = document.getElementById("repeated-container");
-  if (!container || !Array.isArray(sections)) return;
-
-  container.innerHTML = "";
-
-  let qNo = 1; // global continuous numbering
-
-  /* ---- Merge units ---- */
-  const unitMap = {};
-
-  sections.forEach(section => {
-    if (!Array.isArray(section.units)) return;
-
-    section.units.forEach(unit => {
-      unitMap[unit.unit] ||= { short: [], long: [] };
-
-      if (section.section === "A" && Array.isArray(unit.questions)) {
-        unitMap[unit.unit].short.push(...unit.questions);
-      }
-
-      if (section.section === "B" && Array.isArray(unit.choices)) {
-        unitMap[unit.unit].long.push(...unit.choices);
-      }
-    });
-  });
-
-  /* ---- Render units once ---- */
-  Object.entries(unitMap).forEach(([unitName, data]) => {
-    const block = document.createElement("div");
-    block.className = "rq-unit";
-
-    block.innerHTML = `
-      <div class="rq-unit-header">${unitName}</div>
-      <div class="rq-unit-content" hidden></div>
-    `;
-
-    const content = block.querySelector(".rq-unit-content");
-
-    /* ---- Collect years in this unit ---- */
-    const yearSet = new Set();
-
-    data.short.forEach(q =>
-      (q.years || ["Unknown"]).forEach(y => yearSet.add(y))
-    );
-
-    data.long.forEach(c =>
-      (c.years || ["Unknown"]).forEach(y => yearSet.add(y))
-    );
-
-    Array.from(yearSet).sort().forEach(year => {
-      /* ---- Year heading (ONCE) ---- */
-      content.insertAdjacentHTML(
-        "beforeend",
-        `<div class="rq-year">${year}</div>`
-      );
-
-      /* ---- Section A (for this year) ---- */
-      data.short
-        .filter(q => (q.years || ["Unknown"]).includes(year))
-        .forEach(q => {
-          content.insertAdjacentHTML(
-            "beforeend",
-            `
-            <div class="rq-question">
-              <span class="rq-number">${qNo++}.</span>
-              <span class="rq-text">${q.question}</span>
-              <span class="rq-marks">${q.marks || ""}</span>
-            </div>
-            `
-          );
-        });
-
-      /* ---- Section B (for this year) ---- */
-      data.long
-        .filter(c => (c.years || ["Unknown"]).includes(year))
-        .forEach(choice => {
-          const baseNo = qNo++;
-
-          choice.parts.forEach((part, idx) => {
-            const sub = ["i", "ii", "iii", "iv"][idx] || idx + 1;
-
-            content.insertAdjacentHTML(
-              "beforeend",
-              `
-              <div class="rq-part">
-                <span class="rq-number">${baseNo}.${sub}</span>
-                <span class="rq-text">${part.question}</span>
-                <span class="rq-marks">${
-                  Array.isArray(part.breakup)
-                    ? part.breakup.join("+")
-                    : part.marks || ""
-                }</span>
-              </div>
-              `
-            );
-
-            if (idx === 0 && choice.parts.length > 1) {
-              content.insertAdjacentHTML(
-                "beforeend",
-                `<div class="rq-or">OR</div>`
-              );
-            }
-          });
-        });
-    });
-
-    block.querySelector(".rq-unit-header").onclick = () => {
-      content.hidden ^= true;
-    };
-
-    container.appendChild(block);
-  });
-              }
+// ---------------- Init ----------------
+loadPaper();
