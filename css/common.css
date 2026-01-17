@@ -105,6 +105,17 @@ body[data-theme="amoled"][data-night="on"] {
 }
 
 /* ================================
+   NIGHT LAYER (FIX)
+   ================================ */
+#night-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: transparent;
+}
+
+/* ================================
    RESET
    ================================ */
 *,
@@ -131,7 +142,8 @@ body {
 }
 
 main {
-  display: block;
+  position: relative;
+  z-index: 1;
 }
 
 img {
