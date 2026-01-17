@@ -1,0 +1,30 @@
+{
+  "physics": {
+    "name": "Physics",
+    "slug": "physics",
+    "stream": "science",
+    "status": "active",
+    "order": 1
+  },
+  "chemistry": {
+    "name": "Chemistry",
+    "slug": "chemistry",
+    "stream": "science",
+    "status": "planned",
+    "order": 2
+  },
+  "botany": {
+    "name": "Botany",
+    "slug": "botany",
+    "stream": "science",
+    "status": "planned",
+    "order": 3
+  },
+  "zoology": {
+    "name": "Zoology",
+    "slug": "zoology",
+    "stream": "science",
+    "status": "planned",
+    "order": 4
+  }
+}
