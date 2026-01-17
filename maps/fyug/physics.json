@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+
+  "subject": "physics",
+  "stream": "science",
+  "programme": "FYUG",
+
+  "university": "assam-university",
+
+  "paper_code_patterns": [
+    "PHYDSC###T",
+    "PHYDSM###T",
+    "PHYSEC###",
+    "PHYIDC###T"
+  ],
+
+  "paper_name_map": {
+    "PHYDSC101T": "Mathematical Physics – I",
+    "PHYDSC102T": "Mechanics and Relativity"
+  },
+
+  "defaults": {
+    "level": "UG",
+    "exam_type": "End Semester"
+  }
+}
