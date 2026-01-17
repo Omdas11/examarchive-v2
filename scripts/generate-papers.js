@@ -1,139 +1,128 @@
 /**
- * ExamArchive v2 – Paper Generator
- * Assam University | Physics | UG
- * Auto-adds level: "UG"
+ * ExamArchive v2 – Papers Generator (Registry-aware)
+ * SAFE OVERWRITE VERSION
  */
 
 const fs = require("fs");
 const path = require("path");
 
-// ===== CONFIG =====
-const UNIVERSITY = "Assam University";
-const LEVEL = "UG";
-const STREAM = "Science";
-const SUBJECT = "Physics";
-
-const PAPERS_DIR = path.join(
-  __dirname,
-  "..",
-  "papers",
-  "assam-university",
-  "physics"
-);
-
-const OUTPUT_FILE = path.join(
-  __dirname,
-  "..",
-  "data",
-  "papers.json"
-);
-
-// Programme maps
-const CBCS_MAP = require("../maps/physics_cbcs.json");
-const FYUG_MAP = require("../maps/physics_fyug.json");
-
-// ===== HELPERS =====
-
-function detectProgramme(filename) {
-  if (filename.includes("FYUG")) return "FYUG";
-  if (filename.includes("CBCS")) return "CBCS";
-  return null;
+// ================================
+// Helpers
+// ================================
+function readJSON(file) {
+  return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-function extractYear(filename) {
-  const match = filename.match(/(20\d{2})/);
-  return match ? Number(match[1]) : null;
+function exists(p) {
+  return fs.existsSync(p);
 }
 
-function extractPaperCode(filename) {
-  const match = filename.match(/(PH[A-Z0-9]+T)/);
-  return match ? match[1] : null;
+// ================================
+// Paths
+// ================================
+const ROOT = path.join(__dirname, "..");
+const PAPERS_DIR = path.join(ROOT, "papers");
+const MAPS_DIR = path.join(ROOT, "maps");
+const REGISTRY_DIR = path.join(ROOT, "data", "registry");
+const OUTPUT = path.join(ROOT, "data", "papers.json");
+
+// ================================
+// Load registries
+// ================================
+const streams = readJSON(path.join(REGISTRY_DIR, "streams.json"));
+const subjects = readJSON(path.join(REGISTRY_DIR, "subjects.json"));
+const programmes = readJSON(path.join(REGISTRY_DIR, "programmes.json"));
+
+// ================================
+// Discover map files
+// (new structure first, legacy fallback)
+// ================================
+function getMapFiles() {
+  const files = [];
+
+  ["fyug", "cbcs"].forEach(dir => {
+    const p = path.join(MAPS_DIR, dir);
+    if (!exists(p)) return;
+    fs.readdirSync(p).forEach(f => {
+      if (f.endsWith(".json")) files.push(path.join(p, f));
+    });
+  });
+
+  fs.readdirSync(MAPS_DIR).forEach(f => {
+    if (f.endsWith(".json")) files.push(path.join(MAPS_DIR, f));
+  });
+
+  return files;
 }
 
-function buildSearchText(paper) {
-  return [
-    paper.paper_code,
-    paper.paper_name,
-    paper.programme,
-    paper.subject,
-    paper.year,
-    paper.semester
-  ]
-    .join(" ")
-    .toLowerCase();
-}
+// ================================
+// Load & validate maps
+// ================================
+const maps = getMapFiles().map(file => {
+  const map = readJSON(file);
 
-// ===== MAIN =====
-
-function generate() {
-  if (!fs.existsSync(PAPERS_DIR)) {
-    console.error("❌ Papers directory not found:", PAPERS_DIR);
-    process.exit(1);
+  if (map.subject && !subjects[map.subject]) {
+    throw new Error(`Unknown subject in map: ${file}`);
+  }
+  if (map.stream && !streams[map.stream]) {
+    throw new Error(`Unknown stream in map: ${file}`);
+  }
+  if (map.programme && !programmes[map.programme]) {
+    throw new Error(`Unknown programme in map: ${file}`);
   }
 
-  const files = fs
-    .readdirSync(PAPERS_DIR)
-    .filter(f => f.endsWith(".pdf"));
+  return map;
+});
 
-  const papers = [];
+// ================================
+// Collect PDFs
+// ================================
+const pdfs = [];
 
-  for (const file of files) {
-    const programme = detectProgramme(file);
-    if (!programme) continue;
-
-    const year = extractYear(file);
-    const paperCode = extractPaperCode(file);
-    if (!year || !paperCode) continue;
-
-    const map =
-      programme === "FYUG" ? FYUG_MAP : CBCS_MAP;
-
-    const meta = map[paperCode];
-    if (!meta) continue;
-
-    const paper = {
-      university: UNIVERSITY,
-      level: LEVEL,                 // 🔑 FUTURE-PROOF
-      programme: programme,
-      stream: STREAM,
-      subject: SUBJECT,
-
-      semester: meta.semester,
-      paper_code: paperCode,
-      paper_name: meta.paper_name,
-
-      year: year,
-      exam_type: "End Semester",
-
-      tags: [
-        programme,
-        SUBJECT,
-        `Semester ${meta.semester}`,
-        paperCode
-      ],
-
-      search_text: "",
-      pdf: `papers/assam-university/physics/${file}`
-    };
-
-    paper.search_text = buildSearchText(paper);
-    papers.push(paper);
-  }
-
-  // Sort: latest year first
-  papers.sort((a, b) => b.year - a.year);
-
-  // Ensure output dir exists
-  fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
-
-  fs.writeFileSync(
-    OUTPUT_FILE,
-    JSON.stringify(papers, null, 2),
-    "utf-8"
-  );
-
-  console.log(`✅ Generated ${papers.length} UG papers`);
+function walk(dir) {
+  fs.readdirSync(dir).forEach(item => {
+    const full = path.join(dir, item);
+    if (fs.statSync(full).isDirectory()) walk(full);
+    else if (item.endsWith(".pdf")) pdfs.push(full);
+  });
 }
 
-// ===== RUN =====
-generate();
+walk(PAPERS_DIR);
+
+// ================================
+// Generate papers.json
+// (LOGIC KEPT SIMPLE + STABLE)
+// ================================
+const output = [];
+
+pdfs.forEach(file => {
+  const name = path.basename(file);
+
+  maps.forEach(map => {
+    if (!map.paper_code_patterns) return;
+
+    map.paper_code_patterns.forEach(pattern => {
+      const regex = new RegExp("^" + pattern.replace(/#/g, "\\d") + ".*\\.pdf$");
+
+      if (regex.test(name)) {
+        const code = name.match(/[A-Z]{3,}[0-9]{3}[A-Z]?/)[0];
+
+        output.push({
+          university: map.university || "assam-university",
+          programme: map.programme || "",
+          stream: map.stream || "",
+          subject: map.subject || "",
+          paper_code: code,
+          paper_name: map.paper_name_map?.[code] || code,
+          pdf: file.replace(ROOT + "/", "")
+        });
+      }
+    });
+  });
+});
+
+// ================================
+// Write output
+// ================================
+fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2));
+console.log("✔ papers.json generated safely");
