@@ -2,7 +2,7 @@
  * ExamArchive v2 — Browse Page (FINAL FIX)
  * Handles OBJECT-based papers.json correctly
  */
-
+alert("browse.js loaded");
 const DATA_URL = "./data/papers.json";
 
 /* -------------------------------
