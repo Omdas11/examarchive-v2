@@ -37,8 +37,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull --rebase
-
           git add data/papers.json
-          git commit -m "Auto-update papers.json" || echo "No changes to commit"
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+
+          git commit -m "Auto-update papers.json"
           git push
