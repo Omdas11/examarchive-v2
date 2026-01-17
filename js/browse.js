@@ -1,218 +1,102 @@
-/* ===============================
-   ExamArchive v2 — browse.js
-   Card → paper.html
-   Open PDF → direct
-================================ */
+/**
+ * ExamArchive v2 – Browse Logic (Registry-aware)
+ * OVERWRITE-SAFE VERSION
+ */
 
-let allPapers = [];
+const PAPERS_URL = "./data/papers.json";
+const REGISTRY_BASE = "./data/registry/";
 
-let activeProgramme = 'ALL';
-let activeStream = 'Science';
-let activeYear = 'ALL';
-let activeSort = 'year_desc';
+let papers = [];
+let filters = {
+  programme: "ALL",
+  stream: "ALL",
+  year: "ALL"
+};
 
-const papersList = document.getElementById('papersList');
-const searchInput = document.getElementById('searchInput');
-const sortSelect = document.getElementById('sortSelect');
-const yearToggle = document.getElementById('yearToggle');
-
-/* ================= FETCH PAPERS ================= */
-
-fetch('data/papers.json')
-  .then(res => res.json())
-  .then(data => {
-    allPapers = data;
-    renderYearFilters();
-    renderSortOptions();
-    applyFilters();
-  })
-  .catch(err => console.error('Failed to load papers.json', err));
-
-/* ================= YEAR FILTER ================= */
-
-function renderYearFilters() {
-  yearToggle.innerHTML = '';
-
-  const years = [...new Set(allPapers.map(p => p.year))]
-    .sort((a, b) => b - a);
-
-  yearToggle.appendChild(createYearBtn('ALL'));
-
-  years.forEach(year => {
-    yearToggle.appendChild(createYearBtn(year));
-  });
+// ================================
+// Load registries
+// ================================
+async function loadRegistry(name) {
+  const res = await fetch(`${REGISTRY_BASE}${name}.json`);
+  return res.json();
 }
 
-function createYearBtn(year) {
-  const btn = document.createElement('button');
-  btn.className = 'toggle-btn';
-  if (year === activeYear) btn.classList.add('active');
-  btn.textContent = year;
-
-  btn.onclick = () => {
-    activeYear = year;
-    updateActiveButtons(yearToggle, btn);
-    applyFilters();
-  };
-
-  return btn;
+// ================================
+// Load papers
+// ================================
+async function loadPapers() {
+  const res = await fetch(PAPERS_URL);
+  papers = await res.json();
 }
 
-/* ================= SORT OPTIONS ================= */
-
-function renderSortOptions() {
-  sortSelect.innerHTML = '';
-
-  const common = [
-    { value: 'year_desc', label: 'Year (Newest)' },
-    { value: 'year_asc', label: 'Year (Oldest)' },
-    { value: 'code', label: 'Paper Code' }
-  ];
-
-  const cbcs = [
-    { value: 'course', label: 'Course Type (HCC / DSE / SEC)' },
-    { value: 'semester', label: 'Semester' }
-  ];
-
-  const fyug = [
-    { value: 'course', label: 'Course Type (DSC / DSM / SEC / IDC)' },
-    { value: 'semester', label: 'Semester' }
-  ];
-
-  const options =
-    activeProgramme === 'FYUG'
-      ? [...common, ...fyug]
-      : [...common, ...cbcs];
-
-  options.forEach(opt => {
-    const o = document.createElement('option');
-    o.value = opt.value;
-    o.textContent = opt.label;
-    sortSelect.appendChild(o);
-  });
-
-  sortSelect.value = activeSort;
-}
-
-/* ================= APPLY FILTERS ================= */
-
+// ================================
+// Apply filters
+// ================================
 function applyFilters() {
-  let result = [...allPapers];
+  let filtered = [...papers];
 
-  if (activeProgramme !== 'ALL') {
-    result = result.filter(p => p.programme === activeProgramme);
+  if (filters.programme !== "ALL") {
+    filtered = filtered.filter(p => p.programme === filters.programme);
   }
 
-  result = result.filter(p => p.stream === activeStream);
-
-  if (activeYear !== 'ALL') {
-    result = result.filter(p => String(p.year) === String(activeYear));
+  if (filters.stream !== "ALL") {
+    filtered = filtered.filter(p => p.stream === filters.stream);
   }
 
-  const q = searchInput.value.toLowerCase();
-  if (q) {
-    result = result.filter(p =>
-      p.search_text.toLowerCase().includes(q)
-    );
-  }
-
-  result.sort(sortHandler);
-  renderPapers(result);
+  renderPapers(filtered);
 }
 
-/* ================= SORT HANDLER ================= */
+// ================================
+// Render papers
+// ================================
+function renderPapers(list) {
+  const container = document.querySelector(".papers-list");
+  const countEl = document.querySelector(".paper-count");
 
-function sortHandler(a, b) {
-  switch (activeSort) {
-    case 'year_desc':
-      return b.year - a.year;
-    case 'year_asc':
-      return a.year - b.year;
-    case 'code':
-      return a.paper_code.localeCompare(b.paper_code);
-    case 'course':
-      return a.course_type.localeCompare(b.course_type);
-    case 'semester':
-      return a.semester - b.semester;
-    default:
-      return 0;
-  }
-}
+  container.innerHTML = "";
 
-/* ================= RENDER PAPERS ================= */
-
-function renderPapers(papers) {
-  papersList.innerHTML = '';
-
-  const paperCount = document.getElementById('paperCount');
-  if (paperCount) {
-    paperCount.textContent = `Showing ${papers.length} papers`;
-  }
-
-  if (papers.length === 0) {
-    papersList.innerHTML = '<p class="no-results">No papers found.</p>';
+  if (!list.length) {
+    container.innerHTML = `<p class="empty">No papers found.</p>`;
+    countEl.textContent = "Showing 0 papers";
     return;
   }
 
-  papers.forEach(paper => {
-    const card = document.createElement('div');
-    card.className = 'paper-card';
+  countEl.textContent = `Showing ${list.length} papers`;
 
-    /* Card click → paper page */
-    card.addEventListener('click', () => {
-      window.location.href = `paper.html?code=${paper.paper_code}`;
-    });
-
+  list.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "paper-card";
     card.innerHTML = `
-      <h3>${paper.paper_code}</h3>
-      <p>${paper.paper_name}</p>
-      <small>
-        ${paper.programme} · Semester ${paper.semester} · ${paper.year}
-      </small>
-      <div class="open-pdf">Open PDF →</div>
+      <h3>${p.paper_code}</h3>
+      <p>${p.paper_name}</p>
+      <small>${p.programme} · ${p.stream}</small>
+      <a href="${p.pdf}" target="_blank">Open PDF →</a>
     `;
-
-    /* Open PDF → direct */
-    const pdfBtn = card.querySelector('.open-pdf');
-    pdfBtn.addEventListener('click', e => {
-      e.stopPropagation(); // prevent card click
-      window.open(paper.pdf, '_blank');
-    });
-
-    papersList.appendChild(card);
+    container.appendChild(card);
   });
 }
 
-/* ================= EVENTS ================= */
-
-document.getElementById('programmeToggle')
-  .addEventListener('click', e => {
-    if (!e.target.dataset.programme) return;
-    activeProgramme = e.target.dataset.programme;
-    updateActiveButtons(e.currentTarget, e.target);
-    renderSortOptions();
+// ================================
+// Event bindings
+// ================================
+document.querySelectorAll("[data-programme]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    filters.programme = btn.dataset.programme;
     applyFilters();
   });
-
-document.getElementById('streamToggle')
-  .addEventListener('click', e => {
-    if (!e.target.dataset.stream) return;
-    activeStream = e.target.dataset.stream;
-    updateActiveButtons(e.currentTarget, e.target);
-    applyFilters();
-  });
-
-searchInput.addEventListener('input', applyFilters);
-
-sortSelect.addEventListener('change', e => {
-  activeSort = e.target.value;
-  applyFilters();
 });
 
-/* ================= UTIL ================= */
+document.querySelectorAll("[data-stream]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    filters.stream = btn.dataset.stream;
+    applyFilters();
+  });
+});
 
-function updateActiveButtons(container, activeBtn) {
-  container.querySelectorAll('.toggle-btn')
-    .forEach(btn => btn.classList.remove('active'));
-  activeBtn.classList.add('active');
-}
+// ================================
+// Init
+// ================================
+(async function init() {
+  await loadPapers();
+  applyFilters();
+})();
