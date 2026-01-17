@@ -1,120 +1,126 @@
 /**
- * ExamArchive v2 – Papers Generator
- * FINAL, FILENAME-TOLERANT VERSION
- * OVERWRITE-ONLY, MOBILE-SAFE
+ * ExamArchive v2 — Papers Generator
+ * Canonical, map-driven, AT/BT grouping enabled
  */
 
 const fs = require("fs");
 const path = require("path");
 
-// ================================
-// Helpers
-// ================================
-function readJSON(file) {
-  return JSON.parse(fs.readFileSync(file, "utf8"));
-}
-
-function exists(p) {
-  return fs.existsSync(p);
-}
-
-function normalize(str) {
-  return String(str).toUpperCase().replace(/[^A-Z0-9]/g, "");
-}
-
-// ================================
-// Paths
-// ================================
 const ROOT = path.join(__dirname, "..");
 const PAPERS_DIR = path.join(ROOT, "papers");
 const MAPS_DIR = path.join(ROOT, "maps");
-const REGISTRY_DIR = path.join(ROOT, "data", "registry");
 const OUTPUT = path.join(ROOT, "data", "papers.json");
 
-// ================================
-// Load registries
-// ================================
-const streams = readJSON(path.join(REGISTRY_DIR, "streams.json"));
-const subjects = readJSON(path.join(REGISTRY_DIR, "subjects.json"));
-const programmes = readJSON(path.join(REGISTRY_DIR, "programmes.json"));
-
-// ================================
-// Discover maps
-// ================================
-function getMapFiles() {
-  const files = [];
-
-  ["fyug", "cbcs"].forEach(dir => {
-    const p = path.join(MAPS_DIR, dir);
-    if (!exists(p)) return;
-    fs.readdirSync(p).forEach(f => {
-      if (f.endsWith(".json")) files.push(path.join(p, f));
-    });
-  });
-
-  fs.readdirSync(MAPS_DIR).forEach(f => {
-    if (f.endsWith(".json")) files.push(path.join(MAPS_DIR, f));
-  });
-
-  return files;
+// ---------------- Helpers ----------------
+function readJSON(p) {
+  return JSON.parse(fs.readFileSync(p, "utf8"));
 }
 
-// ================================
-// Load maps
-// ================================
-const maps = getMapFiles().map(file => readJSON(file));
-
-// ================================
-// Collect PDFs
-// ================================
-const pdfs = [];
-
-function walk(dir) {
-  fs.readdirSync(dir).forEach(item => {
-    const full = path.join(dir, item);
-    if (fs.statSync(full).isDirectory()) walk(full);
-    else if (item.toLowerCase().endsWith(".pdf")) pdfs.push(full);
+function walk(dir, out = []) {
+  fs.readdirSync(dir).forEach(f => {
+    const full = path.join(dir, f);
+    if (fs.statSync(full).isDirectory()) walk(full, out);
+    else if (f.toLowerCase().endsWith(".pdf")) out.push(full);
   });
+  return out;
 }
 
-walk(PAPERS_DIR);
+function extractYear(file) {
+  const m = file.match(/(20\d{2})/);
+  return m ? Number(m[1]) : null;
+}
 
-// ================================
-// Generate papers.json
-// ================================
-const output = [];
+function normalizeCode(code) {
+  return code.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+}
 
-pdfs.forEach(file => {
-  const filenameNorm = normalize(path.basename(file));
+// Base code for grouping AT / BT
+function baseVariant(code) {
+  // PHYDSC453AT → PHYDSC453
+  const m = code.match(/^(.*?)(A|B)T$/);
+  return m ? m[1] : code.replace(/T$/, "");
+}
 
-  maps.forEach(map => {
-    if (!map.paper_code_patterns) return;
+// ---------------- Load maps ----------------
+function loadMaps() {
+  const programmes = ["fyug", "cbcs"];
+  const all = [];
 
-    map.paper_code_patterns.forEach(pattern => {
-      const codeNorm = normalize(pattern.replace(/#/g, ""));
+  programmes.forEach(pgm => {
+    const dir = path.join(MAPS_DIR, pgm);
+    if (!fs.existsSync(dir)) return;
 
-      if (filenameNorm.includes(codeNorm.slice(0, 6))) {
-        const codeMatch = filenameNorm.match(/[A-Z]{3,}[0-9]{3}[A-Z]?/);
-        if (!codeMatch) return;
+    fs.readdirSync(dir).forEach(file => {
+      if (!file.endsWith(".json")) return;
+      const map = readJSON(path.join(dir, file));
 
-        const code = codeMatch[0];
-
-        output.push({
-          university: map.university || "assam-university",
-          programme: map.programme || "",
-          stream: map.stream || "",
-          subject: map.subject || "",
-          paper_code: code,
-          paper_name: map.paper_name_map?.[code] || code,
-          pdf: file.replace(ROOT + "/", "")
+      map.papers.forEach(p => {
+        all.push({
+          ...p,
+          subject: map.subject,
+          stream: map.stream,
+          programme: map.programme
         });
-      }
+      });
     });
+  });
+
+  return all;
+}
+
+// ---------------- Generator ----------------
+const mapPapers = loadMaps();
+const pdfs = walk(PAPERS_DIR);
+
+const grouped = new Map();
+
+/*
+Key = programme + subject + baseVariant + year
+Value = one question paper (possibly AT/BT)
+*/
+
+pdfs.forEach(pdf => {
+  const year = extractYear(pdf);
+  if (!year) return;
+
+  const name = normalizeCode(path.basename(pdf));
+
+  mapPapers.forEach(mp => {
+    const codeNorm = normalizeCode(mp.paper_code);
+    if (!name.includes(codeNorm.replace(/T$/, ""))) return;
+
+    const base = baseVariant(mp.paper_code);
+    const key = `${mp.programme}|${mp.subject}|${base}|${year}`;
+
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        university: "Assam University",
+        programme: mp.programme,
+        stream: mp.stream,
+        subject: mp.subject,
+        semester: mp.semester,
+        course_type: mp.course_type,
+        tags: mp.tags || [],
+        paper_codes: [],
+        paper_names: [],
+        year,
+        pdf: pdf.replace(ROOT + "/", "")
+      });
+    }
+
+    const entry = grouped.get(key);
+
+    if (!entry.paper_codes.includes(mp.paper_code)) {
+      entry.paper_codes.push(mp.paper_code);
+      entry.paper_names.push(mp.paper_name);
+    }
   });
 });
 
-// ================================
-// Write output
-// ================================
+// ---------------- Output ----------------
+const output = Array.from(grouped.values()).sort(
+  (a, b) => b.year - a.year
+);
+
 fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2));
-console.log(`✔ Generated ${output.length} papers`);
+console.log(`✔ Generated ${output.length} question papers`);
