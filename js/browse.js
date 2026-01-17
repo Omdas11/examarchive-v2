@@ -1,6 +1,6 @@
 /**
- * ExamArchive v2 – Browse Logic (STABLE)
- * Restored UX + Registry-aware data
+ * ExamArchive v2 — Browse Page (FINAL RESTORE)
+ * One card per PDF | Correct UX | Registry-safe
  */
 
 const PAPERS_URL = "./data/papers.json";
@@ -17,11 +17,24 @@ let filters = {
 // ================================
 // Helpers
 // ================================
-const norm = v => String(v || "").toLowerCase();
+function norm(v) {
+  return String(v || "").toLowerCase();
+}
 
 function extractYear(path) {
   const m = path.match(/(20\d{2})/);
-  return m ? m[1] : null;
+  return m ? m[1] : "—";
+}
+
+function extractShortCode(code) {
+  // Remove university / programme prefixes
+  return code.replace(/^AU(CBCS|FYUG)?/i, "");
+}
+
+function extractSemester(code) {
+  const m = code.match(/(\d)(0[1-8])/);
+  if (!m) return "—";
+  return `Sem ${m[2][1]}`;
 }
 
 // ================================
@@ -33,42 +46,21 @@ async function loadPapers() {
 }
 
 // ================================
-// Deduplicate papers by paper_code
-// ================================
-function dedupe(papers) {
-  const map = new Map();
-
-  papers.forEach(p => {
-    const year = extractYear(p.pdf);
-    if (!map.has(p.paper_code)) {
-      map.set(p.paper_code, { ...p, year });
-    } else {
-      const existing = map.get(p.paper_code);
-      if (year && year > existing.year) {
-        map.set(p.paper_code, { ...p, year });
-      }
-    }
-  });
-
-  return Array.from(map.values());
-}
-
-// ================================
 // Apply filters
 // ================================
 function applyFilters() {
-  view = dedupe(papers);
+  view = [...papers];
 
   if (filters.programme !== "ALL") {
     view = view.filter(p => p.programme === filters.programme);
   }
 
   if (filters.stream !== "ALL") {
-    view = view.filter(p => p.stream === norm(filters.stream));
+    view = view.filter(p => norm(p.stream) === norm(filters.stream));
   }
 
   if (filters.year !== "ALL") {
-    view = view.filter(p => p.year === filters.year);
+    view = view.filter(p => extractYear(p.pdf) === filters.year);
   }
 
   sortView();
@@ -80,7 +72,9 @@ function applyFilters() {
 // ================================
 function sortView() {
   if (filters.sort === "newest") {
-    view.sort((a, b) => (b.year || 0) - (a.year || 0));
+    view.sort((a, b) =>
+      extractYear(b.pdf).localeCompare(extractYear(a.pdf))
+    );
   }
 }
 
@@ -92,7 +86,6 @@ function render() {
   const count = document.querySelector(".paper-count");
 
   list.innerHTML = "";
-
   count.textContent = `Showing ${view.length} papers`;
 
   if (!view.length) {
@@ -101,16 +94,25 @@ function render() {
   }
 
   view.forEach(p => {
+    const year = extractYear(p.pdf);
+    const sem = extractSemester(p.paper_code);
+    const shortCode = extractShortCode(p.paper_code);
+
     const card = document.createElement("div");
     card.className = "paper-card";
+    card.onclick = () => {
+      window.location.href = `paper.html?code=${shortCode}`;
+    };
 
     card.innerHTML = `
-      <h3>${p.paper_code}</h3>
-      <p class="paper-name">${p.paper_name}</p>
-      <small>
-        ${p.programme} • ${p.stream.toUpperCase()} • ${p.year || "—"}
+      <h3 class="paper-title">${p.paper_name || "Paper title pending"}</h3>
+      <p class="paper-code">${shortCode}</p>
+      <small class="paper-meta">
+        Assam University • ${p.programme} • ${p.stream.toUpperCase()} • ${sem} • ${year}
       </small>
-      <a href="${p.pdf}" target="_blank">Open PDF →</a>
+      <a class="paper-link" href="${p.pdf}" target="_blank" onclick="event.stopPropagation()">
+        Open PDF →
+      </a>
     `;
 
     list.appendChild(card);
@@ -120,19 +122,19 @@ function render() {
 // ================================
 // Bind controls
 // ================================
-document.querySelectorAll("[data-programme]").forEach(b =>
-  b.addEventListener("click", () => {
-    filters.programme = b.dataset.programme;
+document.querySelectorAll("[data-programme]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    filters.programme = btn.dataset.programme;
     applyFilters();
-  })
-);
+  });
+});
 
-document.querySelectorAll("[data-stream]").forEach(b =>
-  b.addEventListener("click", () => {
-    filters.stream = b.dataset.stream;
+document.querySelectorAll("[data-stream]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    filters.stream = btn.dataset.stream;
     applyFilters();
-  })
-);
+  });
+});
 
 const sortSelect = document.querySelector("#sort");
 if (sortSelect) {
@@ -145,7 +147,7 @@ if (sortSelect) {
 // ================================
 // Init
 // ================================
-(async function () {
+(async function init() {
   await loadPapers();
   applyFilters();
 })();
