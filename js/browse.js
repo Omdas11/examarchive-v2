@@ -1,19 +1,31 @@
 /**
- * ExamArchive v2 – Browse Logic
- * Registry-aware, case-safe, SEO-stable
- * OVERWRITE-ONLY VERSION
+ * ExamArchive v2 – Browse Logic (STABLE)
+ * Restored UX + Registry-aware data
  */
 
 const PAPERS_URL = "./data/papers.json";
 
 let papers = [];
+let view = [];
 let filters = {
-  programme: "all",
-  stream: "all"
+  programme: "ALL",
+  stream: "ALL",
+  year: "ALL",
+  sort: "newest"
 };
 
 // ================================
-// Load papers
+// Helpers
+// ================================
+const norm = v => String(v || "").toLowerCase();
+
+function extractYear(path) {
+  const m = path.match(/(20\d{2})/);
+  return m ? m[1] : null;
+}
+
+// ================================
+// Load data
 // ================================
 async function loadPapers() {
   const res = await fetch(PAPERS_URL);
@@ -21,84 +33,119 @@ async function loadPapers() {
 }
 
 // ================================
-// Normalize helpers
+// Deduplicate papers by paper_code
 // ================================
-function norm(value) {
-  return String(value || "").toLowerCase();
+function dedupe(papers) {
+  const map = new Map();
+
+  papers.forEach(p => {
+    const year = extractYear(p.pdf);
+    if (!map.has(p.paper_code)) {
+      map.set(p.paper_code, { ...p, year });
+    } else {
+      const existing = map.get(p.paper_code);
+      if (year && year > existing.year) {
+        map.set(p.paper_code, { ...p, year });
+      }
+    }
+  });
+
+  return Array.from(map.values());
 }
 
 // ================================
 // Apply filters
 // ================================
 function applyFilters() {
-  let filtered = [...papers];
+  view = dedupe(papers);
 
-  if (filters.programme !== "all") {
-    filtered = filtered.filter(
-      p => norm(p.programme) === filters.programme
-    );
+  if (filters.programme !== "ALL") {
+    view = view.filter(p => p.programme === filters.programme);
   }
 
-  if (filters.stream !== "all") {
-    filtered = filtered.filter(
-      p => norm(p.stream) === filters.stream
-    );
+  if (filters.stream !== "ALL") {
+    view = view.filter(p => p.stream === norm(filters.stream));
   }
 
-  renderPapers(filtered);
+  if (filters.year !== "ALL") {
+    view = view.filter(p => p.year === filters.year);
+  }
+
+  sortView();
+  render();
 }
 
 // ================================
-// Render papers
+// Sort
 // ================================
-function renderPapers(list) {
-  const container = document.querySelector(".papers-list");
-  const countEl = document.querySelector(".paper-count");
+function sortView() {
+  if (filters.sort === "newest") {
+    view.sort((a, b) => (b.year || 0) - (a.year || 0));
+  }
+}
 
-  container.innerHTML = "";
+// ================================
+// Render
+// ================================
+function render() {
+  const list = document.querySelector(".papers-list");
+  const count = document.querySelector(".paper-count");
 
-  if (!list.length) {
-    container.innerHTML = `<p class="empty">No papers found.</p>`;
-    countEl.textContent = "Showing 0 papers";
+  list.innerHTML = "";
+
+  count.textContent = `Showing ${view.length} papers`;
+
+  if (!view.length) {
+    list.innerHTML = `<p class="empty">No papers found.</p>`;
     return;
   }
 
-  countEl.textContent = `Showing ${list.length} papers`;
-
-  list.forEach(p => {
+  view.forEach(p => {
     const card = document.createElement("div");
     card.className = "paper-card";
+
     card.innerHTML = `
       <h3>${p.paper_code}</h3>
-      <p>${p.paper_name}</p>
-      <small>${p.programme} · ${p.stream}</small>
+      <p class="paper-name">${p.paper_name}</p>
+      <small>
+        ${p.programme} • ${p.stream.toUpperCase()} • ${p.year || "—"}
+      </small>
       <a href="${p.pdf}" target="_blank">Open PDF →</a>
     `;
-    container.appendChild(card);
+
+    list.appendChild(card);
   });
 }
 
 // ================================
-// Bind filter buttons
+// Bind controls
 // ================================
-document.querySelectorAll("[data-programme]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    filters.programme = norm(btn.dataset.programme);
+document.querySelectorAll("[data-programme]").forEach(b =>
+  b.addEventListener("click", () => {
+    filters.programme = b.dataset.programme;
     applyFilters();
-  });
-});
+  })
+);
 
-document.querySelectorAll("[data-stream]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    filters.stream = norm(btn.dataset.stream);
+document.querySelectorAll("[data-stream]").forEach(b =>
+  b.addEventListener("click", () => {
+    filters.stream = b.dataset.stream;
+    applyFilters();
+  })
+);
+
+const sortSelect = document.querySelector("#sort");
+if (sortSelect) {
+  sortSelect.addEventListener("change", e => {
+    filters.sort = e.target.value;
     applyFilters();
   });
-});
+}
 
 // ================================
 // Init
 // ================================
-(async function init() {
+(async function () {
   await loadPapers();
   applyFilters();
 })();
