@@ -1,1 +1,551 @@
-[]
+[
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSDSE501T",
+    "paper_name": "AUCBCSPHSDSE501T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE501T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSDSE501T",
+    "paper_name": "AUCBCSPHSDSE501T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE501T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSDSE502T",
+    "paper_name": "AUCBCSPHSDSE502T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE502T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSDSE502T",
+    "paper_name": "AUCBCSPHSDSE502T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE502T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSDSE601T",
+    "paper_name": "AUCBCSPHSDSE601T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE601T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSDSE601T",
+    "paper_name": "AUCBCSPHSDSE601T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSDSE601T-2025.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC201T",
+    "paper_name": "AUCBCSPHSHCC201T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC-201T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC201T",
+    "paper_name": "AUCBCSPHSHCC201T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC-201T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC101T",
+    "paper_name": "AUCBCSPHSHCC101T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC101T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC101T",
+    "paper_name": "AUCBCSPHSHCC101T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC101T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC102T",
+    "paper_name": "AUCBCSPHSHCC102T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC102T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC102T",
+    "paper_name": "AUCBCSPHSHCC102T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC102T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC201T",
+    "paper_name": "AUCBCSPHSHCC201T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC201T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC201T",
+    "paper_name": "AUCBCSPHSHCC201T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC201T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC201T",
+    "paper_name": "AUCBCSPHSHCC201T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC201T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC201T",
+    "paper_name": "AUCBCSPHSHCC201T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC201T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC201T",
+    "paper_name": "AUCBCSPHSHCC201T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC201T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC201T",
+    "paper_name": "AUCBCSPHSHCC201T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC201T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC202T",
+    "paper_name": "AUCBCSPHSHCC202T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC202T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC202T",
+    "paper_name": "AUCBCSPHSHCC202T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC202T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC301T",
+    "paper_name": "AUCBCSPHSHCC301T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC301T-2020.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC301T",
+    "paper_name": "AUCBCSPHSHCC301T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC301T-2020.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC301T",
+    "paper_name": "AUCBCSPHSHCC301T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC301T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC301T",
+    "paper_name": "AUCBCSPHSHCC301T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC301T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC303T",
+    "paper_name": "AUCBCSPHSHCC303T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC303T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC303T",
+    "paper_name": "AUCBCSPHSHCC303T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC303T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC401T",
+    "paper_name": "AUCBCSPHSHCC401T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC401T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC401T",
+    "paper_name": "AUCBCSPHSHCC401T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC401T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC401T",
+    "paper_name": "AUCBCSPHSHCC401T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC401T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC401T",
+    "paper_name": "AUCBCSPHSHCC401T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC401T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC402T",
+    "paper_name": "AUCBCSPHSHCC402T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC402T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC402T",
+    "paper_name": "AUCBCSPHSHCC402T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC402T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC402T",
+    "paper_name": "AUCBCSPHSHCC402T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC402T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC402T",
+    "paper_name": "AUCBCSPHSHCC402T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC402T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC403T",
+    "paper_name": "AUCBCSPHSHCC403T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC403T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC403T",
+    "paper_name": "AUCBCSPHSHCC403T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC403T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC501T",
+    "paper_name": "AUCBCSPHSHCC501T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC501T-2020.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC501T",
+    "paper_name": "AUCBCSPHSHCC501T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC501T-2020.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC501T",
+    "paper_name": "AUCBCSPHSHCC501T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC501T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC501T",
+    "paper_name": "AUCBCSPHSHCC501T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC501T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC502T",
+    "paper_name": "AUCBCSPHSHCC502T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2020.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC502T",
+    "paper_name": "AUCBCSPHSHCC502T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2020.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC502T",
+    "paper_name": "AUCBCSPHSHCC502T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC502T",
+    "paper_name": "AUCBCSPHSHCC502T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC502T",
+    "paper_name": "AUCBCSPHSHCC502T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC502T",
+    "paper_name": "AUCBCSPHSHCC502T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC502T-2022.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC601T",
+    "paper_name": "AUCBCSPHSHCC601T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC601T",
+    "paper_name": "AUCBCSPHSHCC601T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC601T",
+    "paper_name": "AUCBCSPHSHCC601T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC601T",
+    "paper_name": "AUCBCSPHSHCC601T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC601T",
+    "paper_name": "AUCBCSPHSHCC601T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC601T",
+    "paper_name": "AUCBCSPHSHCC601T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC601T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC602T",
+    "paper_name": "AUCBCSPHSHCC602T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC602T",
+    "paper_name": "AUCBCSPHSHCC602T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2021.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC602T",
+    "paper_name": "AUCBCSPHSHCC602T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC602T",
+    "paper_name": "AUCBCSPHSHCC602T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC602T",
+    "paper_name": "AUCBCSPHSHCC602T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "CBCS",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUCBCSPHSHCC602T",
+    "paper_name": "AUCBCSPHSHCC602T",
+    "pdf": "papers/assam-university/physics/AU-CBCS-PHSHCC602T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "FYUG",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUFYUGPHYDSC101T",
+    "paper_name": "AUFYUGPHYDSC101T",
+    "pdf": "papers/assam-university/physics/AU-FYUG-PHYDSC101T-2023.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "FYUG",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUFYUGPHYDSC101T",
+    "paper_name": "AUFYUGPHYDSC101T",
+    "pdf": "papers/assam-university/physics/AU-FYUG-PHYDSC101T-2024.pdf"
+  },
+  {
+    "university": "assam-university",
+    "programme": "FYUG",
+    "stream": "science",
+    "subject": "physics",
+    "paper_code": "AUFYUGPHYDSC102T",
+    "paper_name": "AUFYUGPHYDSC102T",
+    "pdf": "papers/assam-university/physics/AU-FYUG-PHYDSC102T-2023.pdf"
+  }
+]
