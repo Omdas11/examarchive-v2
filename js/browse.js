@@ -1,6 +1,6 @@
 /**
- * ExamArchive v2 — Browse Page (STABLE RESTORE)
- * Schema-safe | No inferred data | SEO-ready
+ * ExamArchive v2 — Browse Page (FINAL FIX)
+ * Handles OBJECT-based papers.json correctly
  */
 
 const DATA_URL = "./data/papers.json";
@@ -9,7 +9,7 @@ const DATA_URL = "./data/papers.json";
    State
 -------------------------------- */
 let allPapers = [];
-let filtered = [];
+let view = [];
 
 let filters = {
   programme: "ALL",
@@ -22,67 +22,58 @@ let filters = {
 /* -------------------------------
    Helpers
 -------------------------------- */
-function normalize(v) {
+function norm(v) {
   return String(v || "").toLowerCase();
 }
 
-function extractYear(pdfPath) {
-  const m = pdfPath.match(/(20\d{2})/);
+function extractYear(pdf) {
+  const m = pdf.match(/(20\d{2})/);
   return m ? m[1] : "—";
 }
 
-function shortCode(fullCode) {
-  // AU + CBCS/FYUG prefix removal
-  return fullCode.replace(/^AU(CBCS|FYUG)?/i, "");
+function shortCode(code) {
+  return code.replace(/^AU(CBCS|FYUG)?/i, "");
 }
 
 /* -------------------------------
-   Load data
+   Load data  ✅ FIX HERE
 -------------------------------- */
 async function loadPapers() {
   const res = await fetch(DATA_URL);
-  allPapers = await res.json();
+  const json = await res.json();
+
+  // 🔥 THIS IS THE FIX
+  allPapers = Array.isArray(json) ? json : Object.values(json);
 }
 
 /* -------------------------------
    Apply filters
 -------------------------------- */
 function applyFilters() {
-  filtered = [...allPapers];
+  view = [...allPapers];
 
-  // Programme
   if (filters.programme !== "ALL") {
-    filtered = filtered.filter(
-      p => p.programme === filters.programme
-    );
+    view = view.filter(p => p.programme === filters.programme);
   }
 
-  // Stream
   if (filters.stream !== "ALL") {
-    filtered = filtered.filter(
-      p => normalize(p.stream) === normalize(filters.stream)
-    );
+    view = view.filter(p => norm(p.stream) === norm(filters.stream));
   }
 
-  // Year
   if (filters.year !== "ALL") {
-    filtered = filtered.filter(
-      p => extractYear(p.pdf) === filters.year
-    );
+    view = view.filter(p => extractYear(p.pdf) === filters.year);
   }
 
-  // Search
   if (filters.search) {
-    const q = normalize(filters.search);
-    filtered = filtered.filter(p =>
-      normalize(p.paper_code).includes(q) ||
-      normalize(p.paper_name).includes(q) ||
+    const q = norm(filters.search);
+    view = view.filter(p =>
+      norm(p.paper_code).includes(q) ||
+      norm(p.paper_name).includes(q) ||
       extractYear(p.pdf).includes(q)
     );
   }
 
-  // Sort
-  filtered.sort((a, b) => {
+  view.sort((a, b) => {
     const ya = extractYear(a.pdf);
     const yb = extractYear(b.pdf);
     return filters.sort === "oldest"
@@ -94,21 +85,21 @@ function applyFilters() {
 }
 
 /* -------------------------------
-   Render
+   Render cards
 -------------------------------- */
 function render() {
   const list = document.getElementById("papersList");
   const count = document.getElementById("paperCount");
 
   list.innerHTML = "";
-  count.textContent = `Showing ${filtered.length} papers`;
+  count.textContent = `Showing ${view.length} papers`;
 
-  if (!filtered.length) {
+  if (!view.length) {
     list.innerHTML = `<p class="empty">No papers found.</p>`;
     return;
   }
 
-  filtered.forEach(p => {
+  view.forEach(p => {
     const year = extractYear(p.pdf);
     const code = shortCode(p.paper_code);
 
@@ -119,12 +110,13 @@ function render() {
     };
 
     card.innerHTML = `
-      <div class="paper-name">${p.paper_name || "Paper title pending"}</div>
+      <div class="paper-name">${p.paper_name}</div>
       <div class="paper-code">${code}</div>
       <div class="paper-meta">
         Assam University • ${p.programme} • ${p.stream.toUpperCase()} • ${year}
       </div>
-      <div class="open-pdf" onclick="event.stopPropagation(); window.open('${p.pdf}', '_blank')">
+      <div class="open-pdf"
+           onclick="event.stopPropagation(); window.open('${p.pdf}', '_blank')">
         Open PDF →
       </div>
     `;
@@ -134,36 +126,46 @@ function render() {
 }
 
 /* -------------------------------
-   UI bindings
+   UI bindings (unchanged)
 -------------------------------- */
-
-// Programme toggle
 document.querySelectorAll("#programmeToggle .toggle-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document
-      .querySelectorAll("#programmeToggle .toggle-btn")
+  btn.onclick = () => {
+    document.querySelectorAll("#programmeToggle .toggle-btn")
       .forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-
     filters.programme = btn.dataset.programme;
     applyFilters();
-  });
+  };
 });
 
-// Stream toggle
 document.querySelectorAll("#streamToggle .toggle-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document
-      .querySelectorAll("#streamToggle .toggle-btn")
+  btn.onclick = () => {
+    document.querySelectorAll("#streamToggle .toggle-btn")
       .forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-
     filters.stream = btn.dataset.stream;
     applyFilters();
-  });
+  };
 });
 
-// Year toggle (dynamic)
+document.getElementById("searchInput").oninput = e => {
+  filters.search = e.target.value.trim();
+  applyFilters();
+};
+
+const sortSelect = document.getElementById("sortSelect");
+sortSelect.innerHTML = `
+  <option value="newest">Year (Newest)</option>
+  <option value="oldest">Year (Oldest)</option>
+`;
+sortSelect.onchange = e => {
+  filters.sort = e.target.value;
+  applyFilters();
+};
+
+/* -------------------------------
+   Year toggle
+-------------------------------- */
 function buildYearToggle() {
   const years = [...new Set(allPapers.map(p => extractYear(p.pdf)))]
     .filter(y => y !== "—")
@@ -175,9 +177,7 @@ function buildYearToggle() {
   const allBtn = document.createElement("button");
   allBtn.className = "toggle-btn active";
   allBtn.textContent = "ALL";
-  allBtn.onclick = () => {
-    setYear("ALL", allBtn);
-  };
+  allBtn.onclick = () => setYear("ALL", allBtn);
   wrap.appendChild(allBtn);
 
   years.forEach(y => {
@@ -190,36 +190,17 @@ function buildYearToggle() {
 }
 
 function setYear(y, btn) {
-  document
-    .querySelectorAll("#yearToggle .toggle-btn")
+  document.querySelectorAll("#yearToggle .toggle-btn")
     .forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-
   filters.year = y;
   applyFilters();
 }
 
-// Search
-document.getElementById("searchInput").addEventListener("input", e => {
-  filters.search = e.target.value.trim();
-  applyFilters();
-});
-
-// Sort
-const sortSelect = document.getElementById("sortSelect");
-sortSelect.innerHTML = `
-  <option value="newest">Year (Newest)</option>
-  <option value="oldest">Year (Oldest)</option>
-`;
-sortSelect.addEventListener("change", e => {
-  filters.sort = e.target.value;
-  applyFilters();
-});
-
 /* -------------------------------
    Init
 -------------------------------- */
-(async function init() {
+(async function () {
   await loadPapers();
   buildYearToggle();
   applyFilters();
