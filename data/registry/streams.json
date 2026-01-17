@@ -1,0 +1,20 @@
+{
+  "science": {
+    "name": "Science",
+    "slug": "science",
+    "status": "active",
+    "order": 1
+  },
+  "arts": {
+    "name": "Arts",
+    "slug": "arts",
+    "status": "planned",
+    "order": 2
+  },
+  "commerce": {
+    "name": "Commerce",
+    "slug": "commerce",
+    "status": "planned",
+    "order": 3
+  }
+}
