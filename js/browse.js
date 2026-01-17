@@ -1,12 +1,13 @@
 /**
- * ExamArchive v2 — Browse Page (FINAL RESTORE)
- * One card per PDF | Correct UX | Registry-safe
+ * ExamArchive v2 — Browse Page (STABLE RESTORE)
+ * Full overwrite — schema aligned, UI fixed, SEO-safe
  */
 
 const PAPERS_URL = "./data/papers.json";
 
 let papers = [];
 let view = [];
+
 let filters = {
   programme: "ALL",
   stream: "ALL",
@@ -27,8 +28,7 @@ function extractYear(path) {
 }
 
 function extractShortCode(code) {
-  // Remove university / programme prefixes
-  return code.replace(/^AU(CBCS|FYUG)?/i, "");
+  return code.replace(/^AU[A-Z]+/i, "");
 }
 
 function extractSemester(code) {
@@ -82,7 +82,7 @@ function sortView() {
 // Render
 // ================================
 function render() {
-  const list = document.querySelector(".papers-list");
+  const list = document.getElementById("papers-list");
   const count = document.querySelector(".paper-count");
 
   list.innerHTML = "";
@@ -101,16 +101,21 @@ function render() {
     const card = document.createElement("div");
     card.className = "paper-card";
     card.onclick = () => {
-      window.location.href = `paper.html?code=${shortCode}`;
+      window.location.href = `paper.html?code=${p.paper_code}`;
     };
 
     card.innerHTML = `
-      <h3 class="paper-title">${p.paper_name || "Paper title pending"}</h3>
+      <h3 class="paper-name">${p.paper_name || "Paper title pending"}</h3>
       <p class="paper-code">${shortCode}</p>
-      <small class="paper-meta">
+      <p class="paper-meta">
         Assam University • ${p.programme} • ${p.stream.toUpperCase()} • ${sem} • ${year}
-      </small>
-      <a class="paper-link" href="${p.pdf}" target="_blank" onclick="event.stopPropagation()">
+      </p>
+      <a
+        class="paper-link"
+        href="${p.pdf}"
+        target="_blank"
+        onclick="event.stopPropagation()"
+      >
         Open PDF →
       </a>
     `;
@@ -122,20 +127,32 @@ function render() {
 // ================================
 // Bind controls
 // ================================
-document.querySelectorAll("[data-programme]").forEach(btn => {
+
+// Programme filter
+const programmeBtns = document.querySelectorAll("[data-programme]");
+programmeBtns.forEach(btn => {
   btn.addEventListener("click", () => {
+    programmeBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
     filters.programme = btn.dataset.programme;
     applyFilters();
   });
 });
 
-document.querySelectorAll("[data-stream]").forEach(btn => {
+// Stream filter
+const streamBtns = document.querySelectorAll("[data-stream]");
+streamBtns.forEach(btn => {
   btn.addEventListener("click", () => {
+    streamBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
     filters.stream = btn.dataset.stream;
     applyFilters();
   });
 });
 
+// Sort
 const sortSelect = document.querySelector("#sort");
 if (sortSelect) {
   sortSelect.addEventListener("change", e => {
