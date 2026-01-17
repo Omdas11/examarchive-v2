@@ -1,210 +1,241 @@
 {
-  "PHYDSC101T": {
-    "paper_name": "Mathematical Physics - I",
-    "semester": 1,
-    "course_type": "DSC",
-    "tags": ["mathematical physics"]
-  },
-  "PHYDSC102T": {
-    "paper_name": "Mechanics and Relativity",
-    "semester": 1,
-    "course_type": "DSC",
-    "tags": ["mechanics", "relativity"]
-  },
+  "subject": "physics",
+  "stream": "science",
+  "programme": "FYUG",
+  "papers": [
+    {
+      "paper_code": "PHYDSC101T",
+      "paper_name": "Mathematical Physics - I",
+      "semester": 1,
+      "course_type": "DSC",
+      "tags": ["mathematical physics"]
+    },
+    {
+      "paper_code": "PHYDSC102T",
+      "paper_name": "Mechanics and Relativity",
+      "semester": 1,
+      "course_type": "DSC",
+      "tags": ["mechanics", "relativity"]
+    },
+    {
+      "paper_code": "PHYDSC151T",
+      "paper_name": "Electricity and Magnetism",
+      "semester": 2,
+      "course_type": "DSC",
+      "tags": ["electricity", "magnetism"]
+    },
+    {
+      "paper_code": "PHYDSC201T",
+      "paper_name": "Waves and Optics",
+      "semester": 3,
+      "course_type": "DSC",
+      "tags": ["waves", "optics"]
+    },
+    {
+      "paper_code": "PHYDSC202T",
+      "paper_name": "Thermal Physics",
+      "semester": 3,
+      "course_type": "DSC",
+      "tags": ["thermal physics"]
+    },
+    {
+      "paper_code": "PHYDSC251T",
+      "paper_name": "Mathematical Physics - II",
+      "semester": 4,
+      "course_type": "DSC",
+      "tags": ["mathematical physics"]
+    },
+    {
+      "paper_code": "PHYDSC252T",
+      "paper_name": "Electronics (Analog and Digital)",
+      "semester": 4,
+      "course_type": "DSC",
+      "tags": ["electronics"]
+    },
+    {
+      "paper_code": "PHYDSC301T",
+      "paper_name": "Modern Physics",
+      "semester": 5,
+      "course_type": "DSC",
+      "tags": ["modern physics"]
+    },
+    {
+      "paper_code": "PHYDSC302T",
+      "paper_name": "Introduction to Classical Mechanics and Electromagnetic Theory",
+      "semester": 5,
+      "course_type": "DSC",
+      "tags": ["classical mechanics", "em theory"]
+    },
+    {
+      "paper_code": "PHYDSC351T",
+      "paper_name": "Nuclear and Particle Physics",
+      "semester": 6,
+      "course_type": "DSC",
+      "tags": ["nuclear physics", "particle physics"]
+    },
+    {
+      "paper_code": "PHYDSC352T",
+      "paper_name": "Statistical Mechanics and Plasma Physics",
+      "semester": 6,
+      "course_type": "DSC",
+      "tags": ["statistical mechanics", "plasma physics"]
+    },
+    {
+      "paper_code": "PHYDSC353T",
+      "paper_name": "Solid State Physics",
+      "semester": 6,
+      "course_type": "DSC",
+      "tags": ["solid state physics"]
+    },
+    {
+      "paper_code": "PHYDSC401T",
+      "paper_name": "Mathematical Physics - III",
+      "semester": 7,
+      "course_type": "DSC",
+      "tags": ["mathematical physics"]
+    },
+    {
+      "paper_code": "PHYDSC402T",
+      "paper_name": "Classical Mechanics",
+      "semester": 7,
+      "course_type": "DSC",
+      "tags": ["classical mechanics"]
+    },
+    {
+      "paper_code": "PHYDSC403T",
+      "paper_name": "Quantum Mechanics - I",
+      "semester": 7,
+      "course_type": "DSC",
+      "tags": ["quantum mechanics"]
+    },
+    {
+      "paper_code": "PHYDSC451T",
+      "paper_name": "Quantum Mechanics - II",
+      "semester": 8,
+      "course_type": "DSC",
+      "tags": ["quantum mechanics"]
+    },
+    {
+      "paper_code": "PHYDSC452T",
+      "paper_name": "Electromagnetic Theory",
+      "semester": 8,
+      "course_type": "DSC",
+      "tags": ["electromagnetic theory"]
+    },
+    {
+      "paper_code": "PHYDSC453AT",
+      "paper_name": "Astronomy, Astrophysics and Cosmology",
+      "semester": 8,
+      "course_type": "DSC",
+      "tags": ["astronomy", "astrophysics"]
+    },
+    {
+      "paper_code": "PHYDSC453BT",
+      "paper_name": "Nano Science and Material Science",
+      "semester": 8,
+      "course_type": "DSC",
+      "tags": ["nanoscience", "materials"]
+    },
+    {
+      "paper_code": "PHYDSC454T",
+      "paper_name": "Atomic and Molecular Physics",
+      "semester": 8,
+      "course_type": "DSC",
+      "tags": ["atomic physics", "molecular physics"]
+    },
 
-  "PHYDSC151T": {
-    "paper_name": "Electricity and Magnetism",
-    "semester": 2,
-    "course_type": "DSC",
-    "tags": ["electricity", "magnetism"]
-  },
+    {
+      "paper_code": "PHYDSM101T",
+      "paper_name": "Mechanics, Relativity and Mathematical Physics",
+      "semester": 1,
+      "course_type": "DSM",
+      "tags": ["minor physics"]
+    },
+    {
+      "paper_code": "PHYDSM151T",
+      "paper_name": "Mechanics, Relativity and Mathematical Physics",
+      "semester": 2,
+      "course_type": "DSM",
+      "tags": ["minor physics"]
+    },
+    {
+      "paper_code": "PHYDSM201T",
+      "paper_name": "Electricity, Magnetism and Electronics",
+      "semester": 3,
+      "course_type": "DSM",
+      "tags": ["minor physics"]
+    },
+    {
+      "paper_code": "PHYDSM252T",
+      "paper_name": "Electricity, Magnetism and Electronics",
+      "semester": 4,
+      "course_type": "DSM",
+      "tags": ["minor physics"]
+    },
+    {
+      "paper_code": "PHYDSM301T",
+      "paper_name": "Waves, Oscillations, Optics and Thermal Physics",
+      "semester": 5,
+      "course_type": "DSM",
+      "tags": ["minor physics"]
+    },
+    {
+      "paper_code": "PHYDSM401T",
+      "paper_name": "Modern Physics and Solid State Physics",
+      "semester": 7,
+      "course_type": "DSM",
+      "tags": ["minor physics"]
+    },
+    {
+      "paper_code": "PHYDSM451T",
+      "paper_name": "Modern Physics and Solid State Physics",
+      "semester": 8,
+      "course_type": "DSM",
+      "tags": ["minor physics"]
+    },
 
-  "PHYDSC201T": {
-    "paper_name": "Waves and Optics",
-    "semester": 3,
-    "course_type": "DSC",
-    "tags": ["waves", "optics"]
-  },
-  "PHYDSC202T": {
-    "paper_name": "Thermal Physics",
-    "semester": 3,
-    "course_type": "DSC",
-    "tags": ["thermal physics"]
-  },
+    {
+      "paper_code": "PHYSEC101",
+      "paper_name": "Workshop Skill",
+      "semester": 1,
+      "course_type": "SEC",
+      "tags": ["skill"]
+    },
+    {
+      "paper_code": "PHYSEC151",
+      "paper_name": "Electrical Circuits and Safety",
+      "semester": 2,
+      "course_type": "SEC",
+      "tags": ["circuits", "safety"]
+    },
+    {
+      "paper_code": "PHYSEC201",
+      "paper_name": "Renewable Energy and Energy Harvesting",
+      "semester": 3,
+      "course_type": "SEC",
+      "tags": ["renewable energy"]
+    },
 
-  "PHYDSC251T": {
-    "paper_name": "Mathematical Physics - II",
-    "semester": 4,
-    "course_type": "DSC",
-    "tags": ["mathematical physics"]
-  },
-  "PHYDSC252T": {
-    "paper_name": "Electronics (Analog and Digital)",
-    "semester": 4,
-    "course_type": "DSC",
-    "tags": ["electronics"]
-  },
-
-  "PHYDSC301T": {
-    "paper_name": "Modern Physics",
-    "semester": 5,
-    "course_type": "DSC",
-    "tags": ["modern physics"]
-  },
-  "PHYDSC302T": {
-    "paper_name": "Introduction to Classical Mechanics and Electromagnetic Theory",
-    "semester": 5,
-    "course_type": "DSC",
-    "tags": ["classical mechanics", "em theory"]
-  },
-
-  "PHYDSC351T": {
-    "paper_name": "Nuclear and Particle Physics",
-    "semester": 6,
-    "course_type": "DSC",
-    "tags": ["nuclear physics", "particle physics"]
-  },
-  "PHYDSC352T": {
-    "paper_name": "Statistical Mechanics and Plasma Physics",
-    "semester": 6,
-    "course_type": "DSC",
-    "tags": ["statistical mechanics", "plasma physics"]
-  },
-  "PHYDSC353T": {
-    "paper_name": "Solid State Physics",
-    "semester": 6,
-    "course_type": "DSC",
-    "tags": ["solid state physics"]
-  },
-
-  "PHYDSC401T": {
-    "paper_name": "Mathematical Physics - III",
-    "semester": 7,
-    "course_type": "DSC",
-    "tags": ["mathematical physics"]
-  },
-  "PHYDSC402T": {
-    "paper_name": "Classical Mechanics",
-    "semester": 7,
-    "course_type": "DSC",
-    "tags": ["classical mechanics"]
-  },
-  "PHYDSC403T": {
-    "paper_name": "Quantum Mechanics - I",
-    "semester": 7,
-    "course_type": "DSC",
-    "tags": ["quantum mechanics"]
-  },
-
-  "PHYDSC451T": {
-    "paper_name": "Quantum Mechanics - II",
-    "semester": 8,
-    "course_type": "DSC",
-    "tags": ["quantum mechanics"]
-  },
-  "PHYDSC452T": {
-    "paper_name": "Electromagnetic Theory",
-    "semester": 8,
-    "course_type": "DSC",
-    "tags": ["electromagnetic theory"]
-  },
-  "PHYDSC453AT": {
-    "paper_name": "Astronomy, Astrophysics and Cosmology",
-    "semester": 8,
-    "course_type": "DSC",
-    "tags": ["astronomy", "astrophysics"]
-  },
-  "PHYDSC453BT": {
-    "paper_name": "Nano Science and Material Science",
-    "semester": 8,
-    "course_type": "DSC",
-    "tags": ["nanoscience", "materials"]
-  },
-  "PHYDSC454T": {
-    "paper_name": "Atomic and Molecular Physics",
-    "semester": 8,
-    "course_type": "DSC",
-    "tags": ["atomic physics", "molecular physics"]
-  },
-
-  "PHYDSM101T": {
-    "paper_name": "Mechanics, Relativity and Mathematical Physics",
-    "semester": 1,
-    "course_type": "DSM",
-    "tags": ["minor physics"]
-  },
-  "PHYDSM151T": {
-    "paper_name": "Mechanics, Relativity and Mathematical Physics",
-    "semester": 2,
-    "course_type": "DSM",
-    "tags": ["minor physics"]
-  },
-  "PHYDSM201T": {
-    "paper_name": "Electricity, Magnetism and Electronics",
-    "semester": 3,
-    "course_type": "DSM",
-    "tags": ["minor physics"]
-  },
-  "PHYDSM252T": {
-    "paper_name": "Electricity, Magnetism and Electronics",
-    "semester": 4,
-    "course_type": "DSM",
-    "tags": ["minor physics"]
-  },
-  "PHYDSM301T": {
-    "paper_name": "Waves, Oscillations, Optics and Thermal Physics",
-    "semester": 5,
-    "course_type": "DSM",
-    "tags": ["minor physics"]
-  },
-  "PHYDSM401T": {
-    "paper_name": "Modern Physics and Solid State Physics",
-    "semester": 7,
-    "course_type": "DSM",
-    "tags": ["minor physics"]
-  },
-  "PHYDSM451T": {
-    "paper_name": "Modern Physics and Solid State Physics",
-    "semester": 8,
-    "course_type": "DSM",
-    "tags": ["minor physics"]
-  },
-
-  "PHYSEC101": {
-    "paper_name": "Workshop Skill",
-    "semester": 1,
-    "course_type": "SEC",
-    "tags": ["skill"]
-  },
-  "PHYSEC151": {
-    "paper_name": "Electrical Circuits and Safety",
-    "semester": 2,
-    "course_type": "SEC",
-    "tags": ["circuits", "safety"]
-  },
-  "PHYSEC201": {
-    "paper_name": "Renewable Energy and Energy Harvesting",
-    "semester": 3,
-    "course_type": "SEC",
-    "tags": ["renewable energy"]
-  },
-
-  "PHYIDC101T": {
-    "paper_name": "Physics in Daily Life",
-    "semester": 1,
-    "course_type": "IDC",
-    "tags": ["interdisciplinary"]
-  },
-  "PHYIDC151T": {
-    "paper_name": "Understanding the Climate",
-    "semester": 2,
-    "course_type": "IDC",
-    "tags": ["climate science"]
-  },
-  "PHYIDC201T": {
-    "paper_name": "Renewable Energy and Energy Harvesting",
-    "semester": 3,
-    "course_type": "IDC",
-    "tags": ["renewable energy"]
-  }
+    {
+      "paper_code": "PHYIDC101T",
+      "paper_name": "Physics in Daily Life",
+      "semester": 1,
+      "course_type": "IDC",
+      "tags": ["interdisciplinary"]
+    },
+    {
+      "paper_code": "PHYIDC151T",
+      "paper_name": "Understanding the Climate",
+      "semester": 2,
+      "course_type": "IDC",
+      "tags": ["climate science"]
+    },
+    {
+      "paper_code": "PHYIDC201T",
+      "paper_name": "Renewable Energy and Energy Harvesting",
+      "semester": 3,
+      "course_type": "IDC",
+      "tags": ["renewable energy"]
+    }
+  ]
 }
