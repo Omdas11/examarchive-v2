@@ -1,6 +1,7 @@
 /**
- * ExamArchive v2 – Papers Generator (Registry-aware)
- * SAFE OVERWRITE VERSION
+ * ExamArchive v2 – Papers Generator
+ * FINAL, FILENAME-TOLERANT VERSION
+ * OVERWRITE-ONLY, MOBILE-SAFE
  */
 
 const fs = require("fs");
@@ -15,6 +16,10 @@ function readJSON(file) {
 
 function exists(p) {
   return fs.existsSync(p);
+}
+
+function normalize(str) {
+  return String(str).toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
 // ================================
@@ -34,8 +39,7 @@ const subjects = readJSON(path.join(REGISTRY_DIR, "subjects.json"));
 const programmes = readJSON(path.join(REGISTRY_DIR, "programmes.json"));
 
 // ================================
-// Discover map files
-// (new structure first, legacy fallback)
+// Discover maps
 // ================================
 function getMapFiles() {
   const files = [];
@@ -56,23 +60,9 @@ function getMapFiles() {
 }
 
 // ================================
-// Load & validate maps
+// Load maps
 // ================================
-const maps = getMapFiles().map(file => {
-  const map = readJSON(file);
-
-  if (map.subject && !subjects[map.subject]) {
-    throw new Error(`Unknown subject in map: ${file}`);
-  }
-  if (map.stream && !streams[map.stream]) {
-    throw new Error(`Unknown stream in map: ${file}`);
-  }
-  if (map.programme && !programmes[map.programme]) {
-    throw new Error(`Unknown programme in map: ${file}`);
-  }
-
-  return map;
-});
+const maps = getMapFiles().map(file => readJSON(file));
 
 // ================================
 // Collect PDFs
@@ -83,7 +73,7 @@ function walk(dir) {
   fs.readdirSync(dir).forEach(item => {
     const full = path.join(dir, item);
     if (fs.statSync(full).isDirectory()) walk(full);
-    else if (item.endsWith(".pdf")) pdfs.push(full);
+    else if (item.toLowerCase().endsWith(".pdf")) pdfs.push(full);
   });
 }
 
@@ -91,21 +81,23 @@ walk(PAPERS_DIR);
 
 // ================================
 // Generate papers.json
-// (LOGIC KEPT SIMPLE + STABLE)
 // ================================
 const output = [];
 
 pdfs.forEach(file => {
-  const name = path.basename(file);
+  const filenameNorm = normalize(path.basename(file));
 
   maps.forEach(map => {
     if (!map.paper_code_patterns) return;
 
     map.paper_code_patterns.forEach(pattern => {
-      const regex = new RegExp("^" + pattern.replace(/#/g, "\\d") + ".*\\.pdf$");
+      const codeNorm = normalize(pattern.replace(/#/g, ""));
 
-      if (regex.test(name)) {
-        const code = name.match(/[A-Z]{3,}[0-9]{3}[A-Z]?/)[0];
+      if (filenameNorm.includes(codeNorm.slice(0, 6))) {
+        const codeMatch = filenameNorm.match(/[A-Z]{3,}[0-9]{3}[A-Z]?/);
+        if (!codeMatch) return;
+
+        const code = codeMatch[0];
 
         output.push({
           university: map.university || "assam-university",
@@ -125,4 +117,4 @@ pdfs.forEach(file => {
 // Write output
 // ================================
 fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2));
-console.log("✔ papers.json generated safely");
+console.log(`✔ Generated ${output.length} papers`);
