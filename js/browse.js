@@ -1,6 +1,6 @@
 /**
- * ExamArchive v2 — Browse Page (STABLE RESTORE)
- * Full overwrite — schema aligned, UI fixed, SEO-safe
+ * ExamArchive v2 — Browse Page (FINAL FIX)
+ * Overwrite-only: fixes loading lock, rendering, filters, routing
  */
 
 const PAPERS_URL = "./data/papers.json";
@@ -84,6 +84,12 @@ function sortView() {
 function render() {
   const list = document.getElementById("papers-list");
   const count = document.querySelector(".paper-count");
+  const loading = document.querySelector(".loading-text");
+  const skeletons = document.querySelector(".skeleton-group");
+
+  // 🔥 REMOVE LOADING STATE
+  if (loading) loading.remove();
+  if (skeletons) skeletons.remove();
 
   list.innerHTML = "";
   count.textContent = `Showing ${view.length} papers`;
@@ -128,25 +134,23 @@ function render() {
 // Bind controls
 // ================================
 
-// Programme filter
+// Programme
 const programmeBtns = document.querySelectorAll("[data-programme]");
 programmeBtns.forEach(btn => {
   btn.addEventListener("click", () => {
     programmeBtns.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-
     filters.programme = btn.dataset.programme;
     applyFilters();
   });
 });
 
-// Stream filter
+// Stream
 const streamBtns = document.querySelectorAll("[data-stream]");
 streamBtns.forEach(btn => {
   btn.addEventListener("click", () => {
     streamBtns.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-
     filters.stream = btn.dataset.stream;
     applyFilters();
   });
