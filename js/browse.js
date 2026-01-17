@@ -1,10 +1,13 @@
 /**
- * ExamArchive v2 — Browse Page (STABLE FINAL)
- * DOM-aligned with browse.html
+ * ExamArchive v2 — Browse Page (RESTORED + STABLE)
+ * One card per PDF | Dynamic filters | SEO-safe
  */
 
 const PAPERS_URL = "./data/papers.json";
 
+/* -----------------------------
+   State
+----------------------------- */
 let papers = [];
 let view = [];
 
@@ -16,40 +19,69 @@ let filters = {
   search: ""
 };
 
-/* =========================
+/* -----------------------------
    Helpers
-========================= */
-const $ = id => document.getElementById(id);
+----------------------------- */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 
 function norm(v) {
   return String(v || "").toLowerCase();
 }
 
-function extractYear(pdf) {
-  const m = pdf.match(/(20\d{2})/);
-  return m ? m[1] : "";
+function extractYear(path) {
+  const m = path.match(/(20\d{2})/);
+  return m ? m[1] : null;
 }
 
 function shortCode(code) {
-  return code.replace(/^AU(CBCS|FYUG)/i, "");
+  return code.replace(/^AU(CBCS|FYUG)?/i, "");
 }
 
 function extractSemester(code) {
   const m = code.match(/(\d)(0[1-8])/);
-  return m ? `Sem ${m[2][1]}` : "—";
+  if (!m) return "—";
+  return `Sem ${m[2][1]}`;
 }
 
-/* =========================
+/* -----------------------------
    Load
-========================= */
+----------------------------- */
 async function loadPapers() {
   const res = await fetch(PAPERS_URL);
   papers = await res.json();
 }
 
-/* =========================
+/* -----------------------------
+   Year Filter Builder
+----------------------------- */
+function buildYearFilter() {
+  const wrap = $("#yearToggle");
+  if (!wrap) return;
+
+  const years = [...new Set(
+    papers.map(p => extractYear(p.pdf)).filter(Boolean)
+  )].sort((a, b) => b - a);
+
+  wrap.innerHTML = `
+    <button class="toggle-btn active" data-year="ALL">ALL</button>
+    ${years.map(y =>
+      `<button class="toggle-btn" data-year="${y}">${y}</button>`
+    ).join("")}
+  `;
+
+  wrap.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      filters.year = btn.dataset.year;
+      updateActive(wrap, btn);
+      applyFilters();
+    });
+  });
+}
+
+/* -----------------------------
    Filters
-========================= */
+----------------------------- */
 function applyFilters() {
   view = [...papers];
 
@@ -57,18 +89,20 @@ function applyFilters() {
     view = view.filter(p => p.programme === filters.programme);
   }
 
-  view = view.filter(
-    p => norm(p.stream) === norm(filters.stream)
-  );
+  if (filters.stream !== "ALL") {
+    view = view.filter(p => norm(p.stream) === norm(filters.stream));
+  }
 
   if (filters.year !== "ALL") {
     view = view.filter(p => extractYear(p.pdf) === filters.year);
   }
 
   if (filters.search) {
+    const q = norm(filters.search);
     view = view.filter(p =>
-      norm(p.paper_code + p.paper_name + extractYear(p.pdf))
-        .includes(filters.search)
+      norm(p.paper_name).includes(q) ||
+      norm(p.paper_code).includes(q) ||
+      extractYear(p.pdf)?.includes(q)
     );
   }
 
@@ -76,27 +110,25 @@ function applyFilters() {
   render();
 }
 
-/* =========================
+/* -----------------------------
    Sort
-========================= */
+----------------------------- */
 function sortView() {
   if (filters.sort === "newest") {
     view.sort((a, b) =>
-      extractYear(b.pdf).localeCompare(extractYear(a.pdf))
+      (extractYear(b.pdf) || 0) - (extractYear(a.pdf) || 0)
     );
   }
 }
 
-/* =========================
+/* -----------------------------
    Render
-========================= */
+----------------------------- */
 function render() {
-  const list = $("papersList");
-  const count = $("paperCount");
+  const list = $("#papersList");
+  const count = $("#paperCount");
 
-  // CLEAR skeletons
   list.innerHTML = "";
-
   count.textContent = `Showing ${view.length} papers`;
 
   if (!view.length) {
@@ -105,13 +137,12 @@ function render() {
   }
 
   view.forEach(p => {
-    const year = extractYear(p.pdf);
+    const year = extractYear(p.pdf) || "—";
     const sem = extractSemester(p.paper_code);
     const code = shortCode(p.paper_code);
 
     const card = document.createElement("div");
     card.className = "paper-card";
-
     card.onclick = () => {
       window.location.href = `paper.html?code=${code}`;
     };
@@ -122,8 +153,7 @@ function render() {
       <small class="paper-meta">
         Assam University • ${p.programme} • ${p.stream.toUpperCase()} • ${sem} • ${year}
       </small>
-      <a class="paper-link" href="${p.pdf}" target="_blank"
-         onclick="event.stopPropagation()">
+      <a class="paper-link" href="${p.pdf}" target="_blank" onclick="event.stopPropagation()">
         Open PDF →
       </a>
     `;
@@ -132,45 +162,50 @@ function render() {
   });
 }
 
-/* =========================
-   UI bindings
-========================= */
-document.querySelectorAll("[data-programme]").forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll("#programmeToggle .toggle-btn")
-      .forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+/* -----------------------------
+   UI helpers
+----------------------------- */
+function updateActive(group, activeBtn) {
+  group.querySelectorAll(".toggle-btn").forEach(b =>
+    b.classList.remove("active")
+  );
+  activeBtn.classList.add("active");
+}
 
+/* -----------------------------
+   Bind controls
+----------------------------- */
+$$("[data-programme]").forEach(btn => {
+  btn.addEventListener("click", () => {
     filters.programme = btn.dataset.programme;
+    updateActive($("#programmeToggle"), btn);
     applyFilters();
-  };
+  });
 });
 
-document.querySelectorAll("[data-stream]").forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll("#streamToggle .toggle-btn")
-      .forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-
+$$("[data-stream]").forEach(btn => {
+  btn.addEventListener("click", () => {
     filters.stream = btn.dataset.stream;
+    updateActive($("#streamToggle"), btn);
     applyFilters();
-  };
+  });
 });
 
-$("searchInput").oninput = e => {
-  filters.search = norm(e.target.value);
+$("#searchInput")?.addEventListener("input", e => {
+  filters.search = e.target.value;
   applyFilters();
-};
+});
 
-$("sortSelect").onchange = e => {
+$("#sortSelect")?.addEventListener("change", e => {
   filters.sort = e.target.value;
   applyFilters();
-};
+});
 
-/* =========================
+/* -----------------------------
    Init
-========================= */
+----------------------------- */
 (async function init() {
   await loadPapers();
+  buildYearFilter();
   applyFilters();
 })();
