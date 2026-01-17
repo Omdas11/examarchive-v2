@@ -3,26 +3,37 @@ name: Build About Status
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+    paths:
+      - "data/**"
+      - "papers/**"
+      - "maps/**"
+      - "scripts/**"
 
 jobs:
   build-status:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Run About Status Generator
-        run: node scripts/build-about-status.js
+      - name: Build About Status
+        run: |
+          node scripts/build-about-status.js
 
-      - name: Commit generated status.json
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data/about/status.json
+          git commit -m "chore(about): update project status" || echo "No changes"
+
+      - name: Push
+        uses: ad-m/github-push-action@v0.8.0
         with:
-          commit_message: "chore: update about status data"
-          file_pattern: data/about/status.json
+          github_token: ${{ secrets.GITHUB_TOKEN }}
