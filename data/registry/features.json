@@ -1,0 +1,26 @@
+{
+  "physics": {
+    "syllabus": true,
+    "repeated_questions": true,
+    "notes": false,
+    "resources": false
+  },
+  "chemistry": {
+    "syllabus": false,
+    "repeated_questions": false,
+    "notes": false,
+    "resources": false
+  },
+  "botany": {
+    "syllabus": false,
+    "repeated_questions": false,
+    "notes": false,
+    "resources": false
+  },
+  "zoology": {
+    "syllabus": false,
+    "repeated_questions": false,
+    "notes": false,
+    "resources": false
+  }
+}
