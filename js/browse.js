@@ -47,8 +47,14 @@ const PDF_OVERRIDES = {
 
 // Resolve PDF URL (applies overrides when present)
 function resolvePdfUrl(paperEntry) {
-  const filename = paperEntry.pdf.split("/").pop();
-  return PDF_OVERRIDES[filename] || paperEntry.pdf;
+  let base = paperEntry.pdf.split("/").pop();
+  base = base.replace(/_pdf$/i, "");
+  if (!base.endsWith(".pdf")) base += ".pdf";
+  if (!base.toLowerCase().startsWith("au_")) {
+    base = "au_" + base;
+  }
+  const key = base.toLowerCase();
+  return PDF_OVERRIDES[key] || paperEntry.pdf;
 }
 
 // --------------------
