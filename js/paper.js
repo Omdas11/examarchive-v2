@@ -16,6 +16,12 @@ if (!SHORT_CODE) {
   throw new Error("Missing paper code");
 }
 
+// ----------- Overrides for signed URLs -----------
+const PDF_OVERRIDES = {
+  "AU-FYUG-PHYDSC101T-2024.pdf":
+    "https://jigeofftrhhyvnjpptxw.supabase.co/storage/v1/object/sign/papers/AU-FYUG-PHYDSC101T-2024.pdf?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82MDRkZmE3Zi04ZGFhLTRjZGUtODFmNi0wNjQwOGYyMzljNTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJwYXBlcnMvQVUtRllVRy1QSFlEU0MxMDFULTIwMjQucGRmIiwiaWF0IjoxNzY4NzI4MjcxLCJleHAiOjE3NjkzMzMwNzF9.zxcwuzS09VestjZ2hGddUHrPzb7Fyg-e89WqBBxkrhQ"
+};
+
 // ---------------- Helpers ----------------
 function extractYear(path) {
   const m = path.match(/(20\d{2})/);
@@ -31,6 +37,12 @@ function extractSemester(code) {
   const m = code.match(/(\d)(0[1-8])/);
   if (!m) return "—";
   return `Sem ${m[2][1]}`;
+}
+
+// Resolve PDF URL (applies overrides when present)
+function resolvePdfUrl(paperEntry) {
+  const filename = paperEntry.pdf.split("/").pop();
+  return PDF_OVERRIDES[filename] || paperEntry.pdf;
 }
 
 // ---------------- Load Paper ----------------
@@ -67,8 +79,10 @@ async function loadPaper() {
   );
 
   const latest = sorted[0];
+  const latestUrl = resolvePdfUrl(latest);
+
   const latestBtn = document.getElementById("latestPdfLink");
-  latestBtn.href = latest.pdf;
+  latestBtn.href = latestUrl;
   latestBtn.textContent = `Open Latest PDF (${extractYear(latest.pdf)}) →`;
 
   // Available papers
@@ -76,9 +90,10 @@ async function loadPaper() {
   list.innerHTML = "";
 
   sorted.forEach(p => {
+    const url = resolvePdfUrl(p);
     const li = document.createElement("li");
     li.innerHTML = `
-      <a href="${p.pdf}" target="_blank">
+      <a href="${url}" target="_blank">
         ${extractYear(p.pdf)} Question Paper →
       </a>
     `;
