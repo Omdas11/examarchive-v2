@@ -73,8 +73,17 @@ function extractSemester(code) {
 
 // Resolve PDF URL (applies overrides when present)
 function resolvePdfUrl(paperEntry) {
-  const filename = paperEntry.pdf.split("/").pop();
-  return PDF_OVERRIDES[filename] || paperEntry.pdf;
+  // paperEntry.pdf examples:
+  //   papers/assam-university/physics/cbcs_phsdse601t_2025_pdf
+  //   papers/assam-university/physics/au_cbcs_phsdse601t_2025.pdf
+  let base = paperEntry.pdf.split("/").pop(); // e.g. "cbcs_phsdse601t_2025_pdf"
+  base = base.replace(/_pdf$/i, "");          // remove trailing _pdf
+  if (!base.endsWith(".pdf")) base += ".pdf"; // ensure .pdf
+  if (!base.toLowerCase().startsWith("au_")) {
+    base = "au_" + base;                      // add au_ prefix if missing
+  }
+  const key = base.toLowerCase();
+  return PDF_OVERRIDES[key] || paperEntry.pdf;
 }
 
 // ---------------- Load Paper ----------------
