@@ -50,26 +50,22 @@ function resolvePdfUrl(paperEntry) {
   let base = paperEntry.pdf.split("/").pop();
   base = base.replace(/_pdf$/i, "");
   if (!base.endsWith(".pdf")) base += ".pdf";
-  if (!base.toLowerCase().startsWith("au_")) {
-    base = "au_" + base;
+  base = base.toLowerCase();
+
+  const withAu = base.startsWith("au_") ? base : "au_" + base;
+  const candidates = [
+    withAu,
+    base,
+    base.replace(/^au_/, "")
+  ];
+
+  for (const key of candidates) {
+    if (PDF_OVERRIDES[key]) return PDF_OVERRIDES[key];
   }
-  const key = base.toLowerCase();
-  return PDF_OVERRIDES[key] || paperEntry.pdf;
+
+  console.warn("Missing override for", candidates[0], "fallback:", paperEntry.pdf);
+  return paperEntry.pdf;
 }
-
-// --------------------
-// State
-// --------------------
-let allPapers = [];
-let view = [];
-
-let filters = {
-  programme: "ALL",
-  stream: "Science",
-  year: "ALL",
-  search: "",
-  sort: "newest"
-};
 
 // --------------------
 // Helpers
