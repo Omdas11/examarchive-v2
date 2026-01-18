@@ -3,7 +3,9 @@
  * FINAL STABLE VERSION (Schema-aligned) with signed-URL overrides
  */
 
-const DATA_URL = "./data/papers.json";
+// Base for GitHub Pages (keeps working if hosted at root)
+const BASE = location.pathname.includes("/examarchive-v2") ? "/examarchive-v2" : "";
+const DATA_URL = `${BASE}/data/papers.json`;
 
 // --------------------
 // Overrides for signed URLs
