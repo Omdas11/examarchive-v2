@@ -3,9 +3,10 @@
  * Works with existing paper.html layout
  */
 
-const PAPERS_URL = "./data/papers.json";
-const SYLLABUS_BASE = "./data/syllabus/";
-const RQ_BASE = "./data/repeated-questions/";
+const BASE = location.pathname.includes("/examarchive-v2") ? "/examarchive-v2" : "";
+const PAPERS_URL = `${BASE}/data/papers.json`;
+const SYLLABUS_BASE = `${BASE}/data/syllabus/`;
+const RQ_BASE = `${BASE}/data/repeated-questions/`;
 
 const params = new URLSearchParams(window.location.search);
 const SHORT_CODE = params.get("code");
