@@ -1,9 +1,3 @@
-/**
- * ExamArchive v2 — Papers Generator
- * Now renames PDFs to a safe format: programme + paper_code + year, lowercase, underscores.
- * Example: au_cbcs_phsdse502t_2021.pdf
- */
-
 const fs = require("fs");
 const path = require("path");
 
@@ -40,16 +34,6 @@ function baseVariant(code) {
   // PHYDSC453AT → PHYDSC453
   const m = code.match(/^(.*?)(A|B)T$/);
   return m ? m[1] : code.replace(/T$/, "");
-}
-
-// Make a safe filename: lowercase, underscores, one dot before pdf
-function makeSafeName(programme, paperCode, year) {
-  const raw = `${programme}-${paperCode}-${year}.pdf`;
-  return raw
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")       // non-alnum → _
-    .replace(/_+/g, "_")               // collapse __
-    .replace(/^_+|_+$/g, "");          // trim _
 }
 
 // ---------------- Load maps ----------------
@@ -94,29 +78,12 @@ pdfs.forEach(pdf => {
   const year = extractYear(pdf);
   if (!year) return;
 
-  // Will update this path if we rename the file
-  let effectivePdf = pdf;
-  let renamed = false;
-
   const name = normalizeCode(path.basename(pdf));
 
   mapPapers.forEach(mp => {
     const codeNorm = normalizeCode(mp.paper_code);
     if (!name.includes(codeNorm.replace(/T$/, ""))) return;
 
-    // On first match, rename the file to safe format
-    if (!renamed) {
-      const safeName = makeSafeName(mp.programme, mp.paper_code, year);
-      const targetPath = path.join(path.dirname(pdf), safeName);
-      if (path.basename(effectivePdf) !== safeName) {
-        // Avoid overwriting if file already exists with that name
-        if (!fs.existsSync(targetPath)) {
-          fs.renameSync(effectivePdf, targetPath);
-        }
-        effectivePdf = targetPath;
-      }
-      renamed = true;
-    }
 
     const base = baseVariant(mp.paper_code);
     const key = `${mp.programme}|${mp.subject}|${base}|${year}`;
@@ -133,7 +100,7 @@ pdfs.forEach(pdf => {
         paper_codes: [],
         paper_names: [],
         year,
-        pdf: effectivePdf.replace(ROOT + "/", "")
+        pdf: pdf.replace(ROOT + "/", "")
       });
     }
 
