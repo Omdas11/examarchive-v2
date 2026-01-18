@@ -1,9 +1,23 @@
 /**
  * ExamArchive v2 — Browse Page
- * FINAL STABLE VERSION (Schema-aligned)
+ * FINAL STABLE VERSION (Schema-aligned) with signed-URL overrides
  */
 
 const DATA_URL = "./data/papers.json";
+
+// --------------------
+// Overrides for signed URLs
+// --------------------
+const PDF_OVERRIDES = {
+  "AU-FYUG-PHYDSC101T-2024.pdf":
+    "https://jigeofftrhhyvnjpptxw.supabase.co/storage/v1/object/sign/papers/AU-FYUG-PHYDSC101T-2024.pdf?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82MDRkZmE3Zi04ZGFhLTRjZGUtODFmNi0wNjQwOGYyMzljNTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJwYXBlcnMvQVUtRllVRy1QSFlEU0MxMDFULTIwMjQucGRmIiwiaWF0IjoxNzY4NzI4MjcxLCJleHAiOjE3NjkzMzMwNzF9.zxcwuzS09VestjZ2hGddUHrPzb7Fyg-e89WqBBxkrhQ"
+};
+
+// Resolve PDF URL (applies overrides when present)
+function resolvePdfUrl(paperEntry) {
+  const filename = paperEntry.pdf.split("/").pop();
+  return PDF_OVERRIDES[filename] || paperEntry.pdf;
+}
 
 // --------------------
 // State
@@ -119,6 +133,7 @@ function render() {
   view.forEach(p => {
     const title = p.paper_names.join(" / ");
     const code = p.paper_codes.join(" / ");
+    const pdfUrl = resolvePdfUrl(p);
 
     const card = document.createElement("div");
     card.className = "paper-card";
@@ -133,7 +148,7 @@ function render() {
       <div class="paper-meta">
         ${p.university} • ${p.programme} • ${p.stream} • Sem ${p.semester} • ${p.year}
       </div>
-      <a class="open-pdf" href="${p.pdf}" target="_blank" onclick="event.stopPropagation()">
+      <a class="open-pdf" href="${pdfUrl}" target="_blank" onclick="event.stopPropagation()">
         Open PDF →
       </a>
     `;
@@ -155,7 +170,8 @@ function setActive(group, btn) {
 // --------------------
 document.querySelectorAll("[data-programme]").forEach(btn => {
   btn.onclick = () => {
-    setActive(document.getElementById("programmeToggle"), btn);
+    document.querySelectorAll("[data-programme]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
     filters.programme = btn.dataset.programme;
     applyFilters();
   };
@@ -163,7 +179,8 @@ document.querySelectorAll("[data-programme]").forEach(btn => {
 
 document.querySelectorAll("[data-stream]").forEach(btn => {
   btn.onclick = () => {
-    setActive(document.getElementById("streamToggle"), btn);
+    document.querySelectorAll("[data-stream]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
     filters.stream = btn.dataset.stream;
     applyFilters();
   };
@@ -174,15 +191,10 @@ document.getElementById("searchInput").addEventListener("input", e => {
   applyFilters();
 });
 
-const sortSelect = document.getElementById("sortSelect");
-sortSelect.innerHTML = `
-  <option value="newest">Year (Newest)</option>
-  <option value="oldest">Year (Oldest)</option>
-`;
-sortSelect.onchange = e => {
+document.getElementById("sortSelect").addEventListener("change", e => {
   filters.sort = e.target.value;
   applyFilters();
-};
+});
 
 // --------------------
 // Init
