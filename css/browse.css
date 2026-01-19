@@ -70,8 +70,7 @@
   gap: 0.6rem;
 }
 
-#searchInput,
-#sortSelect {
+#searchInput {
   width: 100%;
   padding: 0.65rem 0.75rem;
   border-radius: var(--radius-sm);
@@ -79,6 +78,39 @@
   font-size: 0.9rem;
   background: var(--surface);
   color: var(--text);
+}
+
+/* Sort Trigger Pill */
+.sort-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, border 0.15s ease;
+}
+
+.sort-trigger:hover {
+  background: var(--bg-soft);
+}
+
+.sort-label {
+  color: var(--text-muted);
+}
+
+.sort-value {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sort-arrow {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 /* ---------- Year Toggle ---------- */
@@ -167,6 +199,107 @@
   .papers-list {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* ===============================
+   Sort Bottom Sheet
+   =============================== */
+
+/* Overlay */
+.sort-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 50;
+}
+
+/* Sheet */
+.sort-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  z-index: 60;
+}
+
+/* Header */
+.sort-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.sort-sheet-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sort-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* Options */
+.sort-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sort-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.5rem;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sort-option:hover {
+  background: var(--bg-soft);
+}
+
+.sort-option .radio {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sort-option.active {
+  font-weight: 600;
+}
+
+.sort-option.active .radio {
+  border-color: var(--red);
+  background: var(--red);
+}
+
+/* Cancel */
+.sort-cancel {
+  margin-top: 0.8rem;
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
 @media (min-width: 1024px) {
