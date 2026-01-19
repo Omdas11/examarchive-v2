@@ -23,7 +23,11 @@ function extractYear(path) {
 
 // ---------------- Unified Resolver ----------------
 async function resolvePaperData(type, paper) {
-  const basePath = `/examarchive-v2/data/${type}/${paper.university_slug}/${paper.subject}/${paper.programme.toLowerCase()}/`;
+  const universitySlug = paper.university
+  .toLowerCase()
+  .replace(/\s+/g, "-");
+
+const basePath = `/examarchive-v2/data/${type}/${universitySlug}/${paper.subject}/${paper.programme.toLowerCase()}/`;
 
   if (!Array.isArray(paper.paper_codes)) {
     return { status: "not_found" };
