@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Paper Page
- * FINAL STABLE VERSION (Unified Resolver Wired)
+ * FINAL RQ + SYLLABUS ACCORDION VERSION
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -21,36 +21,109 @@ function extractYear(path) {
   return m ? Number(m[1]) : 0;
 }
 
+function createAccordionHeader(title) {
+  const h = document.createElement("div");
+  h.className = "accordion-header";
+  h.innerHTML = `<span>${title}</span><span class="chev">▾</span>`;
+  return h;
+}
+
 // ---------------- Unified Resolver ----------------
 async function resolvePaperData(type, paper) {
-  const universitySlug = paper.university
-  .toLowerCase()
-  .replace(/\s+/g, "-");
-
-const basePath = `/examarchive-v2/data/${type}/${universitySlug}/${paper.subject}/${paper.programme.toLowerCase()}/`;
-
-  if (!Array.isArray(paper.paper_codes)) {
-    return { status: "not_found" };
-  }
+  const universitySlug = paper.university.toLowerCase().replace(/\s+/g, "-");
+  const basePath = `/examarchive-v2/data/${type}/${universitySlug}/${paper.subject}/${paper.programme.toLowerCase()}/`;
 
   for (const code of paper.paper_codes) {
-    const url = `${basePath}${code}.json`;
     try {
-      const res = await fetch(url);
-      if (res.ok) {
-        const data = await res.json();
-        return {
-          status: "found",
-          code_used: code,
-          data
-        };
-      }
-    } catch {
-      // try next code
-    }
+      const res = await fetch(`${basePath}${code}.json`);
+      if (res.ok) return { status: "found", data: await res.json() };
+    } catch {}
   }
-
   return { status: "not_found" };
+}
+
+// ================= SYLLABUS =================
+function renderSyllabus(data) {
+  const container = document.getElementById("syllabus-container");
+  container.innerHTML = "";
+
+  data.units.forEach((u, i) => {
+    const card = document.createElement("div");
+    card.className = "accordion-card";
+
+    const title = `Unit ${i + 1}${u.title ? " • " + u.title : ""}`;
+    const header = createAccordionHeader(title);
+
+    const body = document.createElement("div");
+    body.className = "accordion-body";
+    body.hidden = true;
+    body.innerHTML = `
+      <ul>
+        ${u.topics.map(t => `<li>${t}</li>`).join("")}
+      </ul>
+    `;
+
+    header.onclick = () => body.hidden = !body.hidden;
+
+    card.append(header, body);
+    container.appendChild(card);
+  });
+}
+
+// ================= REPEATED QUESTIONS =================
+function renderRepeatedQuestions(data) {
+  const container = document.getElementById("repeated-container");
+  container.innerHTML = "";
+
+  let qNo = 1;
+
+  data.sections.forEach(section => {
+    section.units.forEach(unit => {
+      const card = document.createElement("div");
+      card.className = "accordion-card";
+
+      const header = createAccordionHeader(unit.unit);
+      const body = document.createElement("div");
+      body.className = "accordion-body";
+      body.hidden = true;
+
+      const list = document.createElement("ol");
+
+      // -------- Section A style --------
+      if (unit.questions) {
+        unit.questions.forEach(q => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <span class="q-text">${q.question}</span>
+            <span class="q-marks">${q.marks}</span>
+          `;
+          li.dataset.no = qNo++;
+          list.appendChild(li);
+        });
+      }
+
+      // -------- Section B style --------
+      if (unit.choices) {
+        unit.choices.forEach(choice => {
+          choice.parts.forEach(p => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <span class="q-text">(${p.label}) ${p.question}</span>
+              <span class="q-marks">${p.marks}</span>
+            `;
+            li.dataset.no = qNo++;
+            list.appendChild(li);
+          });
+        });
+      }
+
+      body.appendChild(list);
+      header.onclick = () => body.hidden = !body.hidden;
+
+      card.append(header, body);
+      container.appendChild(card);
+    });
+  });
 }
 
 // ---------------- Load Paper ----------------
@@ -58,15 +131,8 @@ async function loadPaper() {
   const res = await fetch(PAPERS_URL);
   const all = await res.json();
 
-  const matches = all.filter(
-    p => Array.isArray(p.paper_codes) && p.paper_codes.includes(CODE)
-  );
-
-  if (!matches.length) {
-    document.querySelector(".paper-page").innerHTML =
-      "<p class='coming-soon'>Paper not found.</p>";
-    return;
-  }
+  const matches = all.filter(p => p.paper_codes?.includes(CODE));
+  if (!matches.length) return;
 
   const sorted = [...matches].sort(
     (a, b) => extractYear(b.pdf) - extractYear(a.pdf)
@@ -74,60 +140,28 @@ async function loadPaper() {
 
   const base = sorted[0];
 
-  // -------- Header --------
   document.getElementById("paperTitle").textContent =
     base.paper_names.join(" / ");
-
   document.getElementById("paperCode").textContent =
     base.paper_codes.join(" / ");
-
   document.getElementById("paperMeta").textContent =
     `${base.university} • ${base.programme} • ${base.stream.toUpperCase()} • Sem ${base.semester}`;
 
-  // -------- Latest PDF --------
   const latestBtn = document.getElementById("latestPdfLink");
   latestBtn.href = base.pdf;
   latestBtn.textContent = `Open Latest PDF (${extractYear(base.pdf)}) →`;
 
-  // -------- Available Papers --------
   const list = document.getElementById("availablePapers");
   list.innerHTML = "";
-
   sorted.forEach(p => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <a href="${p.pdf}" target="_blank">
-        ${extractYear(p.pdf)} Question Paper →
-      </a>
-    `;
-    list.appendChild(li);
+    list.innerHTML += `<li><a href="${p.pdf}" target="_blank">${extractYear(p.pdf)} Question Paper →</a></li>`;
   });
 
-  // ================= SYLLABUS =================
-  const syllabusContainer = document.getElementById("syllabus-container");
-  const noSyllabus = document.getElementById("no-syllabus");
+  const syllabus = await resolvePaperData("syllabus", base);
+  if (syllabus.status === "found") renderSyllabus(syllabus.data);
 
-  const syllabusResult = await resolvePaperData("syllabus", base);
-
-  if (syllabusResult.status === "found") {
-    syllabusContainer.textContent =
-      JSON.stringify(syllabusResult.data, null, 2);
-  } else if (noSyllabus) {
-    noSyllabus.hidden = false;
-  }
-
-  // ================= REPEATED QUESTIONS =================
-  const rqContainer = document.getElementById("repeated-container");
-
-  const rqResult = await resolvePaperData("repeated-questions", base);
-
-  if (rqResult.status === "found") {
-    rqContainer.textContent =
-      JSON.stringify(rqResult.data, null, 2);
-  } else {
-    rqContainer.innerHTML =
-      "<p class='muted'>Repeated questions will appear as more years are indexed.</p>";
-  }
+  const rq = await resolvePaperData("repeated-questions", base);
+  if (rq.status === "found") renderRepeatedQuestions(rq.data);
 }
 
 // ---------------- Init ----------------
