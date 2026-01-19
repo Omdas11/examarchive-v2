@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Paper Page
- * FINAL CLEAN CARD-BASED VERSION
+ * FINAL VERSION (Aligned with paper.css)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -41,26 +41,26 @@ function renderSyllabus(data) {
   container.innerHTML = "";
 
   data.units.forEach((u, i) => {
-    const card = document.createElement("div");
-    card.className = "unit-card";
+    const unit = document.createElement("div");
+    unit.className = "syllabus-unit";
 
     const header = document.createElement("div");
-    header.className = "unit-header";
+    header.className = "syllabus-header";
     header.textContent = `Unit ${i + 1}${u.title ? " • " + u.title : ""}`;
 
-    const body = document.createElement("div");
-    body.className = "unit-body";
-    body.hidden = true;
-    body.innerHTML = `
+    const content = document.createElement("div");
+    content.className = "syllabus-content";
+    content.hidden = true;
+    content.innerHTML = `
       <ul>
         ${u.topics.map(t => `<li>${t}</li>`).join("")}
       </ul>
     `;
 
-    header.onclick = () => body.hidden = !body.hidden;
+    header.onclick = () => content.hidden = !content.hidden;
 
-    card.append(header, body);
-    container.appendChild(card);
+    unit.append(header, content);
+    container.appendChild(unit);
   });
 }
 
@@ -70,9 +70,9 @@ function renderRepeatedQuestions(data) {
   container.innerHTML = "";
 
   const unitMap = {};
-  let globalQNo = 1;
+  let qNo = 1;
 
-  // ---- Merge units across sections ----
+  // Merge units across sections
   data.sections.forEach(section => {
     section.units.forEach(unit => {
       if (!unitMap[unit.unit]) unitMap[unit.unit] = [];
@@ -81,53 +81,53 @@ function renderRepeatedQuestions(data) {
   });
 
   Object.entries(unitMap).forEach(([unitName, unitBlocks]) => {
-    const card = document.createElement("div");
-    card.className = "unit-card";
+    const unit = document.createElement("div");
+    unit.className = "rq-unit";
 
     const header = document.createElement("div");
-    header.className = "unit-header";
+    header.className = "rq-unit-header";
     header.textContent = unitName;
 
-    const body = document.createElement("div");
-    body.className = "unit-body";
-    body.hidden = true;
+    const content = document.createElement("div");
+    content.className = "rq-unit-content";
+    content.hidden = true;
 
-    const list = document.createElement("ol");
-    list.className = "rq-list";
-
-    unitBlocks.forEach(unit => {
-      // Section A style
-      if (unit.questions) {
-        unit.questions.forEach(q => {
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <span class="q-text">${globalQNo++}. ${q.question}</span>
-            <span class="q-marks">${q.marks}</span>
+    unitBlocks.forEach(block => {
+      // Section A
+      if (block.questions) {
+        block.questions.forEach(q => {
+          const row = document.createElement("div");
+          row.className = "rq-question";
+          row.innerHTML = `
+            <span class="rq-number">${qNo++}.</span>
+            <span>${q.question}</span>
+            <span class="rq-marks">${q.marks}</span>
           `;
-          list.appendChild(li);
+          content.appendChild(row);
         });
       }
 
-      // Section B style
-      if (unit.choices) {
-        unit.choices.forEach(choice => {
+      // Section B
+      if (block.choices) {
+        block.choices.forEach(choice => {
           choice.parts.forEach(p => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-              <span class="q-text">${globalQNo++}. (${p.label}) ${p.question}</span>
-              <span class="q-marks">${p.marks}</span>
+            const row = document.createElement("div");
+            row.className = "rq-part";
+            row.innerHTML = `
+              <span class="rq-number">${qNo++}.</span>
+              <span>(${p.label}) ${p.question}</span>
+              <span class="rq-marks">${p.marks}</span>
             `;
-            list.appendChild(li);
+            content.appendChild(row);
           });
         });
       }
     });
 
-    body.appendChild(list);
-    header.onclick = () => body.hidden = !body.hidden;
+    header.onclick = () => content.hidden = !content.hidden;
 
-    card.append(header, body);
-    container.appendChild(card);
+    unit.append(header, content);
+    container.appendChild(unit);
   });
 }
 
@@ -159,7 +159,12 @@ async function loadPaper() {
   const list = document.getElementById("availablePapers");
   list.innerHTML = "";
   sorted.forEach(p => {
-    list.innerHTML += `<li><a href="${p.pdf}" target="_blank">${extractYear(p.pdf)} Question Paper →</a></li>`;
+    list.innerHTML += `
+      <li class="paper-row">
+        <span>${extractYear(p.pdf)} Question Paper</span>
+        <a href="${p.pdf}" target="_blank" class="link-red">Open →</a>
+      </li>
+    `;
   });
 
   const syllabus = await resolvePaperData("syllabus", base);
