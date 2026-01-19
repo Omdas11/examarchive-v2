@@ -23,6 +23,36 @@ function extractYear(path) {
   return m ? Number(m[1]) : 0;
 }
 
+// ------ Add unified paper data resolver --------
+
+async function resolvePaperData(type, paper) {
+  const basePath = `/examarchive-v2/data/${type}/${paper.university_slug}/${paper.subject}/${paper.programme.toLowerCase()}/`;
+
+  // Always use paper_codes array
+  if (!Array.isArray(paper.paper_codes)) {
+    return { status: "not_found" };
+  }
+
+  for (const code of paper.paper_codes) {
+    const url = `${basePath}${code}.json`;
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          status: "found",
+          code_used: code,
+          data
+        };
+      }
+    } catch (e) {
+      // silently try next code
+    }
+  }
+
+  return { status: "not_found" };
+}
+
 // ---------------- Load Paper ----------------
 async function loadPaper() {
   const res = await fetch(PAPERS_URL);
