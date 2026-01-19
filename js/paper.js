@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Paper Page
- * FINAL RQ + SYLLABUS ACCORDION VERSION
+ * FINAL CLEAN CARD-BASED VERSION
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -19,13 +19,6 @@ if (!CODE) {
 function extractYear(path) {
   const m = path.match(/(20\d{2})/);
   return m ? Number(m[1]) : 0;
-}
-
-function createAccordionHeader(title) {
-  const h = document.createElement("div");
-  h.className = "accordion-header";
-  h.innerHTML = `<span>${title}</span><span class="chev">▾</span>`;
-  return h;
 }
 
 // ---------------- Unified Resolver ----------------
@@ -49,13 +42,14 @@ function renderSyllabus(data) {
 
   data.units.forEach((u, i) => {
     const card = document.createElement("div");
-    card.className = "accordion-card";
+    card.className = "unit-card";
 
-    const title = `Unit ${i + 1}${u.title ? " • " + u.title : ""}`;
-    const header = createAccordionHeader(title);
+    const header = document.createElement("div");
+    header.className = "unit-header";
+    header.textContent = `Unit ${i + 1}${u.title ? " • " + u.title : ""}`;
 
     const body = document.createElement("div");
-    body.className = "accordion-body";
+    body.className = "unit-body";
     body.hidden = true;
     body.innerHTML = `
       <ul>
@@ -75,54 +69,65 @@ function renderRepeatedQuestions(data) {
   const container = document.getElementById("repeated-container");
   container.innerHTML = "";
 
-  let qNo = 1;
+  const unitMap = {};
+  let globalQNo = 1;
 
+  // ---- Merge units across sections ----
   data.sections.forEach(section => {
     section.units.forEach(unit => {
-      const card = document.createElement("div");
-      card.className = "accordion-card";
+      if (!unitMap[unit.unit]) unitMap[unit.unit] = [];
+      unitMap[unit.unit].push(unit);
+    });
+  });
 
-      const header = createAccordionHeader(unit.unit);
-      const body = document.createElement("div");
-      body.className = "accordion-body";
-      body.hidden = true;
+  Object.entries(unitMap).forEach(([unitName, unitBlocks]) => {
+    const card = document.createElement("div");
+    card.className = "unit-card";
 
-      const list = document.createElement("ol");
+    const header = document.createElement("div");
+    header.className = "unit-header";
+    header.textContent = unitName;
 
-      // -------- Section A style --------
+    const body = document.createElement("div");
+    body.className = "unit-body";
+    body.hidden = true;
+
+    const list = document.createElement("ol");
+    list.className = "rq-list";
+
+    unitBlocks.forEach(unit => {
+      // Section A style
       if (unit.questions) {
         unit.questions.forEach(q => {
           const li = document.createElement("li");
           li.innerHTML = `
-            <span class="q-text">${q.question}</span>
+            <span class="q-text">${globalQNo++}. ${q.question}</span>
             <span class="q-marks">${q.marks}</span>
           `;
-          li.dataset.no = qNo++;
           list.appendChild(li);
         });
       }
 
-      // -------- Section B style --------
+      // Section B style
       if (unit.choices) {
         unit.choices.forEach(choice => {
           choice.parts.forEach(p => {
             const li = document.createElement("li");
             li.innerHTML = `
-              <span class="q-text">(${p.label}) ${p.question}</span>
+              <span class="q-text">${globalQNo++}. (${p.label}) ${p.question}</span>
               <span class="q-marks">${p.marks}</span>
             `;
-            li.dataset.no = qNo++;
             list.appendChild(li);
           });
         });
       }
-
-      body.appendChild(list);
-      header.onclick = () => body.hidden = !body.hidden;
-
-      card.append(header, body);
-      container.appendChild(card);
     });
+
+    body.appendChild(list);
+    header.onclick = () => body.hidden = !body.hidden;
+
+    card.append(header, body);
+    container.appendChild(card);
   });
 }
 
