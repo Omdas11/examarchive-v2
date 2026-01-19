@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Browse Page
- * FINAL STABLE VERSION (Bottom Sheet Sort)
+ * FINAL STABLE VERSION (Bottom Sheet Sort – Enhanced)
  */
 
 const DATA_URL = "https://omdas11.github.io/examarchive-v2/data/papers.json";
@@ -79,20 +79,21 @@ function buildYearToggle() {
 // Sort Options (Bottom Sheet)
 // --------------------
 function getSortOptions(programme) {
-  const base = [
+  const options = [
     { key: "year_desc", label: "Year (Newest first)" },
     { key: "year_asc", label: "Year (Oldest first)" },
-    { key: "name_asc", label: "Paper name (A–Z)" }
+    { key: "name_asc", label: "Paper name (A–Z)" },
+    { key: "name_desc", label: "Paper name (Z–A)" }
   ];
 
   if (programme === "FYUG" || programme === "CBCS") {
-    base.splice(2, 0,
-      { key: "semester_asc", label: "Semester (Low → High)" },
-      { key: "semester_desc", label: "Semester (High → Low)" }
+    options.splice(2, 0,
+      { key: "semester_asc", label: "Semester (1 → Latest)" },
+      { key: "semester_desc", label: "Semester (Latest → 1)" }
     );
   }
 
-  return base;
+  return options;
 }
 
 function renderSortOptions() {
@@ -112,7 +113,7 @@ function renderSortOptions() {
 
     btn.onclick = () => {
       filters.sort = opt.key;
-      currentSortLabel.textContent = opt.label.replace(" first", "");
+      currentSortLabel.textContent = opt.label;
       closeSort();
       applyFilters();
     };
@@ -121,7 +122,7 @@ function renderSortOptions() {
   });
 
   const active = options.find(o => o.key === filters.sort);
-  if (active) currentSortLabel.textContent = active.label.replace(" first", "");
+  if (active) currentSortLabel.textContent = active.label;
 }
 
 // --------------------
@@ -176,18 +177,28 @@ function applySort() {
     case "year_desc":
       view.sort((a, b) => b.year - a.year);
       break;
+
     case "year_asc":
       view.sort((a, b) => a.year - b.year);
       break;
+
     case "semester_asc":
       view.sort((a, b) => a.semester - b.semester);
       break;
+
     case "semester_desc":
       view.sort((a, b) => b.semester - a.semester);
       break;
+
     case "name_asc":
       view.sort((a, b) =>
         a.paper_names[0].localeCompare(b.paper_names[0])
+      );
+      break;
+
+    case "name_desc":
+      view.sort((a, b) =>
+        b.paper_names[0].localeCompare(a.paper_names[0])
       );
       break;
   }
