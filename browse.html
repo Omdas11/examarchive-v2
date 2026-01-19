@@ -19,11 +19,11 @@
   <main class="browse-page">
 
     <!-- Title -->
-  <section class="browse-header">
-  <h1>Browse Question Papers</h1>
-  <p>Search and filter previous year question papers.</p>
-  <p class="paper-count" id="paperCount">Loading papers…</p>
-  </section>
+    <section class="browse-header">
+      <h1>Browse Question Papers</h1>
+      <p>Search and filter previous year question papers.</p>
+      <p class="paper-count" id="paperCount">Loading papers…</p>
+    </section>
 
     <!-- Programme Toggle -->
     <section class="filter-group">
@@ -52,6 +52,7 @@
 
     <!-- Search + Sort -->
     <section class="browse-search sort-search-row">
+
       <input
         type="text"
         id="searchInput"
@@ -59,9 +60,18 @@
         aria-label="Search papers"
       >
 
-      <select id="sortSelect" aria-label="Sort papers">
-        <!-- Options injected by JS -->
-      </select>
+      <!-- Sort Trigger (replaces select) -->
+      <button
+        class="sort-trigger"
+        id="sortTrigger"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+      >
+        <span class="sort-label">Sort:</span>
+        <span class="sort-value" id="currentSort">Year (Newest)</span>
+        <span class="sort-arrow">▾</span>
+      </button>
+
     </section>
 
     <!-- Papers -->
@@ -72,6 +82,38 @@
     </section>
 
   </main>
+
+  <!-- ================= SORT BOTTOM SHEET ================= -->
+
+  <!-- Overlay -->
+  <div class="sort-overlay" id="sortOverlay" hidden></div>
+
+  <!-- Bottom Sheet -->
+  <div
+    class="sort-sheet"
+    id="sortSheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="sortTitle"
+    hidden
+  >
+    <div class="sort-sheet-header">
+      <h2 id="sortTitle">Sort papers</h2>
+      <button class="sort-close" id="closeSort" aria-label="Close sort panel">✕</button>
+    </div>
+
+    <div class="sort-options" id="sortOptions">
+      <!-- Options injected by JS -->
+      <!-- Example structure:
+      <button class="sort-option active" data-sort="year_desc">
+        <span class="radio"></span>
+        Year (Newest first)
+      </button>
+      -->
+    </div>
+
+    <button class="sort-cancel" id="cancelSort">Cancel</button>
+  </div>
 
   <!-- Footer -->
   <div id="footer"></div>
