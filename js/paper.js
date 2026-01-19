@@ -1,12 +1,10 @@
 /**
  * ExamArchive v2 — Paper Page
- * FINAL STABLE VERSION (Repo-only, schema-aligned)
+ * FINAL STABLE VERSION (Unified Resolver Wired)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
 const PAPERS_URL = `${BASE}/data/papers.json`;
-const SYLLABUS_BASE = `${BASE}/data/syllabus/`;
-const RQ_BASE = `${BASE}/data/repeated-questions/`;
 
 const params = new URLSearchParams(window.location.search);
 const CODE = params.get("code");
@@ -23,12 +21,10 @@ function extractYear(path) {
   return m ? Number(m[1]) : 0;
 }
 
-// ------ Add unified paper data resolver --------
-
+// ---------------- Unified Resolver ----------------
 async function resolvePaperData(type, paper) {
   const basePath = `/examarchive-v2/data/${type}/${paper.university_slug}/${paper.subject}/${paper.programme.toLowerCase()}/`;
 
-  // Always use paper_codes array
   if (!Array.isArray(paper.paper_codes)) {
     return { status: "not_found" };
   }
@@ -45,8 +41,8 @@ async function resolvePaperData(type, paper) {
           data
         };
       }
-    } catch (e) {
-      // silently try next code
+    } catch {
+      // try next code
     }
   }
 
@@ -59,7 +55,7 @@ async function loadPaper() {
   const all = await res.json();
 
   const matches = all.filter(
-    p => p.paper_codes && p.paper_codes[0] === CODE
+    p => Array.isArray(p.paper_codes) && p.paper_codes.includes(CODE)
   );
 
   if (!matches.length) {
@@ -74,7 +70,7 @@ async function loadPaper() {
 
   const base = sorted[0];
 
-  // Header
+  // -------- Header --------
   document.getElementById("paperTitle").textContent =
     base.paper_names.join(" / ");
 
@@ -84,12 +80,12 @@ async function loadPaper() {
   document.getElementById("paperMeta").textContent =
     `${base.university} • ${base.programme} • ${base.stream.toUpperCase()} • Sem ${base.semester}`;
 
-  // Latest PDF
+  // -------- Latest PDF --------
   const latestBtn = document.getElementById("latestPdfLink");
   latestBtn.href = base.pdf;
   latestBtn.textContent = `Open Latest PDF (${extractYear(base.pdf)}) →`;
 
-  // Available papers
+  // -------- Available Papers --------
   const list = document.getElementById("availablePapers");
   list.innerHTML = "";
 
@@ -103,32 +99,30 @@ async function loadPaper() {
     list.appendChild(li);
   });
 
-  // Optional sections
-  loadOptional(
-    `${SYLLABUS_BASE}${base.paper_codes[0]}.json`,
-    "syllabus-container",
-    "no-syllabus"
-  );
+  // ================= SYLLABUS =================
+  const syllabusContainer = document.getElementById("syllabus-container");
+  const noSyllabus = document.getElementById("no-syllabus");
 
-  loadOptional(
-    `${RQ_BASE}${base.paper_codes[0]}.json`,
-    "repeated-container"
-  );
-}
+  const syllabusResult = await resolvePaperData("syllabus", base);
 
-// ---------------- Optional loaders ----------------
-async function loadOptional(url, containerId, fallbackId) {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    document.getElementById(containerId).textContent =
-      JSON.stringify(data, null, 2);
-  } catch {
-    if (fallbackId) {
-      const el = document.getElementById(fallbackId);
-      if (el) el.hidden = false;
-    }
+  if (syllabusResult.status === "found") {
+    syllabusContainer.textContent =
+      JSON.stringify(syllabusResult.data, null, 2);
+  } else if (noSyllabus) {
+    noSyllabus.hidden = false;
+  }
+
+  // ================= REPEATED QUESTIONS =================
+  const rqContainer = document.getElementById("repeated-container");
+
+  const rqResult = await resolvePaperData("repeated-questions", base);
+
+  if (rqResult.status === "found") {
+    rqContainer.textContent =
+      JSON.stringify(rqResult.data, null, 2);
+  } else {
+    rqContainer.innerHTML =
+      "<p class='muted'>Repeated questions will appear as more years are indexed.</p>";
   }
 }
 
