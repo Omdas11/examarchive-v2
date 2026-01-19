@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Browse Page
- * FINAL STABLE VERSION (Repo-only, schema-aligned)
+ * FINAL STABLE VERSION (Bottom Sheet Sort)
  */
 
 const DATA_URL = "https://omdas11.github.io/examarchive-v2/data/papers.json";
@@ -16,13 +16,24 @@ let filters = {
   stream: "Science",
   year: "ALL",
   search: "",
-  sort: "newest"
+  sort: "year_desc"
 };
 
 // --------------------
 // Helpers
 // --------------------
 const norm = v => String(v || "").toLowerCase();
+
+// --------------------
+// DOM refs
+// --------------------
+const sortTrigger = document.getElementById("sortTrigger");
+const sortOverlay = document.getElementById("sortOverlay");
+const sortSheet = document.getElementById("sortSheet");
+const sortOptionsEl = document.getElementById("sortOptions");
+const closeSortBtn = document.getElementById("closeSort");
+const cancelSortBtn = document.getElementById("cancelSort");
+const currentSortLabel = document.getElementById("currentSort");
 
 // --------------------
 // Load JSON
@@ -65,6 +76,71 @@ function buildYearToggle() {
 }
 
 // --------------------
+// Sort Options (Bottom Sheet)
+// --------------------
+function getSortOptions(programme) {
+  const base = [
+    { key: "year_desc", label: "Year (Newest first)" },
+    { key: "year_asc", label: "Year (Oldest first)" },
+    { key: "name_asc", label: "Paper name (A–Z)" }
+  ];
+
+  if (programme === "FYUG" || programme === "CBCS") {
+    base.splice(2, 0,
+      { key: "semester_asc", label: "Semester (Low → High)" },
+      { key: "semester_desc", label: "Semester (High → Low)" }
+    );
+  }
+
+  return base;
+}
+
+function renderSortOptions() {
+  sortOptionsEl.innerHTML = "";
+
+  const options = getSortOptions(filters.programme);
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "sort-option";
+    if (filters.sort === opt.key) btn.classList.add("active");
+
+    btn.innerHTML = `
+      <span class="radio"></span>
+      ${opt.label}
+    `;
+
+    btn.onclick = () => {
+      filters.sort = opt.key;
+      currentSortLabel.textContent = opt.label.replace(" first", "");
+      closeSort();
+      applyFilters();
+    };
+
+    sortOptionsEl.appendChild(btn);
+  });
+
+  const active = options.find(o => o.key === filters.sort);
+  if (active) currentSortLabel.textContent = active.label.replace(" first", "");
+}
+
+// --------------------
+// Sort Sheet Controls
+// --------------------
+function openSort() {
+  renderSortOptions();
+  sortOverlay.hidden = false;
+  sortSheet.hidden = false;
+  sortTrigger.setAttribute("aria-expanded", "true");
+}
+
+function closeSort() {
+  sortOverlay.hidden = true;
+  sortSheet.hidden = true;
+  sortTrigger.setAttribute("aria-expanded", "false");
+}
+
+// --------------------
 // Filters
 // --------------------
 function applyFilters() {
@@ -88,11 +164,33 @@ function applyFilters() {
     );
   }
 
-  view.sort((a, b) =>
-    filters.sort === "newest" ? b.year - a.year : a.year - b.year
-  );
-
+  applySort();
   render();
+}
+
+// --------------------
+// Apply Sort
+// --------------------
+function applySort() {
+  switch (filters.sort) {
+    case "year_desc":
+      view.sort((a, b) => b.year - a.year);
+      break;
+    case "year_asc":
+      view.sort((a, b) => a.year - b.year);
+      break;
+    case "semester_asc":
+      view.sort((a, b) => a.semester - b.semester);
+      break;
+    case "semester_desc":
+      view.sort((a, b) => b.semester - a.semester);
+      break;
+    case "name_asc":
+      view.sort((a, b) =>
+        a.paper_names[0].localeCompare(b.paper_names[0])
+      );
+      break;
+  }
 }
 
 // --------------------
@@ -113,7 +211,6 @@ function render() {
   view.forEach(p => {
     const title = p.paper_names.join(" / ");
     const code = p.paper_codes.join(" / ");
-    const pdfUrl = p.pdf;
 
     const card = document.createElement("div");
     card.className = "paper-card";
@@ -128,7 +225,7 @@ function render() {
       <div class="paper-meta">
         ${p.university} • ${p.programme} • ${p.stream} • Sem ${p.semester} • ${p.year}
       </div>
-      <a class="open-pdf" href="${pdfUrl}" target="_blank" onclick="event.stopPropagation()">
+      <a class="open-pdf" href="${p.pdf}" target="_blank" onclick="event.stopPropagation()">
         Open PDF →
       </a>
     `;
@@ -148,11 +245,17 @@ function setActive(group, btn) {
 // --------------------
 // Bind Controls
 // --------------------
+sortTrigger.onclick = openSort;
+sortOverlay.onclick = closeSort;
+closeSortBtn.onclick = closeSort;
+cancelSortBtn.onclick = closeSort;
+
 document.querySelectorAll("[data-programme]").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll("[data-programme]").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     filters.programme = btn.dataset.programme;
+    renderSortOptions();
     applyFilters();
   };
 });
@@ -171,16 +274,12 @@ document.getElementById("searchInput").addEventListener("input", e => {
   applyFilters();
 });
 
-document.getElementById("sortSelect").addEventListener("change", e => {
-  filters.sort = e.target.value;
-  applyFilters();
-});
-
 // --------------------
 // Init
 // --------------------
 (async function init() {
   await loadPapers();
   buildYearToggle();
+  renderSortOptions();
   applyFilters();
 })();
