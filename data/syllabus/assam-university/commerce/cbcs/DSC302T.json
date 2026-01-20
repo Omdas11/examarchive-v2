@@ -1,0 +1,62 @@
+{
+  "university": "Assam University",
+  "level": "UG",
+  "programme": "CBCS",
+  "subject": "Commerce",
+  "paper_code": "DSC302T",
+  "paper_name": "Income Tax Law and Practice",
+
+  "units": [
+    {
+      "title": "Introduction",
+      "lectures": 10,
+      "topics": [
+        "Basic concepts: Income, agricultural income, person, assessee, assessment year, previous year, gross total income, total income, maximum marginal rate of tax",
+        "Permanent Account Number (PAN)",
+        "Residential status",
+        "Scope of total income on the basis of residential status",
+        "Exempted income under Section 10"
+      ]
+    },
+    {
+      "title": "Computation of Income under Different Heads – I",
+      "lectures": 18,
+      "topics": [
+        "Income from Salaries",
+        "Income from House Property"
+      ]
+    },
+    {
+      "title": "Computation of Income under Different Heads – II",
+      "lectures": 10,
+      "topics": [
+        "Profits and gains of business or profession",
+        "Capital gains",
+        "Income from other sources"
+      ]
+    },
+    {
+      "title": "Computation of Total Income and Tax Liability",
+      "lectures": 14,
+      "topics": [
+        "Income of other persons included in assessee’s total income",
+        "Aggregation of income",
+        "Set-off and carry forward of losses",
+        "Deductions from gross total income",
+        "Rebates and reliefs",
+        "Computation of total income of individuals and firms",
+        "Tax liability of an individual and a firm",
+        "Five leading cases decided by the Supreme Court"
+      ]
+    },
+    {
+      "title": "Preparation of Return of Income",
+      "lectures": 26,
+      "topics": [
+        "Filing of returns (manual and online)",
+        "Online filing of Returns of Income and TDS",
+        "Provisions and procedures of compulsory online filing of returns for specified assessees"
+      ]
+    }
+  ]
+}
