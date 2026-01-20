@@ -272,6 +272,25 @@
   {
     "university": "Assam University",
     "programme": "CBCS",
+    "stream": "commerce",
+    "subject": "commerce",
+    "semester": 3,
+    "course_type": "DSC",
+    "tags": [
+      "taxation"
+    ],
+    "paper_codes": [
+      "COMDSC302T"
+    ],
+    "paper_names": [
+      "Income Tax Law and Practice"
+    ],
+    "year": 2022,
+    "pdf": "papers/assam-university/commerce/AU-CBCS-COMDSC302T-2022.pdf"
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
     "stream": "science",
     "subject": "physics",
     "semester": 5,
