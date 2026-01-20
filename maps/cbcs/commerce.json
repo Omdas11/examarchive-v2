@@ -1,0 +1,196 @@
+{
+  "subject": "commerce",
+  "programme": "CBCS",
+  "stream": "commerce",
+  "level": "UG",
+
+  "code_pattern": "^AU-CBCS-(COM[A-Z]{3}\\d{3}T)-(\\d{4})\\.pdf$",
+
+  "papers": [
+    /* ================= SEMESTER I ================= */
+
+    {
+      "paper_code": "COMAEC101T",
+      "paper_name": "Language / Modern Indian Language",
+      "semester": 1,
+      "course_type": "AEC",
+      "tags": ["language"]
+    },
+    {
+      "paper_code": "COMDSC101T",
+      "paper_name": "Financial Accounting",
+      "semester": 1,
+      "course_type": "DSC",
+      "tags": ["accounting"]
+    },
+    {
+      "paper_code": "COMDSC102T",
+      "paper_name": "Business Organisation and Management",
+      "semester": 1,
+      "course_type": "DSC",
+      "tags": ["management"]
+    },
+    {
+      "paper_code": "COMLAN101T",
+      "paper_name": "English Language",
+      "semester": 1,
+      "course_type": "LAN",
+      "tags": ["language"]
+    },
+
+    /* ================= SEMESTER II ================= */
+
+    {
+      "paper_code": "COMAEC201T",
+      "paper_name": "Environmental Studies",
+      "semester": 2,
+      "course_type": "AEC",
+      "tags": ["environment"]
+    },
+    {
+      "paper_code": "COMDSC201T",
+      "paper_name": "Business Law",
+      "semester": 2,
+      "course_type": "DSC",
+      "tags": ["law"]
+    },
+    {
+      "paper_code": "COMDSC202T",
+      "paper_name": "Business Mathematics and Statistics",
+      "semester": 2,
+      "course_type": "DSC",
+      "tags": ["mathematics", "statistics"]
+    },
+    {
+      "paper_code": "COMLAN201T",
+      "paper_name": "Hindi / Modern Indian Language",
+      "semester": 2,
+      "course_type": "LAN",
+      "tags": ["language"]
+    },
+
+    /* ================= SEMESTER III ================= */
+
+    {
+      "paper_code": "COMDSC301T",
+      "paper_name": "Company Law",
+      "semester": 3,
+      "course_type": "DSC",
+      "tags": ["law"]
+    },
+    {
+      "paper_code": "COMDSC302T",
+      "paper_name": "Income Tax Law and Practice",
+      "semester": 3,
+      "course_type": "DSC",
+      "tags": ["taxation"]
+    },
+    {
+      "paper_code": "COMLAN301T",
+      "paper_name": "Hindi / Modern Indian Language",
+      "semester": 3,
+      "course_type": "LAN",
+      "tags": ["language"]
+    },
+    {
+      "paper_code": "COMSEC301T",
+      "paper_name": "Computer Application in Business",
+      "semester": 3,
+      "course_type": "SEC",
+      "tags": ["computer", "applications"]
+    },
+
+    /* ================= SEMESTER IV ================= */
+
+    {
+      "paper_code": "COMLAN401T",
+      "paper_name": "Business Communication",
+      "semester": 4,
+      "course_type": "LAN",
+      "tags": ["communication"]
+    },
+    {
+      "paper_code": "COMDSC401T",
+      "paper_name": "Corporate Accounting",
+      "semester": 4,
+      "course_type": "DSC",
+      "tags": ["accounting"]
+    },
+    {
+      "paper_code": "COMDSC402T",
+      "paper_name": "Cost Accounting",
+      "semester": 4,
+      "course_type": "DSC",
+      "tags": ["costing"]
+    },
+    {
+      "paper_code": "COMSEC401T",
+      "paper_name": "E-Commerce",
+      "semester": 4,
+      "course_type": "SEC",
+      "tags": ["ecommerce"]
+    },
+
+    /* ================= SEMESTER V ================= */
+
+    {
+      "paper_code": "COMDSE501T",
+      "paper_name": "Discipline Specific Elective – I",
+      "semester": 5,
+      "course_type": "DSE",
+      "tags": ["elective"]
+    },
+    {
+      "paper_code": "COMDSE502T",
+      "paper_name": "Discipline Specific Elective – II",
+      "semester": 5,
+      "course_type": "DSE",
+      "tags": ["elective"]
+    },
+    {
+      "paper_code": "COMSEC501T",
+      "paper_name": "Entrepreneurship",
+      "semester": 5,
+      "course_type": "SEC",
+      "tags": ["entrepreneurship"]
+    },
+    {
+      "paper_code": "COMGEN501T",
+      "paper_name": "Principles of Micro Economics",
+      "semester": 5,
+      "course_type": "GEN",
+      "tags": ["economics"]
+    },
+
+    /* ================= SEMESTER VI ================= */
+
+    {
+      "paper_code": "COMDSE601T",
+      "paper_name": "Discipline Specific Elective – III",
+      "semester": 6,
+      "course_type": "DSE",
+      "tags": ["elective"]
+    },
+    {
+      "paper_code": "COMDSE602T",
+      "paper_name": "Discipline Specific Elective – IV",
+      "semester": 6,
+      "course_type": "DSE",
+      "tags": ["elective"]
+    },
+    {
+      "paper_code": "COMSEC601T",
+      "paper_name": "Personal Selling and Salesmanship",
+      "semester": 6,
+      "course_type": "SEC",
+      "tags": ["sales"]
+    },
+    {
+      "paper_code": "COMGEN601T",
+      "paper_name": "Indian Economy",
+      "semester": 6,
+      "course_type": "GEN",
+      "tags": ["economy"]
+    }
+  ]
+}
