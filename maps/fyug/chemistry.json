@@ -1,0 +1,212 @@
+{
+  "subject": "chemistry",
+  "programme": "FYUG",
+  "stream": "science",
+  "level": "UG",
+  "papers": [
+
+    {
+      "paper_code": "CHMDSC101T",
+      "paper_name": "Inorganic Chemistry-I",
+      "semester": 1,
+      "course_type": "DSC",
+      "tags": ["inorganic chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC102T",
+      "paper_name": "Physical Chemistry-I",
+      "semester": 1,
+      "course_type": "DSC",
+      "tags": ["physical chemistry"]
+    },
+    {
+      "paper_code": "CHMDSM101T",
+      "paper_name": "Fundamentals in Chemistry-I",
+      "semester": 1,
+      "course_type": "DSM",
+      "tags": ["chemistry basics"]
+    },
+    {
+      "paper_code": "CHMSEC101T",
+      "paper_name": "Separation Techniques",
+      "semester": 1,
+      "course_type": "SEC",
+      "tags": ["analytical chemistry"]
+    },
+
+    {
+      "paper_code": "CHMDSC151T",
+      "paper_name": "Organic Chemistry-I",
+      "semester": 2,
+      "course_type": "DSC",
+      "tags": ["organic chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC152P",
+      "paper_name": "Inorganic, Organic & Physical Chemistry (Practical)",
+      "semester": 2,
+      "course_type": "DSC",
+      "tags": ["chemistry practical"]
+    },
+    {
+      "paper_code": "CHMDSM151T",
+      "paper_name": "Fundamentals in Chemistry-II",
+      "semester": 2,
+      "course_type": "DSM",
+      "tags": ["chemistry basics"]
+    },
+    {
+      "paper_code": "CHMSEC151T",
+      "paper_name": "Basic Analytical Chemistry",
+      "semester": 2,
+      "course_type": "SEC",
+      "tags": ["analytical chemistry"]
+    },
+
+    {
+      "paper_code": "CHMDSC201T",
+      "paper_name": "Inorganic Chemistry-II",
+      "semester": 3,
+      "course_type": "DSC",
+      "tags": ["inorganic chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC202T",
+      "paper_name": "Organic Chemistry-II",
+      "semester": 3,
+      "course_type": "DSC",
+      "tags": ["organic chemistry"]
+    },
+    {
+      "paper_code": "CHMDSM201T",
+      "paper_name": "Fundamentals in Chemistry-III",
+      "semester": 3,
+      "course_type": "DSM",
+      "tags": ["chemistry basics"]
+    },
+    {
+      "paper_code": "CHMSEC201T",
+      "paper_name": "Forensic Chemistry",
+      "semester": 3,
+      "course_type": "SEC",
+      "tags": ["forensic chemistry"]
+    },
+
+    {
+      "paper_code": "CHMDSC251T",
+      "paper_name": "Physical Chemistry-II",
+      "semester": 4,
+      "course_type": "DSC",
+      "tags": ["physical chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC252T",
+      "paper_name": "Inorganic & Analytical Chemistry-III",
+      "semester": 4,
+      "course_type": "DSC",
+      "tags": ["analytical chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC253P",
+      "paper_name": "Organic, Inorganic & Physical Chemistry (Practical)",
+      "semester": 4,
+      "course_type": "DSC",
+      "tags": ["chemistry practical"]
+    },
+    {
+      "paper_code": "CHMDSM252T",
+      "paper_name": "Fundamentals in Chemistry-IV",
+      "semester": 4,
+      "course_type": "DSM",
+      "tags": ["chemistry basics"]
+    },
+
+    {
+      "paper_code": "CHMDSC301T",
+      "paper_name": "Photochemistry and Quantum Chemistry",
+      "semester": 5,
+      "course_type": "DSC",
+      "tags": ["photochemistry", "quantum chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC302T",
+      "paper_name": "Organic Chemistry-III",
+      "semester": 5,
+      "course_type": "DSC",
+      "tags": ["organic chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC303P",
+      "paper_name": "Organic, Inorganic & Physical Chemistry (Practical)",
+      "semester": 5,
+      "course_type": "DSC",
+      "tags": ["chemistry practical"]
+    },
+    {
+      "paper_code": "CHMDSM301T",
+      "paper_name": "Fundamentals in Chemistry-V",
+      "semester": 5,
+      "course_type": "DSM",
+      "tags": ["chemistry basics"]
+    },
+
+    {
+      "paper_code": "CHMDSC351T",
+      "paper_name": "Advanced Materials",
+      "semester": 6,
+      "course_type": "DSC",
+      "tags": ["materials chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC352T",
+      "paper_name": "Spectroscopy (Theory and Applications)",
+      "semester": 6,
+      "course_type": "DSC",
+      "tags": ["spectroscopy"]
+    },
+    {
+      "paper_code": "CHMDSC353T",
+      "paper_name": "Physical Chemistry-III",
+      "semester": 6,
+      "course_type": "DSC",
+      "tags": ["physical chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC354P",
+      "paper_name": "Organic, Inorganic & Physical Chemistry (Practical)",
+      "semester": 6,
+      "course_type": "DSC",
+      "tags": ["chemistry practical"]
+    },
+
+    {
+      "paper_code": "CHMDSC401T",
+      "paper_name": "Selected Topics in Chemistry-I",
+      "semester": 7,
+      "course_type": "DSC",
+      "tags": ["advanced chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC402T",
+      "paper_name": "Selected Topics in Chemistry-II",
+      "semester": 7,
+      "course_type": "DSC",
+      "tags": ["advanced chemistry"]
+    },
+    {
+      "paper_code": "CHMDSC403P",
+      "paper_name": "Organic, Inorganic & Physical Chemistry (Practical)",
+      "semester": 7,
+      "course_type": "DSC",
+      "tags": ["chemistry practical"]
+    },
+
+    {
+      "paper_code": "CHMDSC451T",
+      "paper_name": "Research Methodology / Selected Topics in Chemistry-III",
+      "semester": 8,
+      "course_type": "DSC",
+      "tags": ["research methodology"]
+    }
+  ]
+}
