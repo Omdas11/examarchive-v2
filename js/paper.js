@@ -46,7 +46,20 @@ function renderSyllabus(data) {
 
     const header = document.createElement("div");
     header.className = "syllabus-header";
-    header.textContent = `Unit ${i + 1}${u.title ? " • " + u.title : ""}`;
+
+    // Left: Unit title
+    const title = document.createElement("span");
+    title.textContent = `Unit ${i + 1}${u.title ? " • " + u.title : ""}`;
+
+    header.appendChild(title);
+
+    // Right: Lectures badge (optional)
+    if (typeof u.lectures === "number") {
+      const lectures = document.createElement("span");
+      lectures.className = "syllabus-lectures";
+      lectures.textContent = `${u.lectures} Lectures`;
+      header.appendChild(lectures);
+    }
 
     const content = document.createElement("div");
     content.className = "syllabus-content";
