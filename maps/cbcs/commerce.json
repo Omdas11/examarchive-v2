@@ -7,7 +7,6 @@
   "code_pattern": "^AU-CBCS-(COM[A-Z]{3}\\d{3}T)-(\\d{4})\\.pdf$",
 
   "papers": [
-    /* ================= SEMESTER I ================= */
 
     {
       "paper_code": "COMAEC101T",
@@ -38,8 +37,6 @@
       "tags": ["language"]
     },
 
-    /* ================= SEMESTER II ================= */
-
     {
       "paper_code": "COMAEC201T",
       "paper_name": "Environmental Studies",
@@ -68,8 +65,6 @@
       "course_type": "LAN",
       "tags": ["language"]
     },
-
-    /* ================= SEMESTER III ================= */
 
     {
       "paper_code": "COMDSC301T",
@@ -100,8 +95,6 @@
       "tags": ["computer", "applications"]
     },
 
-    /* ================= SEMESTER IV ================= */
-
     {
       "paper_code": "COMLAN401T",
       "paper_name": "Business Communication",
@@ -131,8 +124,6 @@
       "tags": ["ecommerce"]
     },
 
-    /* ================= SEMESTER V ================= */
-
     {
       "paper_code": "COMDSE501T",
       "paper_name": "Discipline Specific Elective – I",
@@ -161,8 +152,6 @@
       "course_type": "GEN",
       "tags": ["economics"]
     },
-
-    /* ================= SEMESTER VI ================= */
 
     {
       "paper_code": "COMDSE601T",
