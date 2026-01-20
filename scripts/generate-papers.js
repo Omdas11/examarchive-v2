@@ -14,8 +14,11 @@ function readJSON(p) {
 function walk(dir, out = []) {
   fs.readdirSync(dir).forEach(f => {
     const full = path.join(dir, f);
-    if (fs.statSync(full).isDirectory()) walk(full, out);
-    else if (f.toLowerCase().endsWith(".pdf")) out.push(full);
+    if (fs.statSync(full).isDirectory()) {
+      walk(full, out);
+    } else if (f.toLowerCase().endsWith(".pdf")) {
+      out.push(full);
+    }
   });
   return out;
 }
@@ -25,13 +28,12 @@ function extractYear(file) {
   return m ? Number(m[1]) : null;
 }
 
-function normalizeCode(code) {
-  return code.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+function normalize(str) {
+  return str.replace(/[^A-Z0-9]/gi, "").toUpperCase();
 }
 
-// Base code for grouping AT / BT
+// PHYDSC453AT → PHYDSC453
 function baseVariant(code) {
-  // PHYDSC453AT → PHYDSC453
   const m = code.match(/^(.*?)(A|B)T$/);
   return m ? m[1] : code.replace(/T$/, "");
 }
@@ -47,6 +49,7 @@ function loadMaps() {
 
     fs.readdirSync(dir).forEach(file => {
       if (!file.endsWith(".json")) return;
+
       const map = readJSON(path.join(dir, file));
 
       map.papers.forEach(p => {
@@ -70,20 +73,21 @@ const pdfs = walk(PAPERS_DIR);
 const grouped = new Map();
 
 /*
-Key = programme + subject + baseVariant + year
-Value = one question paper (possibly AT/BT)
+Key = programme | subject | base_code | year
+Value = one question paper (AT / BT grouped)
 */
 
 pdfs.forEach(pdf => {
   const year = extractYear(pdf);
   if (!year) return;
 
-  const name = normalizeCode(path.basename(pdf));
+  const filenameNorm = normalize(path.basename(pdf));
 
   mapPapers.forEach(mp => {
-    const codeNorm = normalizeCode(mp.paper_code);
-    if (!name.includes(codeNorm.replace(/T$/, ""))) return;
+    const paperCodeNorm = normalize(mp.paper_code);
 
+    // ✅ Exact match only (future-proof)
+    if (!filenameNorm.includes(paperCodeNorm)) return;
 
     const base = baseVariant(mp.paper_code);
     const key = `${mp.programme}|${mp.subject}|${base}|${year}`;
