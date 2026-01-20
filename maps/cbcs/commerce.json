@@ -126,14 +126,14 @@
 
     {
       "paper_code": "COMDSE501T",
-      "paper_name": "Discipline Specific Elective – I",
+      "paper_name": "Discipline Specific Elective - I",
       "semester": 5,
       "course_type": "DSE",
       "tags": ["elective"]
     },
     {
       "paper_code": "COMDSE502T",
-      "paper_name": "Discipline Specific Elective – II",
+      "paper_name": "Discipline Specific Elective - II",
       "semester": 5,
       "course_type": "DSE",
       "tags": ["elective"]
@@ -155,14 +155,14 @@
 
     {
       "paper_code": "COMDSE601T",
-      "paper_name": "Discipline Specific Elective – III",
+      "paper_name": "Discipline Specific Elective - III",
       "semester": 6,
       "course_type": "DSE",
       "tags": ["elective"]
     },
     {
       "paper_code": "COMDSE602T",
-      "paper_name": "Discipline Specific Elective – IV",
+      "paper_name": "Discipline Specific Elective - IV",
       "semester": 6,
       "course_type": "DSE",
       "tags": ["elective"]
