@@ -1,0 +1,136 @@
+{
+  "paper_code": "CHMDSC101T",
+  "paper_name": "Inorganic Chemistry - I",
+  "programme": "FYUG",
+  "stream": "science",
+  "subject": "chemistry",
+  "semester": 1,
+  "course_type": "DSC",
+  "credits": 3,
+  "lectures": 10,
+  "lecture_source": "assumed",
+  "full_marks": 100,
+  "assessment": {
+    "end_semester": 70,
+    "internal": 30,
+    "pass_marks": 40
+  },
+  "units": [
+    {
+      "unit": 1,
+      "title": "Atomic Structure",
+      "topics": [
+        "Bohr’s theory, its limitations and atomic spectrum of hydrogen atom",
+        "Wave mechanics: de Broglie equation, Heisenberg’s Uncertainty Principle and its significance",
+        "Schrödinger’s wave equation, significance of ψ and ψ²",
+        "Quantum numbers and their significance",
+        "Normalized and orthogonal wave functions",
+        "Sign of wave functions",
+        "Radial and angular wave functions for hydrogen atom",
+        "Radial and angular distribution curves",
+        "Shapes of s, p, d and f orbitals",
+        "Contour boundary and probability diagrams",
+        "Pauli’s Exclusion Principle",
+        "Hund’s rule of maximum multiplicity",
+        "Aufbau’s principle and its limitations"
+      ]
+    },
+    {
+      "unit": 2,
+      "title": "Periodicity of Elements",
+      "topics": [
+        "s-, p-, d-, f-block elements",
+        "Long form of periodic table",
+        "Effective nuclear charge, shielding or screening effect, Slater rules",
+        "Variation of effective nuclear charge in periodic table",
+        "Atomic radii (van der Waals)",
+        "Ionic and crystal radii",
+        "Covalent radii (octahedral and tetrahedral)",
+        "Ionization enthalpy",
+        "Successive ionization enthalpies and factors affecting ionization energy",
+        "Applications of ionization enthalpy",
+        "Electron gain enthalpy and its trends",
+        "Electronegativity",
+        "Pauling’s, Mulliken’s and Allred–Rochow’s electronegativity scales",
+        "Variation of electronegativity with bond order, partial charge, hybridization and group electronegativity"
+      ]
+    },
+    {
+      "unit": 3,
+      "title": "Chemical Bonding - I",
+      "topics": [
+        "Ionic bond: general characteristics",
+        "Types of ions and size effects",
+        "Radius ratio rule and its limitations",
+        "Packing of ions in crystals",
+        "Madelung constant",
+        "Born–Haber cycle and its applications",
+        "Solvation energy",
+        "Covalent bond: Lewis structure",
+        "Valence Bond theory (Heitler–London approach)",
+        "Energetics of hybridization",
+        "Equivalent and non-equivalent hybrid orbitals",
+        "Resonance and resonance energy",
+        "Molecular Orbital theory",
+        "MO diagrams of diatomic and simple polyatomic molecules (N₂, O₂, C₂, B₂, F₂, CO, NO and their ions)",
+        "MO theory of HCl, BeF₂, CO₂ (idea of s–p mixing and orbital interaction)",
+        "Formal charge",
+        "VSEPR theory",
+        "Shapes of simple molecules and ions containing lone pairs and bond pairs",
+        "Multiple bonding (σ and π bond approach) and bond lengths",
+        "Covalent character in ionic compounds",
+        "Polarizing power and polarizability",
+        "Fajan’s rules and consequences of polarization",
+        "Ionic character in covalent compounds",
+        "Bond moment and dipole moment",
+        "Percentage ionic character from dipole moment and electronegativity difference"
+      ]
+    },
+    {
+      "unit": 4,
+      "title": "Chemical Bonding - II",
+      "topics": [
+        "Metallic bond",
+        "Qualitative idea of valence bond and band theories",
+        "Semiconductors and insulators",
+        "Defects in solids",
+        "Weak chemical forces",
+        "van der Waals forces",
+        "Ion–dipole forces",
+        "Dipole–dipole interactions",
+        "Induced dipole interactions",
+        "Instantaneous dipole–induced dipole interactions",
+        "Hydrogen bonding",
+        "Theories of hydrogen bonding",
+        "Valence bond treatment of hydrogen bonding"
+      ]
+    },
+    {
+      "unit": 5,
+      "title": "Oxidation–Reduction and Principles of Metallurgy",
+      "topics": [
+        "Redox equations",
+        "Standard electrode potential and its application to inorganic reactions",
+        "Principles involved in volumetric analysis",
+        "Fe(II) and oxalic acid using standardized KMnO₄ solution",
+        "Fe(II) with K₂Cr₂O₇ solution",
+        "General principles of metallurgy",
+        "Chief modes of occurrence of metals based on standard electrode potentials",
+        "Ellingham diagrams for reduction of metal oxides using carbon and carbon monoxide as reducing agent",
+        "Electrolytic reduction",
+        "Hydrometallurgy",
+        "Methods of purification of metals",
+        "Electrolytic processes",
+        "Mond’s process",
+        "Zone refining"
+      ]
+    }
+  ],
+  "reference_books": [
+    "Puri, Sharma, Kalia – Principles of Inorganic Chemistry (Vishal Publishing Co.)",
+    "Lee, J. D. – Concise Inorganic Chemistry (ELBS, 1991)",
+    "Douglas, B. E. and McDaniel, D. H. – Concepts & Models of Inorganic Chemistry (Oxford, 1970)",
+    "Day, M. C. and Selbin, J. – Theoretical Inorganic Chemistry (ACS Publications, 1962)"
+  ],
+  "last_updated": "2026-01-21"
+}
