@@ -1,7 +1,9 @@
 {
   "subject": "physics",
-  "stream": "science",
   "programme": "CBCS",
+  "stream": "science",
+  "level": "UG",
+  "code_pattern": "^AU-CBCS-(PHS[A-Z]{3}\\d{3}[AB]?T)-(\\d{4})\\.pdf$",
   "papers": [
     {
       "paper_code": "PHSHCC101T",
@@ -94,7 +96,6 @@
       "course_type": "HCC",
       "tags": ["statistical mechanics"]
     },
-
     {
       "paper_code": "PHSDSE501T",
       "paper_name": "Classical Dynamics / Biological Physics",
