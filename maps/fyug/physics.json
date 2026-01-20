@@ -1,7 +1,9 @@
 {
   "subject": "physics",
-  "stream": "science",
   "programme": "FYUG",
+  "stream": "science",
+  "level": "UG",
+  "code_pattern": "^AU-FYUG-(PHY[A-Z]{3}\\d{3}[AB]?T)-(\\d{4})\\.pdf$",
   "papers": [
     {
       "paper_code": "PHYDSC101T",
@@ -64,7 +66,7 @@
       "paper_name": "Introduction to Classical Mechanics and Electromagnetic Theory",
       "semester": 5,
       "course_type": "DSC",
-      "tags": ["classical mechanics", "em theory"]
+      "tags": ["classical mechanics", "electromagnetic theory"]
     },
     {
       "paper_code": "PHYDSC351T",
@@ -134,7 +136,7 @@
       "paper_name": "Nano Science and Material Science",
       "semester": 8,
       "course_type": "DSC",
-      "tags": ["nanoscience", "materials"]
+      "tags": ["nanoscience", "materials science"]
     },
     {
       "paper_code": "PHYDSC454T",
@@ -142,100 +144,6 @@
       "semester": 8,
       "course_type": "DSC",
       "tags": ["atomic physics", "molecular physics"]
-    },
-
-    {
-      "paper_code": "PHYDSM101T",
-      "paper_name": "Mechanics, Relativity and Mathematical Physics",
-      "semester": 1,
-      "course_type": "DSM",
-      "tags": ["minor physics"]
-    },
-    {
-      "paper_code": "PHYDSM151T",
-      "paper_name": "Mechanics, Relativity and Mathematical Physics",
-      "semester": 2,
-      "course_type": "DSM",
-      "tags": ["minor physics"]
-    },
-    {
-      "paper_code": "PHYDSM201T",
-      "paper_name": "Electricity, Magnetism and Electronics",
-      "semester": 3,
-      "course_type": "DSM",
-      "tags": ["minor physics"]
-    },
-    {
-      "paper_code": "PHYDSM252T",
-      "paper_name": "Electricity, Magnetism and Electronics",
-      "semester": 4,
-      "course_type": "DSM",
-      "tags": ["minor physics"]
-    },
-    {
-      "paper_code": "PHYDSM301T",
-      "paper_name": "Waves, Oscillations, Optics and Thermal Physics",
-      "semester": 5,
-      "course_type": "DSM",
-      "tags": ["minor physics"]
-    },
-    {
-      "paper_code": "PHYDSM401T",
-      "paper_name": "Modern Physics and Solid State Physics",
-      "semester": 7,
-      "course_type": "DSM",
-      "tags": ["minor physics"]
-    },
-    {
-      "paper_code": "PHYDSM451T",
-      "paper_name": "Modern Physics and Solid State Physics",
-      "semester": 8,
-      "course_type": "DSM",
-      "tags": ["minor physics"]
-    },
-
-    {
-      "paper_code": "PHYSEC101",
-      "paper_name": "Workshop Skill",
-      "semester": 1,
-      "course_type": "SEC",
-      "tags": ["skill"]
-    },
-    {
-      "paper_code": "PHYSEC151",
-      "paper_name": "Electrical Circuits and Safety",
-      "semester": 2,
-      "course_type": "SEC",
-      "tags": ["circuits", "safety"]
-    },
-    {
-      "paper_code": "PHYSEC201",
-      "paper_name": "Renewable Energy and Energy Harvesting",
-      "semester": 3,
-      "course_type": "SEC",
-      "tags": ["renewable energy"]
-    },
-
-    {
-      "paper_code": "PHYIDC101T",
-      "paper_name": "Physics in Daily Life",
-      "semester": 1,
-      "course_type": "IDC",
-      "tags": ["interdisciplinary"]
-    },
-    {
-      "paper_code": "PHYIDC151T",
-      "paper_name": "Understanding the Climate",
-      "semester": 2,
-      "course_type": "IDC",
-      "tags": ["climate science"]
-    },
-    {
-      "paper_code": "PHYIDC201T",
-      "paper_name": "Renewable Energy and Energy Harvesting",
-      "semester": 3,
-      "course_type": "IDC",
-      "tags": ["renewable energy"]
     }
   ]
 }
