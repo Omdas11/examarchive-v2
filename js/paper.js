@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Paper Page
- * FINAL VERSION (Aligned with paper.css)
+ * FINAL VERSION (Schema-aligned: uses hours, not lectures)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -40,6 +40,12 @@ function renderSyllabus(data) {
   const container = document.getElementById("syllabus-container");
   container.innerHTML = "";
 
+  if (!Array.isArray(data.units) || !data.units.length) {
+    container.innerHTML =
+      "<p class='coming-soon'>Syllabus not available yet.</p>";
+    return;
+  }
+
   data.units.forEach((u, i) => {
     const unit = document.createElement("div");
     unit.className = "syllabus-unit";
@@ -49,28 +55,34 @@ function renderSyllabus(data) {
 
     // Left: Unit title
     const title = document.createElement("span");
-    title.textContent = `Unit ${i + 1}${u.title ? " • " + u.title : ""}`;
-
+    title.textContent = `Unit ${u.unit_no ?? i + 1}${u.title ? " • " + u.title : ""}`;
     header.appendChild(title);
 
-    // Right: Lectures badge (optional)
-    if (typeof u.lectures === "number") {
-      const lectures = document.createElement("span");
-      lectures.className = "syllabus-lectures";
-      lectures.textContent = `${u.lectures} Lectures`;
-      header.appendChild(lectures);
+    // Right: Contact hours badge (schema-correct)
+    if (typeof u.hours === "number") {
+      const hours = document.createElement("span");
+      hours.className = "syllabus-lectures";
+      hours.textContent = `${u.hours} Hours`;
+      header.appendChild(hours);
     }
 
     const content = document.createElement("div");
     content.className = "syllabus-content";
     content.hidden = true;
-    content.innerHTML = `
-      <ul>
-        ${u.topics.map(t => `<li>${t}</li>`).join("")}
-      </ul>
-    `;
 
-    header.onclick = () => content.hidden = !content.hidden;
+    if (Array.isArray(u.topics) && u.topics.length) {
+      content.innerHTML = `
+        <ul>
+          ${u.topics.map(t => `<li>${t}</li>`).join("")}
+        </ul>
+      `;
+    } else {
+      content.innerHTML = "<p>No topics listed.</p>";
+    }
+
+    header.onclick = () => {
+      content.hidden = !content.hidden;
+    };
 
     unit.append(header, content);
     container.appendChild(unit);
@@ -81,6 +93,12 @@ function renderSyllabus(data) {
 function renderRepeatedQuestions(data) {
   const container = document.getElementById("repeated-container");
   container.innerHTML = "";
+
+  if (!data.sections || !data.sections.length) {
+    container.innerHTML =
+      "<p class='coming-soon'>Repeated questions not available yet.</p>";
+    return;
+  }
 
   const unitMap = {};
   let qNo = 1;
@@ -107,7 +125,7 @@ function renderRepeatedQuestions(data) {
 
     unitBlocks.forEach(block => {
       // Section A
-      if (block.questions) {
+      if (Array.isArray(block.questions)) {
         block.questions.forEach(q => {
           const row = document.createElement("div");
           row.className = "rq-question";
@@ -120,8 +138,8 @@ function renderRepeatedQuestions(data) {
         });
       }
 
-      // Section B
-      if (block.choices) {
+      // Section B (choices)
+      if (Array.isArray(block.choices)) {
         block.choices.forEach(choice => {
           choice.parts.forEach(p => {
             const row = document.createElement("div");
@@ -137,7 +155,9 @@ function renderRepeatedQuestions(data) {
       }
     });
 
-    header.onclick = () => content.hidden = !content.hidden;
+    header.onclick = () => {
+      content.hidden = !content.hidden;
+    };
 
     unit.append(header, content);
     container.appendChild(unit);
@@ -180,11 +200,23 @@ async function loadPaper() {
     `;
   });
 
+  // Load syllabus
   const syllabus = await resolvePaperData("syllabus", base);
-  if (syllabus.status === "found") renderSyllabus(syllabus.data);
+  if (syllabus.status === "found") {
+    renderSyllabus(syllabus.data);
+  } else {
+    document.getElementById("syllabus-container").innerHTML =
+      "<p class='coming-soon'>Syllabus not available yet.</p>";
+  }
 
+  // Load repeated questions
   const rq = await resolvePaperData("repeated-questions", base);
-  if (rq.status === "found") renderRepeatedQuestions(rq.data);
+  if (rq.status === "found") {
+    renderRepeatedQuestions(rq.data);
+  } else {
+    document.getElementById("repeated-container").innerHTML =
+      "<p class='coming-soon'>Repeated questions not available yet.</p>";
+  }
 }
 
 // ---------------- Init ----------------
