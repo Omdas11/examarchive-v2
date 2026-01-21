@@ -1,27 +1,37 @@
 {
-  "paper_code": "CHMDSC101T",
-  "paper_name": "Inorganic Chemistry - I",
-  "programme": "FYUG",
-  "stream": "science",
-  "subject": "chemistry",
-  "semester": 1,
-  "course_type": "DSC",
-  "credits": 3,
-  "lectures": 10,
-  "lecture_source": "assumed",
-  "full_marks": 100,
-  "assessment": {
-    "end_semester": 70,
-    "internal": 30,
-    "pass_marks": 40
+  "meta": {
+    "university": "Assam University",
+    "programme": "FYUG",
+    "stream": "Science",
+    "subject": "Chemistry",
+
+    "paper_code": "CHMDSC101T",
+    "paper_name": "Inorganic Chemistry - I",
+
+    "semester": 1,
+    "course_type": "DSC",
+    "nature": "Theory",
+
+    "credits": 3,
+    "contact_hours": 45,
+
+    "last_updated": "2026-01-21"
   },
+
+  "objectives": [
+    "To introduce fundamental concepts of atomic structure and periodic properties of elements",
+    "To develop an understanding of chemical bonding theories and intermolecular forces",
+    "To acquaint students with basic principles of redox reactions and metallurgy"
+  ],
+
   "units": [
     {
-      "unit": 1,
+      "unit_no": 1,
       "title": "Atomic Structure",
+      "hours": 9,
       "topics": [
         "Bohr’s theory, its limitations and atomic spectrum of hydrogen atom",
-        "Wave mechanics: de Broglie equation, Heisenberg’s Uncertainty Principle and its significance",
+        "Wave mechanics: de Broglie equation, Heisenberg’s uncertainty principle and its significance",
         "Schrödinger’s wave equation, significance of ψ and ψ²",
         "Quantum numbers and their significance",
         "Normalized and orthogonal wave functions",
@@ -30,19 +40,20 @@
         "Radial and angular distribution curves",
         "Shapes of s, p, d and f orbitals",
         "Contour boundary and probability diagrams",
-        "Pauli’s Exclusion Principle",
+        "Pauli’s exclusion principle",
         "Hund’s rule of maximum multiplicity",
         "Aufbau’s principle and its limitations"
       ]
     },
     {
-      "unit": 2,
+      "unit_no": 2,
       "title": "Periodicity of Elements",
+      "hours": 9,
       "topics": [
-        "s-, p-, d-, f-block elements",
+        "s-, p-, d- and f-block elements",
         "Long form of periodic table",
-        "Effective nuclear charge, shielding or screening effect, Slater rules",
-        "Variation of effective nuclear charge in periodic table",
+        "Effective nuclear charge and shielding or screening effect",
+        "Slater rules and variation of effective nuclear charge in periodic table",
         "Atomic radii (van der Waals)",
         "Ionic and crystal radii",
         "Covalent radii (octahedral and tetrahedral)",
@@ -56,8 +67,9 @@
       ]
     },
     {
-      "unit": 3,
+      "unit_no": 3,
       "title": "Chemical Bonding - I",
+      "hours": 9,
       "topics": [
         "Ionic bond: general characteristics",
         "Types of ions and size effects",
@@ -71,9 +83,9 @@
         "Energetics of hybridization",
         "Equivalent and non-equivalent hybrid orbitals",
         "Resonance and resonance energy",
-        "Molecular Orbital theory",
+        "Molecular orbital theory",
         "MO diagrams of diatomic and simple polyatomic molecules (N₂, O₂, C₂, B₂, F₂, CO, NO and their ions)",
-        "MO theory of HCl, BeF₂, CO₂ (idea of s–p mixing and orbital interaction)",
+        "MO theory of HCl, BeF₂ and CO₂ (idea of s–p mixing and orbital interaction)",
         "Formal charge",
         "VSEPR theory",
         "Shapes of simple molecules and ions containing lone pairs and bond pairs",
@@ -87,8 +99,9 @@
       ]
     },
     {
-      "unit": 4,
+      "unit_no": 4,
       "title": "Chemical Bonding - II",
+      "hours": 9,
       "topics": [
         "Metallic bond",
         "Qualitative idea of valence bond and band theories",
@@ -106,8 +119,9 @@
       ]
     },
     {
-      "unit": 5,
+      "unit_no": 5,
       "title": "Oxidation–Reduction and Principles of Metallurgy",
+      "hours": 9,
       "topics": [
         "Redox equations",
         "Standard electrode potential and its application to inorganic reactions",
@@ -116,7 +130,7 @@
         "Fe(II) with K₂Cr₂O₇ solution",
         "General principles of metallurgy",
         "Chief modes of occurrence of metals based on standard electrode potentials",
-        "Ellingham diagrams for reduction of metal oxides using carbon and carbon monoxide as reducing agent",
+        "Ellingham diagrams for reduction of metal oxides using carbon and carbon monoxide as reducing agents",
         "Electrolytic reduction",
         "Hydrometallurgy",
         "Methods of purification of metals",
@@ -126,11 +140,39 @@
       ]
     }
   ],
-  "reference_books": [
-    "Puri, Sharma, Kalia – Principles of Inorganic Chemistry (Vishal Publishing Co.)",
-    "Lee, J. D. – Concise Inorganic Chemistry (ELBS, 1991)",
-    "Douglas, B. E. and McDaniel, D. H. – Concepts & Models of Inorganic Chemistry (Oxford, 1970)",
-    "Day, M. C. and Selbin, J. – Theoretical Inorganic Chemistry (ACS Publications, 1962)"
+
+  "lectures": [],
+
+  "learning_outcomes": [
+    "Explain atomic structure using quantum mechanical principles",
+    "Analyse periodic trends and their applications",
+    "Apply theories of chemical bonding to molecular structure and properties",
+    "Understand redox processes and basic metallurgical principles"
   ],
-  "last_updated": "2026-01-21"
+
+  "references": {
+    "textbooks": [
+      {
+        "title": "Principles of Inorganic Chemistry",
+        "author": "Puri, Sharma and Kalia",
+        "publisher": "Vishal Publishing Co."
+      },
+      {
+        "title": "Concise Inorganic Chemistry",
+        "author": "J. D. Lee",
+        "publisher": "ELBS"
+      }
+    ],
+    "additional_reading": [
+      {
+        "title": "Concepts and Models of Inorganic Chemistry",
+        "author": "B. E. Douglas and D. H. McDaniel"
+      },
+      {
+        "title": "Theoretical Inorganic Chemistry",
+        "author": "M. C. Day and J. Selbin"
+      }
+    ],
+    "online_resources": []
+  }
 }
