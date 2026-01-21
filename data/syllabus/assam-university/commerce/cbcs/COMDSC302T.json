@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "stream": "Commerce",
+    "subject": "Commerce",
+
+    "paper_code": "COMDSC302T",
+    "paper_name": "Income Tax Law and Practice",
+
+    "semester": 3,
+    "course_type": "DSC",
+    "nature": "Theory",
+
+    "credits": 4,
+    "contact_hours": 52,
+
+    "last_updated": "2026-01-21"
+  },
+
+  "objectives": [
+    "To provide basic knowledge of the principles and provisions of the Income-tax Act, 1961",
+    "To equip students with the ability to compute taxable income under different heads",
+    "To develop practical understanding of filing income tax returns"
+  ],
+
+  "units": [
+    {
+      "unit_no": 1,
+      "title": "Introduction",
+      "hours": 10,
+      "topics": [
+        "Basic concepts: income, agricultural income, person, assessee, assessment year, previous year",
+        "Gross total income, total income and maximum marginal rate of tax",
+        "Permanent Account Number (PAN)",
+        "Residential status",
+        "Scope of total income on the basis of residential status",
+        "Exempted income under Section 10"
+      ]
+    },
+    {
+      "unit_no": 2,
+      "title": "Computation of Income under Different Heads – I",
+      "hours": 18,
+      "topics": [
+        "Income from salaries",
+        "Income from house property"
+      ]
+    },
+    {
+      "unit_no": 3,
+      "title": "Computation of Income under Different Heads – II",
+      "hours": 10,
+      "topics": [
+        "Profits and gains of business or profession",
+        "Capital gains",
+        "Income from other sources"
+      ]
+    },
+    {
+      "unit_no": 4,
+      "title": "Computation of Total Income and Tax Liability",
+      "hours": 14,
+      "topics": [
+        "Income of other persons included in assessee’s total income",
+        "Aggregation of income",
+        "Set-off and carry forward of losses",
+        "Deductions from gross total income",
+        "Rebates and reliefs",
+        "Computation of total income of individuals and firms",
+        "Tax liability of an individual and a firm",
+        "Five leading cases decided by the Supreme Court"
+      ]
+    },
+    {
+      "unit_no": 5,
+      "title": "Preparation of Return of Income",
+      "hours": 26,
+      "topics": [
+        "Filing of returns manually",
+        "Online filing of returns of income and TDS",
+        "Provisions and procedures of compulsory online filing of returns for specified assessees",
+        "Practical exposure to e-filing of income tax returns"
+      ]
+    }
+  ],
+
+  "lectures": [],
+
+  "learning_outcomes": [
+    "Understand the structure and scope of the Income-tax Act, 1961",
+    "Compute taxable income under different heads of income",
+    "Determine tax liability of individuals and firms",
+    "Apply practical knowledge to prepare and file income tax returns"
+  ],
+
+  "references": {
+    "textbooks": [
+      {
+        "title": "Students’ Guide to Income Tax",
+        "author": "Vinod K. Singhania and Monica Singhania",
+        "publisher": "Taxmann Publications Pvt. Ltd."
+      },
+      {
+        "title": "Systematic Approach to Income Tax",
+        "author": "Girish Ahuja and Ravi Gupta",
+        "publisher": "Bharat Law House"
+      }
+    ],
+    "additional_reading": [
+      {
+        "title": "Income Tax Reports",
+        "author": "Company Law Institute of India"
+      },
+      {
+        "title": "Current Tax Reporter",
+        "author": "Taxmann Allied Services Pvt. Ltd."
+      }
+    ],
+    "online_resources": [
+      {
+        "title": "Income Tax India e-Filing Portal",
+        "url": "https://www.incometax.gov.in"
+      }
+    ]
+  }
+}
