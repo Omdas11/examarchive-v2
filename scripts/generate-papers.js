@@ -2,9 +2,10 @@ const fs = require("fs");
 const path = require("path");
 
 const PAPERS_ROOT = "papers/assam-university";
+const MAPS_ROOT = "maps";
 const OUTPUT = "data/papers.json";
 
-const result = [];
+const papers = [];
 
 /* ===============================
    Helpers
@@ -23,6 +24,17 @@ function extractYear(file) {
   return m ? Number(m[1]) : null;
 }
 
+function loadMap(programme, subject) {
+  const mapPath = path.join(
+    MAPS_ROOT,
+    programme.toLowerCase(),
+    `${subject.toLowerCase()}.json`
+  );
+
+  if (!fs.existsSync(mapPath)) return null;
+  return JSON.parse(fs.readFileSync(mapPath, "utf-8"));
+}
+
 /* ===============================
    Scan papers
 ================================ */
@@ -34,7 +46,7 @@ walk(PAPERS_ROOT, file => {
   const parts = file.split(path.sep);
 
   const university = "Assam University";
-  const programme = parts[2]?.toUpperCase(); // fyug / cbcs
+  const programme = parts[2]?.toLowerCase(); // fyug / cbcs
   const subject = parts[3]?.toLowerCase();   // physics / commerce
   const filename = parts.at(-1);
 
@@ -43,20 +55,22 @@ walk(PAPERS_ROOT, file => {
   const year = extractYear(filename);
   if (!year) return;
 
-  // Example filename:
-  // AU-CBCS-PHSHCC201T-2023.pdf
   const codeMatch = filename.match(/([A-Z]{2,}[A-Z0-9]+T)/);
   if (!codeMatch) return;
 
   const paperCode = codeMatch[1];
 
-  result.push({
+  // Load maps
+  const map = loadMap(programme, subject);
+  const meta = map?.papers?.[paperCode] || {};
+
+  papers.push({
     university,
-    programme: programme === "FYUG" ? "FYUG" : "CBCS",
+    programme: programme.toUpperCase(),
     subject,
     paper_codes: [paperCode],
-    paper_names: [],
-    semester: null,
+    paper_names: meta.name ? [meta.name] : [],
+    semester: meta.semester ?? null,
     stream: subject === "commerce" ? "commerce" : "science",
     pdf: `/examarchive-v2/${file.replace(/\\/g, "/")}`,
     year
@@ -66,5 +80,5 @@ walk(PAPERS_ROOT, file => {
 /* ===============================
    Write output
 ================================ */
-fs.writeFileSync(OUTPUT, JSON.stringify(result, null, 2));
-console.log(`✔ Generated ${result.length} papers`);
+fs.writeFileSync(OUTPUT, JSON.stringify(papers, null, 2));
+console.log(`✔ Generated ${papers.length} papers with maps enrichment`);
