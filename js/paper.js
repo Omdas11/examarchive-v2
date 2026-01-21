@@ -1,9 +1,11 @@
 /**
  * ExamArchive v2 — Paper Page
- * FINAL STABLE VERSION
- * - Correct syllabus hours badge
- * - Correct RQ numbering: 4(a), 4(b)
- * - Marks displayed exactly as in paper
+ * CLEAN REWRITE (RQ schema v1.1 compliant)
+ *
+ * Principles:
+ * - Data drives rendering
+ * - No inference, no guessing
+ * - Order in JSON = order in UI
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -18,13 +20,13 @@ if (!CODE) {
   throw new Error("Missing paper code");
 }
 
-// ---------------- Helpers ----------------
+/* ---------- Helpers ---------- */
 function extractYear(path) {
   const m = path.match(/(20\d{2})/);
-  return m ? Number(m[1]) : 0;
+  return m ? Number(m[1]) : "";
 }
 
-// ---------------- Unified Resolver ----------------
+/* ---------- Unified Resolver ---------- */
 async function resolvePaperData(type, paper) {
   const universitySlug = paper.university.toLowerCase().replace(/\s+/g, "-");
   const basePath = `/examarchive-v2/data/${type}/${universitySlug}/${paper.subject}/${paper.programme.toLowerCase()}/`;
@@ -38,22 +40,25 @@ async function resolvePaperData(type, paper) {
   return { status: "not_found" };
 }
 
-// ================= SYLLABUS =================
+/* ================= SYLLABUS ================= */
 function renderSyllabus(data) {
   const container = document.getElementById("syllabus-container");
   container.innerHTML = "";
 
-  if (!Array.isArray(data.units)) return;
+  if (!Array.isArray(data.units) || !data.units.length) {
+    container.innerHTML =
+      "<p class='coming-soon'>Syllabus not available.</p>";
+    return;
+  }
 
-  data.units.forEach((u, i) => {
+  data.units.forEach((u, idx) => {
     const unit = document.createElement("div");
     unit.className = "syllabus-unit";
 
     const header = document.createElement("div");
     header.className = "syllabus-header";
-
     header.innerHTML = `
-      <span>Unit ${i + 1}${u.title ? " • " + u.title : ""}</span>
+      <span>Unit ${u.unit_no ?? idx + 1}${u.title ? " • " + u.title : ""}</span>
       ${typeof u.hours === "number"
         ? `<span class="syllabus-lectures">${u.hours} Hours</span>`
         : ""}
@@ -62,7 +67,6 @@ function renderSyllabus(data) {
     const content = document.createElement("div");
     content.className = "syllabus-content";
     content.hidden = true;
-
     content.innerHTML = `
       <ul>
         ${(u.topics || []).map(t => `<li>${t}</li>`).join("")}
@@ -76,58 +80,71 @@ function renderSyllabus(data) {
   });
 }
 
-// ================= REPEATED QUESTIONS =================
+/* ================= REPEATED QUESTIONS ================= */
 function renderRepeatedQuestions(data) {
   const container = document.getElementById("repeated-container");
   container.innerHTML = "";
 
-  if (!data.sections) return;
+  if (!Array.isArray(data.sections) || !data.sections.length) {
+    container.innerHTML =
+      "<p class='coming-soon'>Repeated questions not available.</p>";
+    return;
+  }
 
-  let qNo = 1;
-  let currentMainNo = null;
+  let globalQno = 1;
 
   data.sections.forEach(section => {
+    /* Section header (instruction only) */
+    if (section.instruction) {
+      const inst = document.createElement("p");
+      inst.className = "rq-instruction";
+      inst.textContent = section.instruction;
+      container.appendChild(inst);
+    }
+
     section.units.forEach(unitBlock => {
       const unit = document.createElement("div");
       unit.className = "rq-unit";
 
       const header = document.createElement("div");
       header.className = "rq-unit-header";
-      header.textContent = unitBlock.unit;
+      header.textContent = unitBlock.unit_label || `Unit ${unitBlock.unit_no}`;
 
       const content = document.createElement("div");
       content.className = "rq-unit-content";
       content.hidden = true;
 
-      // Section A
-      (unitBlock.questions || []).forEach(q => {
-        const row = document.createElement("div");
-        row.className = "rq-question";
-        row.innerHTML = `
-          <span class="rq-number">${qNo++}.</span>
-          <span>${q.question}</span>
-          <span class="rq-marks">${q.marks}</span>
-        `;
-        content.appendChild(row);
-      });
-
-      // Section B — FIXED LOGIC
-      (unitBlock.choices || []).forEach(choice => {
-        choice.parts.forEach(p => {
-          if (p.label === "a") {
-            currentMainNo = qNo++;
-          }
-
+      /* -------- Standalone questions (Section A) -------- */
+      if (Array.isArray(unitBlock.questions)) {
+        unitBlock.questions.forEach(q => {
           const row = document.createElement("div");
-          row.className = "rq-part";
+          row.className = "rq-question";
           row.innerHTML = `
-            <span class="rq-number">${currentMainNo}.</span>
-            <span>(${p.label}) ${p.question}</span>
-            <span class="rq-marks">${p.marks}</span>
+            <span class="rq-number">${globalQno++}.</span>
+            <span>${q.text}</span>
+            <span class="rq-marks">${q.marks}</span>
           `;
           content.appendChild(row);
         });
-      });
+      }
+
+      /* -------- Long questions with parts (Section B) -------- */
+      if (Array.isArray(unitBlock.choices)) {
+        unitBlock.choices.forEach(choice => {
+          const mainNo = globalQno++;
+
+          choice.parts.forEach(p => {
+            const row = document.createElement("div");
+            row.className = "rq-part";
+            row.innerHTML = `
+              <span class="rq-number">${mainNo}.</span>
+              <span>(${p.label}) ${p.text}</span>
+              <span class="rq-marks">${p.marks}</span>
+            `;
+            content.appendChild(row);
+          });
+        });
+      }
 
       header.onclick = () => (content.hidden = !content.hidden);
 
@@ -137,7 +154,7 @@ function renderRepeatedQuestions(data) {
   });
 }
 
-// ---------------- Load Paper ----------------
+/* ================= LOAD PAPER ================= */
 async function loadPaper() {
   const res = await fetch(PAPERS_URL);
   const all = await res.json();
@@ -158,7 +175,9 @@ async function loadPaper() {
   document.getElementById("paperMeta").textContent =
     `${base.university} • ${base.programme} • ${base.stream.toUpperCase()} • Sem ${base.semester}`;
 
-  document.getElementById("latestPdfLink").href = base.pdf;
+  const latestBtn = document.getElementById("latestPdfLink");
+  latestBtn.href = base.pdf;
+  latestBtn.textContent = `Open Latest PDF (${extractYear(base.pdf)}) →`;
 
   const list = document.getElementById("availablePapers");
   list.innerHTML = "";
@@ -178,5 +197,5 @@ async function loadPaper() {
   if (rq.status === "found") renderRepeatedQuestions(rq.data);
 }
 
-// ---------------- Init ----------------
+/* ---------- Init ---------- */
 loadPaper();
