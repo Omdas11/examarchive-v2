@@ -1,26 +1,21 @@
 const fs = require("fs");
 const path = require("path");
 
-const ROOT = path.join(__dirname, "..");
-const PAPERS_DIR = path.join(ROOT, "papers");
-const MAPS_DIR = path.join(ROOT, "maps");
-const OUTPUT = path.join(ROOT, "data", "papers.json");
+const PAPERS_ROOT = "papers/assam-university";
+const OUTPUT = "data/papers.json";
 
-// ---------------- Helpers ----------------
-function readJSON(p) {
-  return JSON.parse(fs.readFileSync(p, "utf8"));
-}
+const result = [];
 
-function walk(dir, out = []) {
-  fs.readdirSync(dir).forEach(f => {
-    const full = path.join(dir, f);
-    if (fs.statSync(full).isDirectory()) {
-      walk(full, out);
-    } else if (f.toLowerCase().endsWith(".pdf")) {
-      out.push(full);
-    }
+/* ===============================
+   Helpers
+================================ */
+function walk(dir, cb) {
+  if (!fs.existsSync(dir)) return;
+  fs.readdirSync(dir, { withFileTypes: true }).forEach(entry => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full, cb);
+    else cb(full);
   });
-  return out;
 }
 
 function extractYear(file) {
@@ -28,99 +23,48 @@ function extractYear(file) {
   return m ? Number(m[1]) : null;
 }
 
-function normalize(str) {
-  return str.replace(/[^A-Z0-9]/gi, "").toUpperCase();
-}
+/* ===============================
+   Scan papers
+================================ */
+walk(PAPERS_ROOT, file => {
+  if (!file.endsWith(".pdf")) return;
 
-// PHYDSC453AT → PHYDSC453
-function baseVariant(code) {
-  const m = code.match(/^(.*?)(A|B)T$/);
-  return m ? m[1] : code.replace(/T$/, "");
-}
+  // Expected:
+  // papers/assam-university/{programme}/{subject}/FILE.pdf
+  const parts = file.split(path.sep);
 
-// ---------------- Load maps ----------------
-function loadMaps() {
-  const programmes = ["fyug", "cbcs"];
-  const all = [];
+  const university = "Assam University";
+  const programme = parts[2]?.toUpperCase(); // fyug / cbcs
+  const subject = parts[3]?.toLowerCase();   // physics / commerce
+  const filename = parts.at(-1);
 
-  programmes.forEach(pgm => {
-    const dir = path.join(MAPS_DIR, pgm);
-    if (!fs.existsSync(dir)) return;
+  if (!programme || !subject) return;
 
-    fs.readdirSync(dir).forEach(file => {
-      if (!file.endsWith(".json")) return;
-
-      const map = readJSON(path.join(dir, file));
-
-      map.papers.forEach(p => {
-        all.push({
-          ...p,
-          subject: map.subject,
-          stream: map.stream,
-          programme: map.programme
-        });
-      });
-    });
-  });
-
-  return all;
-}
-
-// ---------------- Generator ----------------
-const mapPapers = loadMaps();
-const pdfs = walk(PAPERS_DIR);
-
-const grouped = new Map();
-
-/*
-Key = programme | subject | base_code | year
-Value = one question paper (AT / BT grouped)
-*/
-
-pdfs.forEach(pdf => {
-  const year = extractYear(pdf);
+  const year = extractYear(filename);
   if (!year) return;
 
-  const filenameNorm = normalize(path.basename(pdf));
+  // Example filename:
+  // AU-CBCS-PHSHCC201T-2023.pdf
+  const codeMatch = filename.match(/([A-Z]{2,}[A-Z0-9]+T)/);
+  if (!codeMatch) return;
 
-  mapPapers.forEach(mp => {
-    const paperCodeNorm = normalize(mp.paper_code);
+  const paperCode = codeMatch[1];
 
-    // ✅ Exact match only (future-proof)
-    if (!filenameNorm.includes(paperCodeNorm)) return;
-
-    const base = baseVariant(mp.paper_code);
-    const key = `${mp.programme}|${mp.subject}|${base}|${year}`;
-
-    if (!grouped.has(key)) {
-      grouped.set(key, {
-        university: "Assam University",
-        programme: mp.programme,
-        stream: mp.stream,
-        subject: mp.subject,
-        semester: mp.semester,
-        course_type: mp.course_type,
-        tags: mp.tags || [],
-        paper_codes: [],
-        paper_names: [],
-        year,
-        pdf: pdf.replace(ROOT + "/", "")
-      });
-    }
-
-    const entry = grouped.get(key);
-
-    if (!entry.paper_codes.includes(mp.paper_code)) {
-      entry.paper_codes.push(mp.paper_code);
-      entry.paper_names.push(mp.paper_name);
-    }
+  result.push({
+    university,
+    programme: programme === "FYUG" ? "FYUG" : "CBCS",
+    subject,
+    paper_codes: [paperCode],
+    paper_names: [],
+    semester: null,
+    stream: subject === "commerce" ? "commerce" : "science",
+    pdf: `/examarchive-v2/${file.replace(/\\/g, "/")}`,
+    year
   });
 });
 
-// ---------------- Output ----------------
-const output = Array.from(grouped.values()).sort(
-  (a, b) => b.year - a.year
-);
-
-fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2));
-console.log(`✔ Generated ${output.length} question papers`);
+/* ===============================
+   Write output
+================================ */
+fs.writeFileSync(OUTPUT, JSON.stringify(result, null, 2));
+console.log(`✔ Generated ${result.length} papers`);
