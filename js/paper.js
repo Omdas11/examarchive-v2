@@ -29,7 +29,20 @@ function extractYear(path) {
 /* ---------- Unified Resolver ---------- */
 async function resolvePaperData(type, paper) {
   const universitySlug = paper.university.toLowerCase().replace(/\s+/g, "-");
-  const basePath = `/examarchive-v2/data/${type}/${universitySlug}/${paper.subject}/${paper.programme.toLowerCase()}/`;
+  const programme = paper.programme.toLowerCase();
+  const subject = paper.subject.toLowerCase();
+
+  const basePath =
+    `/examarchive-v2/data/${type}/${universitySlug}/${programme}/${subject}/`;
+
+  for (const code of paper.paper_codes) {
+    try {
+      const res = await fetch(`${basePath}${code}.json`);
+      if (res.ok) return { status: "found", data: await res.json() };
+    } catch {}
+  }
+  return { status: "not_found" };
+}
 
   for (const code of paper.paper_codes) {
     try {
