@@ -1,84 +1,87 @@
+/**
+ * ExamArchive v2 — Papers JSON Generator
+ * FINAL STABLE VERSION
+ * Supports array-based maps (FYUG / CBCS)
+ */
+
 const fs = require("fs");
 const path = require("path");
 
-const PAPERS_ROOT = "papers/assam-university";
-const MAPS_ROOT = "maps";
-const OUTPUT = "data/papers.json";
+const ROOT = process.cwd();
+const PAPERS_DIR = path.join(ROOT, "papers");
+const MAPS_DIR = path.join(ROOT, "maps");
+const OUTPUT = path.join(ROOT, "data", "papers.json");
 
-const papers = [];
+/* ---------------- Utils ---------------- */
 
-/* ===============================
-   Helpers
-================================ */
-function walk(dir, cb) {
-  if (!fs.existsSync(dir)) return;
-  fs.readdirSync(dir, { withFileTypes: true }).forEach(entry => {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walk(full, cb);
-    else cb(full);
-  });
+function walk(dir, files = []) {
+  for (const item of fs.readdirSync(dir)) {
+    const full = path.join(dir, item);
+    if (fs.statSync(full).isDirectory()) walk(full, files);
+    else if (item.endsWith(".pdf")) files.push(full);
+  }
+  return files;
 }
 
-function extractYear(file) {
-  const m = file.match(/(20\d{2})/);
-  return m ? Number(m[1]) : null;
+function loadMaps() {
+  const maps = [];
+  function walkMaps(dir) {
+    for (const item of fs.readdirSync(dir)) {
+      const full = path.join(dir, item);
+      if (fs.statSync(full).isDirectory()) walkMaps(full);
+      else if (item.endsWith(".json")) {
+        maps.push(JSON.parse(fs.readFileSync(full, "utf8")));
+      }
+    }
+  }
+  walkMaps(MAPS_DIR);
+  return maps;
 }
 
-function loadMap(programme, subject) {
-  const mapPath = path.join(
-    MAPS_ROOT,
-    programme.toLowerCase(),
-    `${subject.toLowerCase()}.json`
-  );
+/* ---------------- Main ---------------- */
 
-  if (!fs.existsSync(mapPath)) return null;
-  return JSON.parse(fs.readFileSync(mapPath, "utf-8"));
+const pdfFiles = walk(PAPERS_DIR);
+const maps = loadMaps();
+const output = [];
+
+for (const pdfPath of pdfFiles) {
+  const file = path.basename(pdfPath);
+
+  for (const map of maps) {
+    const match = file.match(new RegExp(map.code_pattern));
+    if (!match) continue;
+
+    const paperCode = match[1];
+    const year = Number(match[2]);
+
+    // 🔑 FIX: array-based lookup
+    const paperInfo = map.papers.find(
+      p => p.paper_code === paperCode
+    );
+
+    const entry = {
+      university: "Assam University",
+      programme: map.programme,
+      subject: map.subject,
+      stream: map.stream,
+      level: map.level,
+      paper_codes: [paperCode],
+      paper_names: paperInfo ? [paperInfo.paper_name] : [],
+      semester: paperInfo?.semester ?? null,
+      course_type: paperInfo?.course_type ?? null,
+      tags: paperInfo?.tags ?? [],
+      pdf: `/examarchive-v2/${path.relative(ROOT, pdfPath).replace(/\\/g, "/")}`,
+      year
+    };
+
+    output.push(entry);
+    break;
+  }
 }
 
-/* ===============================
-   Scan papers
-================================ */
-walk(PAPERS_ROOT, file => {
-  if (!file.endsWith(".pdf")) return;
+/* ---------------- Write ---------------- */
 
-  // Expected:
-  // papers/assam-university/{programme}/{subject}/FILE.pdf
-  const parts = file.split(path.sep);
+fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
+fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2));
 
-  const university = "Assam University";
-  const programme = parts[2]?.toLowerCase(); // fyug / cbcs
-  const subject = parts[3]?.toLowerCase();   // physics / commerce
-  const filename = parts.at(-1);
-
-  if (!programme || !subject) return;
-
-  const year = extractYear(filename);
-  if (!year) return;
-
-  const codeMatch = filename.match(/([A-Z]{2,}[A-Z0-9]+T)/);
-  if (!codeMatch) return;
-
-  const paperCode = codeMatch[1];
-
-  // Load maps
-  const map = loadMap(programme, subject);
-  const meta = map?.papers?.[paperCode] || {};
-
-  papers.push({
-    university,
-    programme: programme.toUpperCase(),
-    subject,
-    paper_codes: [paperCode],
-    paper_names: meta.name ? [meta.name] : [],
-    semester: meta.semester ?? null,
-    stream: subject === "commerce" ? "commerce" : "science",
-    pdf: `/examarchive-v2/${file.replace(/\\/g, "/")}`,
-    year
-  });
-});
-
-/* ===============================
-   Write output
-================================ */
-fs.writeFileSync(OUTPUT, JSON.stringify(papers, null, 2));
-console.log(`✔ Generated ${papers.length} papers with maps enrichment`);
+console.log(`✔ Generated papers.json (${output.length} papers)`);
