@@ -1,112 +1,141 @@
 {
-  "university": "Assam University",
-  "level": "UG",
-  "programme": "FYUG",
-  "subject": "Physics",
-  "paper_code": "PHYDSC102T",
-  "paper_name": "Mechanics and Relativity",
+  "meta": {
+    "university": "Assam University",
+    "level": "UG",
+    "programme": "FYUG",
+    "subject": "Physics",
+    "paper_code": "PHYDSC102T",
+    "paper_name": "Mechanics and Relativity",
+    "last_updated": "2026-01-21",
+    "schema_version": "RQ-v1.1"
+  },
 
   "sections": [
     {
-      "section": "A",
+      "section_id": "A",
       "instruction": "Answer ten questions, selecting two from each Unit. Each question carries 2 marks.",
       "marks_per_question": 2,
+
       "units": [
         {
-          "unit": "Unit-I",
+          "unit_no": 1,
+          "unit_label": "Unit-I",
           "questions": [
             {
-              "question": "State with examples the principle of conservation of linear momentum.",
+              "question_id": "A1-1",
+              "text": "State with examples the principle of conservation of linear momentum.",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "What are conservative and non-conservative forces? Give examples.",
+              "question_id": "A1-2",
+              "text": "What are conservative and non-conservative forces? Give examples.",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "Explain why a cricket player lowers his hands while catching a cricket ball.",
+              "question_id": "A1-3",
+              "text": "Explain why a cricket player lowers his hands while catching a cricket ball.",
               "marks": 2,
               "years": [2023]
             }
           ]
         },
+
         {
-          "unit": "Unit-II",
+          "unit_no": 2,
+          "unit_label": "Unit-II",
           "questions": [
             {
-              "question": "Show that torque is given by the time rate of change of angular momentum.",
+              "question_id": "A2-1",
+              "text": "Show that torque is given by the time rate of change of angular momentum.",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "Explain elasticity and reason of elasticity.",
+              "question_id": "A2-2",
+              "text": "Explain elasticity and reason of elasticity.",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "What do you mean by restoring torque?",
+              "question_id": "A2-3",
+              "text": "What do you mean by restoring torque?",
               "marks": 2,
               "years": [2023]
             }
           ]
         },
+
         {
-          "unit": "Unit-III",
+          "unit_no": 3,
+          "unit_label": "Unit-III",
           "questions": [
             {
-              "question": "Define gravitational potential and gravitational potential energy.",
+              "question_id": "A3-1",
+              "text": "Define gravitational potential and gravitational potential energy.",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "What is the difference between inertial mass and gravitational mass?",
+              "question_id": "A3-2",
+              "text": "What is the difference between inertial mass and gravitational mass?",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "Describe in brief global positioning system (GPS).",
+              "question_id": "A3-3",
+              "text": "Describe in brief global positioning system (GPS).",
               "marks": 2,
               "years": [2023]
             }
           ]
         },
+
         {
-          "unit": "Unit-IV",
+          "unit_no": 4,
+          "unit_label": "Unit-IV",
           "questions": [
             {
-              "question": "What are fictitious and Coriolis forces?",
+              "question_id": "A4-1",
+              "text": "What are fictitious and Coriolis forces?",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "Define resonance and sharpness of resonance.",
+              "question_id": "A4-2",
+              "text": "Define resonance and sharpness of resonance.",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "Find an expression of kinetic energy of a body executing SHM.",
+              "question_id": "A4-3",
+              "text": "Find an expression of kinetic energy of a body executing SHM.",
               "marks": 2,
               "years": [2023]
             }
           ]
         },
+
         {
-          "unit": "Unit-V",
+          "unit_no": 5,
+          "unit_label": "Unit-V",
           "questions": [
             {
-              "question": "What do you mean by mass-energy equivalence?",
+              "question_id": "A5-1",
+              "text": "What do you mean by mass-energy equivalence?",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "What do you mean by massless particle? Find the velocity of such particle.",
+              "question_id": "A5-2",
+              "text": "What do you mean by massless particle? Find the velocity of such particle.",
               "marks": 2,
               "years": [2023]
             },
             {
-              "question": "What is the aim of Michelson–Morley experiment?",
+              "question_id": "A5-3",
+              "text": "What is the aim of Michelson–Morley experiment?",
               "marks": 2,
               "years": [2023]
             }
@@ -116,41 +145,45 @@
     },
 
     {
-      "section": "B",
+      "section_id": "B",
       "instruction": "Answer five questions, selecting one from each Unit. Each full question carries 10 marks.",
+
       "units": [
         {
-          "unit": "Unit-I",
+          "unit_no": 1,
+          "unit_label": "Unit-I",
           "choices": [
             {
+              "choice_id": "B1-1",
               "years": [2023],
               "parts": [
                 {
                   "label": "a",
-                  "question": "Define centre of mass of a system. Calculate the position, velocity and acceleration of centre of mass of two particles.",
+                  "text": "Define centre of mass of a system. Calculate the position, velocity and acceleration of centre of mass of two particles.",
                   "marks": 5,
                   "breakup": [1, 4]
                 },
                 {
                   "label": "b",
-                  "question": "State work-energy theorem with examples. Show that force is gradient of potential energy.",
+                  "text": "State work-energy theorem with examples. Show that force is gradient of potential energy.",
                   "marks": 5,
                   "breakup": [2, 3]
                 }
               ]
             },
             {
+              "choice_id": "B1-2",
               "years": [2023],
               "parts": [
                 {
                   "label": "a",
-                  "question": "Explain elastic potential energy of a spring. Obtain an expression for it and discuss the nature of its variation.",
+                  "text": "Explain elastic potential energy of a spring. Obtain an expression for it and discuss the nature of its variation.",
                   "marks": 5,
                   "breakup": [2, 3]
                 },
                 {
                   "label": "b",
-                  "question": "Define coefficient of restitution. Show that in an elastic one-dimensional collision between equal masses, velocities are interchanged.",
+                  "text": "Define coefficient of restitution. Show that in an elastic one-dimensional collision between equal masses, velocities are interchanged.",
                   "marks": 5,
                   "breakup": [1, 4]
                 }
@@ -160,77 +193,47 @@
         },
 
         {
-          "unit": "Unit-II",
+          "unit_no": 2,
+          "unit_label": "Unit-II",
           "choices": [
             {
+              "choice_id": "B2-1",
               "years": [2023],
               "parts": [
                 {
                   "label": "a",
-                  "question": "Define angular momentum of a particle and show that its time rate of change is equal to torque.",
+                  "text": "Define angular momentum of a particle and show that its time rate of change is equal to torque.",
                   "marks": 5,
                   "breakup": [1, 4]
                 },
                 {
                   "label": "b",
-                  "question": "Define moment of inertia and calculate the moment of inertia of a uniform circular disc about its diameter.",
+                  "text": "Define moment of inertia and calculate the moment of inertia of a uniform circular disc about its diameter.",
                   "marks": 5,
                   "breakup": [1, 1, 3]
                 }
               ]
-            },
-            {
-              "years": [2023],
-              "parts": [
-                {
-                  "label": "a",
-                  "question": "Derive the relation connecting the three elastic constants.",
-                  "marks": 5,
-                  "breakup": [5]
-                },
-                {
-                  "label": "b",
-                  "question": "Establish the expression for restoring torque developed in a twisted cylinder.",
-                  "marks": 5,
-                  "breakup": [5]
-                }
-              ]
             }
           ]
         },
 
         {
-          "unit": "Unit-III",
+          "unit_no": 3,
+          "unit_label": "Unit-III",
           "choices": [
             {
+              "choice_id": "B3-1",
               "years": [2023],
               "parts": [
                 {
                   "label": "a",
-                  "question": "Obtain an expression for gravitational potential due to a solid sphere and find the potential on the surface.",
+                  "text": "Obtain an expression for gravitational potential due to a solid sphere and find the potential on the surface.",
                   "marks": 5,
                   "breakup": [4, 1]
                 },
                 {
                   "label": "b",
-                  "question": "State the characteristics of motion in a central force field and state Kepler’s laws.",
-                  "marks": 5,
-                  "breakup": [2, 3]
-                }
-              ]
-            },
-            {
-              "years": [2023],
-              "parts": [
-                {
-                  "label": "a",
-                  "question": "Explain how a satellite is placed in orbit and derive expressions for its orbital velocity and time period.",
-                  "marks": 5,
-                  "breakup": [5]
-                },
-                {
-                  "label": "b",
-                  "question": "Calculate gravitational potential on the surface of the earth and explain geosynchronous orbit and weightlessness.",
+                  "text": "State the characteristics of motion in a central force field and state Kepler’s laws.",
                   "marks": 5,
                   "breakup": [2, 3]
                 }
