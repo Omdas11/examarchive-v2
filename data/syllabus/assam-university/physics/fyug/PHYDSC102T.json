@@ -1,22 +1,34 @@
 {
-  "university": "Assam University",
-  "level": "UG",
-  "programme": "FYUG",
-  "subject": "Physics",
-  "paper_code": "PHYDSC102T",
-  "paper_name": "Mechanics and Relativity",
-  "semester": 1,
-  "credits": 3,
-  "contact_hours": 45,
-  "assessment": {
-    "ese": 70,
-    "cca": 30
+  "meta": {
+    "university": "Assam University",
+    "programme": "FYUG",
+    "stream": "Science",
+    "subject": "Physics",
+
+    "paper_code": "PHYDSC102T",
+    "paper_name": "Mechanics and Relativity",
+
+    "semester": 1,
+    "course_type": "DSC",
+    "nature": "Theory",
+
+    "credits": 3,
+    "contact_hours": 45,
+
+    "last_updated": "2026-01-21"
   },
-  "last_updated": "2023-07-08",
+
+  "objectives": [
+    "To review fundamental concepts of mechanics from a more advanced perspective",
+    "To develop a strong understanding of dynamics, gravitation and oscillatory motion",
+    "To introduce the foundations of Special Theory of Relativity and its physical consequences"
+  ],
+
   "units": [
     {
+      "unit_no": 1,
       "title": "Fundamentals of Dynamics",
-      "lectures": 10,
+      "hours": 10,
       "topics": [
         "Force and linear momentum",
         "Principle of conservation of momentum",
@@ -35,8 +47,9 @@
       ]
     },
     {
+      "unit_no": 2,
       "title": "Rotational Dynamics",
-      "lectures": 8,
+      "hours": 8,
       "topics": [
         "Angular momentum of a particle and system of particles",
         "Torque",
@@ -51,8 +64,9 @@
       ]
     },
     {
+      "unit_no": 3,
       "title": "Gravitation and Central Force Motion",
-      "lectures": 9,
+      "hours": 9,
       "topics": [
         "Law of gravitation",
         "Gravitational potential and potential energy",
@@ -70,8 +84,9 @@
       ]
     },
     {
-      "title": "Oscillations",
-      "lectures": 9,
+      "unit_no": 4,
+      "title": "Oscillations and Non-Inertial Systems",
+      "hours": 9,
       "topics": [
         "Simple harmonic oscillations",
         "Differential equation of SHM and its solution",
@@ -79,11 +94,9 @@
         "Time-average values",
         "Damped oscillations",
         "Forced oscillations",
-        "Resonance",
-        "Sharpness of resonance",
+        "Resonance and sharpness of resonance",
         "Power dissipation",
         "Quality factor",
-        "Non-inertial systems",
         "Inertial and non-inertial frames",
         "Fictitious forces",
         "Uniformly rotating frame",
@@ -94,13 +107,14 @@
       ]
     },
     {
+      "unit_no": 5,
       "title": "Relativity",
-      "lectures": 9,
+      "hours": 9,
       "topics": [
         "Galilean transformations",
         "Galilean invariance",
         "Michelson–Morley experiment and its outcome",
-        "Postulates of special theory of relativity",
+        "Postulates of Special Theory of Relativity",
         "Lorentz transformations",
         "Simultaneity and order of events",
         "Lorentz contraction",
@@ -112,5 +126,44 @@
         "Mass–energy equivalence"
       ]
     }
-  ]
+  ],
+
+  "lectures": [],
+
+  "learning_outcomes": [
+    "Apply laws of dynamics to systems of particles and rotational motion",
+    "Analyse gravitational motion and central force problems",
+    "Understand oscillatory motion and non-inertial reference frames",
+    "Explain the basic principles and consequences of Special Theory of Relativity"
+  ],
+
+  "references": {
+    "textbooks": [
+      {
+        "title": "An Introduction to Mechanics",
+        "author": "Daniel Kleppner and Robert J. Kolenkow",
+        "publisher": "McGraw-Hill"
+      },
+      {
+        "title": "Physics",
+        "author": "Resnick, Halliday and Walker",
+        "publisher": "Wiley"
+      }
+    ],
+    "additional_reading": [
+      {
+        "title": "The Feynman Lectures on Physics, Vol. I",
+        "author": "R. P. Feynman, R. B. Leighton, M. Sands"
+      },
+      {
+        "title": "Introduction to Special Relativity",
+        "author": "Robert Resnick"
+      },
+      {
+        "title": "Analytical Mechanics",
+        "author": "G. R. Fowles and G. L. Cassiday"
+      }
+    ],
+    "online_resources": []
+  }
 }
