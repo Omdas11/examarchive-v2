@@ -1,19 +1,34 @@
 {
-  "paper_code": "PHYDSC101T",
-  "paper_name": "Mathematical Physics - I",
-  "programme": "FYUG",
-  "semester": 1,
-  "subject": "Physics",
+  "meta": {
+    "university": "Assam University",
+    "programme": "FYUG",
+    "stream": "Science",
+    "subject": "Physics",
 
-  "syllabus_version": "NEP 2020",
-  "last_updated": "2025-12-28",
-  "credits": 3,
+    "paper_code": "PHYDSC101T",
+    "paper_name": "Mathematical Physics - I",
+
+    "semester": 1,
+    "course_type": "DSC",
+    "nature": "Theory",
+
+    "credits": 3,
+    "contact_hours": 45,
+
+    "last_updated": "2026-01-21"
+  },
+
+  "objectives": [
+    "To introduce mathematical tools required for solving problems of interest to physicists",
+    "To enable students to model physical problems mathematically and solve them using appropriate techniques",
+    "To expose students to fundamental mathematical methods applicable to a wide range of physics problems"
+  ],
 
   "units": [
     {
-      "unit": "Unit I",
+      "unit_no": 1,
       "title": "Vector Algebra and Matrices",
-      "lectures": 9,
+      "hours": 9,
       "topics": [
         "Scalar and vector products",
         "Physical interpretation of vector product",
@@ -30,9 +45,9 @@
       ]
     },
     {
-      "unit": "Unit II",
+      "unit_no": 2,
       "title": "Ordinary Differential Equations",
-      "lectures": 9,
+      "hours": 9,
       "topics": [
         "Order and degree of a differential equation",
         "General form of first order differential equations",
@@ -48,12 +63,11 @@
       ]
     },
     {
-      "unit": "Unit III",
+      "unit_no": 3,
       "title": "Vector Calculus",
-      "lectures": 10,
+      "hours": 10,
       "topics": [
-        "Directional derivative",
-        "Normal derivative",
+        "Directional derivative and normal derivative",
         "Gradient of a scalar field and its geometrical interpretation",
         "Divergence of a vector field",
         "Curl of a vector field",
@@ -68,16 +82,14 @@
       ]
     },
     {
-      "unit": "Unit IV",
+      "unit_no": 4,
       "title": "Orthogonal Curvilinear Coordinates",
-      "lectures": 8,
+      "hours": 8,
       "topics": [
         "Definition of orthogonal curvilinear coordinates",
         "Examples of orthogonal curvilinear coordinate systems",
         "Transformation between curvilinear and Cartesian coordinate systems",
-        "Infinitesimal line element",
-        "Infinitesimal surface element",
-        "Infinitesimal volume element",
+        "Expressions for infinitesimal line, surface and volume elements",
         "Gradient in curvilinear coordinate systems",
         "Divergence in curvilinear coordinate systems",
         "Curl in curvilinear coordinate systems",
@@ -87,21 +99,59 @@
       ]
     },
     {
-      "unit": "Unit V",
+      "unit_no": 5,
       "title": "Beta and Gamma Functions and Numerical Techniques",
-      "lectures": 9,
+      "hours": 9,
       "topics": [
-        "Beta function",
-        "Gamma function",
+        "Beta and Gamma functions",
         "Relation between Beta and Gamma functions",
         "Expression of integrals in terms of Gamma functions",
-        "Solution of algebraic equations by bisection method",
-        "Solution of algebraic equations by Newton-Raphson method",
-        "Solution of transcendental equations",
+        "Solution of algebraic and transcendental equations by bisection method",
+        "Solution of equations by Newton-Raphson method",
         "Numerical integration using Simpson’s rule",
         "Interpolation using Newton-Gregory forward difference formula",
         "Interpolation using Newton-Gregory backward difference formula"
       ]
     }
-  ]
+  ],
+
+  "lectures": [],
+
+  "learning_outcomes": [
+    "Understand the concepts of vector algebra and vector calculus",
+    "Perform line, surface and volume integrations and apply relevant theorems",
+    "Apply concepts of curvilinear coordinates to physical problems",
+    "Understand special functions such as Beta and Gamma functions",
+    "Apply basic numerical techniques to solve algebraic and transcendental equations"
+  ],
+
+  "references": {
+    "textbooks": [
+      {
+        "title": "Mathematical Physics",
+        "author": "H. K. Dass",
+        "publisher": "S. Chand"
+      },
+      {
+        "title": "Mathematical Physics with Classical Mechanics",
+        "author": "S. Prakash",
+        "publisher": "Sultan Chand & Sons"
+      }
+    ],
+    "additional_reading": [
+      {
+        "title": "Mathematical Methods for Physicists",
+        "author": "G. B. Arfken, H. J. Weber, F. E. Harris"
+      },
+      {
+        "title": "Differential Equations",
+        "author": "George F. Simmons"
+      },
+      {
+        "title": "Vector Analysis",
+        "author": "Murray R. Spiegel"
+      }
+    ],
+    "online_resources": []
+  }
 }
