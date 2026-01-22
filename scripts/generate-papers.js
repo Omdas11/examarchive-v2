@@ -51,8 +51,8 @@ for (const pdfPath of pdfFiles) {
     const match = file.match(new RegExp(map.code_pattern));
     if (!match) continue;
 
-    const paperCode = match[1];
-    const year = Number(match[2]);
+    const paperCode = match[1] + match[2];
+    const year = Number(match[3]);
 
     // 🔑 FIX: array-based lookup
     const paperInfo = map.papers.find(
