@@ -17,22 +17,25 @@ let SEARCH_MODE = "universal";
 fetch(PAPERS_URL)
   .then(r => r.json())
   .then(data => {
-    PAPERS = data || [];
+    PAPERS = Array.isArray(data) ? data : [];
   })
   .catch(() => {
     console.warn("Search: papers.json failed to load");
   });
 
 /* ---------------- Helpers ---------------- */
+function getPaperLabel(p) {
+  return {
+    code: p.paper_code || p.code || "",
+    name: p.paper_name || p.name || "",
+    subject: p.subject || "",
+    year: p.year || ""
+  };
+}
+
 function normalizePaper(p) {
-  return [
-    p.paper_code,
-    p.paper_name,
-    p.subject,
-    p.paper_code + " " + p.paper_name,
-    p.paper_name + " " + p.subject,
-    String(p.year || "")
-  ]
+  const { code, name, subject, year } = getPaperLabel(p);
+  return [code, name, subject, `${code} ${name}`, `${name} ${subject}`, year]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -54,8 +57,7 @@ function showEmpty() {
 
 /* ---------------- Search Logic ---------------- */
 function searchPapers(query) {
-  return PAPERS.filter(p => normalizePaper(p).includes(query))
-               .slice(0, 5);
+  return PAPERS.filter(p => normalizePaper(p).includes(query)).slice(0, 5);
 }
 
 /* ---------------- Render ---------------- */
@@ -64,23 +66,31 @@ function renderResults(query) {
 
   let html = "";
 
+  /* ---------- Papers ---------- */
   if (SEARCH_MODE === "universal" || SEARCH_MODE === "papers") {
     const matches = searchPapers(query);
 
     if (matches.length) {
-      html += `<div class="result-group">
-        <h4>Papers</h4>
-        ${matches.map(p => `
-          <div class="result-item"
-               onclick="location.href='paper.html?code=${p.paper_code}'">
-            ${p.paper_code} — ${p.paper_name} (${p.year})
-          </div>
-        `).join("")}
-      </div>`;
+      html += `
+        <div class="result-group">
+          <h4>Papers</h4>
+          ${matches
+            .map(p => {
+              const { code, name, year } = getPaperLabel(p);
+              return `
+                <div class="result-item"
+                     onclick="location.href='paper.html?code=${code}'">
+                  ${code} — ${name}${year ? ` (${year})` : ""}
+                </div>
+              `;
+            })
+            .join("")}
+        </div>
+      `;
     }
   }
 
-  /* Placeholder groups for future expansion */
+  /* ---------- Repeated Questions (placeholder) ---------- */
   if (SEARCH_MODE === "universal" || SEARCH_MODE === "rq") {
     html += `
       <div class="result-group">
@@ -88,9 +98,11 @@ function renderResults(query) {
         <div class="result-item text-muted">
           RQ search coming soon
         </div>
-      </div>`;
+      </div>
+    `;
   }
 
+  /* ---------- Notes (placeholder) ---------- */
   if (SEARCH_MODE === "universal" || SEARCH_MODE === "notes") {
     html += `
       <div class="result-group">
@@ -98,7 +110,8 @@ function renderResults(query) {
         <div class="result-item text-muted">
           Notes search coming soon
         </div>
-      </div>`;
+      </div>
+    `;
   }
 
   if (!html.trim()) {
