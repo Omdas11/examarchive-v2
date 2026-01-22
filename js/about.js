@@ -1,13 +1,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-  /* ==================================================
-     HELPERS
-     ================================================== */
-
+  /* ---------- Helpers ---------- */
   function formatIST(dateString) {
     if (!dateString) return "—";
-    const date = new Date(dateString);
-    return date.toLocaleString("en-IN", {
+    const d = new Date(dateString);
+    return d.toLocaleString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -18,107 +15,78 @@ document.addEventListener("DOMContentLoaded", async () => {
     }) + " IST";
   }
 
-  /* ==================================================
-     PROJECT STATUS
-     ================================================== */
+  /* ---------- STATUS ---------- */
+  const statusRes = await fetch("./data/about/status.json");
+  const status = await statusRes.json();
 
-  try {
-    const res = await fetch("./data/about/status.json");
-    if (!res.ok) throw new Error("status.json not found");
+  document.querySelector('[data-stat="papers"]').textContent = status.totals.papers;
+  document.querySelector('[data-stat="pdfs"]').textContent = status.totals.pdfs;
+  document.querySelector('[data-stat="subjects"]').textContent = status.totals.subjects;
+  document.querySelector('[data-stat="content-update"]').textContent =
+    formatIST(status.generated_at);
+  document.querySelector('[data-stat="system-update"]').textContent =
+    formatIST(status.generated_at);
 
-    const status = await res.json();
+  /* ---------- PDFs Breakdown ---------- */
+  const breakdownEl = document.getElementById("pdfBreakdown");
+  const toggleBtn = document.getElementById("toggleBreakdown");
 
-    document.querySelector('[data-stat="papers"]').textContent =
-      status.totals?.papers ?? "—";
+  toggleBtn.onclick = () => {
+    breakdownEl.classList.toggle("hidden");
+  };
 
-    document.querySelector('[data-stat="pdfs"]').textContent =
-      status.totals?.pdfs ?? "—";
+  const byProg = status.breakdown.by_programme;
 
-    document.querySelector('[data-stat="subjects"]').textContent =
-      status.totals?.subjects ?? "—";
+  Object.entries(byProg).forEach(([programme, data]) => {
+    const section = document.createElement("div");
+    section.className = "programme-block";
 
-    // Use status.json timestamps (reliable on GitHub Pages)
-    document.querySelector('[data-stat="content-update"]').textContent =
-      formatIST(status.generated_at);
+    const header = document.createElement("div");
+    header.className = "programme-header";
+    header.innerHTML = `
+      <span>${programme}</span>
+      <span class="count-circle">${data.total}</span>
+    `;
+    section.appendChild(header);
 
-    document.querySelector('[data-stat="system-update"]').textContent =
-      formatIST(status.generated_at);
+    const list = document.createElement("ul");
+    list.className = "subject-list";
 
-    /* ---------- PDFs Breakdown ---------- */
-    if (status.breakdown?.by_programme) {
-      const section = document.createElement("section");
-      section.className = "about-breakdown";
-
-      section.innerHTML = `
-        <h2>PDFs Breakdown</h2>
-        <button class="breakdown-toggle">View breakdown of PDFs</button>
-        <div class="breakdown-box" hidden></div>
+    Object.entries(data.subjects).forEach(([subject, count]) => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span>${subject}</span>
+        <span class="count-circle small">${count}</span>
       `;
-
-      const box = section.querySelector(".breakdown-box");
-      const toggle = section.querySelector(".breakdown-toggle");
-
-      toggle.onclick = () => {
-        box.hidden = !box.hidden;
-      };
-
-      Object.entries(status.breakdown.by_programme).forEach(([programme, data]) => {
-        const block = document.createElement("div");
-        block.className = "breakdown-programme";
-
-        block.innerHTML = `<h3>${programme} (${data.total})</h3>`;
-
-        const ul = document.createElement("ul");
-        Object.entries(data.subjects).forEach(([subject, count]) => {
-          const li = document.createElement("li");
-          li.textContent = `${subject} — ${count}`;
-          ul.appendChild(li);
-        });
-
-        block.appendChild(ul);
-        box.appendChild(block);
-      });
-
-      document.querySelector(".about-status").appendChild(section);
-    }
-
-  } catch (err) {
-    console.error("Status load failed:", err);
-  }
-
-  /* ==================================================
-     PROJECT TIMELINE (ALWAYS RENDER)
-     ================================================== */
-
-  const timelineEl = document.querySelector(".timeline");
-
-  try {
-    const res = await fetch("./data/about/timeline.json");
-    if (!res.ok) throw new Error("timeline.json not found");
-
-    const items = await res.json();
-    timelineEl.innerHTML = "";
-
-    items.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "timeline-item";
-
-      div.innerHTML = `
-        <div class="timeline-dot"></div>
-        <div class="timeline-content">
-          <h4>${item.title}</h4>
-          <span class="timeline-date">${item.date}</span>
-          <p>${item.description}</p>
-        </div>
-      `;
-
-      timelineEl.appendChild(div);
+      list.appendChild(li);
     });
 
-  } catch (err) {
+    section.appendChild(list);
+    breakdownEl.appendChild(section);
+  });
+
+  /* ---------- TIMELINE ---------- */
+  const timelineEl = document.querySelector(".timeline");
+  const timelineRes = await fetch("./data/about/timeline.json");
+  const timeline = await timelineRes.json();
+
+  if (!timeline.length) {
     timelineEl.innerHTML =
-      "<p class='section-note'>Timeline unavailable.</p>";
-    console.error("Timeline load failed:", err);
+      "<p class='section-note'>No milestones added yet.</p>";
+    return;
   }
 
+  timeline.reverse().forEach(item => {
+    const div = document.createElement("div");
+    div.className = "timeline-item";
+    div.innerHTML = `
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <h4>${item.title}</h4>
+        <span class="timeline-date">${item.date}</span>
+        <p>${item.description}</p>
+      </div>
+    `;
+    timelineEl.appendChild(div);
+  });
 });
