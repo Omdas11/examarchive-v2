@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – about.css
-   About Page (FINAL CLEAN)
+   About Page (FINAL ALIGNED)
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -73,16 +73,16 @@
 }
 
 /* ==================================================
-   PDFs BREAKDOWN (SINGLE CARD)
+   PDFs BREAKDOWN (SINGLE FULL-WIDTH CARD)
    ================================================== */
 
-/* ---------- Breakdown Toggle Button ---------- */
+/* ---------- Toggle Button ---------- */
 .breakdown-toggle {
   width: 100%;
   display: block;
-  padding: 0.85rem 1rem;
-  margin-top: 0.75rem;
-  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  margin-top: 0.9rem;
+  border-radius: 16px;
   border: 1px solid var(--border);
   background: var(--bg-soft);
   color: var(--text);
@@ -91,25 +91,23 @@
   text-align: left;
 }
 
+/* ---------- Breakdown Card ---------- */
 .breakdown-card {
   margin-top: 1rem;
-  padding: 1rem 1.1rem;
+  padding: 0;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--bg-soft);
+  overflow: hidden;
 }
 
 .hidden {
   display: none;
 }
 
-/* ================================
-   PDFs Breakdown – Final Polish
-   ================================ */
-
-/* Container already rounded — keep */
+/* ---------- Programme Block ---------- */
 .programme-block {
-  padding: 1rem;
+  padding: 1rem 1.1rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -117,7 +115,7 @@
   border-bottom: none;
 }
 
-/* ---------- Programme header ---------- */
+/* ---------- Programme Header ---------- */
 .programme-header {
   display: flex;
   align-items: center;
@@ -126,7 +124,7 @@
   margin-bottom: 0.6rem;
 }
 
-/* ---------- Subject list ---------- */
+/* ---------- Subject List ---------- */
 .subject-list {
   list-style: none;
   padding: 0;
@@ -142,9 +140,9 @@
   text-transform: uppercase;
 }
 
-/* ================================
-   Count Pills (NOT circles)
-   ================================ */
+/* ==================================================
+   Count Pills (RECTANGLE, NOT CIRCLES)
+   ================================================== */
 
 /* Programme total — red pill */
 .programme-header .count-circle {
@@ -154,8 +152,6 @@
   color: #fff;
   font-size: 0.8rem;
   font-weight: 600;
-  min-width: unset;
-  height: auto;
 }
 
 /* Subject totals — muted grey pill */
@@ -167,11 +163,10 @@
   border: 1px solid var(--border);
   font-size: 0.75rem;
   font-weight: 500;
-  min-width: unset;
-  height: auto;
 }
+
 /* ==================================================
-   PROJECT TIMELINE – UNIFORM
+   PROJECT TIMELINE – UNIFORM & STABLE
    ================================================== */
 
 .timeline {
@@ -190,7 +185,7 @@
   background: var(--border);
   transform: translateX(-50%) scaleY(0);
   transform-origin: bottom;
-  transition: transform 1s ease;
+  transition: transform 0.8s ease;
 }
 
 .timeline.is-visible::before {
@@ -221,24 +216,26 @@
   text-align: left;
 }
 
+/* ---------- Timeline Dot ---------- */
 .timeline-dot {
   position: absolute;
   top: 1.65rem;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   background: var(--surface);
   border: 2px solid var(--red);
   border-radius: 50%;
 }
 
 .timeline-item:nth-child(odd) .timeline-dot {
-  right: -6px;
+  right: -5px;
 }
 
 .timeline-item:nth-child(even) .timeline-dot {
-  left: -6px;
+  left: -5px;
 }
 
+/* ---------- Timeline Content ---------- */
 .timeline-content h4 {
   font-size: 1rem;
   margin-bottom: 0.25rem;
@@ -266,4 +263,4 @@
   .timeline-dot {
     left: 18px !important;
   }
-}
+   }
