@@ -38,33 +38,34 @@
 
       <div class="search-wrapper">
 
-        <!-- Search input -->
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Search papers, repeated questions, notes, references..."
-          aria-label="Universal search"
-        />
+  <!-- Search input -->
+  <input
+    type="text"
+    class="search-input"
+    placeholder="Search papers, repeated questions, notes, references..."
+    aria-label="Universal search"
+  />
 
-        <!-- Search behaviour selector (popup trigger) -->
-        <button class="search-mode-btn" type="button">
-          Universal ▾
-        </button>
+  <!-- Search mode button -->
+  <button class="search-mode-btn" type="button" id="searchModeBtn">
+    Universal
+  </button>
 
-        <!-- Search button -->
-        <button class="btn btn-red search-btn">
-          Search
-        </button>
+  <!-- Search button -->
+  <button class="btn btn-red search-btn">
+    Search
+  </button>
 
-        <!-- Search mode popup -->
-        <div class="search-mode-popup">
-          <button class="mode active">Universal</button>
-          <button class="mode">Question Papers (PDF)</button>
-          <button class="mode">Repeated Questions</button>
-          <button class="mode">Notes</button>
-          <button class="mode">References</button>
-        </div>
+  <!-- Dropdown -->
+  <div class="search-mode-dropdown" id="searchModeDropdown">
+    <button data-mode="universal" class="active">Universal</button>
+    <button data-mode="papers">Question Papers (PDF)</button>
+    <button data-mode="rq">Repeated Questions</button>
+    <button data-mode="notes">Notes</button>
+    <button data-mode="refs">References</button>
+  </div>
 
+</div>
         <!-- Instant results dropdown -->
         <div class="search-results">
           <!-- Example result cards (JS will inject later) -->
