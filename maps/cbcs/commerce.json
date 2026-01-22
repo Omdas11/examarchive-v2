@@ -4,7 +4,7 @@
   "stream": "commerce",
   "level": "UG",
 
-  "code_pattern": "^AU-CBCS-(COM[A-Z]{3}\\d{3})([AB]?T)-(\\d{4})\\.pdf$",
+  "code_pattern": "^AU-CBCS-(COM[A-Z]{3}\\d{3}T)-(\\d{4})\\.pdf$",
 
   "papers": [
     {
