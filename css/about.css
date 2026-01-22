@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – about.css
-   About Page (Timeline Uniform)
+   About Page (FINAL CLEAN)
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -48,7 +48,10 @@
   margin-bottom: 1.2rem;
 }
 
-/* ---------- Project Status ---------- */
+/* ==================================================
+   PROJECT STATUS
+   ================================================== */
+
 .about-status .status-list {
   list-style: none;
   padding: 0;
@@ -69,43 +72,79 @@
   color: var(--red);
 }
 
-/* ---------- Status Breakdown ---------- */
-.status-breakdown {
-  margin-top: 1.25rem;
+/* ==================================================
+   PDFs BREAKDOWN (SINGLE CARD)
+   ================================================== */
+
+.breakdown-toggle {
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.breakdown-card {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 14px;
   background: var(--bg-soft);
 }
 
-.status-breakdown summary {
-  cursor: pointer;
-  padding: 0.65rem 0.85rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  list-style: none;
+.hidden {
+  display: none;
+}
+
+/* Programme block */
+.programme-block {
+  margin-bottom: 1.2rem;
+}
+
+.programme-block:last-child {
+  margin-bottom: 0;
+}
+
+.programme-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
-.status-breakdown summary::after {
-  content: "▾";
-  transition: transform 0.25s ease;
-}
-
-.status-breakdown[open] summary::after {
-  transform: rotate(180deg);
-}
-
-.status-breakdown-list {
+/* Subject list */
+.subject-list {
   list-style: none;
-  padding: 0.4rem 0.85rem 0.7rem;
-  border-top: 1px solid var(--border);
+  padding: 0;
+  margin: 0;
 }
 
-.status-breakdown-list li {
+.subject-list li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0;
   font-size: 0.9rem;
+}
+
+/* Count circles */
+.count-circle {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--red);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.count-circle.small {
+  min-width: 24px;
+  height: 24px;
+  font-size: 0.8rem;
 }
 
 /* ==================================================
