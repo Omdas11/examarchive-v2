@@ -1,3 +1,9 @@
+/**
+ * ExamArchive v2 — About Page Script
+ * FINAL STABLE VERSION
+ * Aligned with /data/about/* JSON files
+ */
+
 document.addEventListener("DOMContentLoaded", async () => {
 
   /* ==================================================
@@ -8,16 +14,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!dateString) return "—";
 
     const date = new Date(dateString);
-
-    return date.toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Kolkata"
-    }) + " IST";
+    return (
+      date.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Kolkata"
+      }) + " IST"
+    );
   }
 
   /* ==================================================
@@ -64,7 +71,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         { threshold: 0.2 }
       );
 
-      observer.observe(timeline);
       document
         .querySelectorAll(".timeline-item")
         .forEach(item => observer.observe(item));
@@ -84,22 +90,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!statusSection) return;
 
   try {
-    /* ---------- Status totals ---------- */
+    /* ---------- Load status.json ---------- */
     const statusRes = await fetch("./data/about/status.json");
     if (!statusRes.ok) throw new Error("Status data not found");
 
     const status = await statusRes.json();
 
+    /* ---------- Totals ---------- */
     document.querySelector('[data-stat="papers"]').textContent =
-      status.totals.papers;
+      status.totals?.papers ?? "—";
 
     document.querySelector('[data-stat="pdfs"]').textContent =
-      status.totals.pdfs;
+      status.totals?.pdfs ?? "—";
 
     document.querySelector('[data-stat="subjects"]').textContent =
-      status.totals.subjects;
+      status.totals?.subjects ?? "—";
 
-    /* ---------- Last Content Update (AUTO) ---------- */
+    /* ---------- Last Content Update ---------- */
     try {
       const contentRes = await fetch("./data/about/content-meta.json");
       if (!contentRes.ok) throw new Error("Content meta not found");
@@ -133,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     /* ---------- Subject-wise breakdown ---------- */
-    if (status.breakdown?.items?.length) {
+    if (status.breakdown && Array.isArray(status.breakdown.items)) {
       const breakdownContainer = document.createElement("details");
       breakdownContainer.className = "status-breakdown";
 
@@ -158,7 +165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
   } catch (err) {
-    console.error(err);
+    console.error("About status error:", err);
   }
 
 });
