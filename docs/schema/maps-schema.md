@@ -1,163 +1,190 @@
-# ExamArchive v2 — Maps JSON Schema (LOCKED)
+# ExamArchive v2 — Maps JSON Schema
 
-This document defines the canonical and locked schema for all maps/*.json files
-used by ExamArchive-v2.
+This document defines the canonical schema for all map files located inside the
+`maps/` directory. These files are consumed by `scripts/generate-papers.js`
+to generate `data/papers.json`.
 
-Changing this schema affects:
-- scripts/generate-papers.js
-- data/papers.json
-- Browse page rendering
-- Paper page routing
+Maps provide static academic metadata and act as the single source of truth
+for paper identity and classification.
 
-Modify only with full understanding.
+────────────────────────────────────────────
+1. PURPOSE OF MAP FILES
+────────────────────────────────────────────
 
-----------------------------------------------------------------
+Each map file represents:
+- ONE subject
+- UNDER ONE programme (CBCS or FYUG)
 
-1. PURPOSE OF MAPS
-
-Maps provide the authoritative registry that links:
-- PDF filenames
-- Paper codes
+Maps define:
+- Valid paper codes
 - Paper names
-- Semester
-- Course type
+- Semester numbers
+- Course types
 - Tags
 
-Generator workflow:
-1. Scan PDFs in /papers/**
-2. Match filename using code_pattern
-3. Extract paper_code and year
-4. Enrich metadata from papers[]
-5. Generate data/papers.json
+Maps do NOT define:
+- PDF paths
+- Exam year
+- University name
 
-----------------------------------------------------------------
+Those are resolved dynamically by the generator.
 
-2. FILE LOCATION RULES
+────────────────────────────────────────────
+2. REQUIRED DIRECTORY STRUCTURE
+────────────────────────────────────────────
 
-Each map file represents ONE subject + ONE programme.
-
-Directory structure:
+All maps MUST follow this structure exactly:
 
 maps/
-  fyug/
-    physics.json
-    chemistry.json
-  cbcs/
-    physics.json
-    commerce.json
+├── cbcs/
+│   ├── physics.json
+│   ├── chemistry.json
+│   └── commerce.json
+└── fyug/
+    ├── physics.json
+    └── chemistry.json
 
-Do NOT mix subjects or programmes in a single file.
+The generator recursively loads ALL `.json` files under `maps/`.
 
-----------------------------------------------------------------
+Legacy files such as:
+- maps/physics_cbcs.json
+- maps/physics_fyug.json
 
-3. TOP-LEVEL JSON SCHEMA
+MUST NOT be used and should be deleted.
 
-Required structure:
+────────────────────────────────────────────
+3. MAP FILE ROOT SCHEMA
+────────────────────────────────────────────
+
+Each map file MUST be a valid JSON object with the following keys:
 
 {
-  "subject": "physics | chemistry | commerce | ...",
-  "programme": "FYUG | CBCS",
-  "stream": "science | commerce | arts",
-  "level": "UG | PG",
-  "code_pattern": "REGEX STRING",
-  "papers": []
+  "subject": string,
+  "programme": string,
+  "stream": string,
+  "level": string,
+  "code_pattern": string,
+  "papers": array
 }
 
 Field meanings:
-- subject: lowercase, used in paths
-- programme: FYUG or CBCS
-- stream: academic stream
-- level: UG or PG
-- code_pattern: filename parsing regex
-- papers: array of paper definitions
 
-----------------------------------------------------------------
+- subject  
+  Lowercase subject name  
+  Examples: "physics", "chemistry", "commerce"
 
-4. CODE_PATTERN RULES (CRITICAL)
+- programme  
+  Programme identifier  
+  Allowed values: "CBCS", "FYUG"
 
-The generator assumes EXACTLY THREE CAPTURE GROUPS.
+- stream  
+  Academic stream  
+  Examples: "science", "commerce", "arts"
 
-Group meanings:
-- match[1] → base paper code
-- match[2] → suffix (T, AT, BT, P)
-- match[3] → year
+- level  
+  Academic level  
+  Currently fixed as: "UG"
 
-STRICT RULE:
-Do NOT put optional tokens inside the same capture group as the base paper code.
-Always separate suffixes into their own capture group.
+- code_pattern  
+  Regular expression string used to match PDF filenames  
+  MUST capture:
+    Group 1 → paper code WITHOUT year
+    Group 2 → year (4 digits)
 
-----------------------------------------------------------------
+- papers  
+  Array of paper metadata objects
 
-5. VALID CODE_PATTERN EXAMPLES
+────────────────────────────────────────────
+4. PAPER OBJECT SCHEMA
+────────────────────────────────────────────
 
-FYUG Physics (A/B supported):
-^AU-FYUG-(PHYDSC\\d{3})([AB]?T)-(\\d{4})\\.pdf$
-
-Matches:
-- PHYDSC101T
-- PHYDSC453AT
-- PHYDSC453BT
-
-FYUG Chemistry (Theory + Practical):
-^AU-FYUG-(CHM[A-Z]{3}\\d{3})([AB]?T|P)-(\\d{4})\\.pdf$
-
-Matches:
-- CHMDSC101T
-- CHMDSC152P
-- CHMDSC253P
-
-CBCS Physics:
-^AU-CBCS-(PHS[A-Z]{3}\\d{3})([AB]?T)-(\\d{4})\\.pdf$
-
-CBCS Commerce:
-^AU-CBCS-(COM[A-Z]{3}\\d{3})([AB]?T)-(\\d{4})\\.pdf$
-
-----------------------------------------------------------------
-
-6. PAPERS ARRAY SCHEMA
-
-Each object represents ONE logical paper (not year-wise).
+Each object inside the `papers` array MUST follow this schema:
 
 {
-  "paper_code": "PHYDSC101T",
-  "paper_name": "Mathematical Physics - I",
-  "semester": 1,
-  "course_type": "DSC | HCC | DSE | SEC | AEC | DSM | GEN | LAN",
-  "tags": ["search", "keywords"]
+  "paper_code": string,
+  "paper_name": string,
+  "semester": number,
+  "course_type": string,
+  "tags": array
 }
 
 Field meanings:
-- paper_code: must match extracted code
-- paper_name: display name
-- semester: integer
-- course_type: academic category
-- tags: optional lowercase keywords
 
-----------------------------------------------------------------
+- paper_code  
+  Exact paper code WITHOUT year  
+  Examples:
+    PHYDSC101T
+    PHSHCC201T
+    PHSDSE502T
+    PHYDSC453AT
 
-7. GENERATOR DEPENDENCY (LOCKED)
+- paper_name  
+  Official paper title as per syllabus
 
-Generator must reconstruct paper code like this:
+- semester  
+  Integer semester number (1–8)
 
-paperCode = match[1] + match[2]
-year = Number(match[3])
+- course_type  
+  Course classification  
+  Examples:
+    DSC, DSM, SEC, DSE, HCC, AEC, VAC, AEC
 
-If capture groups change, generator MUST be updated.
+- tags  
+  Array of lowercase keyword strings  
+  Used for search and filtering
 
-----------------------------------------------------------------
+────────────────────────────────────────────
+5. CODE PATTERN RULES (CRITICAL)
+────────────────────────────────────────────
 
-8. DESIGN PRINCIPLES (DO NOT BREAK)
+The `code_pattern` MUST:
 
-- One map = one subject + one programme
-- Regex must be explicit and predictable
-- No year data inside papers[]
-- No semester guessing in generator
-- Maps are the single source of truth
+1. Match the full PDF filename
+2. Capture the paper code (without year)
+3. Capture the year separately
 
-----------------------------------------------------------------
+Example (FYUG Physics):
 
-9. STATUS
+^AU-FYUG-(PHYDSC\\d{3}[AB]?T)-(\\d{4})\\.pdf$
 
-Schema locked
-All current maps aligned
-Future-proof for A/B, theory, and practical papers
+Example (CBCS Physics):
+
+^AU-CBCS-(PHS[A-Z]{3}\\d{3}[AB]?T)-(\\d{4})\\.pdf$
+
+If the regex does not match:
+- The paper will be skipped
+- Metadata will be null
+- Generator may throw an error
+
+────────────────────────────────────────────
+6. GENERATOR EXPECTATIONS
+────────────────────────────────────────────
+
+The generator assumes:
+
+- map.papers EXISTS and is an array
+- paper_code values EXACTLY match regex group 1
+- No year is present inside paper_code
+- Tags may be empty but MUST exist
+
+Invalid maps WILL cause:
+- unmapped paper warnings
+- null metadata
+- generator crashes
+
+────────────────────────────────────────────
+7. DESIGN DECISIONS (LOCKED)
+────────────────────────────────────────────
+
+- Maps are array-based (NOT object-based)
+- No nesting by semester
+- No duplication of year
+- No PDF paths inside maps
+- One paper entry per unique paper code
+
+Any future extension must remain backward compatible
+with this schema.
+
+────────────────────────────────────────────
+END OF MAPS SCHEMA
+────────────────────────────────────────────
