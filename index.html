@@ -29,29 +29,65 @@
       <div class="hero-actions">
         <a href="browse.html" class="btn btn-red">Browse Papers</a>
         <a href="upload.html" class="btn">Upload Paper</a>
+        <a href="about.html" class="btn">About Us</a>
       </div>
     </section>
 
     <!-- ================= UNIVERSAL SEARCH ================= -->
     <section class="home-search">
-      <h2>Search ExamArchive</h2>
 
-      <div class="search-box">
+      <div class="search-wrapper">
+
+        <!-- Search input -->
         <input
           type="text"
+          class="search-input"
           placeholder="Search papers, repeated questions, notes, references..."
           aria-label="Universal search"
         />
-        <button class="btn btn-red">Search</button>
+
+        <!-- Search behaviour selector (popup trigger) -->
+        <button class="search-mode-btn" type="button">
+          Universal ▾
+        </button>
+
+        <!-- Search button -->
+        <button class="btn btn-red search-btn">
+          Search
+        </button>
+
+        <!-- Search mode popup -->
+        <div class="search-mode-popup">
+          <button class="mode active">Universal</button>
+          <button class="mode">Question Papers (PDF)</button>
+          <button class="mode">Repeated Questions</button>
+          <button class="mode">Notes</button>
+          <button class="mode">References</button>
+        </div>
+
+        <!-- Instant results dropdown -->
+        <div class="search-results">
+          <!-- Example result cards (JS will inject later) -->
+
+          <div class="result-group">
+            <h4>Papers</h4>
+            <div class="result-item">PHYDSC102T – Mechanics and Relativity (2023)</div>
+          </div>
+
+          <div class="result-group">
+            <h4>Repeated Questions</h4>
+            <div class="result-item">Explain Gauss’s law in electrostatics.</div>
+          </div>
+
+          <div class="result-group">
+            <h4>Notes</h4>
+            <div class="result-item">Thermodynamics – Short Notes (PDF)</div>
+          </div>
+
+        </div>
+
       </div>
 
-      <div class="search-filters">
-        <span class="filter active">All</span>
-        <span class="filter">Papers</span>
-        <span class="filter">Repeated Questions</span>
-        <span class="filter">Notes</span>
-        <span class="filter">References</span>
-      </div>
     </section>
 
     <!-- ================= QUICK ACCESS ================= -->
@@ -59,80 +95,52 @@
       <h2>Quick Access</h2>
 
       <div class="quick-grid">
-        <a class="quick-btn" href="browse.html">📘 By Subject</a>
-        <a class="quick-btn" href="browse.html">🏫 By University</a>
-        <a class="quick-btn" href="browse.html">📆 By Year</a>
-        <a class="quick-btn" href="#">🔁 Repeated Questions</a>
-        <a class="quick-btn" href="#">📝 Notes & Resources</a>
-        <a class="quick-btn" href="#">📚 Syllabus</a>
-      </div>
-    </section>
-
-    <!-- ================= FEATURES ================= -->
-    <section class="features">
-      <div class="feature">
-        <h3>📚 Organized</h3>
-        <p>Papers arranged by subject, code, and year.</p>
-      </div>
-
-      <div class="feature">
-        <h3>⚡ Lightweight</h3>
-        <p>Works smoothly on mobile and low internet.</p>
-      </div>
-
-      <div class="feature">
-        <h3>🤝 Community Driven</h3>
-        <p>Anyone can contribute missing papers.</p>
+        <a class="quick-btn" href="browse.html">By Subject</a>
+        <a class="quick-btn" href="browse.html">By University</a>
+        <a class="quick-btn" href="browse.html">By Year</a>
+        <a class="quick-btn" href="#">Repeated Questions</a>
+        <a class="quick-btn" href="#">Notes & Resources</a>
+        <a class="quick-btn" href="#">Syllabus</a>
       </div>
     </section>
 
     <!-- ================= NOTICE BOARD ================= -->
     <section class="notice-board">
-      <h2>📢 Notices & Updates</h2>
+      <h2>Notices & Updates</h2>
 
-      <div class="notice-list">
-        <div class="notice-item">
-          <span class="notice-date">Jan 2026</span>
-          <a href="#" target="_blank">
-            Assam University exam form notification
-          </a>
-        </div>
+      <div class="notice-box">
+        <!-- Empty / placeholder state -->
+        <p class="notice-empty">
+          University notices and important academic updates will appear here.
+        </p>
 
+        <!-- Example notices (to be JS-driven later) -->
+        <!--
         <div class="notice-item">
-          <span class="notice-date">Dec 2025</span>
-          <a href="#" target="_blank">
-            FYUG Semester examination schedule released
-          </a>
+          <span class="date">Jan 2026</span>
+          <a href="#" target="_blank">Assam University exam form notification</a>
         </div>
-
-        <div class="notice-item">
-          <span class="notice-date">Nov 2025</span>
-          <a href="#" target="_blank">
-            Revised syllabus under NEP 2020
-          </a>
-        </div>
+        -->
       </div>
     </section>
 
     <!-- ================= ACADEMIC CALENDAR ================= -->
     <section class="academic-calendar">
-      <h2>🗓 Academic Calendar</h2>
+      <h2>Academic Calendar</h2>
 
-      <div class="calendar-list">
+      <div class="calendar-box">
+        <!-- Placeholder -->
+        <p class="calendar-empty">
+          Academic calendar events will be displayed here.
+        </p>
+
+        <!-- Example items -->
+        <!--
         <div class="calendar-item">
           <strong>January – February</strong>
           <p>End Semester Examinations</p>
         </div>
-
-        <div class="calendar-item">
-          <strong>March</strong>
-          <p>Result Declaration</p>
-        </div>
-
-        <div class="calendar-item">
-          <strong>July</strong>
-          <p>New Semester Begins</p>
-        </div>
+        -->
       </div>
     </section>
 
