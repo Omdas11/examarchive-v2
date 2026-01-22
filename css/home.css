@@ -1,82 +1,175 @@
 /* ================================
    ExamArchive – home.css
-   Home page only
+   Home page (REDESIGNED)
    ================================ */
 
 .home {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 1rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 }
 
 /* ---------- Hero ---------- */
 .hero {
-  margin-bottom: 2.2rem;
+  text-align: center;
 }
 
 .hero h1 {
-  font-size: 1.9rem;
+  font-size: 2rem;
   line-height: 1.2;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.7rem;
 }
 
 .hero p {
   font-size: 0.95rem;
   color: var(--text-muted);
-  max-width: 560px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 /* ---------- Hero Actions ---------- */
 .hero-actions {
-  margin-top: 1.1rem;
+  margin-top: 1.2rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
   justify-content: center;
 }
 
-/* ---------- Features ---------- */
-.features {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
+/* ---------- Universal Search ---------- */
+.home-search {
+  width: 100%;
 }
 
-.feature {
+.search-wrapper {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.search-btn {
+  white-space: nowrap;
+}
+
+/* ---------- Instant Search Results ---------- */
+.search-results {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0.6rem;
+  box-shadow: var(--shadow-md);
+  display: none; /* JS will toggle */
+  z-index: 20;
+}
+
+.result-group {
+  margin-bottom: 0.6rem;
+}
+
+.result-group h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.result-item {
+  padding: 0.45rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.result-item:hover {
+  background: var(--bg-soft);
+}
+
+/* ---------- Quick Access ---------- */
+.quick-access {
+  text-align: center;
+}
+
+.quick-access h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.8rem;
+}
+
+.quick-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.quick-btn {
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: 0.85rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.quick-btn:hover {
+  border-color: var(--accent);
+}
+
+/* ---------- Notice Board ---------- */
+.notice-board,
+.academic-calendar {
   background: var(--bg-soft);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 0.9rem 1rem;
+  border-radius: var(--radius-lg);
+  padding: 1rem;
 }
 
-.feature h3 {
-  font-size: 1rem;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+.notice-board h2,
+.academic-calendar h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.6rem;
 }
 
-.feature p {
+.notice-box,
+.calendar-box {
   font-size: 0.85rem;
-  margin-top: 0.35rem;
   color: var(--text-muted);
 }
 
-/* ---------- Desktop Layout (Improved) ---------- */
+/* ---------- Desktop Enhancement ---------- */
 @media (min-width: 1024px) {
   .home {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 2.5rem;
-    align-items: start;
+    gap: 3rem;
   }
 
-  .hero {
-    max-width: none;
+  .hero h1 {
+    font-size: 2.3rem;
   }
 
-  .features {
-    margin-top: 0.5rem;
+  .home-search {
+    margin-top: -0.5rem;
   }
 }
