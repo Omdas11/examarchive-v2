@@ -1,179 +1,146 @@
-/* ==================================================
-   ExamArchive v2 — Home Universal Search (FINAL)
-   Features:
-   1. Universal + Mode-based Search
-   2. Question Papers search
-   3. Repeated Questions search
-   4. Auto-scroll + highlight (via localStorage)
-   ================================================== */
+/**
+ * ExamArchive v2 — Home Search (FINAL STABLE)
+ */
 
-const searchInput = document.querySelector(".search-input");
+const BASE = "https://omdas11.github.io/examarchive-v2";
+const PAPERS_URL = `${BASE}/data/papers.json`;
+
+const input = document.querySelector(".search-input");
 const resultsBox = document.querySelector(".search-results");
 const modeBtn = document.getElementById("searchModeBtn");
-const dropdown = document.getElementById("searchModeDropdown");
+const modeDropdown = document.getElementById("searchModeDropdown");
 
 let PAPERS = [];
-let RQ_DATA = [];
-let currentMode = "universal";
+let SEARCH_MODE = "universal";
 
-/* ---------- Load papers.json ---------- */
-fetch("data/papers.json")
-  .then(res => res.json())
+/* ---------------- Load papers ---------------- */
+fetch(PAPERS_URL)
+  .then(r => r.json())
   .then(data => {
-    PAPERS = data;
-    loadRQFiles();
+    PAPERS = data || [];
   })
-  .catch(err => console.error("Failed to load papers.json", err));
-
-/* ---------- Load RQ files safely ---------- */
-function loadRQFiles() {
-  PAPERS.forEach(paper => {
-    fetch(`data/repeated-questions/${paper.paper_code}.json`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data) RQ_DATA.push(data);
-      })
-      .catch(() => {});
+  .catch(() => {
+    console.warn("Search: papers.json failed to load");
   });
+
+/* ---------------- Helpers ---------------- */
+function normalizePaper(p) {
+  return [
+    p.paper_code,
+    p.paper_name,
+    p.subject,
+    p.paper_code + " " + p.paper_name,
+    p.paper_name + " " + p.subject,
+    String(p.year || "")
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
 }
 
-/* ---------- Mode Dropdown ---------- */
-modeBtn.addEventListener("click", () => {
-  dropdown.style.display =
-    dropdown.style.display === "block" ? "none" : "block";
-});
+function clearResults() {
+  resultsBox.style.display = "none";
+  resultsBox.innerHTML = "";
+}
 
-dropdown.addEventListener("click", e => {
-  if (!e.target.dataset.mode) return;
+function showEmpty() {
+  resultsBox.innerHTML = `
+    <div class="result-item text-muted">
+      No results found
+    </div>
+  `;
+  resultsBox.style.display = "block";
+}
 
-  currentMode = e.target.dataset.mode;
-  modeBtn.textContent = e.target.textContent;
+/* ---------------- Search Logic ---------------- */
+function searchPapers(query) {
+  return PAPERS.filter(p => normalizePaper(p).includes(query))
+               .slice(0, 5);
+}
 
-  dropdown.querySelectorAll("button").forEach(b =>
-    b.classList.remove("active")
-  );
-  e.target.classList.add("active");
+/* ---------------- Render ---------------- */
+function renderResults(query) {
+  if (!query) return clearResults();
 
-  dropdown.style.display = "none";
+  let html = "";
+
+  if (SEARCH_MODE === "universal" || SEARCH_MODE === "papers") {
+    const matches = searchPapers(query);
+
+    if (matches.length) {
+      html += `<div class="result-group">
+        <h4>Papers</h4>
+        ${matches.map(p => `
+          <div class="result-item"
+               onclick="location.href='paper.html?code=${p.paper_code}'">
+            ${p.paper_code} — ${p.paper_name} (${p.year})
+          </div>
+        `).join("")}
+      </div>`;
+    }
+  }
+
+  /* Placeholder groups for future expansion */
+  if (SEARCH_MODE === "universal" || SEARCH_MODE === "rq") {
+    html += `
+      <div class="result-group">
+        <h4>Repeated Questions</h4>
+        <div class="result-item text-muted">
+          RQ search coming soon
+        </div>
+      </div>`;
+  }
+
+  if (SEARCH_MODE === "universal" || SEARCH_MODE === "notes") {
+    html += `
+      <div class="result-group">
+        <h4>Notes</h4>
+        <div class="result-item text-muted">
+          Notes search coming soon
+        </div>
+      </div>`;
+  }
+
+  if (!html.trim()) {
+    showEmpty();
+  } else {
+    resultsBox.innerHTML = html;
+    resultsBox.style.display = "block";
+  }
+}
+
+/* ---------------- Input Events ---------------- */
+input.addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  renderResults(q);
 });
 
 document.addEventListener("click", e => {
   if (!e.target.closest(".search-wrapper")) {
-    dropdown.style.display = "none";
+    clearResults();
+    modeDropdown.style.display = "none";
   }
 });
 
-/* ---------- Instant Search ---------- */
-searchInput.addEventListener("input", () => {
-  const q = searchInput.value.trim().toLowerCase();
-
-  if (q.length < 2) {
-    resultsBox.innerHTML = "";
-    resultsBox.style.display = "none";
-    return;
-  }
-
-  const papers =
-    (currentMode === "universal" || currentMode === "papers")
-      ? searchPapers(q)
-      : [];
-
-  const rqs =
-    (currentMode === "universal" || currentMode === "rq")
-      ? searchRQ(q)
-      : [];
-
-  renderResults(papers, rqs, q);
+/* ---------------- Mode Dropdown ---------------- */
+modeBtn.addEventListener("click", () => {
+  modeDropdown.style.display =
+    modeDropdown.style.display === "block" ? "none" : "block";
 });
 
-/* ---------- Paper Search ---------- */
-function searchPapers(q) {
-  return PAPERS.filter(p =>
-    p.search_text?.toLowerCase().includes(q) ||
-    p.paper_code?.toLowerCase().includes(q) ||
-    p.paper_name?.toLowerCase().includes(q) ||
-    String(p.year).includes(q)
-  ).slice(0, 5);
-}
+modeDropdown.querySelectorAll("button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    SEARCH_MODE = btn.dataset.mode;
+    modeBtn.textContent = btn.textContent;
 
-/* ---------- RQ Search ---------- */
-function searchRQ(q) {
-  const hits = [];
+    modeDropdown
+      .querySelectorAll("button")
+      .forEach(b => b.classList.remove("active"));
 
-  RQ_DATA.forEach(paper => {
-    paper.units?.forEach(unit => {
-      unit.questions?.forEach(question => {
-        if (question.toLowerCase().includes(q)) {
-          hits.push({
-            paper_code: paper.paper_code,
-            question
-          });
-        }
-      });
-    });
+    btn.classList.add("active");
+    modeDropdown.style.display = "none";
+
+    const q = input.value.trim().toLowerCase();
+    if (q) renderResults(q);
   });
-
-  return hits.slice(0, 5);
-}
-
-/* ---------- Render Results ---------- */
-function renderResults(papers, rqs, q) {
-  if (!papers.length && !rqs.length) {
-    resultsBox.innerHTML = `<div class="result-item">No results found</div>`;
-    resultsBox.style.display = "block";
-    return;
-  }
-
-  let html = "";
-
-  if (papers.length) {
-    html += `
-      <div class="result-group">
-        <h4>Papers</h4>
-        ${papers.map(p => `
-          <div class="result-item paper" data-code="${p.paper_code}">
-            ${p.paper_code} — ${p.paper_name} (${p.year})
-          </div>
-        `).join("")}
-      </div>
-    `;
-  }
-
-  if (rqs.length) {
-    html += `
-      <div class="result-group">
-        <h4>Repeated Questions</h4>
-        ${rqs.map(rq => `
-          <div class="result-item rq"
-               data-code="${rq.paper_code}"
-               data-query="${q}">
-            ${rq.question}
-          </div>
-        `).join("")}
-      </div>
-    `;
-  }
-
-  resultsBox.innerHTML = html;
-  resultsBox.style.display = "block";
-}
-
-/* ---------- Click Handling ---------- */
-resultsBox.addEventListener("click", e => {
-  const item = e.target.closest(".result-item");
-  if (!item) return;
-
-  const code = item.dataset.code;
-
-  // If RQ result → store highlight instruction
-  if (item.classList.contains("rq")) {
-    localStorage.setItem(
-      "rqSearch",
-      JSON.stringify({
-        highlight: item.dataset.query
-      })
-    );
-  }
-
-  window.location.href = `paper.html?code=${code}`;
 });
