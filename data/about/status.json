@@ -1,23 +1,27 @@
 {
-  "generated_at": "2026-01-21T17:43:08.545Z",
+  "generated_at": "2026-01-22T06:32:49.756Z",
   "totals": {
-    "papers": 35,
-    "pdfs": 35,
-    "subjects": 2
+    "papers": 36,
+    "pdfs": 36,
+    "subjects": 3
   },
   "breakdown": {
     "group_by": "subject",
     "items": [
+      {
+        "name": "chemistry",
+        "count": 4
+      },
       {
         "name": "commerce",
         "count": 1
       },
       {
         "name": "physics",
-        "count": 34
+        "count": 31
       }
     ]
   },
   "last_content_update": "Papers up to 2025",
-  "last_system_update": "21 Jan 2026"
+  "last_system_update": "22 Jan 2026"
 }
