@@ -183,32 +183,6 @@ p {
 }
 
 /* ================================
-   BUTTONS
-   ================================ */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.9rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.btn:hover {
-  background: var(--bg-soft);
-}
-
-.btn-red {
-  background: var(--red);
-  color: #fff;
-  border-color: var(--red);
-}
-
-/* ================================
    CARDS
    ================================ */
 .card {
@@ -228,40 +202,50 @@ p {
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 .flex-col { display: flex; flex-direction: column; }
 
-/* ================================
-   Fix: Red button active/focus state
-   ================================ */
+/* =================================================
+   PRIMARY BUTTON — FINAL, CANONICAL
+   ================================================= */
 
-.btn-red {
-  background: var(--accent);
-  color: #fff;
-  border: 1px solid var(--accent);
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-/* Prevent grey / dull state on tap */
-.btn-red:hover,
-.btn-red:focus,
-.btn-red:active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+.btn:hover {
+  background: var(--bg-soft);
 }
 
-/* Remove mobile tap highlight */
-.btn-red {
+/* ---- Red Primary Button ---- */
+.btn.btn-red {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.btn.btn-red:hover,
+.btn.btn-red:focus,
+.btn.btn-red:active {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+/* Mobile polish */
+.btn.btn-red {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Optional: subtle press feedback instead of grey */
-.btn-red:active {
+.btn.btn-red:active {
   transform: scale(0.97);
-}
-
-/* ================================
-   MOBILE TAP
-   ================================ */
-button, a {
-  -webkit-tap-highlight-color: transparent;
 }
 
 /* ================================
