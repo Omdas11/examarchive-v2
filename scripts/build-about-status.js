@@ -3,6 +3,7 @@
  *
  * Generates /data/about/status.json
  * from /data/papers.json
+ * Programme → Subject expandable breakdown
  */
 
 const fs = require("fs");
@@ -34,32 +35,62 @@ if (!Array.isArray(papers)) {
   fail("papers.json must be an array");
 }
 
+/* ---------- Helpers ---------- */
+const titleCase = str =>
+  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
 /* ---------- Compute stats ---------- */
 
 const totalPapers = papers.length;
 const totalPDFs = papers.filter(p => p.pdf).length;
 
-const subjectMap = {};
-let latestYear = null;
+let latestPaperDate = null;
+
+/*
+  Structure:
+  {
+    CBCS: { total: 0, subjects: { Physics: 10, Commerce: 1 } },
+    FYUG: { total: 0, subjects: { Physics: 3 } }
+  }
+*/
+const programmeMap = {};
 
 papers.forEach(paper => {
-  const subject = paper.subject || "Unknown";
+  const programme = paper.programme || "UNKNOWN";
+  const subject = titleCase(paper.subject || "Unknown");
 
-  subjectMap[subject] = (subjectMap[subject] || 0) + 1;
+  if (!programmeMap[programme]) {
+    programmeMap[programme] = {
+      total: 0,
+      subjects: {}
+    };
+  }
+
+  programmeMap[programme].total += 1;
+  programmeMap[programme].subjects[subject] =
+    (programmeMap[programme].subjects[subject] || 0) + 1;
 
   if (paper.year) {
-    if (!latestYear || paper.year > latestYear) {
-      latestYear = paper.year;
+    const date = new Date(`${paper.year}-01-01`);
+    if (!latestPaperDate || date > latestPaperDate) {
+      latestPaperDate = date;
     }
   }
 });
 
-/* Convert subject map to sorted list */
-const subjects = Object.keys(subjectMap)
+/* ---------- Convert to UI-friendly structure ---------- */
+
+const breakdownItems = Object.keys(programmeMap)
   .sort()
-  .map(name => ({
-    name,
-    count: subjectMap[name]
+  .map(programme => ({
+    programme,
+    count: programmeMap[programme].total,
+    subjects: Object.keys(programmeMap[programme].subjects)
+      .sort()
+      .map(name => ({
+        name,
+        count: programmeMap[programme].subjects[name]
+      }))
   }));
 
 /* ---------- Build output ---------- */
@@ -70,23 +101,19 @@ const output = {
   totals: {
     papers: totalPapers,
     pdfs: totalPDFs,
-    subjects: subjects.length
+    subjects: new Set(
+      papers.map(p => p.subject || "Unknown")
+    ).size
   },
 
   breakdown: {
-    group_by: "subject",
-    items: subjects
+    group_by: "programme → subject",
+    items: breakdownItems
   },
 
-  last_content_update: latestYear
-    ? `Papers up to ${latestYear}`
-    : "—",
-
-  last_system_update: new Date().toLocaleDateString("en-IN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  })
+  last_content_update: latestPaperDate
+    ? latestPaperDate.toISOString()
+    : null
 };
 
 /* ---------- Write status.json ---------- */
