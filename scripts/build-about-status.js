@@ -2,64 +2,55 @@
  * build-about-status.js
  *
  * Generates /data/about/status.json
- * with programme → subject breakdown
+ * from /data/papers.json
  */
 
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = process.cwd();
-const PAPERS = path.join(ROOT, "data/papers.json");
-const OUTPUT = path.join(ROOT, "data/about/status.json");
+const PAPERS_FILE = path.join(ROOT, "data/papers.json");
+const OUTPUT_FILE = path.join(ROOT, "data/about/status.json");
 
 function fail(msg) {
-  console.error("❌ build-about-status:", msg);
+  console.error("❌ Status generator error:");
+  console.error(msg);
   process.exit(1);
 }
 
-if (!fs.existsSync(PAPERS)) fail("papers.json missing");
+const papers = JSON.parse(fs.readFileSync(PAPERS_FILE, "utf8"));
 
-const papers = JSON.parse(fs.readFileSync(PAPERS, "utf8"));
-
+/* ---------- Totals ---------- */
 const totals = {
   papers: papers.length,
   pdfs: papers.filter(p => p.pdf).length,
   subjects: new Set(papers.map(p => p.subject)).size
 };
 
-// programme → subject → count
-const map = {};
+/* ---------- Breakdown by programme ---------- */
+const byProgramme = {};
 
 papers.forEach(p => {
-  const programme = p.programme || "UNKNOWN";
-  const subject = (p.subject || "unknown").toUpperCase();
+  const prog = p.programme || "Unknown";
+  const subj = p.subject || "Unknown";
 
-  if (!map[programme]) map[programme] = {};
-  map[programme][subject] = (map[programme][subject] || 0) + 1;
+  if (!byProgramme[prog]) {
+    byProgramme[prog] = { total: 0, subjects: {} };
+  }
+
+  byProgramme[prog].total += 1;
+  byProgramme[prog].subjects[subj] =
+    (byProgramme[prog].subjects[subj] || 0) + 1;
 });
 
-// Flatten for UI
-const items = [];
-
-Object.entries(map).forEach(([programme, subjects]) => {
-  Object.entries(subjects).forEach(([subject, count]) => {
-    items.push({
-      name: `${programme}:${subject}`,
-      count
-    });
-  });
-});
-
+/* ---------- Output ---------- */
 const output = {
   generated_at: new Date().toISOString(),
-
   totals,
-
   breakdown: {
-    group_by: "programme_subject",
-    items
+    by_programme: byProgramme
   }
 };
 
-fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2));
-console.log("✅ about/status.json generated");
+fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
+console.log("✅ About status generated");
