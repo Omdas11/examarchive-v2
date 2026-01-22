@@ -4,7 +4,7 @@
   "stream": "science",
   "level": "UG",
 
-  "code_pattern": "^AU-FYUG-(PHYDSC\\d{3})([AB]?T)-(\\d{4})\\.pdf$",
+  "code_pattern": "^AU-FYUG-(PHYDSC\\d{3}[AB]?T)-(\\d{4})\\.pdf$",
 
   "papers": [
     {
