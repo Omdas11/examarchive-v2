@@ -113,6 +113,18 @@
   },
   {
     "university": "Assam University",
+    "paper_codes": [
+      null
+    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
+    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC-201T-2021.pdf",
+    "year": null
+  },
+  {
+    "university": "Assam University",
     "programme": "CBCS",
     "subject": "physics",
     "stream": "science",
