@@ -6,157 +6,13 @@
     "stream": "commerce",
     "level": "UG",
     "paper_codes": [
-      "COMDSC302T"
-    ],
-    "paper_names": [
-      "Income Tax Law and Practice"
-    ],
-    "semester": 3,
-    "course_type": "DSC",
-    "tags": [
-      "taxation"
-    ],
-    "pdf": "/examarchive-v2/papers/assam-university/cbcs/commerce/AU-CBCS-COMDSC302T-2022.pdf",
-    "year": 2022
-  },
-  {
-    "university": "Assam University",
-    "programme": "CBCS",
-    "subject": "physics",
-    "stream": "science",
-    "level": "UG",
-    "paper_codes": [
-      "PHSDSE501T"
-    ],
-    "paper_names": [
-      "Classical Dynamics / Biological Physics"
-    ],
-    "semester": 5,
-    "course_type": "DSE",
-    "tags": [
-      "elective"
-    ],
-    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE501T-2021.pdf",
-    "year": 2021
-  },
-  {
-    "university": "Assam University",
-    "programme": "CBCS",
-    "subject": "physics",
-    "stream": "science",
-    "level": "UG",
-    "paper_codes": [
-      "PHSDSE501T"
-    ],
-    "paper_names": [
-      "Classical Dynamics / Biological Physics"
-    ],
-    "semester": 5,
-    "course_type": "DSE",
-    "tags": [
-      "elective"
-    ],
-    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE501T-2022.pdf",
-    "year": 2022
-  },
-  {
-    "university": "Assam University",
-    "programme": "CBCS",
-    "subject": "physics",
-    "stream": "science",
-    "level": "UG",
-    "paper_codes": [
-      "PHSDSE502T"
-    ],
-    "paper_names": [
-      "Nuclear and Particle Physics / Advanced Mathematical Physics"
-    ],
-    "semester": 5,
-    "course_type": "DSE",
-    "tags": [
-      "nuclear physics",
-      "particle physics"
-    ],
-    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE502T-2021.pdf",
-    "year": 2021
-  },
-  {
-    "university": "Assam University",
-    "programme": "CBCS",
-    "subject": "physics",
-    "stream": "science",
-    "level": "UG",
-    "paper_codes": [
-      "PHSDSE502T"
-    ],
-    "paper_names": [
-      "Nuclear and Particle Physics / Advanced Mathematical Physics"
-    ],
-    "semester": 5,
-    "course_type": "DSE",
-    "tags": [
-      "nuclear physics",
-      "particle physics"
-    ],
-    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE502T-2022.pdf",
-    "year": 2022
-  },
-  {
-    "university": "Assam University",
-    "programme": "CBCS",
-    "subject": "physics",
-    "stream": "science",
-    "level": "UG",
-    "paper_codes": [
-      "PHSDSE601T"
-    ],
-    "paper_names": [
-      "Astronomy and Astrophysics / Nano-materials and Applications"
-    ],
-    "semester": 6,
-    "course_type": "DSE",
-    "tags": [
-      "astronomy",
-      "nanoscience"
-    ],
-    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE601T-2024.pdf",
-    "year": 2024
-  },
-  {
-    "university": "Assam University",
-    "programme": "CBCS",
-    "subject": "physics",
-    "stream": "science",
-    "level": "UG",
-    "paper_codes": [
-      "PHSDSE601T"
-    ],
-    "paper_names": [
-      "Astronomy and Astrophysics / Nano-materials and Applications"
-    ],
-    "semester": 6,
-    "course_type": "DSE",
-    "tags": [
-      "astronomy",
-      "nanoscience"
-    ],
-    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE601T-2025.pdf",
-    "year": 2025
-  },
-  {
-    "university": "Assam University",
-    "programme": "FYUG",
-    "subject": "chemistry",
-    "stream": "science",
-    "level": "UG",
-    "paper_codes": [
-      null
+      "COMDSC302"
     ],
     "paper_names": [],
     "semester": null,
     "course_type": null,
     "tags": [],
-    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC-201T-2021.pdf",
+    "pdf": "/examarchive-v2/papers/assam-university/cbcs/commerce/AU-CBCS-COMDSC302T-2022.pdf",
     "year": null
   },
   {
@@ -166,18 +22,110 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC101T"
+      "PHSDSE501"
     ],
-    "paper_names": [
-      "Mathematical Physics - I"
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
+    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE501T-2021.pdf",
+    "year": null
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHSDSE501"
     ],
-    "semester": 1,
-    "course_type": "HCC",
-    "tags": [
-      "mathematical physics"
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
+    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE501T-2022.pdf",
+    "year": null
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHSDSE502"
     ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
+    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE502T-2021.pdf",
+    "year": null
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHSDSE502"
+    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
+    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE502T-2022.pdf",
+    "year": null
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHSDSE601"
+    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
+    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE601T-2024.pdf",
+    "year": null
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHSDSE601"
+    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
+    "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE601T-2025.pdf",
+    "year": null
+  },
+  {
+    "university": "Assam University",
+    "programme": "CBCS",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHSHCC101"
+    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC101T-2024.pdf",
-    "year": 2024
+    "year": null
   },
   {
     "university": "Assam University",
@@ -186,18 +134,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC102T"
+      "PHSHCC102"
     ],
-    "paper_names": [
-      "Mechanics"
-    ],
-    "semester": 1,
-    "course_type": "HCC",
-    "tags": [
-      "mechanics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC102T-2024.pdf",
-    "year": 2024
+    "year": null
   },
   {
     "university": "Assam University",
@@ -206,19 +150,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC201T"
+      "PHSHCC201"
     ],
-    "paper_names": [
-      "Electricity and Magnetism"
-    ],
-    "semester": 2,
-    "course_type": "HCC",
-    "tags": [
-      "electricity",
-      "magnetism"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC201T-2021.pdf",
-    "year": 2021
+    "year": null
   },
   {
     "university": "Assam University",
@@ -227,19 +166,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC201T"
+      "PHSHCC201"
     ],
-    "paper_names": [
-      "Electricity and Magnetism"
-    ],
-    "semester": 2,
-    "course_type": "HCC",
-    "tags": [
-      "electricity",
-      "magnetism"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC201T-2022.pdf",
-    "year": 2022
+    "year": null
   },
   {
     "university": "Assam University",
@@ -248,19 +182,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC201T"
+      "PHSHCC201"
     ],
-    "paper_names": [
-      "Electricity and Magnetism"
-    ],
-    "semester": 2,
-    "course_type": "HCC",
-    "tags": [
-      "electricity",
-      "magnetism"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC201T-2023.pdf",
-    "year": 2023
+    "year": null
   },
   {
     "university": "Assam University",
@@ -269,19 +198,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC202T"
+      "PHSHCC202"
     ],
-    "paper_names": [
-      "Waves and Optics"
-    ],
-    "semester": 2,
-    "course_type": "HCC",
-    "tags": [
-      "waves",
-      "optics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC202T-2022.pdf",
-    "year": 2022
+    "year": null
   },
   {
     "university": "Assam University",
@@ -290,18 +214,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC301T"
+      "PHSHCC301"
     ],
-    "paper_names": [
-      "Mathematical Physics - II"
-    ],
-    "semester": 3,
-    "course_type": "HCC",
-    "tags": [
-      "mathematical physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC301T-2020.pdf",
-    "year": 2020
+    "year": null
   },
   {
     "university": "Assam University",
@@ -310,18 +230,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC301T"
+      "PHSHCC301"
     ],
-    "paper_names": [
-      "Mathematical Physics - II"
-    ],
-    "semester": 3,
-    "course_type": "HCC",
-    "tags": [
-      "mathematical physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC301T-2021.pdf",
-    "year": 2021
+    "year": null
   },
   {
     "university": "Assam University",
@@ -330,18 +246,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC303T"
+      "PHSHCC303"
     ],
-    "paper_names": [
-      "Digital Systems and Applications"
-    ],
-    "semester": 3,
-    "course_type": "HCC",
-    "tags": [
-      "digital electronics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC303T-2021.pdf",
-    "year": 2021
+    "year": null
   },
   {
     "university": "Assam University",
@@ -350,18 +262,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC401T"
+      "PHSHCC401"
     ],
-    "paper_names": [
-      "Mathematical Physics - III"
-    ],
-    "semester": 4,
-    "course_type": "HCC",
-    "tags": [
-      "mathematical physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC401T-2022.pdf",
-    "year": 2022
+    "year": null
   },
   {
     "university": "Assam University",
@@ -370,18 +278,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC401T"
+      "PHSHCC401"
     ],
-    "paper_names": [
-      "Mathematical Physics - III"
-    ],
-    "semester": 4,
-    "course_type": "HCC",
-    "tags": [
-      "mathematical physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC401T-2023.pdf",
-    "year": 2023
+    "year": null
   },
   {
     "university": "Assam University",
@@ -390,18 +294,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC402T"
+      "PHSHCC402"
     ],
-    "paper_names": [
-      "Elements of Modern Physics"
-    ],
-    "semester": 4,
-    "course_type": "HCC",
-    "tags": [
-      "modern physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC402T-2022.pdf",
-    "year": 2022
+    "year": null
   },
   {
     "university": "Assam University",
@@ -410,18 +310,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC402T"
+      "PHSHCC402"
     ],
-    "paper_names": [
-      "Elements of Modern Physics"
-    ],
-    "semester": 4,
-    "course_type": "HCC",
-    "tags": [
-      "modern physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC402T-2023.pdf",
-    "year": 2023
+    "year": null
   },
   {
     "university": "Assam University",
@@ -430,18 +326,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC403T"
+      "PHSHCC403"
     ],
-    "paper_names": [
-      "Analog Systems and Applications"
-    ],
-    "semester": 4,
-    "course_type": "HCC",
-    "tags": [
-      "analog electronics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC403T-2022.pdf",
-    "year": 2022
+    "year": null
   },
   {
     "university": "Assam University",
@@ -450,18 +342,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC501T"
+      "PHSHCC501"
     ],
-    "paper_names": [
-      "Quantum Mechanics and Applications"
-    ],
-    "semester": 5,
-    "course_type": "HCC",
-    "tags": [
-      "quantum mechanics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC501T-2020.pdf",
-    "year": 2020
+    "year": null
   },
   {
     "university": "Assam University",
@@ -470,18 +358,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC501T"
+      "PHSHCC501"
     ],
-    "paper_names": [
-      "Quantum Mechanics and Applications"
-    ],
-    "semester": 5,
-    "course_type": "HCC",
-    "tags": [
-      "quantum mechanics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC501T-2021.pdf",
-    "year": 2021
+    "year": null
   },
   {
     "university": "Assam University",
@@ -490,18 +374,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC502T"
+      "PHSHCC502"
     ],
-    "paper_names": [
-      "Solid State Physics"
-    ],
-    "semester": 5,
-    "course_type": "HCC",
-    "tags": [
-      "solid state physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC502T-2020.pdf",
-    "year": 2020
+    "year": null
   },
   {
     "university": "Assam University",
@@ -510,18 +390,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC502T"
+      "PHSHCC502"
     ],
-    "paper_names": [
-      "Solid State Physics"
-    ],
-    "semester": 5,
-    "course_type": "HCC",
-    "tags": [
-      "solid state physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC502T-2021.pdf",
-    "year": 2021
+    "year": null
   },
   {
     "university": "Assam University",
@@ -530,18 +406,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC502T"
+      "PHSHCC502"
     ],
-    "paper_names": [
-      "Solid State Physics"
-    ],
-    "semester": 5,
-    "course_type": "HCC",
-    "tags": [
-      "solid state physics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC502T-2022.pdf",
-    "year": 2022
+    "year": null
   },
   {
     "university": "Assam University",
@@ -550,18 +422,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC601T"
+      "PHSHCC601"
     ],
-    "paper_names": [
-      "Electromagnetic Theory"
-    ],
-    "semester": 6,
-    "course_type": "HCC",
-    "tags": [
-      "electromagnetic theory"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC601T-2021.pdf",
-    "year": 2021
+    "year": null
   },
   {
     "university": "Assam University",
@@ -570,18 +438,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC601T"
+      "PHSHCC601"
     ],
-    "paper_names": [
-      "Electromagnetic Theory"
-    ],
-    "semester": 6,
-    "course_type": "HCC",
-    "tags": [
-      "electromagnetic theory"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC601T-2023.pdf",
-    "year": 2023
+    "year": null
   },
   {
     "university": "Assam University",
@@ -590,18 +454,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC601T"
+      "PHSHCC601"
     ],
-    "paper_names": [
-      "Electromagnetic Theory"
-    ],
-    "semester": 6,
-    "course_type": "HCC",
-    "tags": [
-      "electromagnetic theory"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC601T-2024.pdf",
-    "year": 2024
+    "year": null
   },
   {
     "university": "Assam University",
@@ -610,18 +470,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC602T"
+      "PHSHCC602"
     ],
-    "paper_names": [
-      "Statistical Mechanics"
-    ],
-    "semester": 6,
-    "course_type": "HCC",
-    "tags": [
-      "statistical mechanics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC602T-2021.pdf",
-    "year": 2021
+    "year": null
   },
   {
     "university": "Assam University",
@@ -630,18 +486,14 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC602T"
+      "PHSHCC602"
     ],
-    "paper_names": [
-      "Statistical Mechanics"
-    ],
-    "semester": 6,
-    "course_type": "HCC",
-    "tags": [
-      "statistical mechanics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC602T-2023.pdf",
-    "year": 2023
+    "year": null
   },
   {
     "university": "Assam University",
@@ -650,27 +502,23 @@
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      "PHSHCC602T"
+      "PHSHCC602"
     ],
-    "paper_names": [
-      "Statistical Mechanics"
-    ],
-    "semester": 6,
-    "course_type": "HCC",
-    "tags": [
-      "statistical mechanics"
-    ],
+    "paper_names": [],
+    "semester": null,
+    "course_type": null,
+    "tags": [],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC602T-2024.pdf",
-    "year": 2024
+    "year": null
   },
   {
     "university": "Assam University",
     "programme": "FYUG",
-    "subject": "chemistry",
+    "subject": "physics",
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      null
+      "PHYDSC101"
     ],
     "paper_names": [],
     "semester": null,
@@ -682,11 +530,11 @@
   {
     "university": "Assam University",
     "programme": "FYUG",
-    "subject": "chemistry",
+    "subject": "physics",
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      null
+      "PHYDSC101"
     ],
     "paper_names": [],
     "semester": null,
@@ -698,11 +546,11 @@
   {
     "university": "Assam University",
     "programme": "FYUG",
-    "subject": "chemistry",
+    "subject": "physics",
     "stream": "science",
     "level": "UG",
     "paper_codes": [
-      null
+      "PHYDSC102"
     ],
     "paper_names": [],
     "semester": null,
