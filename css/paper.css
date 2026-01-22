@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – paper.css
-   Paper detail page styles
+   Paper detail page (FINAL CLEAN)
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -33,28 +33,18 @@
   margin-bottom: 0.8rem;
 }
 
+/* ---------- Tags / Chips ---------- */
 .chip {
   font-size: 0.75rem;
   padding: 0.25rem 0.55rem;
   border-radius: 999px;
   background: var(--bg-soft);
   color: var(--text-muted);
+  border: 1px solid var(--border);
+  white-space: nowrap;
 }
 
-/* ---------- Buttons ---------- */
-.btn {
-  display: inline-block;
-  padding: 0.55rem 0.8rem;
-  font-size: 0.85rem;
-  border-radius: var(--radius-sm);
-  text-align: center;
-}
-
-.btn-red {
-  background: var(--red);
-  color: #fff;
-}
-
+/* ---------- Utility ---------- */
 .full-width {
   width: 100%;
 }
@@ -99,9 +89,14 @@
   color: var(--text);
 }
 
+/* ---------- Red Link ---------- */
 .link-red {
   color: var(--red);
   font-size: 0.85rem;
+}
+
+.link-red:hover {
+  text-decoration: underline;
 }
 
 /* ---------- Syllabus ---------- */
@@ -134,7 +129,6 @@
   background: var(--surface);
 }
 
-/* Header layout fix */
 .syllabus-header {
   display: flex;
   align-items: center;
@@ -148,7 +142,6 @@
   color: var(--text);
 }
 
-/* Right-side badge (Hours) */
 .syllabus-lectures {
   font-size: 0.75rem;
   padding: 0.15rem 0.5rem;
@@ -159,7 +152,6 @@
   white-space: nowrap;
 }
 
-/* Content */
 .syllabus-content {
   padding: 0.6rem 1rem 0.8rem;
 }
@@ -206,7 +198,6 @@
   padding: 0.8rem 1rem;
 }
 
-/* Main question */
 .rq-question {
   display: flex;
   gap: 0.4rem;
@@ -216,24 +207,21 @@
   align-items: flex-start;
 }
 
-/* Sub-parts (a), (b), (c) */
 .rq-part {
   display: flex;
   gap: 0.4rem;
   font-size: 0.85rem;
   margin-bottom: 0.35rem;
-  margin-left: 1.4rem; /* hierarchy indent */
+  margin-left: 1.4rem;
   color: var(--text);
   align-items: flex-start;
 }
 
-/* Question number */
 .rq-number {
   font-weight: 600;
   min-width: 1.6rem;
 }
 
-/* Marks badge */
 .rq-marks {
   margin-left: auto;
   font-size: 0.7rem;
@@ -245,7 +233,6 @@
   white-space: nowrap;
 }
 
-/* OR divider */
 .rq-or {
   text-align: center;
   font-size: 0.75rem;
@@ -265,7 +252,7 @@
   background: var(--bg-soft);
 }
 
-/* ---------- Dark / Night Theme Fix ---------- */
+/* ---------- Theme Safety ---------- */
 body[data-theme="dark"] .paper-row,
 body[data-theme="amoled"] .paper-row,
 body[data-night="on"] .paper-row {
