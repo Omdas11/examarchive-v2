@@ -1,13 +1,17 @@
 {
-  "generated_at": "2026-01-22T07:33:26.807Z",
+  "generated_at": "2026-01-22T07:44:20.666Z",
   "totals": {
-    "papers": 35,
-    "pdfs": 35,
-    "subjects": 2
+    "papers": 36,
+    "pdfs": 36,
+    "subjects": 3
   },
   "breakdown": {
     "group_by": "subject",
     "items": [
+      {
+        "name": "Unknown",
+        "count": 1
+      },
       {
         "name": "commerce",
         "count": 1
