@@ -229,6 +229,35 @@ p {
 .flex-col { display: flex; flex-direction: column; }
 
 /* ================================
+   Fix: Red button active/focus state
+   ================================ */
+
+.btn-red {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+}
+
+/* Prevent grey / dull state on tap */
+.btn-red:hover,
+.btn-red:focus,
+.btn-red:active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Remove mobile tap highlight */
+.btn-red {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Optional: subtle press feedback instead of grey */
+.btn-red:active {
+  transform: scale(0.97);
+}
+
+/* ================================
    MOBILE TAP
    ================================ */
 button, a {
