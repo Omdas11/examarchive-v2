@@ -2,114 +2,64 @@
  * build-about-status.js
  *
  * Generates /data/about/status.json
- * from /data/papers.json
- *
- * Structure:
- * - totals
- * - breakdown by programme → subject
- * - generated_at timestamp (authoritative content update time)
+ * with programme → subject breakdown
  */
 
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = process.cwd();
-const PAPERS_FILE = path.join(ROOT, "data/papers.json");
-const OUTPUT_FILE = path.join(ROOT, "data/about/status.json");
+const PAPERS = path.join(ROOT, "data/papers.json");
+const OUTPUT = path.join(ROOT, "data/about/status.json");
 
 function fail(msg) {
-  console.error("❌ About status generator error:");
-  console.error(msg);
+  console.error("❌ build-about-status:", msg);
   process.exit(1);
 }
 
-/* ---------------- Load papers.json ---------------- */
+if (!fs.existsSync(PAPERS)) fail("papers.json missing");
 
-if (!fs.existsSync(PAPERS_FILE)) {
-  fail("Missing data/papers.json");
-}
+const papers = JSON.parse(fs.readFileSync(PAPERS, "utf8"));
 
-let papers;
-try {
-  papers = JSON.parse(fs.readFileSync(PAPERS_FILE, "utf8"));
-} catch {
-  fail("Invalid JSON in papers.json");
-}
+const totals = {
+  papers: papers.length,
+  pdfs: papers.filter(p => p.pdf).length,
+  subjects: new Set(papers.map(p => p.subject)).size
+};
 
-if (!Array.isArray(papers)) {
-  fail("papers.json must be an array");
-}
+// programme → subject → count
+const map = {};
 
-/* ---------------- Compute totals ---------------- */
+papers.forEach(p => {
+  const programme = p.programme || "UNKNOWN";
+  const subject = (p.subject || "unknown").toUpperCase();
 
-const totalPapers = papers.length;
-const totalPDFs = papers.filter(p => typeof p.pdf === "string").length;
-
-/* ---------------- Programme → Subject breakdown ---------------- */
-
-const programmeMap = {};
-
-papers.forEach(paper => {
-  const programme = paper.programme || "UNKNOWN";
-  const subject = paper.subject || "unknown";
-
-  if (!programmeMap[programme]) {
-    programmeMap[programme] = {
-      total: 0,
-      subjects: {}
-    };
-  }
-
-  programmeMap[programme].total += 1;
-
-  programmeMap[programme].subjects[subject] =
-    (programmeMap[programme].subjects[subject] || 0) + 1;
+  if (!map[programme]) map[programme] = {};
+  map[programme][subject] = (map[programme][subject] || 0) + 1;
 });
 
-/* Normalize breakdown structure */
-const programmes = {};
+// Flatten for UI
+const items = [];
 
-Object.keys(programmeMap).forEach(programme => {
-  const subjects = Object.keys(programmeMap[programme].subjects)
-    .sort()
-    .map(name => ({
-      name,
-      count: programmeMap[programme].subjects[name]
-    }));
-
-  programmes[programme] = {
-    total: programmeMap[programme].total,
-    subjects
-  };
+Object.entries(map).forEach(([programme, subjects]) => {
+  Object.entries(subjects).forEach(([subject, count]) => {
+    items.push({
+      name: `${programme}:${subject}`,
+      count
+    });
+  });
 });
-
-/* ---------------- Build output ---------------- */
 
 const output = {
   generated_at: new Date().toISOString(),
 
-  totals: {
-    papers: totalPapers,
-    pdfs: totalPDFs,
-    subjects: new Set(papers.map(p => p.subject)).size
-  },
+  totals,
 
   breakdown: {
-    programmes
+    group_by: "programme_subject",
+    items
   }
 };
 
-/* ---------------- Write status.json ---------------- */
-
-try {
-  fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
-  fs.writeFileSync(
-    OUTPUT_FILE,
-    JSON.stringify(output, null, 2) + "\n",
-    "utf8"
-  );
-} catch {
-  fail("Unable to write status.json");
-}
-
-console.log("✅ About status generated successfully.");
+fs.writeFileSync(OUTPUT, JSON.stringify(output, null, 2));
+console.log("✅ about/status.json generated");
