@@ -646,5 +646,66 @@
     ],
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC602T-2024.pdf",
     "year": 2024
+  },
+  {
+    "university": "Assam University",
+    "programme": "FYUG",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHYDSC101T"
+    ],
+    "paper_names": [
+      "Mathematical Physics - I"
+    ],
+    "semester": 1,
+    "course_type": "DSC",
+    "tags": [
+      "mathematical physics"
+    ],
+    "pdf": "/examarchive-v2/papers/assam-university/fyug/physics/AU-FYUG-PHYDSC101T-2023.pdf",
+    "year": 2023
+  },
+  {
+    "university": "Assam University",
+    "programme": "FYUG",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHYDSC101T"
+    ],
+    "paper_names": [
+      "Mathematical Physics - I"
+    ],
+    "semester": 1,
+    "course_type": "DSC",
+    "tags": [
+      "mathematical physics"
+    ],
+    "pdf": "/examarchive-v2/papers/assam-university/fyug/physics/AU-FYUG-PHYDSC101T-2024.pdf",
+    "year": 2024
+  },
+  {
+    "university": "Assam University",
+    "programme": "FYUG",
+    "subject": "physics",
+    "stream": "science",
+    "level": "UG",
+    "paper_codes": [
+      "PHYDSC102T"
+    ],
+    "paper_names": [
+      "Mechanics and Relativity"
+    ],
+    "semester": 1,
+    "course_type": "DSC",
+    "tags": [
+      "mechanics",
+      "relativity"
+    ],
+    "pdf": "/examarchive-v2/papers/assam-university/fyug/physics/AU-FYUG-PHYDSC102T-2023.pdf",
+    "year": 2023
   }
 ]
