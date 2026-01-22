@@ -20,7 +20,7 @@
   <main class="about-page">
 
     <!-- =====================
-         INTRO / TRUTH SECTION
+         INTRO
          ===================== -->
     <section class="about-intro">
       <h1>About ExamArchive</h1>
@@ -59,13 +59,13 @@
     </section>
 
     <!-- =====================
-         LIVE PROJECT STATUS
+         PROJECT STATUS
          ===================== -->
     <section class="about-status">
       <h2>Project Status</h2>
 
       <p class="section-note">
-        This section is intended to auto-update based on repository data.
+        This section auto-updates based on repository data.
       </p>
 
       <ul class="status-list">
@@ -78,6 +78,20 @@
     </section>
 
     <!-- =====================
+         PDFs BREAKDOWN
+         ===================== -->
+    <section class="about-breakdown">
+      <h2>PDFs Breakdown</h2>
+
+      <details class="breakdown-box">
+        <summary>View breakdown of PDFs</summary>
+
+        <!-- JS renders programme → subject tree here -->
+        <div id="breakdown-content"></div>
+      </details>
+    </section>
+
+    <!-- =====================
          PROJECT TIMELINE
          ===================== -->
     <section class="about-timeline">
@@ -87,8 +101,8 @@
         This timeline is generated automatically from project history data.
       </p>
 
-      <!-- Timeline rendered dynamically from timeline.json -->
-      <div class="timeline"></div>
+      <!-- Timeline injected here -->
+      <div class="timeline" aria-live="polite"></div>
     </section>
 
     <!-- =====================
@@ -115,7 +129,7 @@
     </section>
 
     <!-- =====================
-         TRANSPARENCY NOTE
+         TRANSPARENCY
          ===================== -->
     <section class="about-transparency">
       <h2>Transparency</h2>
