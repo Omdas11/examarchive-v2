@@ -4,10 +4,9 @@
   "stream": "commerce",
   "level": "UG",
 
-  "code_pattern": "^AU-CBCS-(COM[A-Z]{3}\\d{3}T)-(\\d{4})\\.pdf$",
+  "code_pattern": "^AU-CBCS-(COM[A-Z]{3}\\d{3})([AB]?T)-(\\d{4})\\.pdf$",
 
   "papers": [
-
     {
       "paper_code": "COMAEC101T",
       "paper_name": "Language / Modern Indian Language",
