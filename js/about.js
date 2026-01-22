@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-  /* ---------- Helpers ---------- */
+  /* ==================================================
+     HELPERS
+     ================================================== */
   function formatIST(dateString) {
     if (!dateString) return "—";
     const d = new Date(dateString);
@@ -15,78 +17,119 @@ document.addEventListener("DOMContentLoaded", async () => {
     }) + " IST";
   }
 
-  /* ---------- STATUS ---------- */
-  const statusRes = await fetch("./data/about/status.json");
-  const status = await statusRes.json();
+  /* ==================================================
+     PROJECT STATUS
+     ================================================== */
+  let status;
+  try {
+    const res = await fetch("./data/about/status.json");
+    if (!res.ok) throw new Error("status.json not found");
+    status = await res.json();
+  } catch {
+    return;
+  }
 
-  document.querySelector('[data-stat="papers"]').textContent = status.totals.papers;
-  document.querySelector('[data-stat="pdfs"]').textContent = status.totals.pdfs;
-  document.querySelector('[data-stat="subjects"]').textContent = status.totals.subjects;
+  document.querySelector('[data-stat="papers"]').textContent =
+    status.totals?.papers ?? "—";
+
+  document.querySelector('[data-stat="pdfs"]').textContent =
+    status.totals?.pdfs ?? "—";
+
+  document.querySelector('[data-stat="subjects"]').textContent =
+    status.totals?.subjects ?? "—";
+
   document.querySelector('[data-stat="content-update"]').textContent =
     formatIST(status.generated_at);
+
   document.querySelector('[data-stat="system-update"]').textContent =
     formatIST(status.generated_at);
 
-  /* ---------- PDFs Breakdown ---------- */
-  const breakdownEl = document.getElementById("pdfBreakdown");
+  /* ==================================================
+     PDFs BREAKDOWN
+     ================================================== */
+  const breakdownWrapper = document.getElementById("pdfBreakdown");
   const toggleBtn = document.getElementById("toggleBreakdown");
 
-  toggleBtn.onclick = () => {
-    breakdownEl.classList.toggle("hidden");
-  };
+  if (toggleBtn && breakdownWrapper) {
+    toggleBtn.classList.add("breakdown-toggle");
 
-  const byProg = status.breakdown.by_programme;
+    toggleBtn.onclick = () => {
+      breakdownWrapper.classList.toggle("hidden");
+    };
 
-  Object.entries(byProg).forEach(([programme, data]) => {
-    const section = document.createElement("div");
-    section.className = "programme-block";
+    const byProgramme = status.breakdown?.by_programme || {};
 
-    const header = document.createElement("div");
-    header.className = "programme-header";
-    header.innerHTML = `
-      <span>${programme}</span>
-      <span class="count-circle">${data.total}</span>
-    `;
-    section.appendChild(header);
+    Object.entries(byProgramme).forEach(([programme, data]) => {
+      const block = document.createElement("div");
+      block.className = "programme-block";
 
-    const list = document.createElement("ul");
-    list.className = "subject-list";
-
-    Object.entries(data.subjects).forEach(([subject, count]) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span>${subject}</span>
-        <span class="count-circle small">${count}</span>
+      block.innerHTML = `
+        <div class="programme-header">
+          <span>${programme}</span>
+          <span class="count-circle">${data.total}</span>
+        </div>
       `;
-      list.appendChild(li);
+
+      const list = document.createElement("ul");
+      list.className = "subject-list";
+
+      Object.entries(data.subjects).forEach(([subject, count]) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span>${subject.toUpperCase()}</span>
+          <span class="count-circle small">${count}</span>
+        `;
+        list.appendChild(li);
+      });
+
+      block.appendChild(list);
+      breakdownWrapper.appendChild(block);
     });
+  }
 
-    section.appendChild(list);
-    breakdownEl.appendChild(section);
-  });
-
-  /* ---------- TIMELINE ---------- */
+  /* ==================================================
+     PROJECT TIMELINE
+     ================================================== */
   const timelineEl = document.querySelector(".timeline");
-  const timelineRes = await fetch("./data/about/timeline.json");
-  const timeline = await timelineRes.json();
+  if (!timelineEl) return;
 
-  if (!timeline.length) {
+  let timeline;
+  try {
+    const res = await fetch("./data/about/timeline.json");
+    if (!res.ok) throw new Error("timeline.json not found");
+    timeline = await res.json();
+  } catch {
+    timelineEl.innerHTML =
+      "<p class='section-note'>Timeline unavailable.</p>";
+    return;
+  }
+
+  if (!Array.isArray(timeline) || timeline.length === 0) {
     timelineEl.innerHTML =
       "<p class='section-note'>No milestones added yet.</p>";
     return;
   }
 
-  timeline.reverse().forEach(item => {
-    const div = document.createElement("div");
-    div.className = "timeline-item";
-    div.innerHTML = `
-      <div class="timeline-dot"></div>
-      <div class="timeline-content">
-        <h4>${item.title}</h4>
-        <span class="timeline-date">${item.date}</span>
-        <p>${item.description}</p>
-      </div>
-    `;
-    timelineEl.appendChild(div);
-  });
+  timelineEl.innerHTML = "";
+  timelineEl.classList.add("is-visible");
+
+  timeline
+    .slice()
+    .reverse()
+    .forEach(item => {
+      const div = document.createElement("div");
+      div.className = "timeline-item";
+
+      div.innerHTML = `
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>${item.title}</h4>
+          <span class="timeline-date">${item.date}</span>
+          <p>${item.description}</p>
+        </div>
+      `;
+
+      timelineEl.appendChild(div);
+      requestAnimationFrame(() => div.classList.add("is-visible"));
+    });
 });
