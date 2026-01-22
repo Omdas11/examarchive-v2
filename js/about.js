@@ -21,43 +21,69 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   }
 
-/* ---------- STATUS ---------- */
-const statusRes = await fetch("./data/about/status.json");
-const status = await statusRes.json();
+  /* ==================================================
+     RATE-LIMIT SAFE SYSTEM UPDATE (GitHub)
+     ================================================== */
+  const COMMIT_CACHE_KEY = "examarchive:lastCommit";
+  const COMMIT_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
 
-/* Totals */
-document.querySelector('[data-stat="papers"]').textContent =
-  status.totals.papers;
+  async function getLastSystemUpdate() {
+    try {
+      const cached = JSON.parse(localStorage.getItem(COMMIT_CACHE_KEY));
+      if (cached && Date.now() - cached.time < COMMIT_CACHE_TTL) {
+        return cached.date;
+      }
 
-document.querySelector('[data-stat="pdfs"]').textContent =
-  status.totals.pdfs;
+      const repo = "omdas11/examarchive-v2";
+      const res = await fetch(
+        `https://api.github.com/repos/${repo}/commits?per_page=1`
+      );
 
-document.querySelector('[data-stat="subjects"]').textContent =
-  status.totals.subjects;
+      if (!res.ok) throw new Error("GitHub rate limit");
 
-/* ---------- Last Content Update ---------- */
-/* Uses build-about-status.js timestamp */
-document.querySelector('[data-stat="content-update"]').textContent =
-  formatIST(status.generated_at);
+      const data = await res.json();
+      const date = data[0]?.commit?.committer?.date;
 
-/* ---------- Last System Update (GitHub) ---------- */
-try {
-  const repo = "omdas11/examarchive-v2";
-  const apiRes = await fetch(
-    `https://api.github.com/repos/${repo}/commits?per_page=1`
-  );
+      if (date) {
+        localStorage.setItem(
+          COMMIT_CACHE_KEY,
+          JSON.stringify({ date, time: Date.now() })
+        );
+      }
 
-  if (!apiRes.ok) throw new Error("GitHub API failed");
+      return date || null;
 
-  const commits = await apiRes.json();
-  const lastCommitDate = commits[0]?.commit?.committer?.date;
+    } catch {
+      return null;
+    }
+  }
 
-  document.querySelector('[data-stat="system-update"]').textContent =
-    formatIST(lastCommitDate);
+  /* ==================================================
+     PROJECT STATUS
+     ================================================== */
+  try {
+    const statusRes = await fetch("./data/about/status.json");
+    if (!statusRes.ok) throw new Error("status.json missing");
 
-} catch (err) {
-  document.querySelector('[data-stat="system-update"]').textContent = "—";
-}
+    const status = await statusRes.json();
+
+    document.querySelector('[data-stat="papers"]').textContent =
+      status.totals?.papers ?? "—";
+
+    document.querySelector('[data-stat="pdfs"]').textContent =
+      status.totals?.pdfs ?? "—";
+
+    document.querySelector('[data-stat="subjects"]').textContent =
+      status.totals?.subjects ?? "—";
+
+    /* Content update = generator timestamp */
+    document.querySelector('[data-stat="content-update"]').textContent =
+      formatIST(status.generated_at);
+
+    /* System update = cached GitHub commit */
+    const lastCommit = await getLastSystemUpdate();
+    document.querySelector('[data-stat="system-update"]').textContent =
+      lastCommit ? formatIST(lastCommit) : "—";
 
     /* ==================================================
        PDFs BREAKDOWN (SINGLE ROUNDED BLOCK)
@@ -66,11 +92,11 @@ try {
     const toggleBtn = document.getElementById("toggleBreakdown");
 
     if (breakdownRoot && toggleBtn && status.breakdown?.by_programme) {
+      breakdownRoot.innerHTML = "";
+
       toggleBtn.onclick = () => {
         breakdownRoot.classList.toggle("hidden");
       };
-
-      breakdownRoot.innerHTML = "";
 
       Object.entries(status.breakdown.by_programme).forEach(
         ([programme, data]) => {
@@ -80,7 +106,7 @@ try {
           block.innerHTML = `
             <div class="programme-header">
               <span>${programme}</span>
-              <span class="count-circle">${data.total}</span>
+              <span class="count-pill">${data.total}</span>
             </div>
             <ul class="subject-list">
               ${Object.entries(data.subjects)
@@ -88,7 +114,7 @@ try {
                   ([subject, count]) => `
                   <li>
                     <span>${subject.toUpperCase()}</span>
-                    <span class="count-circle small">${count}</span>
+                    <span class="count-pill muted">${count}</span>
                   </li>
                 `
                 )
@@ -113,10 +139,9 @@ try {
     if (!timelineEl) return;
 
     const res = await fetch("./data/about/timeline.json");
-    if (!res.ok) throw new Error("timeline.json not found");
+    if (!res.ok) throw new Error("timeline.json missing");
 
     const timeline = await res.json();
-
     timelineEl.innerHTML = "";
 
     if (!Array.isArray(timeline) || !timeline.length) {
@@ -144,7 +169,7 @@ try {
         timelineEl.appendChild(entry);
       });
 
-    /* Animate timeline */
+    /* Reveal animation */
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(e => {
