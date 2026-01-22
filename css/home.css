@@ -198,6 +198,55 @@
   color: var(--text-muted);
 }
 
+/* =========================================
+   ExamArchive — Search Highlight & Scroll UX
+   ========================================= */
+
+/* ---------- Smooth scroll globally ---------- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---------- Highlighted text ---------- */
+.rq-highlight,
+mark {
+  background: rgba(220, 38, 38, 0.18); /* soft red highlight */
+  color: inherit;
+  padding: 0.05em 0.15em;
+  border-radius: 4px;
+}
+
+/* ---------- Temporary focus glow on RQ block ---------- */
+.rq-focus {
+  animation: rqFlash 1.6s ease-in-out;
+}
+
+@keyframes rqFlash {
+  0% {
+    background-color: rgba(220, 38, 38, 0.15);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* ---------- Search result emphasis ---------- */
+.result-item.rq {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.6rem;
+}
+
+/* ---------- Prevent ugly selection overlap ---------- */
+.result-item::selection,
+.rq-highlight::selection {
+  background: rgba(220, 38, 38, 0.3);
+}
+
+/* ---------- Optional: subtle scroll offset (header safe) ---------- */
+.paper-page section {
+  scroll-margin-top: 80px; /* header height */
+}
+
 /* ---------- Desktop Enhancement ---------- */
 @media (min-width: 1024px) {
   .home {
