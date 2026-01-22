@@ -59,52 +59,46 @@
     </section>
 
     <!-- =====================
-         PROJECT STATUS
-         ===================== -->
-    <section class="about-status">
-      <h2>Project Status</h2>
+     LIVE PROJECT STATUS
+     ===================== -->
+<section class="about-status">
+  <h2>Project Status</h2>
 
-      <p class="section-note">
-        This section auto-updates based on repository data.
-      </p>
+  <p class="section-note">
+    This section auto-updates based on repository data.
+  </p>
 
-      <ul class="status-list">
-        <li><strong>Total papers archived:</strong> <span data-stat="papers">—</span></li>
-        <li><strong>Subjects covered:</strong> <span data-stat="subjects">—</span></li>
-        <li><strong>Total PDFs stored:</strong> <span data-stat="pdfs">—</span></li>
-        <li><strong>Last content update:</strong> <span data-stat="content-update">—</span></li>
-        <li><strong>Last system update:</strong> <span data-stat="system-update">—</span></li>
-      </ul>
-    </section>
+  <ul class="status-list">
+    <li><strong>Total papers archived:</strong> <span data-stat="papers">—</span></li>
+    <li><strong>Subjects covered:</strong> <span data-stat="subjects">—</span></li>
+    <li><strong>Total PDFs stored:</strong> <span data-stat="pdfs">—</span></li>
+    <li><strong>Last content update:</strong> <span data-stat="content-update">—</span></li>
+    <li><strong>Last system update:</strong> <span data-stat="system-update">—</span></li>
+  </ul>
 
-    <!-- =====================
-         PDFs BREAKDOWN
-         ===================== -->
-    <section class="about-breakdown">
-      <h2>PDFs Breakdown</h2>
+  <!-- PDFs Breakdown -->
+  <h2 class="subsection">PDFs Breakdown</h2>
 
-      <details class="breakdown-box">
-        <summary>View breakdown of PDFs</summary>
+  <button id="toggleBreakdown" class="breakdown-toggle">
+    View breakdown of PDFs
+  </button>
 
-        <!-- JS renders programme → subject tree here -->
-        <div id="breakdown-content"></div>
-      </details>
-    </section>
+  <div id="pdfBreakdown" class="breakdown-card hidden"></div>
+</section>
 
-    <!-- =====================
-         PROJECT TIMELINE
-         ===================== -->
-    <section class="about-timeline">
-      <h2>Project Timeline</h2>
+<!-- =====================
+     PROJECT TIMELINE
+     ===================== -->
+<section class="about-timeline">
+  <h2>Project Timeline</h2>
 
-      <p class="section-note">
-        This timeline is generated automatically from project history data.
-      </p>
+  <p class="section-note">
+    This timeline is generated automatically from project history data.
+  </p>
 
-      <!-- Timeline injected here -->
-      <div class="timeline" aria-live="polite"></div>
-    </section>
-
+  <div class="timeline"></div>
+</section>
+    
     <!-- =====================
          FUTURE DIRECTION
          ===================== -->
