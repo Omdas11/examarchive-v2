@@ -1,7 +1,7 @@
 /**
  * ExamArchive v2 — Papers JSON Generator
- * FINAL LOCKED VERSION
- * Supports final folder structure + FYUG / CBCS maps
+ * FINAL STABLE VERSION (REGEX FIXED)
+ * Supports FYUG / CBCS maps
  */
 
 const fs = require("fs");
@@ -17,34 +17,23 @@ const OUTPUT = path.join(ROOT, "data", "papers.json");
 function walk(dir, files = []) {
   for (const item of fs.readdirSync(dir)) {
     const full = path.join(dir, item);
-    if (fs.statSync(full).isDirectory()) {
-      walk(full, files);
-    } else if (item.endsWith(".pdf")) {
-      files.push(full);
-    }
+    if (fs.statSync(full).isDirectory()) walk(full, files);
+    else if (item.endsWith(".pdf")) files.push(full);
   }
   return files;
 }
 
 function loadMaps() {
   const maps = [];
-
   function walkMaps(dir) {
     for (const item of fs.readdirSync(dir)) {
       const full = path.join(dir, item);
-      if (fs.statSync(full).isDirectory()) {
-        walkMaps(full);
-      } else if (item.endsWith(".json")) {
-        try {
-          const parsed = JSON.parse(fs.readFileSync(full, "utf8"));
-          maps.push(parsed);
-        } catch (e) {
-          console.warn(`⚠️ Skipping invalid JSON: ${full}`);
-        }
+      if (fs.statSync(full).isDirectory()) walkMaps(full);
+      else if (item.endsWith(".json")) {
+        maps.push(JSON.parse(fs.readFileSync(full, "utf8")));
       }
     }
   }
-
   walkMaps(MAPS_DIR);
   return maps;
 }
@@ -59,26 +48,18 @@ for (const pdfPath of pdfFiles) {
   const file = path.basename(pdfPath);
 
   for (const map of maps) {
-    if (!map.code_pattern) continue;
-
     const regex = new RegExp(map.code_pattern);
     const match = file.match(regex);
     if (!match) continue;
 
-    /**
-     * Expected regex groups:
-     * 1 → paper code (with optional A/B)
-     * 2 → year
-     */
-    const paperCode = match[1];
-    const year = Number(match[2]);
+    // ✅ CORRECT extraction
+    const paperCode = match[1];   // e.g. PHYDSC101T
+    const year = Number(match[2]); // e.g. 2023
 
-    // 🔐 HARD GUARD — skip non-paper maps
-    if (!Array.isArray(map.papers)) continue;
-
-    const paperInfo = map.papers.find(
-      p => p.paper_code === paperCode
-    );
+    // ✅ Safe array lookup
+    const paperInfo = Array.isArray(map.papers)
+      ? map.papers.find(p => p.paper_code === paperCode)
+      : null;
 
     const entry = {
       university: "Assam University",
@@ -98,7 +79,7 @@ for (const pdfPath of pdfFiles) {
     };
 
     output.push(entry);
-    break; // stop after first matching map
+    break;
   }
 }
 
