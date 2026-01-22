@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>ExamArchive</title>
 
   <link rel="stylesheet" href="css/common.css">
@@ -35,60 +34,43 @@
 
     <!-- ================= UNIVERSAL SEARCH ================= -->
     <section class="home-search">
-
       <div class="search-wrapper">
 
-  <!-- Search input -->
-  <input
-    type="text"
-    class="search-input"
-    placeholder="Search papers, repeated questions, notes, references..."
-    aria-label="Universal search"
-  />
+        <!-- Search input -->
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search papers, repeated questions, notes, references..."
+          aria-label="Universal search"
+        />
 
-  <!-- Search mode button -->
-  <button class="search-mode-btn" type="button" id="searchModeBtn">
-    Universal
-  </button>
+        <!-- Search mode button -->
+        <button
+          type="button"
+          class="search-mode-btn"
+          id="searchModeBtn"
+        >
+          Universal
+        </button>
 
-  <!-- Search button -->
-  <button class="btn btn-red search-btn">
-    Search
-  </button>
+        <!-- Search button -->
+        <button class="btn btn-red search-btn">
+          Search
+        </button>
 
-  <!-- Dropdown -->
-  <div class="search-mode-dropdown" id="searchModeDropdown">
-    <button data-mode="universal" class="active">Universal</button>
-    <button data-mode="papers">Question Papers (PDF)</button>
-    <button data-mode="rq">Repeated Questions</button>
-    <button data-mode="notes">Notes</button>
-    <button data-mode="refs">References</button>
-  </div>
-
-</div>
-        <!-- Instant results dropdown -->
-        <div class="search-results">
-          <!-- Example result cards (JS will inject later) -->
-
-          <div class="result-group">
-            <h4>Papers</h4>
-            <div class="result-item">PHYDSC102T – Mechanics and Relativity (2023)</div>
-          </div>
-
-          <div class="result-group">
-            <h4>Repeated Questions</h4>
-            <div class="result-item">Explain Gauss’s law in electrostatics.</div>
-          </div>
-
-          <div class="result-group">
-            <h4>Notes</h4>
-            <div class="result-item">Thermodynamics – Short Notes (PDF)</div>
-          </div>
-
+        <!-- Search mode dropdown -->
+        <div class="search-mode-dropdown" id="searchModeDropdown">
+          <button data-mode="universal" class="active">Universal</button>
+          <button data-mode="papers">Question Papers (PDF)</button>
+          <button data-mode="rq">Repeated Questions</button>
+          <button data-mode="notes">Notes</button>
+          <button data-mode="refs">References</button>
         </div>
 
-      </div>
+        <!-- ✅ Instant search results (JS-controlled, MUST be inside wrapper) -->
+        <div class="search-results"></div>
 
+      </div>
     </section>
 
     <!-- ================= QUICK ACCESS ================= -->
@@ -110,18 +92,9 @@
       <h2>Notices & Updates</h2>
 
       <div class="notice-box">
-        <!-- Empty / placeholder state -->
         <p class="notice-empty">
           University notices and important academic updates will appear here.
         </p>
-
-        <!-- Example notices (to be JS-driven later) -->
-        <!--
-        <div class="notice-item">
-          <span class="date">Jan 2026</span>
-          <a href="#" target="_blank">Assam University exam form notification</a>
-        </div>
-        -->
       </div>
     </section>
 
@@ -130,18 +103,9 @@
       <h2>Academic Calendar</h2>
 
       <div class="calendar-box">
-        <!-- Placeholder -->
         <p class="calendar-empty">
           Academic calendar events will be displayed here.
         </p>
-
-        <!-- Example items -->
-        <!--
-        <div class="calendar-item">
-          <strong>January – February</strong>
-          <p>End Semester Examinations</p>
-        </div>
-        -->
       </div>
     </section>
 
