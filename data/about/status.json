@@ -1,27 +1,38 @@
 {
-  "generated_at": "2026-01-22T07:44:20.666Z",
+  "generated_at": "2026-01-22T09:07:54.372Z",
   "totals": {
-    "papers": 36,
-    "pdfs": 36,
-    "subjects": 3
+    "papers": 35,
+    "pdfs": 35,
+    "subjects": 2
   },
   "breakdown": {
-    "group_by": "subject",
+    "group_by": "programme → subject",
     "items": [
       {
-        "name": "Unknown",
-        "count": 1
+        "programme": "CBCS",
+        "count": 32,
+        "subjects": [
+          {
+            "name": "Commerce",
+            "count": 1
+          },
+          {
+            "name": "Physics",
+            "count": 31
+          }
+        ]
       },
       {
-        "name": "commerce",
-        "count": 1
-      },
-      {
-        "name": "physics",
-        "count": 34
+        "programme": "FYUG",
+        "count": 3,
+        "subjects": [
+          {
+            "name": "Physics",
+            "count": 3
+          }
+        ]
       }
     ]
   },
-  "last_content_update": "—",
-  "last_system_update": "22 Jan 2026"
+  "last_content_update": "2025-01-01T00:00:00.000Z"
 }
