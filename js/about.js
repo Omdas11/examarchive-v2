@@ -21,29 +21,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   }
 
-  /* ==================================================
-     PROJECT STATUS
-     ================================================== */
-  try {
-    const res = await fetch("./data/about/status.json");
-    if (!res.ok) throw new Error("status.json not found");
+/* ---------- STATUS ---------- */
+const statusRes = await fetch("./data/about/status.json");
+const status = await statusRes.json();
 
-    const status = await res.json();
+/* Totals */
+document.querySelector('[data-stat="papers"]').textContent =
+  status.totals.papers;
 
-    document.querySelector('[data-stat="papers"]').textContent =
-      status.totals?.papers ?? "—";
+document.querySelector('[data-stat="pdfs"]').textContent =
+  status.totals.pdfs;
 
-    document.querySelector('[data-stat="pdfs"]').textContent =
-      status.totals?.pdfs ?? "—";
+document.querySelector('[data-stat="subjects"]').textContent =
+  status.totals.subjects;
 
-    document.querySelector('[data-stat="subjects"]').textContent =
-      status.totals?.subjects ?? "—";
+/* ---------- Last Content Update ---------- */
+/* Uses build-about-status.js timestamp */
+document.querySelector('[data-stat="content-update"]').textContent =
+  formatIST(status.generated_at);
 
-    document.querySelector('[data-stat="content-update"]').textContent =
-      formatIST(status.generated_at);
+/* ---------- Last System Update (GitHub) ---------- */
+try {
+  const repo = "omdas11/examarchive-v2";
+  const apiRes = await fetch(
+    `https://api.github.com/repos/${repo}/commits?per_page=1`
+  );
 
-    document.querySelector('[data-stat="system-update"]').textContent =
-      formatIST(status.generated_at);
+  if (!apiRes.ok) throw new Error("GitHub API failed");
+
+  const commits = await apiRes.json();
+  const lastCommitDate = commits[0]?.commit?.committer?.date;
+
+  document.querySelector('[data-stat="system-update"]').textContent =
+    formatIST(lastCommitDate);
+
+} catch (err) {
+  document.querySelector('[data-stat="system-update"]').textContent = "—";
+}
 
     /* ==================================================
        PDFs BREAKDOWN (SINGLE ROUNDED BLOCK)
