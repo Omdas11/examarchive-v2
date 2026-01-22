@@ -1,7 +1,11 @@
 /**
- * ExamArchive v2 — About Page Script
+ * ExamArchive v2 — About Page Logic
  * FINAL STABLE VERSION
- * Aligned with /data/about/* JSON files
+ *
+ * Data sources:
+ *  - /data/about/timeline.json   (generated from YAML)
+ *  - /data/about/status.json     (generated from papers.json)
+ *  - GitHub API (last system update)
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -14,6 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!dateString) return "—";
 
     const date = new Date(dateString);
+
     return (
       date.toLocaleString("en-IN", {
         day: "2-digit",
@@ -31,15 +36,15 @@ document.addEventListener("DOMContentLoaded", async () => {
      PROJECT TIMELINE
      ================================================== */
 
-  const timeline = document.querySelector(".timeline");
+  const timelineEl = document.querySelector(".timeline");
 
-  if (timeline) {
+  if (timelineEl) {
     try {
       const res = await fetch("./data/about/timeline.json");
       if (!res.ok) throw new Error("Timeline data not found");
 
       const milestones = await res.json();
-      timeline.innerHTML = "";
+      timelineEl.innerHTML = "";
 
       milestones
         .slice()
@@ -57,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
           `;
 
-          timeline.appendChild(entry);
+          timelineEl.appendChild(entry);
         });
 
       const observer = new IntersectionObserver(
@@ -71,12 +76,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         { threshold: 0.2 }
       );
 
+      observer.observe(timelineEl);
       document
         .querySelectorAll(".timeline-item")
         .forEach(item => observer.observe(item));
 
     } catch (err) {
-      timeline.innerHTML =
+      timelineEl.innerHTML =
         "<p class='section-note'>Timeline unavailable.</p>";
       console.error(err);
     }
@@ -90,13 +96,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!statusSection) return;
 
   try {
-    /* ---------- Load status.json ---------- */
-    const statusRes = await fetch("./data/about/status.json");
-    if (!statusRes.ok) throw new Error("Status data not found");
+    const res = await fetch("./data/about/status.json");
+    if (!res.ok) throw new Error("Status data not found");
 
-    const status = await statusRes.json();
+    const status = await res.json();
 
     /* ---------- Totals ---------- */
+
     document.querySelector('[data-stat="papers"]').textContent =
       status.totals?.papers ?? "—";
 
@@ -107,20 +113,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       status.totals?.subjects ?? "—";
 
     /* ---------- Last Content Update ---------- */
-    try {
-      const contentRes = await fetch("./data/about/content-meta.json");
-      if (!contentRes.ok) throw new Error("Content meta not found");
 
-      const contentMeta = await contentRes.json();
+    document.querySelector('[data-stat="content-update"]').textContent =
+      formatIST(status.last_content_update);
 
-      document.querySelector('[data-stat="content-update"]').textContent =
-        formatIST(contentMeta.last_content_update);
+    /* ---------- Last System Update (GitHub) ---------- */
 
-    } catch {
-      document.querySelector('[data-stat="content-update"]').textContent = "—";
-    }
-
-    /* ---------- Last System Update (GitHub API) ---------- */
     try {
       const repo = "omdas11/examarchive-v2";
       const apiRes = await fetch(
@@ -139,29 +137,37 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.querySelector('[data-stat="system-update"]').textContent = "—";
     }
 
-    /* ---------- Subject-wise breakdown ---------- */
-    if (status.breakdown && Array.isArray(status.breakdown.items)) {
-      const breakdownContainer = document.createElement("details");
-      breakdownContainer.className = "status-breakdown";
+    /* ---------- Programme → Subject Breakdown ---------- */
 
-      const summary = document.createElement("summary");
-      summary.textContent = "View subject-wise breakdown";
-      breakdownContainer.appendChild(summary);
+    if (status.breakdown?.items?.length) {
+      const container = document.createElement("div");
+      container.className = "status-breakdowns";
 
-      const list = document.createElement("ul");
-      list.className = "status-breakdown-list";
+      status.breakdown.items.forEach(programme => {
+        const details = document.createElement("details");
+        details.className = "status-breakdown";
 
-      status.breakdown.items.forEach(item => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <span>${item.name}</span>
-          <span>${item.count}</span>
-        `;
-        list.appendChild(li);
+        const summary = document.createElement("summary");
+        summary.textContent = `${programme.programme} (${programme.count})`;
+        details.appendChild(summary);
+
+        const list = document.createElement("ul");
+        list.className = "status-breakdown-list";
+
+        programme.subjects.forEach(sub => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <span>${sub.name}</span>
+            <span>${sub.count}</span>
+          `;
+          list.appendChild(li);
+        });
+
+        details.appendChild(list);
+        container.appendChild(details);
       });
 
-      breakdownContainer.appendChild(list);
-      statusSection.appendChild(breakdownContainer);
+      statusSection.appendChild(container);
     }
 
   } catch (err) {
