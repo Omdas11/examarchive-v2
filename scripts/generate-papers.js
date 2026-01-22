@@ -1,7 +1,9 @@
 /**
  * ExamArchive v2 — Papers JSON Generator
- * FINAL STABLE VERSION (REGEX FIXED)
- * Supports FYUG / CBCS maps
+ * FINAL STABLE VERSION (LOCK THIS)
+ * ✔ Correct regex groups
+ * ✔ Full paper code preserved
+ * ✔ No null / broken entries
  */
 
 const fs = require("fs");
@@ -25,7 +27,7 @@ function walk(dir, files = []) {
 
 function loadMaps() {
   const maps = [];
-  function walkMaps(dir) {
+  (function walkMaps(dir) {
     for (const item of fs.readdirSync(dir)) {
       const full = path.join(dir, item);
       if (fs.statSync(full).isDirectory()) walkMaps(full);
@@ -33,8 +35,7 @@ function loadMaps() {
         maps.push(JSON.parse(fs.readFileSync(full, "utf8")));
       }
     }
-  }
-  walkMaps(MAPS_DIR);
+  })(MAPS_DIR);
   return maps;
 }
 
@@ -46,40 +47,50 @@ const output = [];
 
 for (const pdfPath of pdfFiles) {
   const file = path.basename(pdfPath);
+  let matched = false;
 
   for (const map of maps) {
     const regex = new RegExp(map.code_pattern);
     const match = file.match(regex);
     if (!match) continue;
 
-    // ✅ CORRECT extraction
-    const paperCode = match[1];   // e.g. PHYDSC101T
-    const year = Number(match[2]); // e.g. 2023
+    // ✅ CORRECT GROUPS
+    const paperCode = match[1];   // full code with T / AT / BT
+    const year = Number(match[2]);
 
-    // ✅ Safe array lookup
-    const paperInfo = Array.isArray(map.papers)
-      ? map.papers.find(p => p.paper_code === paperCode)
-      : null;
+    const paperInfo = map.papers.find(
+      p => p.paper_code === paperCode
+    );
 
-    const entry = {
+    if (!paperInfo) {
+      console.warn(`⚠️ Unmapped paper code: ${paperCode}`);
+      break;
+    }
+
+    output.push({
       university: "Assam University",
       programme: map.programme,
       subject: map.subject,
       stream: map.stream,
       level: map.level,
       paper_codes: [paperCode],
-      paper_names: paperInfo ? [paperInfo.paper_name] : [],
-      semester: paperInfo?.semester ?? null,
-      course_type: paperInfo?.course_type ?? null,
-      tags: paperInfo?.tags ?? [],
+      paper_names: [paperInfo.paper_name],
+      semester: paperInfo.semester,
+      course_type: paperInfo.course_type,
+      tags: paperInfo.tags ?? [],
       pdf: `/examarchive-v2/${path
         .relative(ROOT, pdfPath)
         .replace(/\\/g, "/")}`,
       year
-    };
+    });
 
-    output.push(entry);
+    matched = true;
     break;
+  }
+
+  // 🚫 HARD BLOCK — no ghost entries
+  if (!matched) {
+    console.warn(`❌ No map matched for: ${file}`);
   }
 }
 
