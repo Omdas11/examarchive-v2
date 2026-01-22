@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – about.css
-   About Page (FINAL ALIGNED)
+   About Page (FINAL ALIGNED + ANIMATED)
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -89,20 +89,36 @@
   font-size: 0.95rem;
   font-weight: 500;
   text-align: left;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+
+.breakdown-toggle:hover {
+  background: var(--surface);
+}
+
+.breakdown-toggle:active {
+  transform: scale(0.985);
 }
 
 /* ---------- Breakdown Card ---------- */
 .breakdown-card {
   margin-top: 1rem;
-  padding: 0;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--bg-soft);
   overflow: hidden;
+
+  /* animation */
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-.hidden {
-  display: none;
+.breakdown-card.hidden {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
 }
 
 /* ---------- Programme Block ---------- */
@@ -144,20 +160,26 @@
    Count Pills (RECTANGLE, NOT CIRCLES)
    ================================================== */
 
-/* Programme total — red pill */
-.programme-header .count-circle {
-  padding: 0.2rem 0.65rem;
+.count-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.7rem;
   border-radius: 999px;
-  background: var(--red);
-  color: #fff;
   font-size: 0.8rem;
   font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Programme total — red pill */
+.programme-header .count-circle {
+  background: var(--red);
+  color: #fff;
 }
 
 /* Subject totals — muted grey pill */
 .subject-list .count-circle.small {
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
   background: var(--bg-soft);
   color: var(--text-muted);
   border: 1px solid var(--border);
@@ -263,4 +285,4 @@
   .timeline-dot {
     left: 18px !important;
   }
-   }
+}
