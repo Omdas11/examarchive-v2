@@ -3,9 +3,10 @@
   "programme": "FYUG",
   "stream": "science",
   "level": "UG",
-  "code_pattern": "^AU-FYUG-(CHM[A-Z]{3}\\d{3}[AB]?T)-(\\d{4})\\.pdf$",
-  "papers": [
 
+  "code_pattern": "^AU-FYUG-(CHM[A-Z]{3}\\d{3})([AB]?T|P)-(\\d{4})\\.pdf$",
+
+  "papers": [
     {
       "paper_code": "CHMDSC101T",
       "paper_name": "Inorganic Chemistry-I",
