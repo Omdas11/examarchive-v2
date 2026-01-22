@@ -24,6 +24,21 @@ let filters = {
 // --------------------
 const norm = v => String(v || "").toLowerCase();
 
+// Roman numeral converter (for semester display only)
+function toRoman(num) {
+  const map = [
+    ["X", 10], ["IX", 9], ["V", 5], ["IV", 4], ["I", 1]
+  ];
+  let roman = "";
+  for (const [r, v] of map) {
+    while (num >= v) {
+      roman += r;
+      num -= v;
+    }
+  }
+  return roman;
+}
+
 // --------------------
 // DOM refs
 // --------------------
@@ -222,6 +237,8 @@ function render() {
   view.forEach(p => {
     const title = p.paper_names.join(" / ");
     const code = p.paper_codes.join(" / ");
+    const stream = (p.stream || "").toUpperCase();
+    const semesterText = p.semester ? `Semester ${toRoman(p.semester)}` : "";
 
     const card = document.createElement("div");
     card.className = "paper-card";
@@ -234,7 +251,7 @@ function render() {
       <h3 class="paper-name">${title}</h3>
       <div class="paper-code">${code}</div>
       <div class="paper-meta">
-        ${p.university} • ${p.programme} • ${p.stream} • Sem ${p.semester} • ${p.year}
+        ${p.university} • ${p.programme} • ${stream} • ${semesterText} • ${p.year}
       </div>
       <a class="open-pdf" href="${p.pdf}" target="_blank" onclick="event.stopPropagation()">
         Open PDF →
