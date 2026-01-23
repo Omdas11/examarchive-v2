@@ -1,5 +1,5 @@
 /**
- * ExamArchive v2 — Home Search (FINAL STABLE)
+ * ExamArchive v2 — Home Search (FINAL, FIXED)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -24,18 +24,35 @@ fetch(PAPERS_URL)
   });
 
 /* ---------------- Helpers ---------------- */
-function getPaperLabel(p) {
-  return {
-    code: p.paper_code || p.code || "",
-    name: p.paper_name || p.name || "",
-    subject: p.subject || "",
-    year: p.year || ""
-  };
+function getPaperMeta(p) {
+  const code = p.paper_code || p.code || "";
+  const name = p.paper_name || p.name || "";
+  const year = p.year || "";
+  const subject = p.subject || "";
+  const programme = p.programme || "";
+  const stream = p.stream || "";
+
+  return { code, name, year, subject, programme, stream };
+}
+
+function isRenderablePaper(p) {
+  const { code, name } = getPaperMeta(p);
+  return code.trim() !== "" || name.trim() !== "";
 }
 
 function normalizePaper(p) {
-  const { code, name, subject, year } = getPaperLabel(p);
-  return [code, name, subject, `${code} ${name}`, `${name} ${subject}`, year]
+  const { code, name, year, subject, programme, stream } = getPaperMeta(p);
+
+  return [
+    code,
+    name,
+    subject,
+    programme,
+    stream,
+    `${code} ${name}`,
+    `${name} ${subject}`,
+    String(year)
+  ]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -57,7 +74,10 @@ function showEmpty() {
 
 /* ---------------- Search Logic ---------------- */
 function searchPapers(query) {
-  return PAPERS.filter(p => normalizePaper(p).includes(query)).slice(0, 5);
+  return PAPERS
+    .filter(p => normalizePaper(p).includes(query))
+    .filter(isRenderablePaper)
+    .slice(0, 5);
 }
 
 /* ---------------- Render ---------------- */
@@ -76,11 +96,15 @@ function renderResults(query) {
           <h4>Papers</h4>
           ${matches
             .map(p => {
-              const { code, name, year } = getPaperLabel(p);
+              const { code, name, year } = getPaperMeta(p);
+              const label = code && name
+                ? `${code} — ${name}`
+                : name || code;
+
               return `
                 <div class="result-item"
                      onclick="location.href='paper.html?code=${code}'">
-                  ${code} — ${name}${year ? ` (${year})` : ""}
+                  ${label}${year ? ` (${year})` : ""}
                 </div>
               `;
             })
