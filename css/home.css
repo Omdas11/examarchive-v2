@@ -171,7 +171,86 @@
     flex: 1 1 auto;
   }
 }
+/* =====================================
+   Home Search — ONE LINE MERGED (FINAL)
+   ===================================== */
 
+/* Wrapper locked as one row */
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  max-width: 720px;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Input */
+.search-input {
+  flex: 1;
+  height: 44px;
+  padding: 0 0.9rem;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  background: transparent;
+}
+
+/* Mode button (middle segment) */
+.search-mode-btn {
+  height: 44px;
+  padding: 0 0.9rem;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Search button (right segment) */
+.search-btn {
+  height: 44px;
+  padding: 0 1.2rem;
+  border: none;
+  border-radius: 0;
+  font-size: 0.9rem;
+}
+
+/* Focus highlight */
+.search-wrapper:focus-within {
+  border-color: var(--red);
+}
+
+/* ❌ REMOVE ugly stacked mode buttons */
+.search-mode-dropdown {
+  border-radius: var(--radius-md);
+}
+
+/* Hide accidental inline mode chips if any */
+.search-wrapper + button,
+.search-wrapper ~ .search-mode-btn {
+  display: none !important;
+}
+
+/* Mobile safety — NEVER wrap */
+@media (max-width: 480px) {
+  .search-wrapper {
+    flex-wrap: nowrap;
+  }
+
+  .search-mode-btn {
+    padding: 0 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .search-btn {
+    padding: 0 0.9rem;
+  }
+}
 /* ---------- Desktop ---------- */
 @media (min-width: 1024px) {
   .hero h1 {
