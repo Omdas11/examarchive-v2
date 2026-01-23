@@ -1,11 +1,6 @@
 /**
  * ExamArchive v2 — Paper Page
- * CLEAN REWRITE (RQ schema v1.1 compliant)
- *
- * Principles:
- * - Data drives rendering
- * - No inference, no guessing
- * - Order in JSON = order in UI
+ * FINAL (Year-resolved, schema-correct)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -13,11 +8,12 @@ const PAPERS_URL = `${BASE}/data/papers.json`;
 
 const params = new URLSearchParams(window.location.search);
 const CODE = params.get("code");
+const YEAR = Number(params.get("year"));
 
-if (!CODE) {
+if (!CODE || !YEAR) {
   document.querySelector(".paper-page").innerHTML =
     "<p class='coming-soon'>Invalid paper link.</p>";
-  throw new Error("Missing paper code");
+  throw new Error("Missing paper code or year");
 }
 
 /* ---------- Helpers ---------- */
@@ -34,15 +30,6 @@ async function resolvePaperData(type, paper) {
 
   const basePath =
     `/examarchive-v2/data/${type}/${universitySlug}/${programme}/${subject}/`;
-
-  for (const code of paper.paper_codes) {
-    try {
-      const res = await fetch(`${basePath}${code}.json`);
-      if (res.ok) return { status: "found", data: await res.json() };
-    } catch {}
-  }
-  return { status: "not_found" };
-}
 
   for (const code of paper.paper_codes) {
     try {
@@ -107,7 +94,6 @@ function renderRepeatedQuestions(data) {
   let globalQno = 1;
 
   data.sections.forEach(section => {
-    /* Section header (instruction only) */
     if (section.instruction) {
       const inst = document.createElement("p");
       inst.className = "rq-instruction";
@@ -121,13 +107,13 @@ function renderRepeatedQuestions(data) {
 
       const header = document.createElement("div");
       header.className = "rq-unit-header";
-      header.textContent = unitBlock.unit_label || `Unit ${unitBlock.unit_no}`;
+      header.textContent =
+        unitBlock.unit_label || `Unit ${unitBlock.unit_no}`;
 
       const content = document.createElement("div");
       content.className = "rq-unit-content";
       content.hidden = true;
 
-      /* -------- Standalone questions (Section A) -------- */
       if (Array.isArray(unitBlock.questions)) {
         unitBlock.questions.forEach(q => {
           const row = document.createElement("div");
@@ -141,11 +127,9 @@ function renderRepeatedQuestions(data) {
         });
       }
 
-      /* -------- Long questions with parts (Section B) -------- */
       if (Array.isArray(unitBlock.choices)) {
         unitBlock.choices.forEach(choice => {
           const mainNo = globalQno++;
-
           choice.parts.forEach(p => {
             const row = document.createElement("div");
             row.className = "rq-part";
@@ -172,41 +156,51 @@ async function loadPaper() {
   const res = await fetch(PAPERS_URL);
   const all = await res.json();
 
-  const matches = all.filter(p => p.paper_codes?.includes(CODE));
-  if (!matches.length) return;
-
-  const sorted = [...matches].sort(
-    (a, b) => extractYear(b.pdf) - extractYear(a.pdf)
+  const selected = all.find(
+    p => p.paper_codes?.includes(CODE) && p.year === YEAR
   );
 
-  const base = sorted[0];
+  if (!selected) {
+    document.querySelector(".paper-page").innerHTML =
+      "<p class='coming-soon'>Paper not found.</p>";
+    return;
+  }
 
+  const related = all
+    .filter(p => p.paper_codes?.includes(CODE))
+    .sort((a, b) => b.year - a.year);
+
+  /* ---------- Header ---------- */
   document.getElementById("paperTitle").textContent =
-    base.paper_names.join(" / ");
+    selected.paper_names.join(" / ");
   document.getElementById("paperCode").textContent =
-    base.paper_codes.join(" / ");
+    selected.paper_codes.join(" / ");
   document.getElementById("paperMeta").textContent =
-    `${base.university} • ${base.programme} • ${base.stream.toUpperCase()} • Sem ${base.semester}`;
+    `${selected.university} • ${selected.programme} • ${selected.stream.toUpperCase()} • Sem ${selected.semester}`;
 
+  /* ---------- Latest PDF ---------- */
+  const latest = related[0];
   const latestBtn = document.getElementById("latestPdfLink");
-  latestBtn.href = base.pdf;
-  latestBtn.textContent = `Open Latest PDF (${extractYear(base.pdf)}) →`;
+  latestBtn.href = latest.pdf;
+  latestBtn.textContent = `Open Latest PDF (${latest.year}) →`;
 
+  /* ---------- Available Papers ---------- */
   const list = document.getElementById("availablePapers");
   list.innerHTML = "";
-  sorted.forEach(p => {
+  related.forEach(p => {
     list.innerHTML += `
       <li class="paper-row">
-        <span>${extractYear(p.pdf)} Question Paper</span>
+        <span>${p.year} Question Paper</span>
         <a href="${p.pdf}" target="_blank" class="link-red">Open →</a>
       </li>
     `;
   });
 
-  const syllabus = await resolvePaperData("syllabus", base);
+  /* ---------- Syllabus + RQ ---------- */
+  const syllabus = await resolvePaperData("syllabus", selected);
   if (syllabus.status === "found") renderSyllabus(syllabus.data);
 
-  const rq = await resolvePaperData("repeated-questions", base);
+  const rq = await resolvePaperData("repeated-questions", selected);
   if (rq.status === "found") renderRepeatedQuestions(rq.data);
 }
 
