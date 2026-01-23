@@ -116,6 +116,62 @@
   color: var(--text-muted);
 }
 
+/* ================================
+   Home Search — HARD FIX (layout lock)
+   ================================ */
+
+/* Force unified row */
+.search-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+/* Input height lock */
+.search-input {
+  height: 42px;
+  line-height: 42px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-md);
+}
+
+/* Mode button lock */
+.search-mode-btn {
+  height: 42px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Search button lock */
+.search-btn {
+  height: 42px;
+  padding: 0 1rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile safety */
+@media (max-width: 480px) {
+  .search-wrapper {
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    flex: 1 1 100%;
+  }
+
+  .search-mode-btn,
+  .search-btn {
+    flex: 1 1 auto;
+  }
+}
+
 /* ---------- Desktop ---------- */
 @media (min-width: 1024px) {
   .hero h1 {
