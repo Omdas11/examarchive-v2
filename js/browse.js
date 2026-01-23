@@ -244,7 +244,9 @@ function render() {
     card.className = "paper-card";
 
     card.onclick = () => {
-      window.location.href = `paper.html?code=${p.paper_codes[0]}`;
+  window.location.href =
+    `paper.html?code=${p.paper_codes[0]}&year=${p.year}`;
+};
     };
 
     card.innerHTML = `
