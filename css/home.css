@@ -223,6 +223,28 @@
   color: var(--text-muted);
 }
 
+/* =====================================
+   Home Search — Remove stray UI artifacts
+   ===================================== */
+
+/* Kill any pseudo elements on result items */
+.search-results .result-item::before,
+.search-results .result-item::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Ensure no background bleed / overlay */
+.search-results .result-item {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Optional: slightly softer inner grey tint */
+.search-results .result-item {
+  background: color-mix(in srgb, var(--bg-soft) 85%, var(--surface));
+}
+
 /* ---------- Desktop Enhancement ---------- */
 @media (min-width: 1024px) {
   .home {
