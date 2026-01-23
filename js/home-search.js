@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Home Search
- * FINAL (schema-aware for papers.json)
+ * FINAL STABLE (schema-aware + paper page safe)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -25,9 +25,7 @@ fetch(PAPERS_URL)
   });
 
 /* ---------------- Helpers ---------------- */
-function normalize(v = "") {
-  return String(v).toLowerCase();
-}
+const norm = v => String(v || "").toLowerCase();
 
 function clearResults() {
   resultsBox.style.display = "none";
@@ -43,7 +41,7 @@ function showEmpty() {
 
 /* ---------------- Paper Search ---------------- */
 function searchPapers(query) {
-  const q = normalize(query);
+  const q = norm(query);
 
   return PAPERS.filter(p => {
     const haystack = [
@@ -56,7 +54,7 @@ function searchPapers(query) {
       p.year
     ]
       .filter(Boolean)
-      .map(normalize)
+      .map(norm)
       .join(" ");
 
     return haystack.includes(q);
@@ -69,7 +67,7 @@ function renderResults(query) {
 
   let html = "";
 
-  /* ---------- PAPERS (PRIMARY) ---------- */
+  /* ---------- PAPERS ---------- */
   if (SEARCH_MODE === "universal" || SEARCH_MODE === "papers") {
     const matches = searchPapers(query);
 
@@ -78,14 +76,14 @@ function renderResults(query) {
         <div class="result-group">
           <h4>Papers</h4>
           ${matches.map(p => {
-            const code = p.paper_codes?.[0] || "";
-            const name = p.paper_names?.[0] || "";
-            const year = p.year || "";
+            const code = p.paper_codes?.[0];
+            const name = p.paper_names?.[0];
+            const year = p.year;
 
             return `
               <div class="result-item"
-                   onclick="location.href='paper.html?code=${code}'">
-                ${code} — ${name}${year ? ` (${year})` : ""}
+                   onclick="location.href='paper.html?code=${code}&year=${year}'">
+                ${code} — ${name} (${year})
               </div>
             `;
           }).join("")}
@@ -99,9 +97,7 @@ function renderResults(query) {
     html += `
       <div class="result-group">
         <h4>Repeated Questions</h4>
-        <div class="result-item text-muted">
-          RQ search coming soon
-        </div>
+        <div class="result-item text-muted">RQ search coming soon</div>
       </div>
     `;
   }
@@ -110,9 +106,7 @@ function renderResults(query) {
     html += `
       <div class="result-group">
         <h4>Notes</h4>
-        <div class="result-item text-muted">
-          Notes search coming soon
-        </div>
+        <div class="result-item text-muted">Notes search coming soon</div>
       </div>
     `;
   }
@@ -125,8 +119,7 @@ function renderResults(query) {
 
 /* ---------------- Input ---------------- */
 input.addEventListener("input", e => {
-  const q = e.target.value.trim();
-  renderResults(q);
+  renderResults(e.target.value.trim());
 });
 
 /* ---------------- Outside Click ---------------- */
