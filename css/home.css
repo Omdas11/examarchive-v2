@@ -1,9 +1,8 @@
 /* ================================
    ExamArchive – home.css
-   Home page (FINAL CLEAN + POLISHED)
+   Home page (FINAL FIXED)
    ================================ */
 
-/* ---------- Page Wrapper ---------- */
 .home {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -45,164 +44,58 @@
   width: 100%;
 }
 
-.search-wrapper {
-  position: relative;
+/* ================= QUICK ACCESS (FIXED) ================= */
+
+.quick-access {
+  text-align: center;
+}
+
+.quick-access h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* 🔒 Force grid layout */
+.quick-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
   max-width: 720px;
   margin: 0 auto;
-  display: flex;
-  gap: 0.5rem;
 }
 
-.search-input {
-  flex: 1;
-  padding: 0.7rem 0.8rem;
-  font-size: 0.9rem;
+/* 🔒 Force card-like buttons */
+.quick-btn {
+  display: block !important;
+  padding: 0.7rem 0.9rem;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--bg);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--red);
-}
-
-.search-btn {
-  white-space: nowrap;
-}
-
-/* ---------- Search Mode Dropdown ---------- */
-.search-mode-btn {
-  padding: 0.65rem 0.75rem;
   border: 1px solid var(--border);
   background: var(--bg-soft);
-  border-radius: var(--radius-md);
   font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.search-mode-dropdown {
-  position: absolute;
-  top: calc(100% + 0.4rem);
-  right: 0;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  padding: 0.3rem;
-  display: none;
-  z-index: 30;
-}
-
-.search-mode-dropdown button {
-  width: 100%;
-  text-align: left;
-  padding: 0.45rem 0.6rem;
-  font-size: 0.85rem;
-  border-radius: var(--radius-sm);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.search-mode-dropdown button:hover,
-.search-mode-dropdown button.active {
-  background: var(--bg-soft);
-}
-
-/* ---------- Instant Search Results ---------- */
-.search-results {
-  position: absolute;
-  top: calc(100% + 0.4rem);
-  left: 0;
-  right: 0;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 0.6rem;
-  box-shadow: var(--shadow-md);
-  display: none;
-  z-index: 20;
-}
-
-/* ---------- Result Groups ---------- */
-.result-group {
-  margin-bottom: 0.8rem;
-}
-
-.result-group:last-child {
-  margin-bottom: 0;
-}
-
-.result-group h4 {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 0.45rem;
-}
-
-/* ---------- Paper Result Cards ---------- */
-.search-results .result-item {
-  position: relative;
-  background: linear-gradient(
-    0deg,
-    var(--bg-soft),
-    var(--surface)
-  );
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 0.6rem 0.7rem 0.6rem 2.1rem;
-  margin-bottom: 0.45rem;
-  font-size: 0.85rem;
-  line-height: 1.35;
-  cursor: pointer;
+  text-decoration: none !important;
+  color: var(--text) !important;
+  text-align: center;
+  line-height: 1.25;
   transition:
-    background 0.15s ease,
     border-color 0.15s ease,
-    transform 0.12s ease,
-    box-shadow 0.15s ease;
-}
-
-/* Paper icon */
-.search-results .result-item::before {
-  content: "📄";
-  position: absolute;
-  left: 0.65rem;
-  top: 0.55rem;
-  font-size: 0.9rem;
-  opacity: 0.75;
+    background 0.15s ease,
+    transform 0.12s ease;
 }
 
 /* Hover / tap */
-.search-results .result-item:hover {
-  background: var(--bg-soft);
+.quick-btn:hover {
   border-color: var(--red);
-  box-shadow: var(--shadow-sm);
+  background: var(--surface);
   transform: translateY(-1px);
 }
 
-/* Year badge (JS supplies data-year) */
-.search-results .result-item::after {
-  content: attr(data-year);
-  position: absolute;
-  right: 0.55rem;
-  top: 0.5rem;
-  font-size: 0.7rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
+/* Mobile tap safety */
+.quick-btn:active {
+  transform: scale(0.98);
 }
 
-/* Placeholder cards */
-.search-results .result-item.text-muted {
-  background: var(--bg-soft);
-  border-style: dashed;
-  cursor: default;
-}
+/* ================= Notice & Calendar ================= */
 
-/* ---------- Notice Board & Calendar ---------- */
 .notice-board,
 .academic-calendar {
   background: var(--bg-soft);
@@ -223,39 +116,9 @@
   color: var(--text-muted);
 }
 
-/* =====================================
-   Home Search — Remove stray UI artifacts
-   ===================================== */
-
-/* Kill any pseudo elements on result items */
-.search-results .result-item::before,
-.search-results .result-item::after {
-  content: none !important;
-  display: none !important;
-}
-
-/* Ensure no background bleed / overlay */
-.search-results .result-item {
-  position: relative;
-  overflow: hidden;
-}
-
-/* Optional: slightly softer inner grey tint */
-.search-results .result-item {
-  background: color-mix(in srgb, var(--bg-soft) 85%, var(--surface));
-}
-
-/* ---------- Desktop Enhancement ---------- */
+/* ---------- Desktop ---------- */
 @media (min-width: 1024px) {
-  .home {
-    gap: 3rem;
-  }
-
   .hero h1 {
     font-size: 2.3rem;
-  }
-
-  .home-search {
-    margin-top: -0.5rem;
   }
 }
