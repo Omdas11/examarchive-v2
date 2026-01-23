@@ -1,8 +1,9 @@
 /* ================================
    ExamArchive – home.css
-   Home page (FINAL CLEAN)
+   Home page (FINAL CLEAN + POLISHED)
    ================================ */
 
+/* ---------- Page Wrapper ---------- */
 .home {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -124,93 +125,81 @@
   z-index: 20;
 }
 
+/* ---------- Result Groups ---------- */
 .result-group {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.result-group:last-child {
+  margin-bottom: 0;
 }
 
 .result-group h4 {
   font-size: 0.75rem;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.45rem;
 }
 
-.result-item {
-  padding: 0.45rem 0.5rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.result-item:hover {
-  background: var(--bg-soft);
-}
-
-/* ---------- Quick Access ---------- */
-.quick-access {
-  text-align: center;
-}
-
-.quick-access h2 {
-  font-size: 1.2rem;
-  margin-bottom: 0.8rem;
-}
-
-.quick-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  justify-content: center;
-}
-
-.quick-btn {
-  padding: 0.55rem 0.9rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--bg-soft);
-  font-size: 0.85rem;
-  text-decoration: none;
-  color: var(--text);
-}
-
-.quick-btn:hover {
-  border-color: var(--red);
-}
-
-/* =====================================
-   Home Search — Paper Result Card Style
-   ===================================== */
-
+/* ---------- Paper Result Cards ---------- */
 .search-results .result-item {
-  background: var(--surface);
+  position: relative;
+  background: linear-gradient(
+    0deg,
+    var(--bg-soft),
+    var(--surface)
+  );
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 0.55rem 0.65rem;
+  padding: 0.6rem 0.7rem 0.6rem 2.1rem;
   margin-bottom: 0.45rem;
   font-size: 0.85rem;
   line-height: 1.35;
   cursor: pointer;
-  transition: 
+  transition:
     background 0.15s ease,
     border-color 0.15s ease,
-    transform 0.12s ease;
+    transform 0.12s ease,
+    box-shadow 0.15s ease;
 }
 
-/* Hover / tap feedback */
+/* Paper icon */
+.search-results .result-item::before {
+  content: "📄";
+  position: absolute;
+  left: 0.65rem;
+  top: 0.55rem;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+/* Hover / tap */
 .search-results .result-item:hover {
   background: var(--bg-soft);
   border-color: var(--red);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
-/* Prevent last item spacing issue */
-.search-results .result-item:last-child {
-  margin-bottom: 0;
+/* Year badge (JS supplies data-year) */
+.search-results .result-item::after {
+  content: attr(data-year);
+  position: absolute;
+  right: 0.55rem;
+  top: 0.5rem;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
 }
 
-/* Paper emphasis (optional, subtle) */
-.search-results .result-group h4 {
-  margin-bottom: 0.4rem;
+/* Placeholder cards */
+.search-results .result-item.text-muted {
+  background: var(--bg-soft);
+  border-style: dashed;
+  cursor: default;
 }
 
 /* ---------- Notice Board & Calendar ---------- */
