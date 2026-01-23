@@ -177,6 +177,42 @@
   border-color: var(--red);
 }
 
+/* =====================================
+   Home Search — Paper Result Card Style
+   ===================================== */
+
+.search-results .result-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.65rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  cursor: pointer;
+  transition: 
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.12s ease;
+}
+
+/* Hover / tap feedback */
+.search-results .result-item:hover {
+  background: var(--bg-soft);
+  border-color: var(--red);
+  transform: translateY(-1px);
+}
+
+/* Prevent last item spacing issue */
+.search-results .result-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Paper emphasis (optional, subtle) */
+.search-results .result-group h4 {
+  margin-bottom: 0.4rem;
+}
+
 /* ---------- Notice Board & Calendar ---------- */
 .notice-board,
 .academic-calendar {
