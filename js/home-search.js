@@ -1,5 +1,6 @@
 /**
- * ExamArchive v2 — Home Search (FINAL STABLE + CATEGORIES)
+ * ExamArchive v2 — Home Search
+ * FINAL (schema-aware for papers.json)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -24,8 +25,8 @@ fetch(PAPERS_URL)
   });
 
 /* ---------------- Helpers ---------------- */
-function normalize(text = "") {
-  return String(text).toLowerCase();
+function normalize(v = "") {
+  return String(v).toLowerCase();
 }
 
 function clearResults() {
@@ -40,125 +41,80 @@ function showEmpty() {
   resultsBox.style.display = "block";
 }
 
-/* ---------------- Category Detection ---------------- */
-function detectCategories(query) {
-  const q = normalize(query);
-
-  const subjects = {};
-  const programmes = {};
-  const streams = {};
-
-  PAPERS.forEach(p => {
-    if (p.subject && normalize(p.subject).includes(q)) {
-      subjects[p.subject] = true;
-    }
-    if (p.programme && normalize(p.programme).includes(q)) {
-      programmes[p.programme] = true;
-    }
-    if (p.stream && normalize(p.stream).includes(q)) {
-      streams[p.stream] = true;
-    }
-  });
-
-  return {
-    subjects: Object.keys(subjects),
-    programmes: Object.keys(programmes),
-    streams: Object.keys(streams)
-  };
-}
-
 /* ---------------- Paper Search ---------------- */
 function searchPapers(query) {
   const q = normalize(query);
 
   return PAPERS.filter(p => {
-    return [
-      p.paper_code,
-      p.paper_name,
+    const haystack = [
+      ...(p.paper_codes || []),
+      ...(p.paper_names || []),
       p.subject,
       p.programme,
       p.stream,
+      ...(p.tags || []),
       p.year
     ]
       .filter(Boolean)
       .map(normalize)
-      .join(" ")
-      .includes(q);
-  }).slice(0, 5);
+      .join(" ");
+
+    return haystack.includes(q);
+  }).slice(0, 6);
 }
 
-/* ---------------- Render Results ---------------- */
+/* ---------------- Render ---------------- */
 function renderResults(query) {
   if (!query) return clearResults();
 
   let html = "";
-  const categories = detectCategories(query);
-  const paperMatches = searchPapers(query);
 
-  /* ---------- Categories ---------- */
-  if (
-    categories.subjects.length ||
-    categories.programmes.length ||
-    categories.streams.length
-  ) {
-    html += `<div class="result-group"><h4>Categories</h4>`;
+  /* ---------- PAPERS (PRIMARY) ---------- */
+  if (SEARCH_MODE === "universal" || SEARCH_MODE === "papers") {
+    const matches = searchPapers(query);
 
-    categories.subjects.forEach(s => {
+    if (matches.length) {
       html += `
-        <div class="result-item"
-             onclick="location.href='browse.html?subject=${encodeURIComponent(s)}'">
-          📘 Subject: ${s}
-        </div>`;
-    });
+        <div class="result-group">
+          <h4>Papers</h4>
+          ${matches.map(p => {
+            const code = p.paper_codes?.[0] || "";
+            const name = p.paper_names?.[0] || "";
+            const year = p.year || "";
 
-    categories.programmes.forEach(p => {
-      html += `
-        <div class="result-item"
-             onclick="location.href='browse.html?programme=${encodeURIComponent(p)}'">
-          📘 Programme: ${p}
-        </div>`;
-    });
-
-    categories.streams.forEach(s => {
-      html += `
-        <div class="result-item"
-             onclick="location.href='browse.html?stream=${encodeURIComponent(s)}'">
-          🏫 Stream: ${s}
-        </div>`;
-    });
-
-    html += `</div>`;
+            return `
+              <div class="result-item"
+                   onclick="location.href='paper.html?code=${code}'">
+                ${code} — ${name}${year ? ` (${year})` : ""}
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
   }
 
-  /* ---------- Papers ---------- */
-  if ((SEARCH_MODE === "universal" || SEARCH_MODE === "papers") && paperMatches.length) {
-    html += `
-      <div class="result-group">
-        <h4>Papers</h4>
-        ${paperMatches.map(p => `
-          <div class="result-item"
-               onclick="location.href='paper.html?code=${p.paper_code}'">
-            ${p.paper_code} — ${p.paper_name} (${p.year})
-          </div>
-        `).join("")}
-      </div>`;
-  }
-
-  /* ---------- Placeholders ---------- */
+  /* ---------- PLACEHOLDERS ---------- */
   if (SEARCH_MODE === "universal" || SEARCH_MODE === "rq") {
     html += `
       <div class="result-group">
         <h4>Repeated Questions</h4>
-        <div class="result-item text-muted">RQ search coming soon</div>
-      </div>`;
+        <div class="result-item text-muted">
+          RQ search coming soon
+        </div>
+      </div>
+    `;
   }
 
   if (SEARCH_MODE === "universal" || SEARCH_MODE === "notes") {
     html += `
       <div class="result-group">
         <h4>Notes</h4>
-        <div class="result-item text-muted">Notes search coming soon</div>
-      </div>`;
+        <div class="result-item text-muted">
+          Notes search coming soon
+        </div>
+      </div>
+    `;
   }
 
   if (!html.trim()) return showEmpty();
@@ -167,12 +123,13 @@ function renderResults(query) {
   resultsBox.style.display = "block";
 }
 
-/* ---------------- Input Events ---------------- */
+/* ---------------- Input ---------------- */
 input.addEventListener("input", e => {
   const q = e.target.value.trim();
   renderResults(q);
 });
 
+/* ---------------- Outside Click ---------------- */
 document.addEventListener("click", e => {
   if (!e.target.closest(".search-wrapper")) {
     clearResults();
