@@ -1,7 +1,8 @@
 /* ================================
-   ExamArchive – Header (CLEAN)
+   ExamArchive – Header (FINAL STABLE)
    ================================ */
 
+/* ---------- Header ---------- */
 .site-header {
   position: sticky;
   top: 0;
@@ -16,14 +17,14 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* Logo */
+/* ---------- Logo ---------- */
 .logo {
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--text);
 }
 
-/* Desktop nav */
+/* ---------- Desktop Nav ---------- */
 .nav {
   display: flex;
   gap: 1rem;
@@ -35,47 +36,102 @@
   color: var(--text-muted);
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.nav-link.active {
   color: var(--red);
+  font-weight: 600;
 }
 
-/* Icons (GLOBAL) */
+/* ---------- ICON SYSTEM (INLINE SVG) ---------- */
 .icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+
+  display: block;
 }
 
-/* Theme toggle pill */
+/* ---------- Theme Toggle Pill ---------- */
 .theme-toggle {
   display: flex;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.3rem;
 
-  padding: 0.25rem;
+  padding: 0.35rem;
   border-radius: 999px;
 
   background: var(--bg-soft);
   border: 1px solid var(--border);
 
-  overflow: hidden; /* 🔒 no bleed */
+  /* 🔑 CRITICAL: prevent SVG clipping */
+  overflow: visible;
 }
 
-/* Buttons */
+/* ---------- Toggle Buttons ---------- */
 .theme-btn,
-.night-btn,
+.night-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.theme-btn:hover,
+.night-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Active background */
+.theme-btn.active,
+.night-btn.active {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body[data-theme="dark"] .theme-btn.active,
+body[data-theme="amoled"] .theme-btn.active,
+body[data-theme="dark"] .night-btn.active,
+body[data-theme="amoled"] .night-btn.active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- Icon Colors ---------- */
+/* Dark / AMOLED → white icons */
+body[data-theme="dark"] .icon,
+body[data-theme="amoled"] .icon {
+  color: #ffffff;
+}
+
+/* Night mode → yellow bulb only */
+body[data-night="on"] .night-btn.active .icon {
+  color: #ffd54f;
+}
+
+/* ---------- Hamburger Button ---------- */
 .menu-btn {
+  display: none;
+
   background: none;
   border: none;
   cursor: pointer;
 
-  width: 32px;
-  height: 28px;
-  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
 
   display: flex;
   align-items: center;
@@ -84,42 +140,13 @@
   color: var(--text);
 }
 
-/* Active background */
-.theme-btn.active,
-.night-btn.active {
-  background: rgba(0,0,0,0.06);
-}
-
-body[data-theme="dark"] .theme-btn.active,
-body[data-theme="amoled"] .theme-btn.active,
-body[data-theme="dark"] .night-btn.active,
-body[data-theme="amoled"] .night-btn.active {
-  background: rgba(255,255,255,0.14);
-}
-
-/* Dark / AMOLED → white icons */
-body[data-theme="dark"] .icon,
-body[data-theme="amoled"] .icon {
-  color: #fff;
-}
-
-/* Night mode active → yellow bulb */
-body[data-night="on"] .night-btn.active .bulb {
-  color: #ffd54f;
-}
-
-/* Hamburger */
-.menu-btn {
-  display: none;
-}
-
-/* Mobile menu */
+/* ---------- Mobile Menu ---------- */
 .mobile-nav {
   position: absolute;
   top: 100%;
   right: 1rem;
 
-  min-width: 160px;
+  min-width: 180px;
   padding: 0.6rem;
 
   background: var(--surface);
@@ -134,11 +161,15 @@ body[data-night="on"] .night-btn.active .bulb {
   z-index: 9999;
 }
 
+.mobile-nav.open {
+  display: flex;
+}
+
 .mobile-nav a {
   text-decoration: none;
   font-size: 0.9rem;
   color: var(--text);
-  padding: 0.45rem 0.5rem;
+  padding: 0.45rem 0.6rem;
   border-radius: 6px;
 }
 
@@ -146,15 +177,12 @@ body[data-night="on"] .night-btn.active .bulb {
   background: var(--bg-soft);
 }
 
-.mobile-nav.open {
-  display: flex;
-}
-
-/* Responsive */
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .nav {
     display: none;
   }
+
   .menu-btn {
     display: flex;
   }
