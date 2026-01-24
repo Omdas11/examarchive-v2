@@ -6,34 +6,37 @@ const SYLLABUS_ROOT = "data/syllabus";
 const OUTPUT_DIR = "assets/pdfs/syllabus";
 
 function walk(dir) {
-  let out = [];
-  for (const f of fs.readdirSync(dir)) {
-    const p = path.join(dir, f);
-    if (fs.statSync(p).isDirectory()) out.push(...walk(p));
-    else if (f.endsWith(".json")) out.push(p);
+  let results = [];
+  for (const file of fs.readdirSync(dir)) {
+    const p = path.join(dir, file);
+    if (fs.statSync(p).isDirectory()) {
+      results = results.concat(walk(p));
+    } else if (file.endsWith(".json")) {
+      results.push(p);
+    }
   }
-  return out;
+  return results;
 }
 
-function renderUnits(units, list) {
+function renderUnits(units, listMode) {
   return units.map(u => `
     <h3>${u.title} (${u.hours} Hours)</h3>
     ${
-      list
+      listMode
         ? `<ul>${u.topics.map(t => `<li>☐ ${t}</li>`).join("")}</ul>`
         : `<p>${u.topics.join(", ")}</p>`
     }
   `).join("");
 }
 
-function html(data, list) {
+function buildHTML(data, listMode) {
   return `
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
 <style>
-body { font-family: serif; margin: 48px; }
+body { font-family: serif; margin: 50px; }
 header { text-align: center; }
 footer {
   position: fixed;
@@ -43,7 +46,8 @@ footer {
   font-size: 10px;
 }
 ul { list-style: none; padding-left: 0; }
-li { margin: 4px 0; }
+li { margin: 6px 0; }
+hr { margin: 20px 0; }
 </style>
 </head>
 <body>
@@ -60,13 +64,13 @@ li { margin: 4px 0; }
 <p>${data.objectives || ""}</p>
 
 <h2>COURSE CONTENT</h2>
-${renderUnits(data.units || [], list)}
+${renderUnits(data.units || [], listMode)}
 
 <h2>REFERENCES</h2>
 <ol>${(data.references || []).map(r => `<li>${r}</li>`).join("")}</ol>
 
 <footer>
-  ExamArchive · Page <span class="pageNumber"></span> / <span class="totalPages"></span>
+  ExamArchive · Page <span class="pageNumber"></span> of <span class="totalPages"></span>
 </footer>
 
 </body>
@@ -76,9 +80,9 @@ ${renderUnits(data.units || [], list)}
 (async () => {
   console.log("🚀 Generating PDFs");
 
-  const files = walk(SYLLABUS_ROOT);
-  if (!files.length) {
-    console.log("⚠ No syllabus found");
+  const syllabusFiles = walk(SYLLABUS_ROOT);
+  if (!syllabusFiles.length) {
+    console.log("⚠ No syllabus JSON found");
     return;
   }
 
@@ -86,18 +90,19 @@ ${renderUnits(data.units || [], list)}
 
   const browser = await puppeteer.launch({
     headless: "new",
-    executablePath: puppeteer.executablePath(),
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   });
 
   const page = await browser.newPage();
 
-  for (const f of files) {
-    const data = JSON.parse(fs.readFileSync(f, "utf8"));
-    const code = data.paper_code;
+  for (const file of syllabusFiles) {
+    const data = JSON.parse(fs.readFileSync(file, "utf8"));
+    const code = data.paper_code || "UNKNOWN";
 
     for (const mode of ["paragraph", "list"]) {
-      await page.setContent(html(data, mode === "list"), { waitUntil: "networkidle0" });
+      await page.setContent(buildHTML(data, mode === "list"), {
+        waitUntil: "networkidle0"
+      });
 
       await page.pdf({
         path: `${OUTPUT_DIR}/${code}-${mode}.pdf`,
