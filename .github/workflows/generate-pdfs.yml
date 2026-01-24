@@ -1,23 +1,25 @@
 name: Generate Syllabus PDFs
 
 on:
+  # Auto-run when syllabus / template / generator changes
   push:
     paths:
       - "data/syllabus/**"
       - "templates/**"
       - "scripts/**"
 
+  # Manual run button (VERY IMPORTANT for mobile)
+  workflow_dispatch:
+
 jobs:
   build-pdf:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -25,18 +27,21 @@ jobs:
       - name: Install Chrome
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          sudo apt-get install -y chromium-browser
 
       - name: Install dependencies
-        run: npm install puppeteer
+        run: |
+          npm install puppeteer
 
       - name: Generate PDFs
-        run: node scripts/generate-syllabus-pdf.js
+        run: |
+          echo "🚀 Starting syllabus PDF generator"
+          node scripts/generate-syllabus-pdf.js
 
-      - name: Commit PDFs to generated-pdfs branch
+      - name: Commit generated PDFs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          commit_message: "auto: generate syllabus PDFs"
           branch: generated-pdfs
           create_branch: true
-          commit_message: "auto: generate syllabus PDFs"
           skip_fetch: true
