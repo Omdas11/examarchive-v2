@@ -1,27 +1,26 @@
 /* =====================================================
-   ExamArchive – PDF Demo Stylesheet
-   FINAL DEMO VERSION
+   ExamArchive – PDF Demo Styles
+   Stable, Mobile-Safe
    ===================================================== */
 
-/* ---------- Page Setup ---------- */
+/* ---------- Page Setup (EASY TO MODIFY) ---------- */
 @page {
   size: A4;
-  margin: 25mm 25mm 30mm 30mm;
+  margin: 25mm 25mm 35mm 30mm;
 }
 
 /* ---------- Print Reset ---------- */
 @media print {
-
   body {
-    background: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    background: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: page;
   }
 
   .demo-controls {
-    display: none !important;
+    display: none;
   }
-
 }
 
 /* ---------- Base Typography ---------- */
@@ -42,10 +41,8 @@
   transform: translate(-50%, -50%) rotate(-25deg);
   font-size: 72pt;
   font-weight: bold;
-  color: #000;
   opacity: 0.06;
   z-index: -1;
-  white-space: nowrap;
 }
 
 /* ---------- Header ---------- */
@@ -56,7 +53,6 @@
 
 .pdf-header h1 {
   font-size: 17pt;
-  font-weight: bold;
   margin: 0;
 }
 
@@ -67,11 +63,11 @@
 
 .pdf-meta {
   font-size: 10pt;
-  margin-top: 0.5rem;
-  line-height: 1.4;
+  margin-top: 0.4rem;
 }
 
 .pdf-university {
+  font-size: 10pt;
   font-weight: bold;
   margin-top: 0.3rem;
 }
@@ -91,9 +87,9 @@
   font-size: 13pt;
   font-weight: bold;
   text-transform: uppercase;
-  margin-bottom: 0.6rem;
   border-bottom: 1px solid #000;
   padding-bottom: 0.2rem;
+  margin-bottom: 0.6rem;
 }
 
 /* ---------- Units ---------- */
@@ -104,20 +100,19 @@
 
 .pdf-unit h3 {
   font-size: 12pt;
-  font-weight: bold;
   margin-bottom: 0.1rem;
 }
 
 .pdf-hours {
   font-size: 10pt;
   font-style: italic;
-  margin: 0 0 0.4rem 0;
+  margin-bottom: 0.4rem;
 }
 
-/* ---------- Paragraphs ---------- */
+/* ---------- Text ---------- */
 #pdf-root p {
-  margin: 0.2rem 0 0.6rem;
   text-align: justify;
+  margin-bottom: 0.6rem;
 }
 
 /* ---------- References ---------- */
@@ -126,11 +121,7 @@
   padding-left: 1.2rem;
 }
 
-.pdf-references li {
-  margin-bottom: 0.4rem;
-}
-
-/* ---------- Sticky Footer ---------- */
+/* ---------- Footer ---------- */
 .pdf-footer {
   position: fixed;
   bottom: 15mm;
@@ -143,32 +134,15 @@
 }
 
 /* ---------- Page Number ---------- */
-.pdf-page-number::after {
+.page-number::after {
   content: counter(page);
 }
 
-/* ---------- Page Counter ---------- */
-@media print {
-  body {
-    counter-reset: page;
-  }
-}
-
-/* ---------- First Page Timestamp ---------- */
-@page :first {
-  margin-bottom: 35mm;
-}
-
-.first-page-timestamp {
+/* ---------- First Page Meta ---------- */
+.pdf-first-page-meta {
   position: fixed;
   bottom: 22mm;
   right: 25mm;
   font-size: 9pt;
   color: #444;
-}
-
-/* ---------- Page Break Control ---------- */
-.pdf-section,
-.pdf-unit {
-  page-break-inside: avoid;
 }
