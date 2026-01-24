@@ -1,147 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>{{TITLE}}</title>
-
+  <meta charset="utf-8" />
   <style>
-    @page {
-      margin: 32mm 22mm 30mm 22mm;
-    }
-
     body {
       font-family: "Times New Roman", serif;
-      color: #111;
-      font-size: 12pt;
-      line-height: 1.45;
+      margin: 60px;
+      line-height: 1.5;
     }
 
-    /* ---------- HEADER ---------- */
-    header {
+    .header {
       text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 30px;
     }
 
-    header h1 {
-      font-size: 18pt;
+    .header h1 {
+      font-size: 20px;
       margin: 0;
-      letter-spacing: 0.5px;
-    }
-
-    header .meta {
-      margin-top: 6px;
-      font-size: 11pt;
-    }
-
-    header .meta strong {
       font-weight: bold;
-    }
-
-    hr {
-      border: none;
-      border-top: 1px solid #000;
-      margin: 14px 0;
-    }
-
-    /* ---------- SECTIONS ---------- */
-    h2 {
-      font-size: 13pt;
-      margin-top: 18px;
-      margin-bottom: 6px;
       text-transform: uppercase;
     }
 
-    .unit {
-      margin-bottom: 14px;
+    .meta {
+      font-size: 13px;
+      margin-top: 6px;
     }
 
-    .unit-title {
+    .meta strong {
       font-weight: bold;
+    }
+
+    h2 {
+      font-size: 15px;
+      margin-top: 25px;
+      border-bottom: 1px solid #000;
+      padding-bottom: 4px;
+    }
+
+    .unit {
+      margin-top: 15px;
     }
 
     .hours {
       font-style: italic;
-      font-size: 11pt;
+      font-size: 13px;
     }
 
-    /* ---------- CONTENT MODES ---------- */
-    .paragraph {
-      margin-top: 4px;
-      text-align: justify;
+    ul {
+      margin-left: 20px;
     }
 
-    ul.checklist {
-      margin-top: 6px;
-      padding-left: 0;
-      list-style: none;
-    }
-
-    ul.checklist li {
-      margin-bottom: 4px;
-    }
-
-    ul.checklist li::before {
+    li.checkbox::before {
       content: "☐ ";
-      font-size: 12pt;
     }
 
-    /* ---------- REFERENCES ---------- */
-    ol.references {
-      margin-top: 6px;
-      padding-left: 18px;
-    }
-
-    /* ---------- FOOTER ---------- */
-    footer {
-      position: fixed;
-      bottom: 10mm;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 9pt;
-      color: #555;
-    }
-
-    /* ---------- WATERMARK ---------- */
     .watermark {
       position: fixed;
       top: 45%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 52pt;
-      color: rgba(0,0,0,0.06);
+      font-size: 60px;
+      color: #000;
+      opacity: 0.05;
       z-index: -1;
-      white-space: nowrap;
+    }
+
+    @page {
+      margin: 60px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 11px;
     }
   </style>
 </head>
 
 <body>
-
   <div class="watermark">ExamArchive</div>
 
-  <header>
-    <h1>{{TITLE}}</h1>
+  <div class="header">
+    <h1>{{paper_name}}</h1>
     <div class="meta">
-      {{CODE}}<br />
-      <strong>{{UNIVERSITY}}</strong><br />
-      {{PROGRAMME}} | {{SEMESTER}} | Credits: {{CREDITS}}
+      {{programme}} · Semester {{semester}} · Credits: {{credits}}<br>
+      <strong>{{university}}</strong>
     </div>
-  </header>
+  </div>
 
-  <hr />
+  <h2>OBJECTIVES</h2>
+  <p>{{objectives}}</p>
 
-  {{OBJECTIVES}}
+  <h2>COURSE CONTENT</h2>
+  {{units}}
 
-  <h2>Course Content</h2>
-
-  {{UNITS}}
-
-  {{REFERENCES}}
+  <h2>REFERENCES</h2>
+  <ol>
+    {{references}}
+  </ol>
 
   <footer>
-    ExamArchive • Page <span class="pageNumber"></span>
+    ExamArchive · Page <span class="pageNumber"></span><br>
+    Generated {{generated_date}}
   </footer>
-
 </body>
 </html>
