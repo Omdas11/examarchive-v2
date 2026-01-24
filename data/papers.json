@@ -16,6 +16,7 @@
     "tags": [
       "taxation"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/commerce/AU-CBCS-COMDSC302T-2022.pdf",
     "year": 2022
   },
@@ -36,6 +37,7 @@
     "tags": [
       "elective"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE501T-2021.pdf",
     "year": 2021
   },
@@ -56,6 +58,7 @@
     "tags": [
       "elective"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE501T-2022.pdf",
     "year": 2022
   },
@@ -77,6 +80,7 @@
       "nuclear physics",
       "particle physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE502T-2021.pdf",
     "year": 2021
   },
@@ -98,6 +102,7 @@
       "nuclear physics",
       "particle physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE502T-2022.pdf",
     "year": 2022
   },
@@ -119,6 +124,7 @@
       "astronomy",
       "nanoscience"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE601T-2024.pdf",
     "year": 2024
   },
@@ -140,6 +146,7 @@
       "astronomy",
       "nanoscience"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSDSE601T-2025.pdf",
     "year": 2025
   },
@@ -160,6 +167,7 @@
     "tags": [
       "mathematical physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC101T-2024.pdf",
     "year": 2024
   },
@@ -180,6 +188,7 @@
     "tags": [
       "mechanics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC102T-2024.pdf",
     "year": 2024
   },
@@ -201,6 +210,7 @@
       "electricity",
       "magnetism"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC201T-2021.pdf",
     "year": 2021
   },
@@ -222,6 +232,7 @@
       "electricity",
       "magnetism"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC201T-2022.pdf",
     "year": 2022
   },
@@ -243,6 +254,7 @@
       "electricity",
       "magnetism"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC201T-2023.pdf",
     "year": 2023
   },
@@ -264,6 +276,7 @@
       "waves",
       "optics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC202T-2022.pdf",
     "year": 2022
   },
@@ -284,6 +297,7 @@
     "tags": [
       "mathematical physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC301T-2020.pdf",
     "year": 2020
   },
@@ -304,6 +318,7 @@
     "tags": [
       "mathematical physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC301T-2021.pdf",
     "year": 2021
   },
@@ -324,6 +339,7 @@
     "tags": [
       "digital electronics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC303T-2021.pdf",
     "year": 2021
   },
@@ -344,6 +360,7 @@
     "tags": [
       "mathematical physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC401T-2022.pdf",
     "year": 2022
   },
@@ -364,6 +381,7 @@
     "tags": [
       "mathematical physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC401T-2023.pdf",
     "year": 2023
   },
@@ -384,6 +402,7 @@
     "tags": [
       "modern physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC402T-2022.pdf",
     "year": 2022
   },
@@ -404,6 +423,7 @@
     "tags": [
       "modern physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC402T-2023.pdf",
     "year": 2023
   },
@@ -424,6 +444,7 @@
     "tags": [
       "analog electronics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC403T-2022.pdf",
     "year": 2022
   },
@@ -444,6 +465,7 @@
     "tags": [
       "quantum mechanics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC501T-2020.pdf",
     "year": 2020
   },
@@ -464,6 +486,7 @@
     "tags": [
       "quantum mechanics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC501T-2021.pdf",
     "year": 2021
   },
@@ -484,6 +507,7 @@
     "tags": [
       "solid state physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC502T-2020.pdf",
     "year": 2020
   },
@@ -504,6 +528,7 @@
     "tags": [
       "solid state physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC502T-2021.pdf",
     "year": 2021
   },
@@ -524,6 +549,7 @@
     "tags": [
       "solid state physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC502T-2022.pdf",
     "year": 2022
   },
@@ -544,6 +570,7 @@
     "tags": [
       "electromagnetic theory"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC601T-2021.pdf",
     "year": 2021
   },
@@ -564,6 +591,7 @@
     "tags": [
       "electromagnetic theory"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC601T-2023.pdf",
     "year": 2023
   },
@@ -584,6 +612,7 @@
     "tags": [
       "electromagnetic theory"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC601T-2024.pdf",
     "year": 2024
   },
@@ -604,6 +633,7 @@
     "tags": [
       "statistical mechanics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC602T-2021.pdf",
     "year": 2021
   },
@@ -624,6 +654,7 @@
     "tags": [
       "statistical mechanics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC602T-2023.pdf",
     "year": 2023
   },
@@ -644,6 +675,7 @@
     "tags": [
       "statistical mechanics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/cbcs/physics/AU-CBCS-PHSHCC602T-2024.pdf",
     "year": 2024
   },
@@ -664,6 +696,7 @@
     "tags": [
       "mathematical physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/fyug/physics/AU-FYUG-PHYDSC101T-2023.pdf",
     "year": 2023
   },
@@ -684,6 +717,7 @@
     "tags": [
       "mathematical physics"
     ],
+    "has_rq": false,
     "pdf": "/examarchive-v2/papers/assam-university/fyug/physics/AU-FYUG-PHYDSC101T-2024.pdf",
     "year": 2024
   },
@@ -705,6 +739,7 @@
       "mechanics",
       "relativity"
     ],
+    "has_rq": true,
     "pdf": "/examarchive-v2/papers/assam-university/fyug/physics/AU-FYUG-PHYDSC102T-2023.pdf",
     "year": 2023
   }
