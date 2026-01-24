@@ -1,11 +1,11 @@
 name: Generate Syllabus PDFs
 
 on:
-  workflow_dispatch:
   push:
     paths:
       - "data/syllabus/**"
       - "scripts/**"
+  workflow_dispatch:
 
 jobs:
   build-pdf:
@@ -14,26 +14,33 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Puppeteer
-        run: |
-          npm init -y
-          npm install puppeteer
-
-      # 🔴 THIS IS THE MISSING STEP
-      - name: Install Chromium for Puppeteer
-        run: npx puppeteer browsers install chrome
+      - name: Install Puppeteer (with Chromium)
+        run: npm install puppeteer
 
       - name: Generate PDFs
         run: node scripts/generate-syllabus-pdf.js
 
       - name: Commit generated PDFs
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "auto: generate syllabus PDFs"
-          file_pattern: assets/pdfs/syllabus/*.pdf
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add assets/pdfs/syllabus/*.pdf
+
+          if git diff --cached --quiet; then
+            echo "No PDF changes to commit"
+            exit 0
+          fi
+
+          git commit -m "auto: generate syllabus PDFs"
+
+          git pull --rebase origin main
+          git push origin main
