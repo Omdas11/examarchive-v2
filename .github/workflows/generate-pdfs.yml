@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -31,8 +33,10 @@ jobs:
       - name: Generate PDFs
         run: node scripts/generate-syllabus-pdf.js
 
-      - name: Commit PDFs
+      - name: Commit PDFs to generated-pdfs branch
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          branch: generated-pdfs
+          create_branch: true
           commit_message: "auto: generate syllabus PDFs"
           skip_fetch: true
