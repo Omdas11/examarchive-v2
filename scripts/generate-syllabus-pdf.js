@@ -1,113 +1,108 @@
-/**
- * ExamArchive v2 — Syllabus PDF Generator
- * FINAL GitHub Actions compatible version
- */
-
 import fs from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
 
-const ROOT = process.cwd();
+const SYLLABUS_ROOT = "data/syllabus";
+const OUTPUT_ROOT = "assets/pdfs/syllabus";
 
-const SYLLABUS_DIR = path.join(ROOT, "data", "syllabus");
-const TEMPLATE_PATH = path.join(ROOT, "templates", "syllabus.html");
-const OUTPUT_DIR = path.join(ROOT, "assets", "pdfs", "syllabus");
+// ----------------------------------
+// Recursively collect all JSON files
+// ----------------------------------
+function collectJsonFiles(dir) {
+  let results = [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
 
-// Ensure output dir
-fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
 
-// Load template
-const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
+    if (entry.isDirectory()) {
+      results = results.concat(collectJsonFiles(fullPath));
+    } else if (entry.isFile() && entry.name.endsWith(".json")) {
+      results.push(fullPath);
+    }
+  }
 
-// ---------- Helpers ----------
-function renderUnits(units = []) {
-  return units
-    .map(
-      (u) => `
-      <div class="unit">
-        <strong>${u.title}</strong>
-        <div class="hours">(${u.hours} Hours)</div>
-        <p>${(u.topics || []).join(", ")}</p>
-      </div>
-    `
-    )
-    .join("");
+  return results;
 }
 
-function renderReferences(refs) {
-  if (!refs) return "";
-
-  if (Array.isArray(refs)) {
-    return refs.map((r) => `<li>${r}</li>`).join("");
-  }
-
-  if (typeof refs === "object") {
-    return Object.values(refs)
-      .flat()
-      .map((r) => `<li>${r}</li>`)
-      .join("");
-  }
-
-  if (typeof refs === "string") {
-    return `<li>${refs}</li>`;
-  }
-
-  return "";
-}
-
-// ---------- Main ----------
+// ----------------------------------
+// Main
+// ----------------------------------
 (async () => {
   console.log("🚀 Starting syllabus PDF generator");
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: "/usr/bin/google-chrome", // ⭐ THIS IS THE FIX
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+  const files = collectJsonFiles(SYLLABUS_ROOT);
 
-  const page = await browser.newPage();
-
-  const files = fs.readdirSync(SYLLABUS_DIR).filter(f => f.endsWith(".json"));
-
-  if (!files.length) {
-    console.log("⚠️ No syllabus JSON files found");
-    await browser.close();
+  if (files.length === 0) {
+    console.warn("⚠️ No syllabus JSON files found");
     return;
   }
 
+  console.log(`📚 Found ${files.length} syllabus files`);
+
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
+
   for (const file of files) {
-    const data = JSON.parse(
-      fs.readFileSync(path.join(SYLLABUS_DIR, file), "utf8")
-    );
+    const data = JSON.parse(fs.readFileSync(file, "utf8"));
 
-    const html = template
-      .replace("{{TITLE}}", data.meta?.title || "")
-      .replace("{{CODE}}", data.meta?.code || "")
-      .replace(
-        "{{META}}",
-        `${data.meta?.programme || ""} | Semester ${data.meta?.semester || ""} | Credits: ${data.meta?.credits || ""}<br>${data.meta?.university || ""}`
-      )
-      .replace("{{OBJECTIVES}}", data.objectives || "")
-      .replace("{{UNITS}}", renderUnits(data.units))
-      .replace("{{REFERENCES}}", renderReferences(data.references));
+    const code = data?.meta?.code || path.basename(file, ".json");
+    const outDir = path.join(OUTPUT_ROOT);
+    const outFile = path.join(outDir, `${code}.pdf`);
 
+    fs.mkdirSync(outDir, { recursive: true });
+
+    const html = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; }
+            h1 { color: #b00020; }
+            .unit { margin-bottom: 12px; }
+            .hours { color: #666; font-size: 0.9em; }
+          </style>
+        </head>
+        <body>
+          <h1>${data.meta.title}</h1>
+          <p><strong>Code:</strong> ${data.meta.code}</p>
+          <p><strong>University:</strong> ${data.meta.university}</p>
+          <p><strong>Programme:</strong> ${data.meta.programme}</p>
+
+          <h2>Objectives</h2>
+          <p>${data.objectives || ""}</p>
+
+          <h2>Units</h2>
+          ${
+            (data.units || []).map(u => `
+              <div class="unit">
+                <strong>${u.title}</strong>
+                <div class="hours">(${u.hours} Hours)</div>
+                <p>${(u.topics || []).join(", ")}</p>
+              </div>
+            `).join("")
+          }
+
+          <h2>References</h2>
+          <ul>
+            ${
+              Array.isArray(data.references)
+                ? data.references.map(r => `<li>${r}</li>`).join("")
+                : ""
+            }
+          </ul>
+        </body>
+      </html>
+    `;
+
+    const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.pdf({ path: outFile, format: "A4" });
 
-    const outPath = path.join(
-      OUTPUT_DIR,
-      `${data.meta?.code || file.replace(".json", "")}.pdf`
-    );
-
-    await page.pdf({
-      path: outPath,
-      format: "A4",
-      printBackground: true,
-      margin: { top: "20mm", bottom: "20mm", left: "20mm", right: "20mm" },
-    });
-
-    console.log("📄 Generated:", outPath);
+    console.log(`✅ Generated ${outFile}`);
+    await page.close();
   }
 
   await browser.close();
-  console.log("✅ All PDFs generated");
+  console.log("🎉 All PDFs generated");
 })();
