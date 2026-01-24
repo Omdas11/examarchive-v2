@@ -38,7 +38,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # First sync with remote
           git pull --rebase origin main
+
+          # Then stage generated PDFs
           git add assets/pdfs/syllabus
-          git commit -m "auto: generate syllabus PDFs" || echo "No changes"
+
+          # Commit only if there are changes
+          git commit -m "auto: generate syllabus PDFs" || echo "No changes to commit"
+
+          # Push back to main
           git push origin main
