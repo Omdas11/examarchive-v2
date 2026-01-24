@@ -2,36 +2,34 @@ name: Generate Syllabus PDFs
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "data/syllabus/**"
+      - "scripts/**"
 
 jobs:
   build-pdf:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Chromium
+      - name: Install Puppeteer (with Chromium)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-
-      - name: Install Puppeteer Core
-        run: |
-          npm uninstall puppeteer puppeteer-core || true
-          npm install puppeteer-core
+          npm init -y
+          npm install puppeteer
 
       - name: Generate PDFs
-        env:
-          CHROME_PATH: /usr/bin/chromium-browser
         run: node scripts/generate-syllabus-pdf.js
 
-      - name: Commit PDFs
+      - name: Commit generated PDFs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          branch: generated-pdfs
-          create_branch: true
           commit_message: "auto: generate syllabus PDFs"
+          file_pattern: assets/pdfs/syllabus/*.pdf
