@@ -1,11 +1,17 @@
+/* ================================
+   ExamArchive – header.css (FINAL)
+   ================================ */
+
 /* ---------- Header ---------- */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 10000;
+
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   padding: 0.9rem 1rem;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,74 +24,119 @@
   color: var(--text);
 }
 
-/* Nav */
-.nav { display: flex; gap: 1rem; }
-.nav-link { color: var(--text-muted); text-decoration: none; }
-.nav-link:hover { color: var(--red); }
+/* ---------- Desktop Nav ---------- */
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: var(--red);
+}
 
 /* ---------- Theme Toggle ---------- */
 .theme-toggle {
   display: flex;
   gap: 0.25rem;
   padding: 0.25rem;
+
   border-radius: 999px;
   background: var(--bg-soft);
   border: 1px solid var(--border);
 }
 
+/* ---------- Buttons (theme + night + menu) ---------- */
 .theme-btn,
 .night-btn,
 .menu-btn {
   width: 32px;
   height: 32px;
+
   border: none;
   background: none;
   border-radius: 999px;
+
   display: grid;
   place-items: center;
   cursor: pointer;
+
+  /* 🔑 THIS IS CRITICAL */
+  color: var(--text);
+
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 /* SVG icons */
-svg {
+.theme-btn svg,
+.night-btn svg,
+.menu-btn svg {
   width: 18px;
   height: 18px;
-  stroke-width: 2;
+
   stroke: currentColor;
+  stroke-width: 2;
   fill: none;
 }
 
-/* DEFAULT icon color */
-.site-header {
-  color: var(--text);
+/* ---------- Dark / AMOLED → WHITE ICONS ---------- */
+body[data-theme="dark"] .theme-btn,
+body[data-theme="dark"] .night-btn,
+body[data-theme="dark"] .menu-btn,
+body[data-theme="amoled"] .theme-btn,
+body[data-theme="amoled"] .night-btn,
+body[data-theme="amoled"] .menu-btn {
+  color: #ffffff;
 }
 
-/* Dark / AMOLED → white icons */
-body[data-theme="dark"] .site-header,
-body[data-theme="amoled"] .site-header {
-  color: #fff;
-}
-
-/* Active */
+/* ---------- Active button background ---------- */
 .theme-btn.active,
 .night-btn.active {
-  background: rgba(0,0,0,.08);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 body[data-theme="dark"] .theme-btn.active,
 body[data-theme="amoled"] .theme-btn.active {
-  background: rgba(255,255,255,.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
-/* 🌙 Night active → yellow */
+/* ---------- 🌙 Night mode ACTIVE → yellow bulb ---------- */
 body[data-night="on"] .night-btn {
-  color: #facc15;
+  color: #facc15; /* yellow */
 }
 
-/* Mobile */
-.menu-btn { display: none; }
+/* ---------- Hover ---------- */
+.theme-btn:hover,
+.night-btn:hover,
+.menu-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body[data-theme="dark"] .theme-btn:hover,
+body[data-theme="dark"] .night-btn:hover,
+body[data-theme="dark"] .menu-btn:hover,
+body[data-theme="amoled"] .theme-btn:hover,
+body[data-theme="amoled"] .night-btn:hover,
+body[data-theme="amoled"] .menu-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Mobile ---------- */
+.menu-btn {
+  display: none;
+}
 
 @media (max-width: 768px) {
-  .nav { display: none; }
-  .menu-btn { display: grid; }
+  .nav {
+    display: none;
+  }
+
+  .menu-btn {
+    display: grid;
+  }
 }
