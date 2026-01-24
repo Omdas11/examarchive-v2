@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Puppeteer (Chromium included)
+      - name: Install Puppeteer (with Chromium)
         run: npm install puppeteer
 
       - name: Generate PDFs
