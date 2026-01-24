@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - "data/syllabus/**"
-      - "templates/**"
       - "scripts/**"
   workflow_dispatch:
 
@@ -13,25 +12,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Puppeteer (with Chromium)
-        run: |
-          npm uninstall puppeteer-core || true
-          npm install puppeteer
+      - name: Install Puppeteer (Chromium included)
+        run: npm install puppeteer
 
       - name: Generate PDFs
         run: node scripts/generate-syllabus-pdf.js
 
-      - name: Commit generated PDFs
+      - name: Commit PDFs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "auto: generate syllabus PDFs"
           branch: generated-pdfs
           create_branch: true
+          commit_message: "auto: generate syllabus PDFs"
