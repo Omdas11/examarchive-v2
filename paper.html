@@ -53,18 +53,55 @@
     <!-- =========================
          SYLLABUS
     ========================== -->
-    <section class="paper-section syllabus-section">
+    <section class="paper-section syllabus-section card">
+
       <div class="section-header">
         <h2>Syllabus</h2>
 
         <button
-          id="download-full"
+          id="syllabus-download-btn"
           class="download-btn"
-          title="Download full syllabus"
           aria-label="Download syllabus"
+          title="Download syllabus"
         >
-          <img src="assets/icons/download.png" alt="Download syllabus">
+          <span>Download</span>
+
+          <!-- SVG arrow (no chevron, no font icon) -->
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              d="M7 10l5 5 5-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
+      </div>
+
+      <!-- Download options (hidden by default, JS will toggle) -->
+      <div id="syllabus-download-menu" class="download-menu hidden">
+        <a
+          id="download-syllabus-paragraph"
+          href="#"
+          target="_blank"
+        >
+          Paragraph PDF
+        </a>
+
+        <a
+          id="download-syllabus-list"
+          href="#"
+          target="_blank"
+        >
+          Checklist PDF
+        </a>
       </div>
 
       <div id="syllabus-container">
@@ -80,7 +117,7 @@
     <!-- =========================
          REPEATED QUESTIONS
     ========================== -->
-    <section class="paper-section">
+    <section class="paper-section card">
       <h2>Repeated Questions</h2>
 
       <div id="repeated-container">
