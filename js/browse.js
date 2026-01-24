@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Browse Page
- * FINAL STABLE VERSION (FIXED)
+ * FINAL STABLE VERSION (RQ / Notes badges added)
  */
 
 const DATA_URL = "https://omdas11.github.io/examarchive-v2/data/papers.json";
@@ -11,7 +11,7 @@ let view = [];
 
 let filters = {
   programme: "ALL",
-  stream: "science", // ✅ FIXED (lowercase)
+  stream: "science",
   year: "ALL",
   search: "",
   sort: "year_desc"
@@ -186,6 +186,13 @@ function render() {
         `paper.html?code=${p.paper_codes[0]}&year=${p.year}`;
     };
 
+    const badges = `
+      <div class="availability-badges">
+        ${p.has_rq ? `<span class="availability-badge active">RQ</span>` : ""}
+        ${p.has_notes ? `<span class="availability-badge active">Notes</span>` : ""}
+      </div>
+    `;
+
     card.innerHTML = `
       <h3 class="paper-name">${p.paper_names.join(" / ")}</h3>
       <div class="paper-code">${p.paper_codes.join(" / ")}</div>
@@ -193,6 +200,7 @@ function render() {
         ${p.university} • ${p.programme} • ${p.stream.toUpperCase()}
         • Semester ${toRoman(p.semester)} • ${p.year}
       </div>
+      ${badges}
       <a class="open-pdf"
          href="${p.pdf}"
          target="_blank"
@@ -230,7 +238,7 @@ document.querySelectorAll("[data-stream]").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll("[data-stream]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
-    filters.stream = btn.dataset.stream.toLowerCase(); // ✅ FIXED
+    filters.stream = btn.dataset.stream.toLowerCase();
     applyFilters();
   };
 });
