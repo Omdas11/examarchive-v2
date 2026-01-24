@@ -4,85 +4,92 @@ import puppeteer from "puppeteer";
 
 const SYLLABUS_ROOT = "data/syllabus";
 const OUTPUT_DIR = "assets/pdfs/syllabus";
+const TEMPLATE = fs.readFileSync("templates/syllabus.html", "utf8");
 
 function walk(dir) {
-  let results = [];
-  for (const file of fs.readdirSync(dir)) {
-    const p = path.join(dir, file);
-    if (fs.statSync(p).isDirectory()) {
-      results = results.concat(walk(p));
-    } else if (file.endsWith(".json")) {
-      results.push(p);
+  let files = [];
+  for (const item of fs.readdirSync(dir)) {
+    const full = path.join(dir, item);
+    if (fs.statSync(full).isDirectory()) {
+      files = files.concat(walk(full));
+    } else if (item.endsWith(".json")) {
+      files.push(full);
     }
   }
-  return results;
+  return files;
 }
 
-function renderUnits(units, listMode) {
+function renderObjectives(arr) {
+  return `<ul>${arr.map(o => `<li>${o}</li>`).join("")}</ul>`;
+}
+
+function renderUnits(units, mode) {
   return units.map(u => `
-    <h3>${u.title} (${u.hours} Hours)</h3>
-    ${
-      listMode
-        ? `<ul>${u.topics.map(t => `<li>☐ ${t}</li>`).join("")}</ul>`
-        : `<p>${u.topics.join(", ")}</p>`
-    }
+    <div class="unit">
+      <div class="unit-title">
+        UNIT ${u.unit_no}: ${u.title}
+      </div>
+      <div class="hours">(${u.hours} Hours)</div>
+      ${
+        mode === "list"
+          ? `<ul>${u.topics.map(t => `<li class="checkbox">${t}</li>`).join("")}</ul>`
+          : `<p>${u.topics.join(", ")}</p>`
+      }
+    </div>
   `).join("");
 }
 
-function buildHTML(data, listMode) {
-  return `
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<style>
-body { font-family: serif; margin: 50px; }
-header { text-align: center; }
-footer {
-  position: fixed;
-  bottom: 20px;
-  width: 100%;
-  text-align: center;
-  font-size: 10px;
+function renderLearningOutcomes(arr) {
+  return `<ul>${arr.map(o => `<li>${o}</li>`).join("")}</ul>`;
 }
-ul { list-style: none; padding-left: 0; }
-li { margin: 6px 0; }
-hr { margin: 20px 0; }
-</style>
-</head>
-<body>
 
-<header>
-  <h1>${data.paper_name}</h1>
-  <strong>${data.paper_code}</strong><br>
-  <strong>${data.university}</strong>
-</header>
+function renderReferences(refs) {
+  const all = [
+    ...(refs.textbooks || []),
+    ...(refs.additional_reading || []),
+    ...(refs.online_resources || [])
+  ];
 
-<hr>
+  return `<ol>${all.map(r =>
+    `<li>${r.title}${r.author ? " — " + r.author : ""}${r.publisher ? " (" + r.publisher + ")" : ""}</li>`
+  ).join("")}</ol>`;
+}
 
-<h2>OBJECTIVES</h2>
-<p>${data.objectives || ""}</p>
+async function generateOne(page, data, mode) {
+  const html = TEMPLATE
+    .replace("{{paper_name}}", data.meta.paper_name)
+    .replace("{{programme}}", data.meta.programme)
+    .replace("{{semester}}", data.meta.semester)
+    .replace("{{credits}}", data.meta.credits)
+    .replace("{{university}}", data.meta.university)
+    .replace("{{paper_code}}", data.meta.paper_code)
+    .replace("{{objectives}}", renderObjectives(data.objectives))
+    .replace("{{units}}", renderUnits(data.units, mode))
+    .replace("{{learning_outcomes}}", renderLearningOutcomes(data.learning_outcomes))
+    .replace("{{references}}", renderReferences(data.references));
 
-<h2>COURSE CONTENT</h2>
-${renderUnits(data.units || [], listMode)}
+  await page.setContent(html, { waitUntil: "networkidle0" });
 
-<h2>REFERENCES</h2>
-<ol>${(data.references || []).map(r => `<li>${r}</li>`).join("")}</ol>
+  const out = path.join(
+    OUTPUT_DIR,
+    `${data.meta.paper_code}-${mode}.pdf`
+  );
 
-<footer>
-  ExamArchive · Page <span class="pageNumber"></span> of <span class="totalPages"></span>
-</footer>
+  await page.pdf({
+    path: out,
+    format: "A4",
+    printBackground: true
+  });
 
-</body>
-</html>`;
+  console.log(`✓ ${data.meta.paper_code}-${mode}.pdf`);
 }
 
 (async () => {
-  console.log("🚀 Generating PDFs");
+  console.log("🚀 Generating syllabus PDFs");
 
-  const syllabusFiles = walk(SYLLABUS_ROOT);
-  if (!syllabusFiles.length) {
-    console.log("⚠ No syllabus JSON found");
+  const files = walk(SYLLABUS_ROOT);
+  if (!files.length) {
+    console.log("⚠ No syllabus files found");
     return;
   }
 
@@ -95,25 +102,12 @@ ${renderUnits(data.units || [], listMode)}
 
   const page = await browser.newPage();
 
-  for (const file of syllabusFiles) {
+  for (const file of files) {
     const data = JSON.parse(fs.readFileSync(file, "utf8"));
-    const code = data.paper_code || "UNKNOWN";
-
-    for (const mode of ["paragraph", "list"]) {
-      await page.setContent(buildHTML(data, mode === "list"), {
-        waitUntil: "networkidle0"
-      });
-
-      await page.pdf({
-        path: `${OUTPUT_DIR}/${code}-${mode}.pdf`,
-        format: "A4",
-        printBackground: true,
-        margin: { top: "60px", bottom: "60px" }
-      });
-
-      console.log(`✓ ${code}-${mode}.pdf`);
-    }
+    await generateOne(page, data, "paragraph");
+    await generateOne(page, data, "list");
   }
 
   await browser.close();
+  console.log("🎉 All PDFs generated");
 })();
