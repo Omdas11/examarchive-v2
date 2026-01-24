@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Paper Page
- * FINAL (Year-resolved, schema-correct)
+ * FINAL (Year-resolved, schema-correct, UX-polished)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -17,9 +17,9 @@ if (!CODE || !YEAR) {
 }
 
 /* ---------- Helpers ---------- */
-function extractYear(path) {
-  const m = path.match(/(20\d{2})/);
-  return m ? Number(m[1]) : "";
+function semesterToRoman(n) {
+  const map = ["I","II","III","IV","V","VI","VII","VIII"];
+  return map[n - 1] || n;
 }
 
 /* ---------- Unified Resolver ---------- */
@@ -175,8 +175,28 @@ async function loadPaper() {
     selected.paper_names.join(" / ");
   document.getElementById("paperCode").textContent =
     selected.paper_codes.join(" / ");
-  document.getElementById("paperMeta").textContent =
-    `${selected.university} • ${selected.programme} • ${selected.stream.toUpperCase()} • Sem ${selected.semester}`;
+
+  const meta = document.getElementById("paperMeta");
+  meta.innerHTML = `
+    <span class="meta-line">
+      ${selected.university} • ${selected.programme} • ${selected.stream.toUpperCase()}
+      • Semester ${semesterToRoman(selected.semester)}
+    </span>
+  `;
+
+  /* ---------- Availability Badges ---------- */
+  const badgeWrap = document.createElement("div");
+  badgeWrap.className = "availability-badges";
+
+  if (selected.has_rq === true) {
+    const rq = document.createElement("span");
+    rq.className = "availability-badge active";
+    rq.textContent = "Repeated Questions";
+    badgeWrap.appendChild(rq);
+  }
+
+  // Notes badge reserved for future
+  meta.appendChild(badgeWrap);
 
   /* ---------- Latest PDF ---------- */
   const latest = related[0];
