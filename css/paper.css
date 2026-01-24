@@ -355,6 +355,69 @@ body[data-night="on"] .paper-row {
   padding: 0.9rem 1rem 1rem;
 }
 
+/* ===============================
+   Floating Download Popup
+   =============================== */
+
+.download-btn {
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.download-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.download-btn:hover {
+  color: var(--text);
+}
+
+/* Floating menu */
+.download-menu {
+  position: absolute;
+  right: 1rem;
+  margin-top: 0.4rem;
+  width: 180px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  z-index: 20;
+}
+
+/* Hidden */
+.download-menu.hidden {
+  display: none;
+}
+
+/* Menu items */
+.download-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.download-menu a svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+.download-menu a:hover {
+  background: var(--bg-soft);
+  color: var(--red);
+}
+
 /* ---------- Desktop ---------- */
 @media (min-width: 768px) {
   .paper-title {
