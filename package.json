@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "puppeteer": "^24.36.0"
+    "@sparticuz/chromium": "^143.0.4",
+    "puppeteer-core": "^24.36.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.10"
   }
 }
