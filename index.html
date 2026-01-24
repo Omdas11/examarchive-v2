@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ExamArchive</title>
 
-  <link rel="stylesheet" href="css/common.css">
-  <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/home.css" />
 </head>
 <body>
 
@@ -36,24 +36,30 @@
     <section class="home-search">
       <div class="search-wrapper">
 
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Search papers, repeated questions, notes, references…"
-          aria-label="Universal search"
-        />
+        <!-- ONE-LINE SEARCH BAR -->
+        <div class="search-bar">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search papers, repeated questions, notes, references…"
+            aria-label="Universal search"
+          />
 
-        <button
-          type="button"
-          class="search-mode-btn"
-          id="searchModeBtn"
-        >
-          Universal
-        </button>
+          <button
+            type="button"
+            class="search-mode-btn"
+            id="searchModeBtn"
+          >
+            Universal
+          </button>
 
-        <button class="btn btn-red search-btn" type="button">
-          Search
-        </button>
+          <button
+            type="button"
+            class="btn btn-red search-btn"
+          >
+            Search
+          </button>
+        </div>
 
         <!-- Search mode dropdown -->
         <div class="search-mode-dropdown" id="searchModeDropdown">
@@ -64,7 +70,7 @@
           <button data-mode="refs">References</button>
         </div>
 
-        <!-- Instant search results -->
+        <!-- Instant search results (must NOT be inside clipped element) -->
         <div class="search-results"></div>
 
       </div>
@@ -75,42 +81,18 @@
       <h2>Quick Access</h2>
 
       <div class="quick-grid">
-        <!-- Subject-based browsing -->
-        <a class="quick-btn" href="browse.html">
-          By Subject
-        </a>
-
-        <!-- University scope (future-proof) -->
-        <a class="quick-btn" href="browse.html">
-          By University
-        </a>
-
-        <!-- Jump with year filter intent -->
-        <a class="quick-btn" href="browse.html#year">
-          By Year
-        </a>
-
-        <!-- Repeated Questions (paper-level feature) -->
-        <a class="quick-btn" href="browse.html">
-          Repeated Questions
-        </a>
-
-        <!-- Notes (future page) -->
-        <a class="quick-btn" href="browse.html">
-          Notes & Resources
-        </a>
-
-        <!-- Syllabus lives on paper page -->
-        <a class="quick-btn" href="browse.html">
-          Syllabus
-        </a>
+        <a class="quick-btn" href="browse.html">By Subject</a>
+        <a class="quick-btn" href="browse.html">By University</a>
+        <a class="quick-btn" href="browse.html#year">By Year</a>
+        <a class="quick-btn" href="browse.html">Repeated Questions</a>
+        <a class="quick-btn" href="browse.html">Notes & Resources</a>
+        <a class="quick-btn" href="browse.html">Syllabus</a>
       </div>
     </section>
 
     <!-- ================= NOTICE BOARD ================= -->
     <section class="notice-board">
       <h2>Notices & Updates</h2>
-
       <div class="notice-box">
         <p class="notice-empty">
           University notices and important academic updates will appear here.
@@ -121,7 +103,6 @@
     <!-- ================= ACADEMIC CALENDAR ================= -->
     <section class="academic-calendar">
       <h2>Academic Calendar</h2>
-
       <div class="calendar-box">
         <p class="calendar-empty">
           Academic calendar events will be displayed here.
