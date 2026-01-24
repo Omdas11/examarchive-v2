@@ -1,61 +1,29 @@
-const fs = require("fs");
-const path = require("path");
-const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
 
-module.exports = async function handler(req, res) {
+export const config = {
+  runtime: "nodejs",
+};
+
+export default async function handler(req, res) {
   try {
-    // 1️⃣ Load HTML template
-    const templatePath = path.join(
-      process.cwd(),
-      "templates/pdf/syllabus.html"
-    );
-
-    const htmlTemplate = fs.readFileSync(templatePath, "utf-8");
-
-    // 2️⃣ Inject TEMP test data
-    const html = htmlTemplate
-      .replace(/{{PAPER_TITLE}}/g, "MATHEMATICAL PHYSICS – I")
-      .replace(/{{PAPER_CODE}}/g, "PHYDSC101T")
-      .replace(/{{PROGRAMME}}/g, "FYUG")
-      .replace(/{{SEMESTER}}/g, "I")
-      .replace(/{{CREDITS}}/g, "3")
-      .replace(/{{UNIVERSITY}}/g, "ASSAM UNIVERSITY")
-      .replace(
-        /{{OBJECTIVES}}/g,
-        "The objective of this course is to equip students with the mathematical tools required for advanced study in physics."
-      )
-      .replace(
-        /{{UNITS}}/g,
-        `
-        <div class="pdf-unit">
-          <h3>UNIT I: VECTOR ALGEBRA</h3>
-          <p class="pdf-hours">(12 Hours)</p>
-          <p>Scalar and vector quantities, dot and cross products.</p>
-        </div>
-        `
-      )
-      .replace(
-        /{{REFERENCES}}/g,
-        `<li>H.K. Dass – Mathematical Physics</li>`
-      )
-      .replace(/{{TIMESTAMP}}/g, new Date().toLocaleString("en-IN", { hour12: false }))
-      .replace(/{{PAGE}}/g, "1");
-
-    // 3️⃣ Launch Chromium
-    const executablePath =
-      (await chromium.executablePath()) || "/usr/bin/chromium";
-
     const browser = await puppeteer.launch({
       args: chromium.args,
-      executablePath,
+      executablePath: await chromium.executablePath(),
       headless: chromium.headless,
     });
 
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
 
-    // 4️⃣ Generate PDF
+    await page.setContent(`
+      <html>
+        <body style="font-family: serif; padding: 40px;">
+          <h1>ExamArchive – PDF Test</h1>
+          <p>If you see this, PDF generation works.</p>
+        </body>
+      </html>
+    `);
+
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
@@ -63,15 +31,14 @@ module.exports = async function handler(req, res) {
 
     await browser.close();
 
-    // 5️⃣ Send response
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "inline; filename=syllabus.pdf");
-    res.status(200).send(pdf);
+    res.send(pdf);
   } catch (err) {
-    console.error("PDF ERROR:", err);
+    console.error(err);
     res.status(500).json({
       error: "PDF generation failed",
       message: err.message,
     });
   }
-};
+}
