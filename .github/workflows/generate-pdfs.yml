@@ -33,19 +33,13 @@ jobs:
       - name: Generate PDFs
         run: node scripts/generate-syllabus-pdf.js
 
-      - name: Commit PDFs (safe)
+      - name: Commit PDFs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # First sync with remote
-          git pull --rebase origin main
-
-          # Then stage generated PDFs
           git add assets/pdfs/syllabus
 
-          # Commit only if there are changes
           git commit -m "auto: generate syllabus PDFs" || echo "No changes to commit"
 
-          # Push back to main
           git push origin main
