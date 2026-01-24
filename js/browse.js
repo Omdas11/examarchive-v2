@@ -187,11 +187,19 @@ function render() {
     };
 
     const badges = `
-      <div class="availability-badges">
-        ${p.has_rq ? `<span class="availability-badge active">RQ</span>` : ""}
-        ${p.has_notes ? `<span class="availability-badge active">Notes</span>` : ""}
-      </div>
-    `;
+  <div class="availability-badges">
+    ${
+      p.has_rq
+        ? `<span class="availability-badge subtle">Repeated Questions</span>`
+        : ""
+    }
+    ${
+      p.has_notes
+        ? `<span class="availability-badge subtle">Notes</span>`
+        : ""
+    }
+  </div>
+`;
 
     card.innerHTML = `
       <h3 class="paper-name">${p.paper_names.join(" / ")}</h3>
