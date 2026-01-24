@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Paper Page
- * FINAL (Year-resolved, schema-correct, UX-polished)
+ * FINAL (Year-resolved, schema-correct, UX-polished + PDF downloads)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -151,6 +151,35 @@ function renderRepeatedQuestions(data) {
   });
 }
 
+/* ================= SYLLABUS PDF DOWNLOAD ================= */
+function setupSyllabusDownloads(paperCode) {
+  const btn = document.getElementById("syllabus-download-btn");
+  const menu = document.getElementById("syllabus-download-menu");
+  const pLink = document.getElementById("download-syllabus-paragraph");
+  const lLink = document.getElementById("download-syllabus-list");
+
+  if (!btn || !menu || !pLink || !lLink) return;
+
+  const base = `${BASE}/assets/pdfs/syllabus/`;
+  const paragraphPdf = `${base}${paperCode}-paragraph.pdf`;
+  const listPdf = `${base}${paperCode}-list.pdf`;
+
+  pLink.href = paragraphPdf;
+  lLink.href = listPdf;
+
+  // toggle menu
+  btn.onclick = () => {
+    menu.classList.toggle("hidden");
+  };
+
+  // close menu when clicking outside
+  document.addEventListener("click", e => {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.add("hidden");
+    }
+  });
+}
+
 /* ================= LOAD PAPER ================= */
 async function loadPaper() {
   const res = await fetch(PAPERS_URL);
@@ -195,7 +224,6 @@ async function loadPaper() {
     badgeWrap.appendChild(rq);
   }
 
-  // Notes badge reserved for future
   meta.appendChild(badgeWrap);
 
   /* ---------- Latest PDF ---------- */
@@ -216,10 +244,14 @@ async function loadPaper() {
     `;
   });
 
-  /* ---------- Syllabus + RQ ---------- */
+  /* ---------- Syllabus ---------- */
   const syllabus = await resolvePaperData("syllabus", selected);
-  if (syllabus.status === "found") renderSyllabus(syllabus.data);
+  if (syllabus.status === "found") {
+    renderSyllabus(syllabus.data);
+    setupSyllabusDownloads(selected.paper_codes[0]);
+  }
 
+  /* ---------- Repeated Questions ---------- */
   const rq = await resolvePaperData("repeated-questions", selected);
   if (rq.status === "found") renderRepeatedQuestions(rq.data);
 }
