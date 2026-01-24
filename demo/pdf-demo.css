@@ -1,12 +1,12 @@
 /* =====================================================
    ExamArchive – PDF Demo Styles
-   Stable, Mobile-Safe
+   Mobile-safe, deterministic
    ===================================================== */
 
-/* ---------- Page Setup (EASY TO MODIFY) ---------- */
+/* ---------- Page Setup (easy to change later) ---------- */
 @page {
   size: A4;
-  margin: 25mm 25mm 35mm 30mm;
+  margin: 25mm 25mm 25mm 30mm;
 }
 
 /* ---------- Print Reset ---------- */
@@ -15,7 +15,6 @@
     background: none;
     margin: 0;
     padding: 0;
-    counter-reset: page;
   }
 
   .demo-controls {
@@ -29,20 +28,22 @@
   font-size: 11pt;
   line-height: 1.4;
   color: #000;
+  min-height: 250mm; /* simulates page height */
   position: relative;
 }
 
 /* ---------- Watermark ---------- */
 #pdf-root::before {
   content: "ExamArchive";
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-25deg);
   font-size: 72pt;
   font-weight: bold;
   opacity: 0.06;
-  z-index: -1;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 /* ---------- Header ---------- */
@@ -121,57 +122,14 @@
   padding-left: 1.2rem;
 }
 
-/* ---------- Page Setup (reserve footer space) ---------- */
-@page {
-  size: A4;
-  margin: 25mm 25mm 45mm 30mm; /* EXTRA bottom margin */
-}
-
-/* ---------- Print Reset ---------- */
-@media print {
-  body {
-    background: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .demo-controls {
-    display: none;
-  }
-}
-
-/* ---------- Base Typography ---------- */
-#pdf-root {
-  font-family: "Times New Roman", Georgia, serif;
-  font-size: 11pt;
-  line-height: 1.4;
-  color: #000;
-  position: relative;
-  padding-bottom: 25mm; /* RESERVE FOOTER SPACE */
-}
-
-/* ---------- Footer (Non-overlapping) ---------- */
-.pdf-footer {
-  position: fixed;
-  bottom: 20mm;
-  left: 30mm;
-  right: 25mm;
+/* ---------- Flow Footer ---------- */
+.pdf-flow-footer {
+  margin-top: 25mm;
+  padding-top: 6mm;
+  border-top: 1px solid #000;
   font-size: 9pt;
   color: #444;
   display: flex;
   justify-content: space-between;
-}
-
-/* ---------- Page Number (Stable) ---------- */
-.page-number::after {
-  content: "1";
-}
-
-/* ---------- First Page Meta ---------- */
-.pdf-first-page-meta {
-  position: fixed;
-  bottom: 28mm;
-  right: 25mm;
-  font-size: 9pt;
-  color: #444;
+  page-break-inside: avoid;
 }
