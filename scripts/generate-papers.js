@@ -4,6 +4,7 @@
  * ✔ Correct regex groups
  * ✔ Full paper code preserved
  * ✔ No null / broken entries
+ * ✔ RQ existence auto-detected at build time
  */
 
 const fs = require("fs");
@@ -13,6 +14,14 @@ const ROOT = process.cwd();
 const PAPERS_DIR = path.join(ROOT, "papers");
 const MAPS_DIR = path.join(ROOT, "maps");
 const OUTPUT = path.join(ROOT, "data", "papers.json");
+
+// 🔹 Repeated Questions base directory (university-scoped)
+const RQ_DIR = path.join(
+  ROOT,
+  "data",
+  "repeated-questions",
+  "assam-university"
+);
 
 /* ---------------- Utils ---------------- */
 
@@ -37,6 +46,17 @@ function loadMaps() {
     }
   })(MAPS_DIR);
   return maps;
+}
+
+// 🔹 Check if Repeated Questions JSON exists for a paper
+function hasRQ({ programme, subject, paperCode }) {
+  const rqPath = path.join(
+    RQ_DIR,
+    programme.toLowerCase(),
+    subject.toLowerCase(),
+    `${paperCode}.json`
+  );
+  return fs.existsSync(rqPath);
 }
 
 /* ---------------- Main ---------------- */
@@ -78,6 +98,11 @@ for (const pdfPath of pdfFiles) {
       semester: paperInfo.semester,
       course_type: paperInfo.course_type,
       tags: paperInfo.tags ?? [],
+      has_rq: hasRQ({
+        programme: map.programme,
+        subject: map.subject,
+        paperCode
+      }),
       pdf: `/examarchive-v2/${path
         .relative(ROOT, pdfPath)
         .replace(/\\/g, "/")}`,
