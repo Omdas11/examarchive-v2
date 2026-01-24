@@ -259,6 +259,54 @@ body[data-night="on"] .paper-row {
   background: var(--surface);
 }
 
+/* =================================================
+   ADDITIONS — Paper Page UX Enhancements
+   (Semester meta, centered PDF button, availability badges)
+   ================================================= */
+
+/* ---------- Meta Line (Semester I) ---------- */
+.paper-meta .meta-line {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Centered Primary Action ---------- */
+.paper-header .btn {
+  display: block;
+  margin: 0.8rem auto 0;
+  max-width: 420px;
+  text-align: center;
+}
+
+/* ---------- Availability Badges (RQ / Notes) ---------- */
+.availability-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.4rem;
+}
+
+.availability-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.availability-badge.active {
+  color: var(--red);
+  border-color: var(--red);
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* ---------- Section Card Normalization ---------- */
+.paper-section.card {
+  padding: 0.9rem 1rem 1rem;
+}
+
 /* ---------- Desktop ---------- */
 @media (min-width: 768px) {
   .paper-title {
