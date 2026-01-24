@@ -22,19 +22,23 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Puppeteer (with bundled Chromium)
+      - name: Install Google Chrome
         run: |
-          npm uninstall puppeteer-core || true
-          npm install puppeteer
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install Puppeteer Core
+        run: npm install puppeteer-core
 
       - name: Generate PDFs
         run: node scripts/generate-syllabus-pdf.js
 
-      - name: Commit PDFs to main
+      - name: Commit PDFs (safe)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull --rebase origin main
           git add assets/pdfs/syllabus
           git commit -m "auto: generate syllabus PDFs" || echo "No changes"
-          git pull --rebase origin main
           git push origin main
