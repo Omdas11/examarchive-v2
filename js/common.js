@@ -18,18 +18,19 @@
 function loadPartial(id, file) {
   fetch(file)
     .then(res => res.text())
-    .then(data => {
+    .then(html => {
       const container = document.getElementById(id);
       if (!container) return;
 
-      container.innerHTML = data;
+      container.innerHTML = html;
 
-      // Header-specific actions
       if (id === "header") {
         highlightActiveNav();
 
-        // 🔥 KEY FIX: notify other scripts (theme.js)
-        document.dispatchEvent(new CustomEvent("header:loaded"));
+        // Notify other scripts safely
+        document.dispatchEvent(
+          new CustomEvent("header:loaded", { bubbles: true })
+        );
       }
     })
     .catch(err => {
@@ -44,28 +45,32 @@ loadPartial("footer", "partials/footer.html");
 // Highlight active nav link
 // ===============================
 function highlightActiveNav() {
-  const currentPage =
+  const current =
     window.location.pathname.split("/").pop() || "index.html";
 
   document.querySelectorAll(".nav-link").forEach(link => {
-    if (link.getAttribute("href") === currentPage) {
+    if (link.getAttribute("href") === current) {
       link.classList.add("active");
     }
   });
 }
 
 // ===============================
-// Mobile menu toggle + auto close
+// Mobile menu toggle (FIXED)
 // ===============================
 document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("menu-btn")) {
-    const mobileNav = document.getElementById("mobileNav");
-    if (mobileNav) mobileNav.classList.toggle("open");
+  // ✅ WORKS even when clicking the SVG or IMG
+  const menuBtn = e.target.closest(".menu-btn");
+  const mobileNav = document.getElementById("mobileNav");
+
+  if (menuBtn && mobileNav) {
+    mobileNav.classList.toggle("open");
+    return;
   }
 
+  // Auto-close on link tap
   if (e.target.closest(".mobile-nav a")) {
-    const mobileNav = document.getElementById("mobileNav");
-    if (mobileNav) mobileNav.classList.remove("open");
+    mobileNav?.classList.remove("open");
   }
 });
 
@@ -73,6 +78,6 @@ document.addEventListener("click", (e) => {
 // Auto-update footer year
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
-  const yearSpan = document.getElementById("year");
-  if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+  const year = document.getElementById("year");
+  if (year) year.textContent = new Date().getFullYear();
 });
