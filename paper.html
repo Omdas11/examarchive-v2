@@ -56,35 +56,38 @@
     <section class="paper-section syllabus-section card">
 
       <div class="section-header">
-        <h2>Syllabus</h2>
+  <h2>Syllabus</h2>
 
-        <button
-          id="syllabus-download-btn"
-          class="download-btn"
-          aria-label="Download syllabus"
-          title="Download syllabus"
-        >
-          <span>Download</span>
+  <button
+    id="download-toggle"
+    class="download-btn"
+    aria-label="Download syllabus"
+  >
+    <!-- Download SVG -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M12 3v12" stroke-width="2"/>
+      <path d="M7 10l5 5 5-5" stroke-width="2"/>
+      <path d="M5 21h14" stroke-width="2"/>
+    </svg>
+  </button>
+</div>
 
-          <!-- SVG arrow (no chevron, no font icon) -->
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              d="M7 10l5 5 5-5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
+<!-- Floating download menu -->
+<div id="download-menu" class="download-menu hidden">
+  <a id="download-paragraph" href="#" target="_blank">
+    <!-- Paragraph icon -->
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+    Paragraph
+  </a>
 
+  <a id="download-list" href="#" target="_blank">
+    <!-- Checklist icon -->
+    <svg viewBox="0 0 24 24">
+      <path d="M5 6h2M9 6h10M5 12h2M9 12h10M5 18h2M9 18h10"/>
+    </svg>
+    Checklist
+  </a>
+</div>
       <!-- Download options (hidden by default, JS will toggle) -->
       <div id="syllabus-download-menu" class="download-menu hidden">
         <a
