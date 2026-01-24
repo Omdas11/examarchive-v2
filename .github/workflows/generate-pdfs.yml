@@ -20,10 +20,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Puppeteer (with Chromium)
+      - name: Install Puppeteer
         run: |
           npm init -y
           npm install puppeteer
+
+      # 🔴 THIS IS THE MISSING STEP
+      - name: Install Chromium for Puppeteer
+        run: npx puppeteer browsers install chrome
 
       - name: Generate PDFs
         run: node scripts/generate-syllabus-pdf.js
