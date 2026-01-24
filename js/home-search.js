@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Home Search
- * FINAL STABLE (schema-aware + paper page safe)
+ * FINAL STABLE (schema-aware + RQ-enabled)
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
@@ -61,6 +61,27 @@ function searchPapers(query) {
   }).slice(0, 6);
 }
 
+/* ---------------- RQ Search (paper-level) ---------------- */
+function searchRQ(query) {
+  const q = norm(query);
+
+  return PAPERS.filter(
+    p =>
+      p.has_rq === true &&
+      [
+        ...(p.paper_codes || []),
+        ...(p.paper_names || []),
+        p.subject,
+        p.programme,
+        p.year
+      ]
+        .filter(Boolean)
+        .map(norm)
+        .join(" ")
+        .includes(q)
+  ).slice(0, 6);
+}
+
 /* ---------------- Render ---------------- */
 function renderResults(query) {
   if (!query) return clearResults();
@@ -92,16 +113,34 @@ function renderResults(query) {
     }
   }
 
-  /* ---------- PLACEHOLDERS ---------- */
+  /* ---------- REPEATED QUESTIONS ---------- */
   if (SEARCH_MODE === "universal" || SEARCH_MODE === "rq") {
+    const rqMatches = searchRQ(query);
+
     html += `
       <div class="result-group">
         <h4>Repeated Questions</h4>
-        <div class="result-item text-muted">RQ search coming soon</div>
+        ${
+          rqMatches.length
+            ? rqMatches.map(p => {
+                const code = p.paper_codes?.[0];
+                const name = p.paper_names?.[0];
+                const year = p.year;
+
+                return `
+                  <div class="result-item"
+                       onclick="location.href='paper.html?code=${code}&year=${year}#repeated-questions'">
+                    ${code} — ${name} (${year})
+                  </div>
+                `;
+              }).join("")
+            : `<div class="result-item text-muted">No repeated questions found</div>`
+        }
       </div>
     `;
   }
 
+  /* ---------- NOTES PLACEHOLDER ---------- */
   if (SEARCH_MODE === "universal" || SEARCH_MODE === "notes") {
     html += `
       <div class="result-group">
