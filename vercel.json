@@ -1,8 +1,7 @@
 {
   "functions": {
-    "api/pdf/syllabus.ts": {
-      "memory": 1024,
-      "maxDuration": 30
+    "api/pdf/syllabus.js": {
+      "maxDuration": 15
     }
   }
 }
