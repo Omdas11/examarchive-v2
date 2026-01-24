@@ -4,11 +4,10 @@
   <meta charset="UTF-8" />
   <title>ExamArchive – Syllabus PDF Demo</title>
 
-  <!-- Demo print stylesheet -->
   <link rel="stylesheet" href="pdf-demo.css" />
 
   <style>
-    /* Screen-only helpers (NOT part of PDF) */
+    /* Screen-only UI */
     body {
       font-family: system-ui, sans-serif;
       background: #f5f5f5;
@@ -24,17 +23,6 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .demo-controls h2 {
-      margin: 0 0 0.5rem;
-      font-size: 1.1rem;
-    }
-
-    .demo-controls p {
-      margin: 0 0 1rem;
-      font-size: 0.9rem;
-      color: #444;
-    }
-
     .demo-controls button {
       padding: 0.6rem 1.2rem;
       font-size: 0.95rem;
@@ -45,32 +33,32 @@
 
 <body>
 
-  <!-- ================= Demo Controls (Screen Only) ================= -->
   <div class="demo-controls">
-    <h2>Syllabus PDF – Visual Demo</h2>
-    <p>
-      This page generates a demo syllabus PDF using print styles.
-      Use this to check layout, spacing, fonts, and page breaks.
-    </p>
-    <button onclick="generatePDF()">Generate PDF</button>
+    <h3>Syllabus PDF – Visual Demo</h3>
+    <button onclick="window.print()">Generate PDF</button>
   </div>
 
-  <!-- ================= PDF CONTENT START ================= -->
-  <!-- Everything inside this container becomes the PDF -->
+  <!-- ================= PDF CONTENT ================= -->
   <div id="pdf-root">
 
-    <!-- -------- Header -------- -->
+    <!-- HEADER -->
     <header class="pdf-header">
       <h1>MATHEMATICAL PHYSICS – I</h1>
-      <p class="pdf-meta">
-        (PHYDSC101T)<br />
-        FYUG | Semester I | Credits: 3<br />
-        Assam University
-      </p>
+
+      <div class="pdf-code">PHYDSC101T</div>
+
+      <div class="pdf-meta">
+        FYUG | Semester I | Credits: 3
+      </div>
+
+      <div class="pdf-university">
+        ASSAM UNIVERSITY
+      </div>
+
       <hr />
     </header>
 
-    <!-- -------- Objectives -------- -->
+    <!-- OBJECTIVES -->
     <section class="pdf-section">
       <h2>OBJECTIVES</h2>
       <p>
@@ -81,11 +69,10 @@
       </p>
     </section>
 
-    <!-- -------- Course Content -------- -->
+    <!-- COURSE CONTENT -->
     <section class="pdf-section">
       <h2>COURSE CONTENT</h2>
 
-      <!-- Unit I -->
       <div class="pdf-unit">
         <h3>UNIT I: VECTOR ALGEBRA</h3>
         <p class="pdf-hours">(12 Hours)</p>
@@ -96,31 +83,28 @@
         </p>
       </div>
 
-      <!-- Unit II -->
       <div class="pdf-unit">
         <h3>UNIT II: DIFFERENTIAL CALCULUS</h3>
         <p class="pdf-hours">(14 Hours)</p>
         <p>
-          Functions of one variable, limits and continuity, differentiation,
-          applications of derivatives, partial derivatives and total
-          differentiation.
+          Functions of one variable, limits and continuity,
+          differentiation, applications of derivatives, partial
+          derivatives and total differentiation.
         </p>
       </div>
 
-      <!-- Unit III -->
       <div class="pdf-unit">
         <h3>UNIT III: INTEGRAL CALCULUS</h3>
         <p class="pdf-hours">(14 Hours)</p>
         <p>
           Definite and indefinite integrals, techniques of integration,
-          applications to area and volume, multiple integrals with physical
-          interpretation.
+          applications to area and volume, multiple integrals with
+          physical interpretation.
         </p>
       </div>
-
     </section>
 
-    <!-- -------- References -------- -->
+    <!-- REFERENCES -->
     <section class="pdf-section">
       <h2>REFERENCES</h2>
       <ol class="pdf-references">
@@ -130,21 +114,18 @@
       </ol>
     </section>
 
-    <!-- -------- Footer -------- -->
+    <!-- FOOTER -->
     <div class="pdf-footer">
-  <div>ExamArchive</div>
-  <div class="pdf-page-number"></div>
-</div>
+      <span>ExamArchive</span>
+      <span>Page <span class="page-number"></span></span>
+    </div>
 
-<div class="first-page-timestamp">
-  Generated on 15:39:22 24-01-2026
-</div>
+    <!-- FIRST PAGE META -->
+    <div class="pdf-first-page-meta">
+      Generated on 15:39:22 24-01-2026
+    </div>
 
   </div>
-  <!-- ================= PDF CONTENT END ================= -->
-
-  <!-- Demo JS -->
-  <script src="pdf-demo.js"></script>
 
 </body>
 </html>
