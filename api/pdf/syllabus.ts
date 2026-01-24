@@ -7,9 +7,6 @@ import chromium from "@sparticuz/chromium";
 /**
  * 🔒 Force Node runtime (CRITICAL)
  */
-export const config = {
-  runtime: "nodejs18.x",
-};
 
 export default async function handler(
   req: VercelRequest,
