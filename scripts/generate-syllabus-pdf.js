@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Syllabus PDF Generator
- * Stable version for GitHub Actions
+ * FINAL GitHub Actions compatible version
  */
 
 import fs from "fs";
@@ -9,20 +9,17 @@ import puppeteer from "puppeteer";
 
 const ROOT = process.cwd();
 
-// ===== PATHS =====
 const SYLLABUS_DIR = path.join(ROOT, "data", "syllabus");
 const TEMPLATE_PATH = path.join(ROOT, "templates", "syllabus.html");
 const OUTPUT_DIR = path.join(ROOT, "assets", "pdfs", "syllabus");
 
-// ===== SAFETY =====
-if (!fs.existsSync(OUTPUT_DIR)) {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-}
+// Ensure output dir
+fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-// ===== LOAD TEMPLATE =====
-const template = fs.readFileSync(TEMPLATE_PATH, "utf-8");
+// Load template
+const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
 
-// ===== HELPERS =====
+// ---------- Helpers ----------
 function renderUnits(units = []) {
   return units
     .map(
@@ -58,30 +55,29 @@ function renderReferences(refs) {
   return "";
 }
 
-// ===== MAIN =====
+// ---------- Main ----------
 (async () => {
   console.log("🚀 Starting syllabus PDF generator");
 
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: true,
+    executablePath: "/usr/bin/google-chrome", // ⭐ THIS IS THE FIX
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   const page = await browser.newPage();
 
-  const files = fs
-    .readdirSync(SYLLABUS_DIR)
-    .filter((f) => f.endsWith(".json"));
+  const files = fs.readdirSync(SYLLABUS_DIR).filter(f => f.endsWith(".json"));
 
   if (!files.length) {
     console.log("⚠️ No syllabus JSON files found");
     await browser.close();
-    process.exit(0);
+    return;
   }
 
   for (const file of files) {
     const data = JSON.parse(
-      fs.readFileSync(path.join(SYLLABUS_DIR, file), "utf-8")
+      fs.readFileSync(path.join(SYLLABUS_DIR, file), "utf8")
     );
 
     const html = template
@@ -97,24 +93,19 @@ function renderReferences(refs) {
 
     await page.setContent(html, { waitUntil: "networkidle0" });
 
-    const outFile = path.join(
+    const outPath = path.join(
       OUTPUT_DIR,
-      `${data.meta?.code || path.basename(file, ".json")}.pdf`
+      `${data.meta?.code || file.replace(".json", "")}.pdf`
     );
 
     await page.pdf({
-      path: outFile,
+      path: outPath,
       format: "A4",
       printBackground: true,
-      margin: {
-        top: "20mm",
-        bottom: "20mm",
-        left: "20mm",
-        right: "20mm",
-      },
+      margin: { top: "20mm", bottom: "20mm", left: "20mm", right: "20mm" },
     });
 
-    console.log("📄 Generated:", outFile);
+    console.log("📄 Generated:", outPath);
   }
 
   await browser.close();
