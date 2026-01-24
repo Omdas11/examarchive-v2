@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import fs from "fs";
 import path from "path";
 import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 export default async function handler(
   req: VercelRequest,
@@ -15,7 +16,7 @@ export default async function handler(
     );
     let html = fs.readFileSync(templatePath, "utf-8");
 
-    // 2️⃣ TEMP sample data (will be replaced by syllabus JSON later)
+    // 2️⃣ TEMP data (safe hardcoded test)
     html = html
       .replace(/{{PAPER_TITLE}}/g, "MATHEMATICAL PHYSICS – I")
       .replace(/{{PAPER_CODE}}/g, "PHYDSC101T")
@@ -52,33 +53,33 @@ export default async function handler(
       )
       .replace(
         /{{TIMESTAMP}}/g,
-        new Date().toLocaleString("en-IN", {
-          hour12: false
-        })
+        new Date().toLocaleString("en-IN", { hour12: false })
       )
       .replace(/{{PAGE}}/g, "1");
 
-    // 3️⃣ Launch Puppeteer
+    // 3️⃣ Launch Chromium on Vercel
     const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
 
-    // 4️⃣ Load HTML + CSS
+    // 4️⃣ Load content
     await page.setContent(html, {
-      waitUntil: "networkidle0"
+      waitUntil: "networkidle0",
     });
 
     // 5️⃣ Generate PDF
     const pdfBuffer = await page.pdf({
       format: "A4",
-      printBackground: true
+      printBackground: true,
     });
 
     await browser.close();
 
-    // 6️⃣ Send PDF response
+    // 6️⃣ Send response
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -86,11 +87,11 @@ export default async function handler(
     );
 
     res.status(200).send(pdfBuffer);
-  } catch (error: any) {
-    console.error(error);
+  } catch (err: any) {
+    console.error(err);
     res.status(500).json({
       error: "PDF generation failed",
-      details: error.message
+      details: err.message,
     });
   }
 }
