@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – header.css
-   Header + Footer styles (FINAL FIX)
+   Header + Footer styles (REDESIGNED)
    ================================ */
 
 /* ---------- Header ---------- */
@@ -11,25 +11,27 @@
 
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 0.95rem 1rem;
+  padding: 0.9rem 1rem;
 
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.6rem;
 }
 
-/* Logo */
+/* ---------- Logo ---------- */
 .logo {
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.3px;
   color: var(--text);
+  white-space: nowrap;
 }
 
 /* ---------- Desktop Nav ---------- */
 .nav {
   display: flex;
   gap: 1rem;
+  margin-left: auto;
 }
 
 .nav-link {
@@ -42,104 +44,152 @@
   color: var(--red);
 }
 
-/* ---------- Mobile Menu Button ---------- */
-.menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-  color: var(--text);
-}
-
 /* ---------- Theme Toggle ---------- */
-.site-header .theme-toggle {
+.theme-toggle {
   display: flex;
   align-items: center;
   gap: 0.25rem;
 
   padding: 0.25rem;
-  border-radius: 999px;
+  margin-left: auto;
 
   background: var(--bg-soft);
   border: 1px solid var(--border);
+  border-radius: 999px;
 
-  overflow: hidden; /* ⛔ FIX BLEED */
+  overflow: hidden; /* prevents bleed */
 }
 
-/* Buttons */
-.site-header .theme-btn,
-.site-header .night-btn {
+/* Theme / Night buttons */
+.theme-btn,
+.night-btn {
   width: 32px;
   height: 28px;
+
   border: none;
   background: transparent;
   border-radius: 999px;
-  cursor: pointer;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  cursor: pointer;
   transition: background 0.2s ease;
 }
 
 /* Icons */
-.site-header img {
+.site-header .icon {
   width: 16px;
   height: 16px;
   display: block;
 
-  /* DEFAULT: black icon */
+  /* Light mode default (black) */
   filter: none;
 
-  transition: filter 0.25s ease, transform 0.15s ease;
+  transition:
+    filter 0.25s ease,
+    transform 0.15s ease;
 }
 
-/* Hover micro-interaction */
-.site-header .theme-btn:hover img,
-.site-header .night-btn:hover img {
-  transform: scale(1.05);
+/* Hover animation */
+.theme-btn:hover .icon,
+.night-btn:hover .icon {
+  transform: scale(1.08);
 }
 
-/* ---------- Active background ---------- */
-.site-header .theme-btn.active,
-.site-header .night-btn.active {
+/* Active background */
+.theme-btn.active,
+.night-btn.active {
   background: rgba(0, 0, 0, 0.06);
 }
 
-body[data-theme="dark"] .site-header .theme-btn.active,
-body[data-theme="amoled"] .site-header .theme-btn.active,
-body[data-theme="dark"] .site-header .night-btn.active,
-body[data-theme="amoled"] .site-header .night-btn.active {
+body[data-theme="dark"] .theme-btn.active,
+body[data-theme="amoled"] .theme-btn.active,
+body[data-theme="dark"] .night-btn.active,
+body[data-theme="amoled"] .night-btn.active {
   background: rgba(255, 255, 255, 0.14);
 }
 
-/* =================================================
-   ICON COLOR LOGIC (THIS IS THE KEY FIX)
-   ================================================= */
+/* ---------- ICON COLOR LOGIC ---------- */
 
-/* Dark / AMOLED → white icons */
-body[data-theme="dark"] .site-header img,
-body[data-theme="amoled"] .site-header img {
+/* Dark + AMOLED → white icons */
+body[data-theme="dark"] .site-header .icon,
+body[data-theme="amoled"] .site-header .icon {
   filter: invert(1);
 }
 
 /* Night mode ON → soften other icons */
-body[data-night="on"] .site-header .theme-btn img {
+body[data-night="on"] .theme-btn .icon {
   filter: invert(1) brightness(0.9);
 }
 
-/* 🌙 Night button ACTIVE → yellow */
-body[data-night="on"] .site-header .night-btn.active img {
-  filter: invert(77%) sepia(88%) saturate(500%) hue-rotate(2deg);
+/* 🌙 Night icon active → yellow */
+body[data-night="on"] .night-btn.active .icon {
+  filter: invert(77%) sepia(90%) saturate(600%) hue-rotate(5deg);
 }
 
 /* ---------- Night button separator ---------- */
-.site-header .night-btn {
+.night-btn {
   margin-left: 0.25rem;
-  border-left: 1px solid var(--border);
   padding-left: 0.4rem;
+  border-left: 1px solid var(--border);
+}
+
+/* ---------- Mobile Menu Button ---------- */
+.menu-btn {
+  display: none;
+
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+/* Hamburger icon */
+.menu-btn .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Dark / AMOLED hamburger color */
+body[data-theme="dark"] .menu-btn .icon,
+body[data-theme="amoled"] .menu-btn .icon {
+  filter: invert(1);
+}
+
+/* ---------- Mobile Nav ---------- */
+.mobile-nav {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+
+  display: none;
+  flex-direction: column;
+
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+
+  padding: 0.8rem 1rem;
+}
+
+.mobile-nav.open {
+  display: flex;
+}
+
+.mobile-nav .nav-link {
+  padding: 0.7rem 0;
+  font-size: 0.95rem;
+  color: var(--text);
 }
 
 /* ---------- Responsive ---------- */
@@ -149,6 +199,6 @@ body[data-night="on"] .site-header .night-btn.active img {
   }
 
   .menu-btn {
-    display: block;
+    display: flex;
   }
 }
