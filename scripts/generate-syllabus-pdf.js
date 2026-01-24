@@ -1,4 +1,3 @@
-// generate-syllabus-pdf.js
 import fs from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
@@ -9,145 +8,13 @@ const OUTPUT_DIR = path.join(ROOT, "assets", "pdfs", "syllabus");
 
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-const TEMPLATE = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8" />
-<title>{{paper_name}}</title>
-<style>
-  body {
-    font-family: "Times New Roman", serif;
-    margin: 60px 60px 80px 60px;
-    line-height: 1.5;
-    color: #000;
-  }
-  h1 {
-    text-align: center;
-    font-size: 20px;
-    margin-bottom: 6px;
-  }
-  .meta {
-    text-align: center;
-    font-size: 13px;
-    margin-bottom: 20px;
-  }
-  .meta strong {
-    display: block;
-    font-weight: bold;
-  }
-  hr {
-    margin: 14px 0;
-  }
-  h2 {
-    font-size: 15px;
-    margin-top: 18px;
-    text-transform: uppercase;
-  }
-  h3 {
-    font-size: 14px;
-    margin-top: 14px;
-  }
-  ul {
-    margin-left: 20px;
-  }
-  li {
-    margin-bottom: 4px;
-  }
-  .unit {
-    margin-bottom: 12px;
-  }
-  .watermark {
-    position: fixed;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-30deg);
-    font-size: 64px;
-    color: rgba(0,0,0,0.06);
-    z-index: -1;
-    white-space: nowrap;
-  }
-</style>
-</head>
-<body>
-
-<div class="watermark">ExamArchive</div>
-
-<h1>{{paper_name}}</h1>
-
-<div class="meta">
-  <strong>{{university}}</strong>
-  {{programme}} · Semester {{semester}} · Credits {{credits}}<br/>
-  {{paper_code}}
-</div>
-
-<hr/>
-
-<h2>Objectives</h2>
-<ul>
-{{objectives}}
-</ul>
-
-<h2>Course Content</h2>
-{{units}}
-
-<h2>Learning Outcomes</h2>
-<ul>
-{{learning_outcomes}}
-</ul>
-
-<h2>References</h2>
-<ul>
-{{references}}
-</ul>
-
-</body>
-</html>
-`;
-
-function renderObjectives(list) {
-  return list.map(o => `<li>${o}</li>`).join("\n");
-}
-
-function renderUnits(units, mode) {
-  return units.map(u => {
-    const topics =
-      mode === "list"
-        ? `<ul>${u.topics.map(t => `<li>☐ ${t}</li>`).join("")}</ul>`
-        : `<p>${u.topics.join(", ")}</p>`;
-
-    return `
-      <div class="unit">
-        <h3>Unit ${u.unit_no}: ${u.title} (${u.hours} Hours)</h3>
-        ${topics}
-      </div>
-    `;
-  }).join("\n");
-}
-
-function renderLearningOutcomes(list) {
-  return list.map(l => `<li>${l}</li>`).join("\n");
-}
-
-function renderReferences(refs) {
-  const all = [
-    ...(refs.textbooks || []),
-    ...(refs.additional_reading || []),
-    ...(refs.online_resources || [])
-  ];
-
-  return all.map(r =>
-    `<li>${r.title}${r.author ? " – " + r.author : ""}</li>`
-  ).join("\n");
-}
-
 function findJsonFiles(dir) {
   let results = [];
-  for (const file of fs.readdirSync(dir)) {
-    const full = path.join(dir, file);
+  for (const f of fs.readdirSync(dir)) {
+    const full = path.join(dir, f);
     if (fs.statSync(full).isDirectory()) {
-      results = results.concat(findJsonFiles(full));
-    } else if (file.endsWith(".json")) {
+      results.push(...findJsonFiles(full));
+    } else if (f.endsWith(".json")) {
       results.push(full);
     }
   }
@@ -158,8 +25,8 @@ function findJsonFiles(dir) {
   console.log("🚀 Generating syllabus PDFs");
 
   const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   const page = await browser.newPage();
@@ -170,41 +37,25 @@ function findJsonFiles(dir) {
     const code = data.meta.paper_code;
 
     for (const mode of ["paragraph", "list"]) {
-      const html = TEMPLATE
-        .replace(/{{paper_name}}/g, data.meta.paper_name)
-        .replace("{{paper_code}}", data.meta.paper_code)
-        .replace("{{programme}}", data.meta.programme)
-        .replace("{{semester}}", data.meta.semester)
-        .replace("{{credits}}", data.meta.credits)
-        .replace("{{university}}", data.meta.university)
-        .replace("{{objectives}}", renderObjectives(data.objectives || []))
-        .replace("{{units}}", renderUnits(data.units || [], mode))
-        .replace("{{learning_outcomes}}", renderLearningOutcomes(data.learning_outcomes || []))
-        .replace("{{references}}", renderReferences(data.references || {}));
+      const html = `<html><body>
+        <h1>${data.meta.paper_name}</h1>
+        <p><strong>${data.meta.university}</strong></p>
+        <p>${data.meta.programme} · Semester ${data.meta.semester} · Credits ${data.meta.credits}</p>
+        <hr/>
+        ${data.units.map(u => `
+          <h3>Unit ${u.unit_no}: ${u.title}</h3>
+          ${
+            mode === "list"
+              ? "<ul>" + u.topics.map(t => `<li>☐ ${t}</li>`).join("") + "</ul>"
+              : `<p>${u.topics.join(", ")}</p>`
+          }
+        `).join("")}
+      </body></html>`;
 
-      // 🔑 CRITICAL FIX (NO TIMEOUT)
-      await page.setContent(html, { waitUntil: "domcontentloaded" });
+      await page.setContent(html, { waitUntil: "load" });
 
       const out = path.join(OUTPUT_DIR, `${code}-${mode}.pdf`);
-
-      await page.pdf({
-        path: out,
-        format: "A4",
-        printBackground: true,
-        displayHeaderFooter: true,
-        headerTemplate: `<div></div>`,
-        footerTemplate: `
-          <div style="font-size:11px;width:100%;text-align:center;">
-            ExamArchive · Page <span class="pageNumber"></span> / <span class="totalPages"></span>
-          </div>
-        `,
-        margin: {
-          top: "40px",
-          bottom: "60px",
-          left: "40px",
-          right: "40px"
-        }
-      });
+      await page.pdf({ path: out, format: "A4" });
 
       console.log("✓", path.basename(out));
     }
