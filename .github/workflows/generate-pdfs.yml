@@ -2,6 +2,10 @@ name: Generate Syllabus PDFs
 
 on:
   push:
+    paths:
+      - "data/syllabus/**"
+      - "templates/**"
+      - "scripts/**"
   workflow_dispatch:
 
 jobs:
@@ -16,6 +20,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      # ✅ Install Chrome (this fixes your error)
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
       - name: Install dependencies
         run: npm install puppeteer
