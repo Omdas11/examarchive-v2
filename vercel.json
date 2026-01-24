@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/pdf/syllabus.js": {
-      "maxDuration": 15
-    }
-  }
-}
