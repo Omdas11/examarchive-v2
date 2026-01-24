@@ -302,6 +302,28 @@
   cursor: pointer;
 }
 
+/* =================================
+   Browse Page – Availability Badges
+   (Subtle / Grey version)
+   ================================= */
+
+.availability-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.3rem;
+}
+
+.availability-badge.subtle {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 @media (min-width: 1024px) {
   .papers-list {
     grid-template-columns: repeat(3, 1fr);
