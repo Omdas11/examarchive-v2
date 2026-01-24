@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 
 const SYLLABUS_ROOT = "data/syllabus";
 const OUTPUT_DIR = "assets/pdfs/syllabus";
@@ -26,9 +26,7 @@ function renderObjectives(arr) {
 function renderUnits(units, mode) {
   return units.map(u => `
     <div class="unit">
-      <div class="unit-title">
-        UNIT ${u.unit_no}: ${u.title}
-      </div>
+      <div class="unit-title">UNIT ${u.unit_no}: ${u.title}</div>
       <div class="hours">(${u.hours} Hours)</div>
       ${
         mode === "list"
@@ -61,6 +59,57 @@ async function generateOne(page, data, mode) {
     .replace("{{programme}}", data.meta.programme)
     .replace("{{semester}}", data.meta.semester)
     .replace("{{credits}}", data.meta.credits)
+    .replace("{{university}}", data.meta.university)
+    .replace("{{paper_code}}", data.meta.paper_code)
+    .replace("{{objectives}}", renderObjectives(data.objectives))
+    .replace("{{units}}", renderUnits(data.units, mode))
+    .replace("{{learning_outcomes}}", renderLearningOutcomes(data.learning_outcomes))
+    .replace("{{references}}", renderReferences(data.references));
+
+  await page.setContent(html, { waitUntil: "networkidle0" });
+
+  const out = path.join(
+    OUTPUT_DIR,
+    `${data.meta.paper_code}-${mode}.pdf`
+  );
+
+  await page.pdf({
+    path: out,
+    format: "A4",
+    printBackground: true
+  });
+
+  console.log(`✓ ${data.meta.paper_code}-${mode}.pdf`);
+}
+
+(async () => {
+  console.log("🚀 Generating syllabus PDFs");
+
+  const files = walk(SYLLABUS_ROOT);
+  if (!files.length) {
+    console.log("⚠ No syllabus files found");
+    return;
+  }
+
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+
+  const browser = await puppeteer.launch({
+    executablePath: process.env.CHROME_PATH,
+    headless: "new",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  });
+
+  const page = await browser.newPage();
+
+  for (const file of files) {
+    const data = JSON.parse(fs.readFileSync(file, "utf8"));
+    await generateOne(page, data, "paragraph");
+    await generateOne(page, data, "list");
+  }
+
+  await browser.close();
+  console.log("🎉 All PDFs generated");
+})();    .replace("{{credits}}", data.meta.credits)
     .replace("{{university}}", data.meta.university)
     .replace("{{paper_code}}", data.meta.paper_code)
     .replace("{{objectives}}", renderObjectives(data.objectives))
