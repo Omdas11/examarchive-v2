@@ -153,28 +153,23 @@ function renderRepeatedQuestions(data) {
 
 /* ================= SYLLABUS PDF DOWNLOAD ================= */
 function setupSyllabusDownloads(paperCode) {
-  const btn = document.getElementById("syllabus-download-btn");
-  const menu = document.getElementById("syllabus-download-menu");
-  const pLink = document.getElementById("download-syllabus-paragraph");
-  const lLink = document.getElementById("download-syllabus-list");
+  const toggle = document.getElementById("download-toggle");
+  const menu = document.getElementById("download-menu");
+  const paragraph = document.getElementById("download-paragraph");
+  const list = document.getElementById("download-list");
 
-  if (!btn || !menu || !pLink || !lLink) return;
+  if (!toggle || !menu || !paragraph || !list) return;
 
-  const base = `${BASE}/assets/pdfs/syllabus/`;
-  const paragraphPdf = `${base}${paperCode}-paragraph.pdf`;
-  const listPdf = `${base}${paperCode}-list.pdf`;
+  paragraph.href = `${BASE}/assets/pdfs/syllabus/${paperCode}-paragraph.pdf`;
+  list.href = `${BASE}/assets/pdfs/syllabus/${paperCode}-list.pdf`;
 
-  pLink.href = paragraphPdf;
-  lLink.href = listPdf;
-
-  // toggle menu
-  btn.onclick = () => {
+  toggle.onclick = e => {
+    e.stopPropagation();
     menu.classList.toggle("hidden");
   };
 
-  // close menu when clicking outside
   document.addEventListener("click", e => {
-    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+    if (!menu.contains(e.target)) {
       menu.classList.add("hidden");
     }
   });
