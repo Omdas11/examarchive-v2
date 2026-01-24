@@ -7,10 +7,9 @@ const SYLLABUS_DIR = path.join(ROOT, "data/syllabus");
 const OUTPUT_DIR = path.join(ROOT, "assets/pdfs/syllabus");
 const TEMPLATE = fs.readFileSync("templates/syllabus.html", "utf8");
 
-const MODE = process.env.PDF_MODE || "paragraph"; // paragraph | list
-
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
+// -------- helpers --------
 function walk(dir) {
   let files = [];
   for (const item of fs.readdirSync(dir)) {
@@ -21,7 +20,7 @@ function walk(dir) {
   return files;
 }
 
-function renderUnits(units) {
+function renderUnits(units, mode) {
   return units.map(u => `
     <div class="unit">
       <div class="unit-title">
@@ -29,9 +28,9 @@ function renderUnits(units) {
         <span class="hours">(${u.hours} Hours)</span>
       </div>
       ${
-        MODE === "list"
-          ? `<ul class="checklist">${u.topics.map(t => `<li>${t}</li>`).join("")}</ul>`
-          : `<div class="paragraph">${u.topics.join(", ")}</div>`
+        mode === "list"
+          ? `<ul class="checklist">${(u.topics || []).map(t => `<li>${t}</li>`).join("")}</ul>`
+          : `<div class="paragraph">${(u.topics || []).join(", ")}</div>`
       }
     </div>
   `).join("");
@@ -52,8 +51,43 @@ function renderReferences(refs) {
   `;
 }
 
+async function generateForMode(page, data, mode) {
+  const html = TEMPLATE
+    .replace("{{TITLE}}", data.meta.title)
+    .replace("{{CODE}}", data.meta.code)
+    .replace("{{UNIVERSITY}}", data.meta.university)
+    .replace("{{PROGRAMME}}", data.meta.programme)
+    .replace("{{SEMESTER}}", data.meta.semester)
+    .replace("{{CREDITS}}", data.meta.credits)
+    .replace("{{OBJECTIVES}}", renderObjectives(data.objectives))
+    .replace("{{UNITS}}", renderUnits(data.units, mode))
+    .replace("{{REFERENCES}}", renderReferences(data.references));
+
+  await page.setContent(html, { waitUntil: "networkidle0" });
+
+  const out = path.join(
+    OUTPUT_DIR,
+    `${data.meta.code}-${mode}.pdf`
+  );
+
+  await page.pdf({
+    path: out,
+    format: "A4",
+    printBackground: true
+  });
+
+  console.log(`✓ ${data.meta.code}-${mode}.pdf`);
+}
+
+// -------- main --------
 (async () => {
-  console.log("🚀 Generating syllabus PDFs | mode =", MODE);
+  console.log("🚀 Generating dual syllabus PDFs");
+
+  const files = walk(SYLLABUS_DIR);
+  if (!files.length) {
+    console.warn("⚠️ No syllabus JSON files found");
+    return;
+  }
 
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -61,29 +95,12 @@ function renderReferences(refs) {
 
   const page = await browser.newPage();
 
-  const files = walk(SYLLABUS_DIR);
-
   for (const file of files) {
     const data = JSON.parse(fs.readFileSync(file, "utf8"));
-
-    const html = TEMPLATE
-      .replace("{{TITLE}}", data.meta.title)
-      .replace("{{CODE}}", data.meta.code)
-      .replace("{{UNIVERSITY}}", data.meta.university)
-      .replace("{{PROGRAMME}}", data.meta.programme)
-      .replace("{{SEMESTER}}", data.meta.semester)
-      .replace("{{CREDITS}}", data.meta.credits)
-      .replace("{{OBJECTIVES}}", renderObjectives(data.objectives))
-      .replace("{{UNITS}}", renderUnits(data.units))
-      .replace("{{REFERENCES}}", renderReferences(data.references));
-
-    await page.setContent(html, { waitUntil: "networkidle0" });
-
-    const out = path.join(OUTPUT_DIR, `${data.meta.code}.pdf`);
-    await page.pdf({ path: out, format: "A4", printBackground: true });
-
-    console.log("✓", data.meta.code);
+    await generateForMode(page, data, "paragraph");
+    await generateForMode(page, data, "list");
   }
 
   await browser.close();
+  console.log("🎉 Dual PDFs generated");
 })();
