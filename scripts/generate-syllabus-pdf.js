@@ -2,69 +2,88 @@ import fs from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
 
-const SYLLABUS_ROOT = "data/syllabus";
-const OUTPUT_ROOT = "assets/pdfs/syllabus";
+const ROOT = process.cwd();
+const SYLLABUS_DIR = path.join(ROOT, "data/syllabus");
+const OUTPUT_DIR = path.join(ROOT, "assets/pdfs/syllabus");
+const TEMPLATE = fs.readFileSync("templates/syllabus.html", "utf8");
 
-function collectJsonFiles(dir) {
-  let results = [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+const MODE = process.env.PDF_MODE || "paragraph"; // paragraph | list
 
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      results = results.concat(collectJsonFiles(fullPath));
-    } else if (entry.isFile() && entry.name.endsWith(".json")) {
-      results.push(fullPath);
-    }
+fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+
+function walk(dir) {
+  let files = [];
+  for (const item of fs.readdirSync(dir)) {
+    const p = path.join(dir, item);
+    if (fs.statSync(p).isDirectory()) files = files.concat(walk(p));
+    else if (p.endsWith(".json")) files.push(p);
   }
-  return results;
+  return files;
+}
+
+function renderUnits(units) {
+  return units.map(u => `
+    <div class="unit">
+      <div class="unit-title">
+        ${u.title}
+        <span class="hours">(${u.hours} Hours)</span>
+      </div>
+      ${
+        MODE === "list"
+          ? `<ul class="checklist">${u.topics.map(t => `<li>${t}</li>`).join("")}</ul>`
+          : `<div class="paragraph">${u.topics.join(", ")}</div>`
+      }
+    </div>
+  `).join("");
+}
+
+function renderObjectives(obj) {
+  if (!obj) return "";
+  return `<h2>Objectives</h2><div class="paragraph">${obj}</div>`;
+}
+
+function renderReferences(refs) {
+  if (!refs || refs.length === 0) return "";
+  return `
+    <h2>References</h2>
+    <ol class="references">
+      ${refs.map(r => `<li>${r}</li>`).join("")}
+    </ol>
+  `;
 }
 
 (async () => {
-  console.log("🚀 Starting syllabus PDF generator");
-
-  const files = collectJsonFiles(SYLLABUS_ROOT);
-  console.log(`📚 Found ${files.length} syllabus files`);
-
-  if (!files.length) return;
+  console.log("🚀 Generating syllabus PDFs | mode =", MODE);
 
   const browser = await puppeteer.launch({
-    executablePath: "/usr/bin/google-chrome",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    headless: "new"
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
   });
+
+  const page = await browser.newPage();
+
+  const files = walk(SYLLABUS_DIR);
 
   for (const file of files) {
     const data = JSON.parse(fs.readFileSync(file, "utf8"));
-    const code = data?.meta?.code || path.basename(file, ".json");
 
-    const outDir = OUTPUT_ROOT;
-    const outFile = path.join(outDir, `${code}.pdf`);
-    fs.mkdirSync(outDir, { recursive: true });
+    const html = TEMPLATE
+      .replace("{{TITLE}}", data.meta.title)
+      .replace("{{CODE}}", data.meta.code)
+      .replace("{{UNIVERSITY}}", data.meta.university)
+      .replace("{{PROGRAMME}}", data.meta.programme)
+      .replace("{{SEMESTER}}", data.meta.semester)
+      .replace("{{CREDITS}}", data.meta.credits)
+      .replace("{{OBJECTIVES}}", renderObjectives(data.objectives))
+      .replace("{{UNITS}}", renderUnits(data.units))
+      .replace("{{REFERENCES}}", renderReferences(data.references));
 
-    const html = `
-      <html>
-        <body style="font-family:Arial;padding:40px">
-          <h1>${data.meta.title}</h1>
-          <p><b>Code:</b> ${data.meta.code}</p>
-          <p><b>University:</b> ${data.meta.university}</p>
-          <h2>Units</h2>
-          ${(data.units || []).map(u => `
-            <p><b>${u.title}</b> (${u.hours} hrs)</p>
-            <p>${(u.topics || []).join(", ")}</p>
-          `).join("")}
-        </body>
-      </html>
-    `;
-
-    const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
-    await page.pdf({ path: outFile, format: "A4" });
-    await page.close();
 
-    console.log(`✅ Generated ${outFile}`);
+    const out = path.join(OUTPUT_DIR, `${data.meta.code}.pdf`);
+    await page.pdf({ path: out, format: "A4", printBackground: true });
+
+    console.log("✓", data.meta.code);
   }
 
   await browser.close();
-  console.log("🎉 All PDFs generated");
 })();
