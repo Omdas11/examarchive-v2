@@ -121,10 +121,39 @@
   padding-left: 1.2rem;
 }
 
-/* ---------- Footer ---------- */
+/* ---------- Page Setup (reserve footer space) ---------- */
+@page {
+  size: A4;
+  margin: 25mm 25mm 45mm 30mm; /* EXTRA bottom margin */
+}
+
+/* ---------- Print Reset ---------- */
+@media print {
+  body {
+    background: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .demo-controls {
+    display: none;
+  }
+}
+
+/* ---------- Base Typography ---------- */
+#pdf-root {
+  font-family: "Times New Roman", Georgia, serif;
+  font-size: 11pt;
+  line-height: 1.4;
+  color: #000;
+  position: relative;
+  padding-bottom: 25mm; /* RESERVE FOOTER SPACE */
+}
+
+/* ---------- Footer (Non-overlapping) ---------- */
 .pdf-footer {
   position: fixed;
-  bottom: 15mm;
+  bottom: 20mm;
   left: 30mm;
   right: 25mm;
   font-size: 9pt;
@@ -133,15 +162,15 @@
   justify-content: space-between;
 }
 
-/* ---------- Page Number ---------- */
+/* ---------- Page Number (Stable) ---------- */
 .page-number::after {
-  content: counter(page);
+  content: "1";
 }
 
 /* ---------- First Page Meta ---------- */
 .pdf-first-page-meta {
   position: fixed;
-  bottom: 22mm;
+  bottom: 28mm;
   right: 25mm;
   font-size: 9pt;
   color: #444;
