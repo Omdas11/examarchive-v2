@@ -1,17 +1,9 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-import fs from "fs";
-import path from "path";
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+const fs = require("fs");
+const path = require("path");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 
-/**
- * 🔒 Force Node runtime (CRITICAL)
- */
-
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
+module.exports = async function handler(req, res) {
   try {
     // 1️⃣ Load HTML template
     const templatePath = path.join(
@@ -47,17 +39,13 @@ export default async function handler(
         /{{REFERENCES}}/g,
         `<li>H.K. Dass – Mathematical Physics</li>`
       )
-      .replace(
-        /{{TIMESTAMP}}/g,
-        new Date().toLocaleString("en-IN", { hour12: false })
-      )
+      .replace(/{{TIMESTAMP}}/g, new Date().toLocaleString("en-IN", { hour12: false }))
       .replace(/{{PAGE}}/g, "1");
 
-    // 3️⃣ Resolve Chromium path SAFELY
+    // 3️⃣ Launch Chromium
     const executablePath =
       (await chromium.executablePath()) || "/usr/bin/chromium";
 
-    // 4️⃣ Launch browser
     const browser = await puppeteer.launch({
       args: chromium.args,
       executablePath,
@@ -65,12 +53,9 @@ export default async function handler(
     });
 
     const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
 
-    await page.setContent(html, {
-      waitUntil: "networkidle0",
-    });
-
-    // 5️⃣ Generate PDF
+    // 4️⃣ Generate PDF
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
@@ -78,19 +63,15 @@ export default async function handler(
 
     await browser.close();
 
-    // 6️⃣ Return PDF
+    // 5️⃣ Send response
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      "inline; filename=syllabus.pdf"
-    );
-
+    res.setHeader("Content-Disposition", "inline; filename=syllabus.pdf");
     res.status(200).send(pdf);
-  } catch (err: any) {
+  } catch (err) {
     console.error("PDF ERROR:", err);
     res.status(500).json({
       error: "PDF generation failed",
-      message: err?.message || "Unknown error",
+      message: err.message,
     });
   }
-}
+};
