@@ -1,92 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>{{paper_name}}</title>
-
+  <meta charset="utf-8" />
+  <title>{{TITLE}}</title>
   <style>
     body {
       font-family: "Times New Roman", serif;
       font-size: 12pt;
-      padding: 48px;
-      color: #000;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page {
+      padding: 24mm;
     }
 
     h1 {
       text-align: center;
-      font-size: 18pt;
-      margin-bottom: 6px;
+      margin-bottom: 4mm;
     }
 
     .meta {
       text-align: center;
-      font-size: 10.5pt;
-      margin-bottom: 20px;
+      font-size: 10pt;
+      margin-bottom: 10mm;
     }
 
     h2 {
-      font-size: 13pt;
       border-bottom: 1px solid #000;
-      margin-top: 24px;
+      padding-bottom: 2mm;
+      margin-top: 10mm;
+      font-size: 13pt;
     }
 
     .unit {
-      margin-top: 12px;
+      margin-bottom: 6mm;
     }
 
     .hours {
-      font-style: italic;
       font-size: 10pt;
+      font-style: italic;
     }
 
-    footer {
-      position: fixed;
-      bottom: 24px;
-      left: 48px;
-      right: 48px;
-      font-size: 9pt;
-      display: flex;
-      justify-content: space-between;
-      border-top: 1px solid #aaa;
-      padding-top: 6px;
-    }
-
-    .watermark {
-      position: fixed;
-      top: 45%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-30deg);
-      font-size: 64pt;
-      color: rgba(0,0,0,0.05);
-      z-index: -1;
-      user-select: none;
+    ul {
+      margin-left: 16px;
     }
   </style>
 </head>
 
 <body>
-  <div class="watermark">ExamArchive</div>
+  <div class="page">
+    <h1>{{TITLE}}</h1>
+    <div class="meta">
+      {{CODE}} <br />
+      {{META}}
+    </div>
 
-  <h1>{{paper_name}}</h1>
-  <div class="meta">
-    {{paper_code}} · {{programme}} · Semester {{semester}} · {{credits}} Credits<br>
-    <strong>{{university}}</strong>
+    <h2>Objectives</h2>
+    <p>{{OBJECTIVES}}</p>
+
+    <h2>Course Content</h2>
+    {{UNITS}}
+
+    <h2>References</h2>
+    <ul>
+      {{REFERENCES}}
+    </ul>
   </div>
-
-  <h2>Objectives</h2>
-  <p>{{objectives}}</p>
-
-  <h2>Course Content</h2>
-  {{units}}
-
-  <h2>References</h2>
-  <ol>
-    {{references}}
-  </ol>
-
-  <footer>
-    <span>ExamArchive</span>
-    <span>{{timestamp}}</span>
-  </footer>
 </body>
 </html>
