@@ -10,7 +10,6 @@ if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-// Recursively find all syllabus JSON files
 function getAllJsonFiles(dir) {
   let results = [];
   for (const file of fs.readdirSync(dir)) {
@@ -25,10 +24,12 @@ function getAllJsonFiles(dir) {
 }
 
 const browser = await puppeteer.launch({
+  executablePath: "/usr/bin/google-chrome",
   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  headless: "new",
 });
-const page = await browser.newPage();
 
+const page = await browser.newPage();
 const files = getAllJsonFiles(SYLLABUS_ROOT);
 
 for (const file of files) {
@@ -36,7 +37,7 @@ for (const file of files) {
 
   const unitsHtml = data.units
     .map(
-      (u) => `
+      u => `
       <div class="unit">
         <strong>${u.title}</strong>
         <div class="hours">(${u.hours} Hours)</div>
@@ -47,7 +48,7 @@ for (const file of files) {
     .join("");
 
   const refsHtml = (data.references || [])
-    .map((r) => `<li>${r}</li>`)
+    .map(r => `<li>${r}</li>`)
     .join("");
 
   const html = TEMPLATE
