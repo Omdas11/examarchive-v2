@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{PAPER_TITLE}} – Syllabus</title>
+
+  <!-- PDF stylesheet -->
+  <link rel="stylesheet" href="/css/pdf.css" />
+</head>
+
+<body>
+
+  <div id="pdf-root">
+
+    <!-- HEADER -->
+    <header class="pdf-header">
+      <h1>{{PAPER_TITLE}}</h1>
+
+      <div class="pdf-code">{{PAPER_CODE}}</div>
+
+      <div class="pdf-meta">
+        {{PROGRAMME}} | Semester {{SEMESTER}} | Credits: {{CREDITS}}
+      </div>
+
+      <div class="pdf-university">
+        {{UNIVERSITY}}
+      </div>
+
+      <hr />
+    </header>
+
+    <!-- OBJECTIVES -->
+    <section class="pdf-section">
+      <h2>OBJECTIVES</h2>
+      <p>
+        {{OBJECTIVES}}
+      </p>
+    </section>
+
+    <!-- COURSE CONTENT -->
+    <section class="pdf-section">
+      <h2>COURSE CONTENT</h2>
+
+      <!-- UNITS (REPEATED BLOCK) -->
+      {{UNITS}}
+    </section>
+
+    <!-- REFERENCES -->
+    <section class="pdf-section">
+      <h2>REFERENCES</h2>
+      <ol class="pdf-references">
+        {{REFERENCES}}
+      </ol>
+    </section>
+
+    <!-- FLOW FOOTER -->
+    <div class="pdf-flow-footer">
+      <span>ExamArchive</span>
+      <span>
+        Generated on {{TIMESTAMP}} · Page {{PAGE}}
+      </span>
+    </div>
+
+  </div>
+
+</body>
+</html>
