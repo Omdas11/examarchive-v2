@@ -16,6 +16,8 @@
 
 /* Popup Card */
 .avatar-popup {
+  display: block !important;
+  opacity: 1 !important;
   width: min(92%, 360px);
   background: var(--avatar-bg-card);
   color: var(--avatar-text-main);

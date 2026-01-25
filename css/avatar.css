@@ -151,6 +151,17 @@
   font-weight: 600;
 }
 
+#avatar-popup {
+  display: block !important;
+  position: fixed !important;
+  top: 80px !important;
+  right: 10px !important;
+  width: 200px !important;
+  height: 200px !important;
+  background: red !important;
+  z-index: 999999 !important;
+}
+
 /* ===== Desktop vs Mobile ===== */
 
 @media (max-width: 640px) {
