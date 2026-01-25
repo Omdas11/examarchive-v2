@@ -1,30 +1,21 @@
-// =====================================
-// Avatar Popup Controller
-// =====================================
+document.addEventListener("DOMContentLoaded", () => {
+  const avatarBtn = document.querySelector(".avatar-trigger");
+  const popup = document.getElementById("avatar-popup");
 
-const avatarPopup = document.getElementById('avatar-popup');
-const avatarOverlay = document.getElementById('avatar-overlay');
+  if (!avatarBtn || !popup) return;
 
-/* Call this when avatar icon is clicked */
-function openAvatarPopup() {
-  avatarPopup.classList.remove('hidden');
-  avatarOverlay.classList.remove('hidden');
-  avatarPopup.setAttribute('aria-hidden', 'false');
-}
+  // Ensure popup is positioned relative to header
+  const header = document.querySelector(".site-header");
+  header.style.position = "relative";
 
-/* Close popup */
-function closeAvatarPopup() {
-  avatarPopup.classList.add('hidden');
-  avatarOverlay.classList.add('hidden');
-  avatarPopup.setAttribute('aria-hidden', 'true');
-}
+  avatarBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    popup.classList.toggle("open");
+  });
 
-/* Close on overlay click */
-avatarOverlay?.addEventListener('click', closeAvatarPopup);
-
-/* ESC key support (desktop) */
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeAvatarPopup();
-  }
+  document.addEventListener("click", (e) => {
+    if (!popup.contains(e.target) && !avatarBtn.contains(e.target)) {
+      popup.classList.remove("open");
+    }
+  });
 });
