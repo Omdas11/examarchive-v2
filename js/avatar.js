@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!trigger || !popup) return;
 
-  // Toggle popup
+  // Toggle popup on avatar click
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
     popup.classList.toggle("open");
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Prevent popup clicks from closing itself
+  // Prevent clicks inside popup from bubbling
   popup.addEventListener("click", (e) => {
     e.stopPropagation();
   });
