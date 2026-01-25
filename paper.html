@@ -51,72 +51,55 @@
     </section>
 
     <!-- =========================
-         SYLLABUS
-    ========================== -->
-    <section class="paper-section syllabus-section card">
+     SYLLABUS
+========================== -->
+<section class="paper-section syllabus-section card">
 
-      <div class="section-header">
-  <h2>Syllabus</h2>
+  <div class="section-header syllabus-header-wrap">
+    <h2>Syllabus</h2>
 
-  <button
-    id="download-toggle"
-    class="download-btn"
-    aria-label="Download syllabus"
-  >
-    <!-- Download SVG -->
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path d="M12 3v12" stroke-width="2"/>
-      <path d="M7 10l5 5 5-5" stroke-width="2"/>
-      <path d="M5 21h14" stroke-width="2"/>
-    </svg>
-  </button>
-</div>
+    <!-- Download toggle -->
+    <button
+      id="syllabus-download-toggle"
+      class="download-btn"
+      aria-label="Download syllabus"
+    >
+      <!-- Download SVG -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M12 3v12" stroke-width="2"/>
+        <path d="M7 10l5 5 5-5" stroke-width="2"/>
+        <path d="M5 21h14" stroke-width="2"/>
+      </svg>
+    </button>
+  </div>
 
-<!-- Floating download menu -->
-<div id="download-menu" class="download-menu hidden">
-  <a id="download-paragraph" href="#" target="_blank">
-    <!-- Paragraph icon -->
-    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
-    Paragraph
-  </a>
+  <!-- Floating download menu -->
+  <div id="syllabus-download-menu" class="download-menu hidden">
+    <a id="download-syllabus-paragraph" href="#" target="_blank">
+      <!-- Paragraph icon -->
+      <svg viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h10M4 18h14"/>
+      </svg>
+      <span>Paragraph</span>
+    </a>
 
-  <a id="download-list" href="#" target="_blank">
-    <!-- Checklist icon -->
-    <svg viewBox="0 0 24 24">
-      <path d="M5 6h2M9 6h10M5 12h2M9 12h10M5 18h2M9 18h10"/>
-    </svg>
-    Checklist
-  </a>
-</div>
-      <!-- Download options (hidden by default, JS will toggle) -->
-      <div id="syllabus-download-menu" class="download-menu hidden">
-        <a
-          id="download-syllabus-paragraph"
-          href="#"
-          target="_blank"
-        >
-          Paragraph PDF
-        </a>
+    <a id="download-syllabus-list" href="#" target="_blank">
+      <!-- Checklist icon -->
+      <svg viewBox="0 0 24 24">
+        <path d="M5 6h2M9 6h10M5 12h2M9 12h10M5 18h2M9 18h10"/>
+      </svg>
+      <span>Checklist</span>
+    </a>
+  </div>
 
-        <a
-          id="download-syllabus-list"
-          href="#"
-          target="_blank"
-        >
-          Checklist PDF
-        </a>
-      </div>
+  <div id="syllabus-container">
+    <!-- syllabus injected by JS -->
+  </div>
 
-      <div id="syllabus-container">
-        <!-- syllabus injected by JS -->
-      </div>
-
-      <!-- fallback -->
-      <p id="no-syllabus" class="coming-soon" hidden>
-        Syllabus is not available for this paper yet.
-      </p>
-    </section>
-
+  <p id="no-syllabus" class="coming-soon" hidden>
+    Syllabus is not available for this paper yet.
+  </p>
+</section>
     <!-- =========================
          REPEATED QUESTIONS
     ========================== -->
