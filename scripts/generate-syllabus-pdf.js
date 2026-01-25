@@ -1,5 +1,3 @@
-// scripts/generate-syllabus-pdf.js
-
 import fs from "fs";
 import path from "path";
 import puppeteer from "puppeteer-core";
@@ -33,19 +31,21 @@ function renderList(items = []) {
 }
 
 function renderUnits(units = [], mode) {
-  return units.map(u => {
-    const content =
-      mode === "list"
-        ? `<ul>${u.topics.map(t => `<li>☐ ${t}</li>`).join("")}</ul>`
-        : `<p>${u.topics.join(", ")}</p>`;
+  return units
+    .map(u => {
+      const content =
+        mode === "list"
+          ? `<ul>${u.topics.map(t => `<li>☐ ${t}</li>`).join("")}</ul>`
+          : `<p>${u.topics.join(", ")}</p>`;
 
-    return `
-      <div class="unit">
-        <h3>Unit ${u.unit_no}: ${u.title} (${u.hours} Hours)</h3>
-        ${content}
-      </div>
-    `;
-  }).join("\n");
+      return `
+        <div class="unit">
+          <h3>Unit ${u.unit_no}: ${u.title} (${u.hours} Hours)</h3>
+          ${content}
+        </div>
+      `;
+    })
+    .join("\n");
 }
 
 function renderReferences(refs = {}) {
@@ -88,8 +88,14 @@ function renderReferences(refs = {}) {
         .replace(/{{university}}/g, data.meta.university)
         .replace(/{{objectives}}/g, renderList(data.objectives || []))
         .replace(/{{units}}/g, renderUnits(data.units || [], mode))
-        .replace(/{{learning_outcomes}}/g, renderList(data.learning_outcomes || []))
-        .replace(/{{references}}/g, renderReferences(data.references || {}));
+        .replace(
+          /{{learning_outcomes}}/g,
+          renderList(data.learning_outcomes || [])
+        )
+        .replace(
+          /{{references}}/g,
+          renderReferences(data.references || {})
+        );
 
       await page.setContent(html, { waitUntil: "load" });
 
@@ -97,7 +103,40 @@ function renderReferences(refs = {}) {
       await page.pdf({
         path: out,
         format: "A4",
-        margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+        printBackground: true,
+        displayHeaderFooter: true,
+        margin: {
+          top: "60px",
+          bottom: "70px",
+          left: "40px",
+          right: "40px",
+        },
+        headerTemplate: `
+          <div style="
+            font-size:10px;
+            width:100%;
+            text-align:center;
+            color:#999;
+            transform:rotate(-25deg);
+            opacity:0.12;
+          ">
+            ExamArchive
+          </div>
+        `,
+        footerTemplate: `
+          <div style="
+            width:100%;
+            font-size:9px;
+            padding:0 40px;
+            display:flex;
+            justify-content:space-between;
+            color:#666;
+          ">
+            <span>Page <span class="pageNumber"></span></span>
+            <span></span>
+            <span>ExamArchive</span>
+          </div>
+        `,
       });
 
       console.log("✓", path.basename(out));
