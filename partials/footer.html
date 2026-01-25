@@ -44,4 +44,14 @@
 
   </div>
 </footer>
+<!-- Avatar Popup Root -->
+<div id="avatar-root"></div>
+
+<script>
+  fetch('partials/avatar-popup.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('avatar-root').innerHTML = html;
+    });
+</script>
 <script src="js/avatar.js"></script>
