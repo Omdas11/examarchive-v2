@@ -1,28 +1,30 @@
-/* =========================
-   Avatar Popup Logic (FINAL)
-   ========================= */
-
 document.addEventListener("DOMContentLoaded", () => {
   const trigger = document.querySelector(".avatar-trigger");
-  const popup = document.getElementById("avatar-popup");
+  const mount = document.getElementById("avatar-mount");
 
-  if (!trigger || !popup) return;
+  if (!trigger || !mount) return;
 
-  // Toggle popup on avatar click
-  trigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    popup.classList.toggle("open");
-  });
+  // Load popup HTML
+  fetch("partials/avatar-popup.html")
+    .then(res => res.text())
+    .then(html => {
+      mount.innerHTML = html;
 
-  // Close when clicking outside
-  document.addEventListener("click", (e) => {
-    if (!popup.contains(e.target) && !trigger.contains(e.target)) {
-      popup.classList.remove("open");
-    }
-  });
+      const popup = document.getElementById("avatar-popup");
 
-  // Prevent clicks inside popup from bubbling
-  popup.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
+      // Toggle popup
+      trigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        popup.classList.toggle("open");
+        popup.classList.toggle("hidden");
+      });
+
+      // Close on outside click
+      document.addEventListener("click", (e) => {
+        if (!popup.contains(e.target) && !trigger.contains(e.target)) {
+          popup.classList.remove("open");
+          popup.classList.add("hidden");
+        }
+      });
+    });
 });
