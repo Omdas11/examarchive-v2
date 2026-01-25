@@ -12,9 +12,9 @@
     <!-- University -->
     <div class="footer-section">
       <h4>University</h4>
-      <a href="#" target="_blank">Assam University</a>
-      <a href="#" target="_blank">Dima Hasao Campus</a>
-      <a href="#" target="_blank">Academic Calendar</a>
+      <a href="#">Assam University</a>
+      <a href="#">Dima Hasao Campus</a>
+      <a href="#">Academic Calendar</a>
     </div>
 
     <!-- Resources -->
@@ -43,9 +43,14 @@
     </div>
 
   </div>
-<!-- Avatar Popup -->
-<div id="avatar-popup" class="avatar-popup hidden">
+</footer>
+
+<!-- ===============================
+     Avatar Popup (GLOBAL, SINGLE)
+     =============================== -->
+<div id="avatar-popup" class="avatar-popup">
   <div class="avatar-card">
+
     <div class="avatar-ring">
       <div class="avatar-initial">OM</div>
     </div>
@@ -74,17 +79,9 @@
       <div><strong>480</strong><span>Points</span></div>
       <div><strong>7</strong><span>Streak</span></div>
     </div>
+
   </div>
 </div>
-</footer>
-<!-- Avatar Popup Root -->
-<div id="avatar-root"></div>
 
-<script>
-  fetch('partials/avatar-popup.html')
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById('avatar-root').innerHTML = html;
-    });
-</script>
-<script src="js/avatar.js"></script>
+<!-- Avatar Logic -->
+<script src="js/avatar.js" defer></script>
