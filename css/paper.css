@@ -106,7 +106,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   margin-bottom: 0.7rem;
-  overflow: hidden;
+  
   background: var(--surface);
 }
 
@@ -233,7 +233,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   margin-bottom: 0.7rem;
-  overflow: hidden;
+  
   background: var(--surface);
 }
 

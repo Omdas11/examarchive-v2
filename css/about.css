@@ -107,7 +107,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--bg-soft);
-  overflow: hidden;
+  
 
   /* animation */
   opacity: 1;
