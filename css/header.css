@@ -129,7 +129,7 @@ body[data-night="on"] .night-btn.active .icon {
 
 /* ---------- Avatar Trigger ---------- */
 .avatar-trigger {
-  position: relative;
+  position: relative; /* ✅ anchor point */
 
   width: 36px;
   height: 36px;
@@ -151,7 +151,8 @@ body[data-night="on"] .night-btn.active .icon {
   inset: -3px;
 
   border-radius: 50%;
-  border: 2px solid #16a34a; /* level ring */
+  border: 2px solid #16a34a;
+  pointer-events: none; /* 🔒 IMPORTANT */
 }
 
 /* Avatar circle */
