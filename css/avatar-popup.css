@@ -1,11 +1,12 @@
 /* =========================
-   Avatar Popup – FINAL
+   Avatar Popup – FINAL STABLE
    ========================= */
 
+/* Popup container */
 .avatar-popup {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
+  position: fixed;
+  top: 64px;              /* below header */
+  right: 1rem;
 
   width: 320px;
   max-width: calc(100vw - 2rem);
@@ -18,10 +19,14 @@
   transform: translateY(-8px) scale(0.96);
   pointer-events: none;
 
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+
   z-index: 9999;
 }
 
+/* Open state */
 .avatar-popup.open {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -34,13 +39,15 @@
   text-align: center;
 }
 
-/* Ring avatar */
+/* Avatar ring */
 .avatar-ring {
   width: 72px;
   height: 72px;
   margin: 0 auto;
+
   border-radius: 50%;
   border: 4px solid #1faa59;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,10 +56,14 @@
 .avatar-initial {
   width: 60px;
   height: 60px;
+
   border-radius: 50%;
   background: #efeaff;
   color: #5b2bc2;
+
   font-weight: 800;
+  font-size: 1.1rem;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,7 +89,7 @@
 .badge-row {
   display: flex;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   margin: 0.8rem 0;
 }
 
@@ -89,8 +100,13 @@
   background: var(--bg-soft);
 }
 
-.badge.rank { background: #fff2c2; }
-.badge.admin { background: #ffd6d6; }
+.badge.rank {
+  background: #fff2c2;
+}
+
+.badge.admin {
+  background: #ffd6d6;
+}
 
 /* Buttons */
 .primary-btn {
@@ -109,4 +125,12 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 0.6rem;
   margin-top: 0.8rem;
+}
+
+/* ---------- Mobile tweak ---------- */
+@media (max-width: 480px) {
+  .avatar-popup {
+    right: 0.75rem;
+    width: calc(100vw - 1.5rem);
+  }
 }
