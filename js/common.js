@@ -24,12 +24,18 @@ function loadPartial(id, file) {
 
       container.innerHTML = html;
 
+      // 🔔 Header ready event
       if (id === "header") {
         highlightActiveNav();
-
-        // Notify other scripts safely
         document.dispatchEvent(
           new CustomEvent("header:loaded", { bubbles: true })
+        );
+      }
+
+      // 🔔 Footer ready event (NEW, REQUIRED)
+      if (id === "footer") {
+        document.dispatchEvent(
+          new CustomEvent("footer:loaded", { bubbles: true })
         );
       }
     })
@@ -59,7 +65,6 @@ function highlightActiveNav() {
 // Mobile menu toggle (FIXED)
 // ===============================
 document.addEventListener("click", (e) => {
-  // ✅ WORKS even when clicking the SVG or IMG
   const menuBtn = e.target.closest(".menu-btn");
   const mobileNav = document.getElementById("mobileNav");
 
@@ -68,7 +73,6 @@ document.addEventListener("click", (e) => {
     return;
   }
 
-  // Auto-close on link tap
   if (e.target.closest(".mobile-nav a")) {
     mobileNav?.classList.remove("open");
   }
