@@ -101,44 +101,32 @@ function renderReferences(refs = {}) {
 
       const out = path.join(OUTPUT_DIR, `${code}-${mode}.pdf`);
       await page.pdf({
-        path: out,
-        format: "A4",
-        printBackground: true,
-        displayHeaderFooter: true,
-        margin: {
-          top: "60px",
-          bottom: "70px",
-          left: "40px",
-          right: "40px",
-        },
-        headerTemplate: `
-          <div style="
-            font-size:10px;
-            width:100%;
-            text-align:center;
-            color:#999;
-            transform:rotate(-25deg);
-            opacity:0.12;
-          ">
-            ExamArchive
-          </div>
-        `,
-        footerTemplate: `
-          <div style="
-            width:100%;
-            font-size:9px;
-            padding:0 40px;
-            display:flex;
-            justify-content:space-between;
-            color:#666;
-          ">
-            <span>Page <span class="pageNumber"></span></span>
-            <span></span>
-            <span>ExamArchive</span>
-          </div>
-        `,
-      });
-
+  path: out,
+  format: "A4",
+  margin: {
+    top: "40px",
+    bottom: "70px",
+    left: "40px",
+    right: "40px",
+  },
+  displayHeaderFooter: true,
+  headerTemplate: `<div></div>`,
+  footerTemplate: `
+    <div style="
+      width:100%;
+      font-size:9px;
+      padding:0 40px;
+      box-sizing:border-box;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      color:#444;
+    ">
+      <span><b>Page <span class="pageNumber"></span></b></span>
+      <span><b>ExamArchive</b></span>
+    </div>
+  `,
+});
       console.log("✓", path.basename(out));
     }
   }
