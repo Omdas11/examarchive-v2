@@ -1,7 +1,11 @@
 <header class="site-header">
-  <div class="logo">EA · ExamArchive</div>
 
-  <!-- Desktop nav -->
+  <!-- Left: Logo -->
+  <div class="logo">
+    EA · ExamArchive
+  </div>
+
+  <!-- Center: Desktop Navigation -->
   <nav class="nav">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="browse.html">Browse</a>
@@ -10,65 +14,71 @@
     <a class="nav-link" href="settings.html">Settings</a>
   </nav>
 
-  <!-- Theme Toggle -->
-  <div class="theme-toggle">
+  <!-- Right: Actions -->
+  <div class="header-actions">
 
-   <!-- Light -->
-  <button class="theme-btn" data-theme="light" title="Light">
-    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-    <!-- Sun core -->
-      <circle cx="12" cy="12" r="4"/>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
 
-    <!-- Rays (cardinal + mid, NO diagonals) -->
-       <path d="M12 2v3"/>
-       <path d="M12 19v3"/>
-       <path d="M2 12h3"/>
-       <path d="M19 12h3"/>
- 
-       <path d="M5.5 5.5l2 2"/>
-       <path d="M16.5 16.5l2 2"/>
-       <path d="M5.5 18.5l2-2"/>
-       <path d="M16.5 7.5l2-2"/>
-      </svg>
+      <!-- Light -->
+      <button class="theme-btn" data-theme="light" title="Light">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+          <path d="M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"/>
+        </svg>
+      </button>
+
+      <!-- Dark -->
+      <button class="theme-btn" data-theme="dark" title="Dark">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3
+          a7 7 0 0 0 9.8 9.8Z"/>
+        </svg>
+      </button>
+
+      <!-- AMOLED -->
+      <button class="theme-btn" data-theme="amoled" title="AMOLED">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3
+          a7 7 0 0 0 9.8 9.8Z"/>
+          <path d="M18 5h4M20 3v4"/>
+        </svg>
+      </button>
+
+      <!-- Night -->
+      <button class="night-btn" title="Night mode">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 14c.2-1 .7-1.7 1.5-2.5
+          1-.9 1.5-2.2 1.5-3.5a6 6 0 0 0-12 0
+          c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+          <path d="M9 18h6M10 22h4"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <!-- Avatar (Logged-in state) -->
+    <button
+      class="avatar-trigger"
+      aria-label="User menu"
+      onclick="openAvatarPopup()"
+    >
+      <div class="avatar-mini avatar-bg-3">
+        OM
+      </div>
     </button>
 
-    <!-- Dark -->
-    <button class="theme-btn" data-theme="dark" title="Dark">
+    <!-- Hamburger (Mobile) -->
+    <button class="menu-btn" aria-label="Menu">
       <svg class="icon" viewBox="0 0 24 24">
-        <path d="M21 12.8A9 9 0 1 1 11.2 3
-        a7 7 0 0 0 9.8 9.8Z"/>
-      </svg>
-    </button>
-
-    <!-- AMOLED -->
-    <button class="theme-btn" data-theme="amoled" title="AMOLED">
-      <svg class="icon" viewBox="0 0 24 24">
-        <path d="M21 12.8A9 9 0 1 1 11.2 3
-        a7 7 0 0 0 9.8 9.8Z"/>
-        <path d="M18 5h4M20 3v4"/>
-      </svg>
-    </button>
-
-    <!-- Night -->
-    <button class="night-btn" title="Night mode">
-      <svg class="icon" viewBox="0 0 24 24">
-        <path d="M15 14c.2-1 .7-1.7 1.5-2.5
-        1-.9 1.5-2.2 1.5-3.5a6 6 0 0 0-12 0
-        c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-        <path d="M9 18h6M10 22h4"/>
+        <path d="M4 6h16M4 12h16M4 18h16"/>
       </svg>
     </button>
 
   </div>
 
-  <!-- Hamburger -->
-  <button class="menu-btn" aria-label="Menu">
-    <svg class="icon" viewBox="0 0 24 24">
-      <path d="M4 6h16M4 12h16M4 18h16"/>
-    </svg>
-  </button>
-
-  <!-- Mobile menu -->
+  <!-- Mobile Navigation -->
   <div class="mobile-nav" id="mobileNav">
     <a href="index.html">Home</a>
     <a href="browse.html">Browse</a>
@@ -76,4 +86,5 @@
     <a href="about.html">About</a>
     <a href="settings.html">Settings</a>
   </div>
+
 </header>
