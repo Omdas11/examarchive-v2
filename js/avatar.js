@@ -1,23 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const avatarBtn = document.querySelector(".avatar-trigger");
+  let popup;
+
   fetch("partials/avatar-popup.html")
     .then(res => res.text())
     .then(html => {
-      document.getElementById("avatar-root").innerHTML = html;
-
-      const popup = document.getElementById("avatar-popup");
-      const trigger = document.querySelector(".avatar-trigger");
-
-      if (!popup || !trigger) return;
-
-      trigger.addEventListener("click", (e) => {
-        e.stopPropagation();
-        popup.classList.toggle("open");
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!popup.contains(e.target) && !trigger.contains(e.target)) {
-          popup.classList.remove("open");
-        }
-      });
+      document.body.insertAdjacentHTML("beforeend", html);
+      popup = document.getElementById("avatar-popup");
     });
+
+  avatarBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!popup) return;
+    popup.classList.toggle("open");
+  });
+
+  document.addEventListener("click", () => {
+    if (popup) popup.classList.remove("open");
+  });
 });
