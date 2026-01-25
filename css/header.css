@@ -245,6 +245,11 @@ body[data-night="on"] .night-btn.active .icon {
   }
 }
 
+/* ---------- Avatar Wrapper ---------- */
+.avatar-wrapper {
+  position: relative;
+}
+
 @media (min-width: 769px) {
   .mobile-nav {
     display: none !important;
