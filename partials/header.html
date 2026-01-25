@@ -53,23 +53,20 @@
     <!-- Avatar Wrapper -->
 <div class="avatar-wrapper">
 
-  <button class="avatar-trigger" aria-label="User menu">
+  <button class="avatar-trigger" id="avatarTrigger" aria-label="User menu">
     <div class="avatar-mini">OM</div>
   </button>
 
-  <!-- Avatar Popup Mount -->
-  <div id="avatar-mount"></div>
-
-</div>
-    <!-- Hamburger -->
-    <button class="menu-btn" aria-label="Menu">
-      <svg class="icon" viewBox="0 0 24 24">
-        <path d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-    </button>
-
+  <!-- ✅ INLINE POPUP -->
+  <div id="avatar-popup" class="avatar-popup">
+    <div class="avatar-card">
+      <h3>Hi, Om 👋</h3>
+      <p>@omdas11</p>
+      <button class="primary-btn">Manage Account</button>
+    </div>
   </div>
 
+</div>
   <!-- Mobile Navigation -->
   <div class="mobile-nav" id="mobileNav">
     <a href="index.html">Home</a>
