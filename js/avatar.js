@@ -1,21 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const avatarBtn = document.querySelector(".avatar-trigger");
-  const popup = document.getElementById("avatar-popup");
+  fetch("partials/avatar-popup.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("avatar-root").innerHTML = html;
 
-  if (!avatarBtn || !popup) return;
+      const popup = document.getElementById("avatar-popup");
+      const trigger = document.querySelector(".avatar-trigger");
 
-  // Ensure popup is positioned relative to header
-  const header = document.querySelector(".site-header");
-  header.style.position = "relative";
+      if (!popup || !trigger) return;
 
-  avatarBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    popup.classList.toggle("open");
-  });
+      trigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        popup.classList.toggle("open");
+      });
 
-  document.addEventListener("click", (e) => {
-    if (!popup.contains(e.target) && !avatarBtn.contains(e.target)) {
-      popup.classList.remove("open");
-    }
-  });
+      document.addEventListener("click", (e) => {
+        if (!popup.contains(e.target) && !trigger.contains(e.target)) {
+          popup.classList.remove("open");
+        }
+      });
+    });
 });
