@@ -2,6 +2,12 @@
    Avatar Popup – FINAL FIX
    ========================= */
 
+/* 🔑 Anchor for absolute popup */
+.avatar-wrapper {
+  position: relative;
+}
+
+/* Popup container */
 .avatar-popup {
   position: absolute;
   top: calc(100% + 12px);
@@ -22,8 +28,14 @@
   z-index: 10000;
 }
 
+/* Open state */
 .avatar-popup.open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
+}
+
+/* Hidden fallback (safety) */
+.avatar-popup.hidden {
+  display: none;
 }
