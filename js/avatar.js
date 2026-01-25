@@ -1,24 +1,19 @@
 document.addEventListener("header:loaded", () => {
   const trigger = document.getElementById("avatarTrigger");
-  const mount = document.getElementById("avatar-mount");
+  const popup = document.getElementById("avatar-popup");
 
-  if (!trigger || !mount) return;
+  if (!trigger || !popup) return;
 
-  fetch("partials/avatar-popup.html")
-    .then(res => res.text())
-    .then(html => {
-      mount.innerHTML = html;
+  // Toggle popup
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    popup.classList.toggle("open");
+  });
 
-      const popup = document.getElementById("avatar-popup");
-      if (!popup) return;
-
-      trigger.addEventListener("click", (e) => {
-        e.stopPropagation();
-        popup.classList.toggle("open");
-      });
-
-      document.addEventListener("click", () => {
-        popup.classList.remove("open");
-      });
-    });
+  // Close ONLY when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!popup.contains(e.target) && !trigger.contains(e.target)) {
+      popup.classList.remove("open");
+    }
+  });
 });
