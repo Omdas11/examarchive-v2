@@ -12,7 +12,9 @@
   align-items: center;
   justify-content: space-between;
 
-  padding: 0.9rem 1rem;
+  height: 56px; /* 🔒 lock height */
+  padding: 0 1rem;
+
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
@@ -22,6 +24,7 @@
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--text);
+  white-space: nowrap;
 }
 
 /* ---------- Desktop Nav ---------- */
@@ -40,6 +43,13 @@
 .nav-link.active {
   color: var(--red);
   font-weight: 600;
+}
+
+/* ---------- Right Actions ---------- */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* ---------- ICON SYSTEM (INLINE SVG) ---------- */
@@ -62,21 +72,20 @@
   align-items: center;
   gap: 0.3rem;
 
-  padding: 0.35rem;
+  padding: 0.3rem;
   border-radius: 999px;
 
   background: var(--bg-soft);
   border: 1px solid var(--border);
 
-  /* 🔑 CRITICAL: prevent SVG clipping */
-  overflow: visible;
+  overflow: visible; /* prevent svg clipping */
 }
 
 /* ---------- Toggle Buttons ---------- */
 .theme-btn,
 .night-btn {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
 
   background: transparent;
@@ -96,7 +105,6 @@
   transform: scale(1.05);
 }
 
-/* Active background */
 .theme-btn.active,
 .night-btn.active {
   background: rgba(0, 0, 0, 0.06);
@@ -110,15 +118,59 @@ body[data-theme="amoled"] .night-btn.active {
 }
 
 /* ---------- Icon Colors ---------- */
-/* Dark / AMOLED → white icons */
 body[data-theme="dark"] .icon,
 body[data-theme="amoled"] .icon {
   color: #ffffff;
 }
 
-/* Night mode → yellow bulb only */
 body[data-night="on"] .night-btn.active .icon {
   color: #ffd54f;
+}
+
+/* ---------- Avatar Trigger ---------- */
+.avatar-trigger {
+  position: relative;
+
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ring */
+.avatar-trigger::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+
+  border-radius: 50%;
+  border: 2px solid #16a34a; /* level ring */
+}
+
+/* Avatar circle */
+.avatar-mini {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+
+  background: #ede9fe;
+  color: #4c1d95;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  user-select: none;
 }
 
 /* ---------- Hamburger Button ---------- */
@@ -129,8 +181,8 @@ body[data-night="on"] .night-btn.active .icon {
   border: none;
   cursor: pointer;
 
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
 
   display: flex;
@@ -185,6 +237,10 @@ body[data-night="on"] .night-btn.active .icon {
 
   .menu-btn {
     display: flex;
+  }
+
+  .site-header {
+    height: 52px;
   }
 }
 
