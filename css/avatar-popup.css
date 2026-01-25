@@ -1,11 +1,11 @@
 /* =========================
-   Avatar Popup – FINAL
+   Avatar Popup – FINAL FIX
    ========================= */
 
 .avatar-popup {
-  position: fixed;
-  top: 64px;          /* below header */
-  right: 1rem;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
 
   width: 320px;
   max-width: calc(100vw - 2rem);
@@ -22,65 +22,8 @@
   z-index: 10000;
 }
 
-/* OPEN STATE */
 .avatar-popup.open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
-}
-
-/* Card */
-.avatar-card {
-  padding: 1rem;
-  text-align: center;
-}
-
-/* Avatar ring */
-.avatar-ring {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto;
-  border-radius: 50%;
-  border: 3px solid #16a34a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar-initial {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: #ede9fe;
-  color: #4c1d95;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Badges */
-.badge-row {
-  display: flex;
-  justify-content: center;
-  gap: 0.4rem;
-  margin: 0.8rem 0;
-}
-
-.badge {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  background: var(--bg-soft);
-}
-
-.badge.rank { background: #fff2c2; }
-.badge.admin { background: #ffd6d6; }
-
-/* Stats */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.6rem;
-  margin-top: 0.8rem;
 }
