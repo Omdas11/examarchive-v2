@@ -1,52 +1,28 @@
-/* =========================================
-   Avatar Popup Logic – FINAL (MOBILE SAFE)
-   ========================================= */
+/* =========================
+   Avatar Popup Logic (FINAL)
+   ========================= */
 
 document.addEventListener("DOMContentLoaded", () => {
   const trigger = document.querySelector(".avatar-trigger");
-  const wrapper = document.querySelector(".avatar-wrapper");
+  const popup = document.getElementById("avatar-popup");
 
-  if (!trigger || !wrapper) return;
+  if (!trigger || !popup) return;
 
-  let popup = document.getElementById("avatar-popup");
+  // Toggle popup
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    popup.classList.toggle("open");
+  });
 
-  // If popup not yet injected, fetch it
-  if (!popup) {
-    fetch("partials/avatar-popup.html")
-      .then(res => res.text())
-      .then(html => {
-        wrapper.insertAdjacentHTML("beforeend", html);
-        initPopup();
-      });
-  } else {
-    initPopup();
-  }
+  // Close when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!popup.contains(e.target) && !trigger.contains(e.target)) {
+      popup.classList.remove("open");
+    }
+  });
 
-  function initPopup() {
-    popup = document.getElementById("avatar-popup");
-    if (!popup) return;
-
-    // Toggle on avatar click
-    trigger.addEventListener("click", (e) => {
-      e.stopPropagation();
-      popup.classList.toggle("open");
-      popup.setAttribute(
-        "aria-hidden",
-        popup.classList.contains("open") ? "false" : "true"
-      );
-    });
-
-    // Close when clicking outside
-    document.addEventListener("click", (e) => {
-      if (!wrapper.contains(e.target)) {
-        popup.classList.remove("open");
-        popup.setAttribute("aria-hidden", "true");
-      }
-    });
-
-    // Prevent inside clicks from closing
-    popup.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-  }
+  // Prevent popup clicks from closing itself
+  popup.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
 });
