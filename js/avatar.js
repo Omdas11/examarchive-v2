@@ -1,25 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const trigger = document.querySelector(".avatar-trigger");
-  const mount = document.getElementById("avatar-mount");
+  const trigger = document.getElementById("avatarTrigger");
+  const popup = document.getElementById("avatar-popup");
 
-  if (!trigger || !mount) return;
+  if (!trigger || !popup) {
+    console.error("Avatar elements missing");
+    return;
+  }
 
-  fetch("partials/avatar-popup.html")
-    .then(res => res.text())
-    .then(html => {
-      mount.innerHTML = html;
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    popup.classList.toggle("open");
+  });
 
-      const popup = document.getElementById("avatar-popup");
-
-      trigger.addEventListener("click", (e) => {
-        e.stopPropagation();
-        popup.classList.toggle("open");
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!popup.contains(e.target) && !trigger.contains(e.target)) {
-          popup.classList.remove("open");
-        }
-      });
-    });
+  document.addEventListener("click", () => {
+    popup.classList.remove("open");
+  });
 });
