@@ -1,0 +1,163 @@
+/* =====================================
+   ExamArchive – Avatar Popup (Production)
+   Top-right responsive component
+   ===================================== */
+
+.hidden {
+  display: none;
+}
+
+/* Overlay (mobile only) */
+.avatar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 998;
+}
+
+/* Popup base */
+.avatar-popup {
+  position: fixed;
+  top: 64px;
+  right: 1rem;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  z-index: 999;
+  font-family: var(--font-ui, 'Inter', system-ui, sans-serif);
+}
+
+/* Header */
+.avatar-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.avatar-ring {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 3px;
+  border: 3px solid #16a34a;
+}
+
+.avatar-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ede9fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.avatar-meta {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.avatar-name {
+  font-weight: 600;
+}
+
+.avatar-username {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Badge slots */
+.avatar-badges {
+  display: flex;
+  gap: 0.9rem;
+  justify-content: center;
+  margin: 0.75rem 0;
+}
+
+.badge-slot {
+  width: 36px;
+  height: 36px;
+  transform: rotate(45deg);
+  border-radius: 8px;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-slot-inner {
+  width: 18px;
+  height: 18px;
+  border: 1.5px dashed #9ca3af;
+  border-radius: 4px;
+  transform: rotate(-45deg);
+}
+
+.badge-empty {
+  opacity: 0.5;
+}
+
+/* Actions */
+.avatar-actions {
+  margin-top: 0.5rem;
+}
+
+.avatar-btn {
+  width: 100%;
+  border-radius: 10px;
+  padding: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.avatar-btn.primary {
+  background: #c62828;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.avatar-btn-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.avatar-btn.secondary {
+  background: #f3f4f6;
+}
+
+/* Stats */
+.avatar-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.avatar-stat {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+.avatar-stat-label {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.avatar-stat-value {
+  font-weight: 600;
+}
+
+/* ===== Desktop vs Mobile ===== */
+
+@media (max-width: 640px) {
+  .avatar-popup {
+    right: 50%;
+    transform: translateX(50%);
+    width: calc(100% - 2rem);
+    top: 72px;
+  }
+}
