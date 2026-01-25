@@ -19,7 +19,6 @@
 
     <!-- Theme Toggle -->
     <div class="theme-toggle">
-
       <button class="theme-btn" data-theme="light" title="Light">
         <svg class="icon" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="4"/>
@@ -49,22 +48,23 @@
           <path d="M9 18h6M10 22h4"/>
         </svg>
       </button>
-
     </div>
 
-    <!-- Avatar Wrapper -->
-<div class="avatar-wrapper">
+    <!-- Avatar Wrapper (✅ SINGLE SOURCE OF TRUTH) -->
+    <div class="avatar-wrapper">
 
-  <button class="avatar-trigger" aria-label="User menu">
-    <div class="avatar-mini">
-      OM
+      <button
+        class="avatar-trigger"
+        id="avatarTrigger"
+        aria-label="User menu"
+      >
+        <div class="avatar-mini">OM</div>
+      </button>
+
+      <!-- JS will inject popup here -->
+      <div id="avatarMount"></div>
+
     </div>
-  </button>
-
-  <!-- Avatar Popup Mount -->
-  <div id="avatar-mount"></div>
-
-</div>
 
     <!-- Hamburger -->
     <button class="menu-btn" aria-label="Menu">
@@ -72,41 +72,6 @@
         <path d="M4 6h16M4 12h16M4 18h16"/>
       </svg>
     </button>
-
-    <!-- ✅ Avatar Popup (ANCHOR FIXED HERE) -->
-    <div id="avatar-popup" class="avatar-popup hidden">
-      <div class="avatar-card">
-
-        <div class="avatar-ring">
-          <div class="avatar-initial">OM</div>
-        </div>
-
-        <p class="member-since">Member since · Jan 2025</p>
-        <h3 class="avatar-name">Hi, Om</h3>
-        <p class="avatar-username">@omdas11</p>
-
-        <div class="badge-row">
-          <div class="badge role">Contributor</div>
-          <div class="badge rank">Gold</div>
-          <div class="badge admin">Admin</div>
-        </div>
-
-        <button class="primary-btn">Manage Account</button>
-
-        <div class="avatar-actions">
-          <button class="ghost-btn">→ Log out</button>
-          <button class="ghost-btn">□ Switch account</button>
-        </div>
-
-        <div class="stats-grid">
-          <div><strong>12</strong><span>Uploads</span></div>
-          <div><strong>10</strong><span>Approved</span></div>
-          <div><strong>480</strong><span>Points</span></div>
-          <div><strong>7</strong><span>Streak</span></div>
-        </div>
-
-      </div>
-    </div>
 
   </div>
 
