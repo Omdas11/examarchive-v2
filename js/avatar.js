@@ -11,19 +11,18 @@ document.addEventListener("DOMContentLoaded", () => {
       mount.innerHTML = html;
 
       const popup = document.getElementById("avatar-popup");
+      if (!popup) return;
 
       // Toggle popup
       trigger.addEventListener("click", (e) => {
         e.stopPropagation();
         popup.classList.toggle("open");
-        popup.classList.toggle("hidden");
       });
 
       // Close on outside click
       document.addEventListener("click", (e) => {
         if (!popup.contains(e.target) && !trigger.contains(e.target)) {
           popup.classList.remove("open");
-          popup.classList.add("hidden");
         }
       });
     });
