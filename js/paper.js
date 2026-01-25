@@ -153,10 +153,10 @@ function renderRepeatedQuestions(data) {
 
 /* ================= SYLLABUS PDF DOWNLOAD ================= */
 function setupSyllabusDownloads(paperCode) {
-  const toggle = document.getElementById("download-toggle");
-  const menu = document.getElementById("download-menu");
-  const paragraph = document.getElementById("download-paragraph");
-  const list = document.getElementById("download-list");
+  const toggle = document.getElementById("syllabus-download-toggle");
+  const menu = document.getElementById("syllabus-download-menu");
+  const paragraph = document.getElementById("download-syllabus-paragraph");
+  const list = document.getElementById("download-syllabus-list");
 
   if (!toggle || !menu || !paragraph || !list) return;
 
@@ -169,7 +169,7 @@ function setupSyllabusDownloads(paperCode) {
   };
 
   document.addEventListener("click", e => {
-    if (!menu.contains(e.target)) {
+    if (!menu.contains(e.target) && !toggle.contains(e.target)) {
       menu.classList.add("hidden");
     }
   });
@@ -228,10 +228,10 @@ async function loadPaper() {
   latestBtn.textContent = `Open Latest PDF (${latest.year}) →`;
 
   /* ---------- Available Papers ---------- */
-  const list = document.getElementById("availablePapers");
-  list.innerHTML = "";
+  const listEl = document.getElementById("availablePapers");
+  listEl.innerHTML = "";
   related.forEach(p => {
-    list.innerHTML += `
+    listEl.innerHTML += `
       <li class="paper-row">
         <span>${p.year} Question Paper</span>
         <a href="${p.pdf}" target="_blank" class="link-red">Open →</a>
