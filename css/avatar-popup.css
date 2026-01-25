@@ -3,6 +3,11 @@
    Component-only styles (ISOLATED)
    ===================================== */
 
+/* Typography (scoped to avatar popup) */
+.avatar-popup {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 /* Overlay */
 .avatar-overlay {
   position: fixed;
