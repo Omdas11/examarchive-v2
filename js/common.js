@@ -13,7 +13,7 @@
 })();
 
 // ===============================
-// Partial loader helper
+// Load partial helper
 // ===============================
 function loadPartial(id, file, callback) {
   fetch(file)
@@ -34,7 +34,7 @@ function loadPartial(id, file, callback) {
 }
 
 // ===============================
-// HEADER
+// Load HEADER
 // ===============================
 loadPartial("header", "partials/header.html", () => {
   highlightActiveNav();
@@ -42,24 +42,22 @@ loadPartial("header", "partials/header.html", () => {
 });
 
 // ===============================
-// FOOTER
+// Load FOOTER
 // ===============================
-loadPartial("footer", "partials/footer.html", () => {
-  document.dispatchEvent(new CustomEvent("footer:loaded"));
-});
+loadPartial("footer", "partials/footer.html");
 
 // ===============================
-// AVATAR POPUP
+// Load AVATAR POPUP
 // ===============================
 loadPartial("avatar-portal", "partials/avatar-popup.html", () => {
   document.dispatchEvent(new CustomEvent("avatar:loaded"));
 });
 
 // ===============================
-// PROFILE PANEL (🔥 REQUIRED)
+// 🔥 LOAD EXPANDED PROFILE PANEL (THIS WAS MISSING)
 // ===============================
 loadPartial("profile-panel-portal", "partials/profile-panel.html", () => {
-  document.dispatchEvent(new CustomEvent("profile:loaded"));
+  document.dispatchEvent(new CustomEvent("profile-panel:loaded"));
 });
 
 // ===============================
@@ -102,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// Load avatar.js AFTER avatar popup exists
+// Load avatar.js AFTER popup exists
 // ===============================
 document.addEventListener("avatar:loaded", () => {
   if (document.getElementById("avatar-script")) return;
@@ -111,18 +109,5 @@ document.addEventListener("avatar:loaded", () => {
   script.src = "js/avatar.js";
   script.defer = true;
   script.id = "avatar-script";
-  document.body.appendChild(script);
-});
-
-// ===============================
-// Load profile-panel.js AFTER panel exists
-// ===============================
-document.addEventListener("profile:loaded", () => {
-  if (document.getElementById("profile-panel-script")) return;
-
-  const script = document.createElement("script");
-  script.src = "js/profile-panel.js";
-  script.defer = true;
-  script.id = "profile-panel-script";
   document.body.appendChild(script);
 });
