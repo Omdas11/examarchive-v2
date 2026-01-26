@@ -176,6 +176,7 @@
   display: grid;
   place-items: center;
 }
+
 /* ---------- Hamburger ---------- */
 .menu-btn {
   width: 32px;
@@ -202,12 +203,14 @@
   stroke-width: 2;
 }
 
+/* 🔥 SVG FIX */
 .hamburger-icon line {
+  transform-box: fill-box;      /* CRITICAL */
+  transform-origin: center;     /* now works correctly */
   transition: transform 0.25s ease;
-  transform-origin: center;
 }
 
-/* Symmetric = → X */
+/* Perfect symmetric X */
 body.menu-open .hamburger-icon line:nth-child(1) {
   transform: rotate(45deg);
 }
@@ -215,7 +218,6 @@ body.menu-open .hamburger-icon line:nth-child(1) {
 body.menu-open .hamburger-icon line:nth-child(2) {
   transform: rotate(-45deg);
 }
-
 /* ---------- Mobile Menu ---------- */
 .mobile-nav {
   position: absolute;
