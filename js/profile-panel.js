@@ -1,45 +1,35 @@
 // ===============================
-// Expanded Profile Panel – HARD DEBUG
+// Expanded Profile Panel Logic (FINAL FIX)
 // ===============================
 
 (function () {
-  alert("profile-panel.js LOADED");
+  const panel = document.getElementById("profile-panel");
 
-  document.addEventListener("profile-panel:loaded", () => {
-    alert("EVENT: profile-panel:loaded fired");
+  if (!panel) return;
 
-    const panel = document.getElementById("profile-panel");
+  // 🔒 ENSURE CLOSED ON LOAD
+  panel.classList.remove("open");
+  panel.setAttribute("aria-hidden", "true");
 
-    if (!panel) {
-      alert("❌ profile-panel NOT FOUND in DOM");
-      console.error("profile-panel missing");
+  document.addEventListener("click", (e) => {
+    // Open from avatar popup
+    if (e.target.closest("[data-open-profile]")) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      panel.classList.add("open");
+      panel.setAttribute("aria-hidden", "false");
       return;
     }
 
-    alert("✅ profile-panel FOUND");
-
-    // FORCE VISUAL DEBUG
-    panel.style.outline = "4px solid red";
-    panel.style.background = "rgba(255,0,0,0.05)";
-    panel.style.display = "block";
-    panel.style.opacity = "1";
-    panel.style.pointerEvents = "auto";
-
-    document.addEventListener("click", (e) => {
-      if (e.target.closest("[data-open-profile]")) {
-        alert("👉 View profile CLICK detected");
-        panel.classList.add("open");
-        panel.style.display = "block";
-        panel.style.opacity = "1";
-      }
-
-      if (
-        e.target.id === "profile-panel" ||
-        e.target.closest("[data-close-profile]")
-      ) {
-        alert("✖ Close profile");
-        panel.classList.remove("open");
-      }
-    });
+    // Close conditions
+    if (
+      e.target.closest("[data-close-profile]") ||
+      e.target === panel
+    ) {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+    }
   });
+
 })();
