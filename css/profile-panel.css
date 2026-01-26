@@ -22,10 +22,8 @@
 
 /* OPEN STATE — THIS WAS MISSING */
 #profile-panel.open {
-  opacity: 1;
-  pointer-events: auto;
+  outline: 4px solid lime !important;
 }
-
 /* ================================
    Inner Card
    ================================ */
