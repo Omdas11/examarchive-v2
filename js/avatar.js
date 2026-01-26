@@ -1,40 +1,40 @@
 // ===============================
-// Avatar Popup Logic (BULLETPROOF)
+// Avatar Popup Logic — HARD DEBUG
 // ===============================
 
+alert("avatar.js LOADED ✅");
+
 (function () {
-  function initAvatarPopup() {
-    const trigger = document.getElementById("avatarTrigger");
+  document.addEventListener("click", (e) => {
+    const trigger = e.target.closest("#avatarTrigger");
     const popup = document.getElementById("avatar-popup");
 
-    // ⛔ If elements not ready, retry
-    if (!trigger || !popup) {
-      setTimeout(initAvatarPopup, 50);
+    if (!popup) {
+      alert("❌ avatar-popup NOT FOUND in DOM");
       return;
     }
 
-    // ✅ DEBUG: prove JS is running
-    trigger.style.outline = "2px solid lime";
+    // Avatar clicked
+    if (trigger) {
+      alert("👆 Avatar clicked");
 
-    // ---------- TOGGLE ----------
-    trigger.addEventListener("click", (e) => {
-      e.stopPropagation();
       popup.classList.toggle("open");
-      popup.setAttribute(
-        "aria-hidden",
-        popup.classList.contains("open") ? "false" : "true"
-      );
-    });
 
-    // ---------- CLICK OUTSIDE ----------
-    document.addEventListener("click", (e) => {
-      if (!popup.contains(e.target) && !trigger.contains(e.target)) {
-        popup.classList.remove("open");
-        popup.setAttribute("aria-hidden", "true");
-      }
-    });
-  }
+      // VISUAL PROOF
+      popup.style.background = popup.classList.contains("open")
+        ? "limegreen"
+        : "crimson";
 
-  // Start once DOM is usable
-  document.addEventListener("DOMContentLoaded", initAvatarPopup);
+      popup.style.color = "#000";
+      popup.style.border = "4px solid black";
+
+      alert("Popup classes now: " + popup.className);
+      e.stopPropagation();
+      return;
+    }
+
+    // Outside click
+    popup.classList.remove("open");
+    popup.style.background = "crimson";
+  });
 })();
