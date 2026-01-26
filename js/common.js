@@ -34,10 +34,47 @@ function loadPartial(id, file, callback) {
 }
 
 // ===============================
+// NEW: Deterministic Avatar Color Generator
+// ===============================
+function applyAvatarColors(name) {
+  const palettes = [
+    { bg: "#ecfeff", text: "#155e75", ring: "#16a34a" }, // cyan
+    { bg: "#fef3c7", text: "#92400e", ring: "#f59e0b" }, // amber
+    { bg: "#ede9fe", text: "#4c1d95", ring: "#8b5cf6" }, // violet
+    { bg: "#dcfce7", text: "#14532d", ring: "#22c55e" }, // green
+    { bg: "#ffe4e6", text: "#9f1239", ring: "#fb7185" }, // rose
+    { bg: "#e0f2fe", text: "#075985", ring: "#38bdf8" }  // sky
+  ];
+
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const palette = palettes[Math.abs(hash) % palettes.length];
+
+  document.documentElement.style.setProperty("--avatar-bg", palette.bg);
+  document.documentElement.style.setProperty("--avatar-text", palette.text);
+  document.documentElement.style.setProperty("--avatar-ring", palette.ring);
+}
+
+// ===============================
 // Load HEADER
 // ===============================
 loadPartial("header", "partials/header.html", () => {
   highlightActiveNav();
+
+  // NEW: Apply avatar colors (no image case)
+  // Replace later with real auth user
+  const user = {
+    name: "Om Das",
+    avatar: null
+  };
+
+  if (!user.avatar) {
+    applyAvatarColors(user.name);
+  }
+
   document.dispatchEvent(new CustomEvent("header:loaded"));
 });
 
@@ -83,11 +120,16 @@ document.addEventListener("click", (e) => {
 
   if (menuBtn && mobileNav) {
     mobileNav.classList.toggle("open");
+
+    // NEW: sync hamburger animation
+    document.body.classList.toggle("menu-open");
+
     return;
   }
 
   if (e.target.closest(".mobile-nav a")) {
     mobileNav?.classList.remove("open");
+    document.body.classList.remove("menu-open");
   }
 });
 
