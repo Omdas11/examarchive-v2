@@ -124,22 +124,33 @@
 .avatar-trigger {
   width: 36px;
   height: 36px;
+  padding: 0;
   border: none;
   background: none;
   cursor: pointer;
 
-  display: grid;
-  place-items: center;
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   flex-shrink: 0;
 }
 
-/* Perfectly centered ring */
-.avatar-trigger::before {
+/* Geometry wrapper (THIS fixes the bug) */
+.avatar-wrap {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+/* Ring */
+.avatar-wrap::before {
   content: "";
   position: absolute;
-  width: 40px;          /* 36 + 2px border × 2 */
+
+  width: 40px;
   height: 40px;
+
   border-radius: 50%;
   border: 2px solid var(--avatar-ring);
 
@@ -148,11 +159,13 @@
   transform: translate(-50%, -50%);
 }
 
+/* Inner avatar */
 .avatar-mini {
   width: 36px;
   height: 36px;
-  aspect-ratio: 1 / 1;
+
   border-radius: 50%;
+  aspect-ratio: 1 / 1;
 
   background: var(--avatar-bg);
   color: var(--avatar-text);
@@ -163,7 +176,6 @@
   display: grid;
   place-items: center;
 }
-
 /* ---------- Hamburger ---------- */
 .menu-btn {
   width: 32px;
