@@ -1,28 +1,34 @@
 // ===============================
-// Expanded Profile Panel Logic (FIXED)
+// Expanded Profile Panel – DEBUG MODE
 // ===============================
 
-document.addEventListener("profile-panel:loaded", () => {
-  const panel = document.getElementById("profile-panel");
-  if (!panel) {
-    console.warn("[ProfilePanel] panel not found");
-    return;
-  }
+(function () {
+  alert("✅ profile-panel.js LOADED");
 
-  document.addEventListener("click", (e) => {
-    // Open from avatar popup
-    if (e.target.closest("[data-open-profile]")) {
-      e.preventDefault();
-      panel.classList.add("open");
+  document.addEventListener("DOMContentLoaded", () => {
+    alert("📦 DOMContentLoaded fired");
+
+    const panel = document.getElementById("profile-panel");
+
+    if (!panel) {
+      alert("❌ profile-panel NOT FOUND in DOM");
       return;
     }
 
-    // Close on backdrop or close button
-    if (
-      e.target.id === "profile-panel" ||
-      e.target.closest("[data-close-profile]")
-    ) {
-      panel.classList.remove("open");
-    }
+    // Force panel visible (proof)
+    panel.style.display = "block";
+    panel.style.position = "fixed";
+    panel.style.inset = "0";
+    panel.style.background = "rgba(0,0,0,0.6)";
+    panel.style.zIndex = "99999";
+
+    alert("🟢 profile-panel FOUND and FORCED visible");
+
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("[data-open-profile]")) {
+        alert("👉 View profile button CLICKED");
+        panel.classList.add("open");
+      }
+    });
   });
-});
+})();
