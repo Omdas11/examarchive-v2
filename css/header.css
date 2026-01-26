@@ -6,7 +6,7 @@
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 10000;
+  z-index: 10000; /* 🔥 ABOVE main */
 
   display: flex;
   align-items: center;
@@ -78,7 +78,7 @@
   background: var(--bg-soft);
   border: 1px solid var(--border);
 
-  overflow: visible; /* prevent svg clipping */
+  overflow: visible;
 }
 
 /* ---------- Toggle Buttons ---------- */
@@ -127,9 +127,15 @@ body[data-night="on"] .night-btn.active .icon {
   color: #ffd54f;
 }
 
+/* ---------- Avatar Wrapper ---------- */
+.avatar-wrapper {
+  position: relative; /* 🔑 anchor */
+  z-index: 10001;     /* 🔥 ABOVE header */
+}
+
 /* ---------- Avatar Trigger ---------- */
 .avatar-trigger {
-  position: relative; /* ✅ anchor point */
+  position: relative;
 
   width: 36px;
   height: 36px;
@@ -152,7 +158,7 @@ body[data-night="on"] .night-btn.active .icon {
 
   border-radius: 50%;
   border: 2px solid #16a34a;
-  pointer-events: none; /* 🔒 IMPORTANT */
+  pointer-events: none;
 }
 
 /* Avatar circle */
@@ -172,6 +178,34 @@ body[data-night="on"] .night-btn.active .icon {
   justify-content: center;
 
   user-select: none;
+}
+
+/* ---------- Avatar Popup ---------- */
+.avatar-popup {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+
+  width: 280px;
+  max-width: calc(100vw - 1.5rem);
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+  pointer-events: none;
+
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 10002; /* 🚀 ABOVE EVERYTHING */
+}
+
+.avatar-popup.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
 }
 
 /* ---------- Hamburger Button ---------- */
@@ -219,7 +253,6 @@ body[data-night="on"] .night-btn.active .icon {
 }
 
 .mobile-nav a {
-  text-decoration: none;
   font-size: 0.9rem;
   color: var(--text);
   padding: 0.45rem 0.6rem;
@@ -243,11 +276,6 @@ body[data-night="on"] .night-btn.active .icon {
   .site-header {
     height: 52px;
   }
-}
-
-/* ---------- Avatar Wrapper ---------- */
-.avatar-wrapper {
-  position: relative;
 }
 
 @media (min-width: 769px) {
