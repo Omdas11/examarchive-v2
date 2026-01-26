@@ -1,6 +1,7 @@
 // ===============================
 // Supabase Init
 // ===============================
+alert("auth.js loaded");
 const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CvnyoKEI2PZ6I3RHR4Shyw_lIMB8NdN";
 
