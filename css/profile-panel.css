@@ -1,28 +1,38 @@
 /* ================================
-   Expanded Profile Panel (FINAL POLISH)
+   Expanded Profile Panel (FINAL, FIXED)
    ================================ */
+
+/* ---------- Overlay ---------- */
 
 .profile-panel {
   position: fixed;
   inset: 0;
   z-index: 10060;
 
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
 
   background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(6px);
+
+  /* CLOSED by default */
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity 0.25s ease;
 }
 
 .profile-panel.open {
-  display: flex;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ---------- Card ---------- */
 
 .profile-panel-card {
   width: min(92vw, 380px);
+
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.95),
@@ -34,6 +44,14 @@
 
   padding: 1.2rem;
   position: relative;
+
+  /* subtle entrance animation */
+  transform: translateY(18px) scale(0.96);
+  transition: transform 0.25s ease;
+}
+
+.profile-panel.open .profile-panel-card {
+  transform: translateY(0) scale(1);
 }
 
 /* ---------- Header ---------- */
@@ -63,10 +81,15 @@
   margin: 0;
 }
 
-.profile-username,
-.profile-since {
-  font-size: 0.8rem;
+.profile-username {
+  font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.profile-since {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
 }
 
 /* ---------- Close ---------- */
@@ -82,23 +105,20 @@
   cursor: pointer;
 }
 
-/* ---------- Badges (FIXED) ---------- */
+/* ---------- Badges ---------- */
 
 .profile-badges {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.7rem;
   margin: 1rem 0 1.2rem;
 }
 
 .badge {
-  min-width: 64px;
-  height: 36px;
-
-  padding: 0 0.6rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 999px;
 
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 
@@ -137,7 +157,7 @@
   padding: 0.7rem;
 }
 
-/* ---------- Actions (CENTER FIX) ---------- */
+/* ---------- Actions ---------- */
 
 .profile-actions {
   display: flex;
@@ -146,13 +166,13 @@
 
 .profile-actions .btn {
   flex: 1;
-  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
-/* Softer red */
+/* Softer red (less aggressive) */
 .btn.btn-red {
   background: linear-gradient(135deg, #d63a3a, #c12d2d);
 }
