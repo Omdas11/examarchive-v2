@@ -1,19 +1,14 @@
 // ===============================
-// Expanded Profile Panel Logic (FINAL FIXED)
+// Expanded Profile Panel Logic (FINAL)
 // ===============================
 
 (function () {
-  alert("profile-panel.js LOADED");
-
   const panel = document.getElementById("profile-panel");
-  if (!panel) {
-    alert("❌ profile-panel NOT FOUND");
-    return;
-  }
+  if (!panel) return;
 
-  alert("✅ profile-panel FOUND");
+  const card = panel.querySelector(".profile-panel-card");
 
-  // 🔓 OPEN panel
+  // OPEN panel
   document.addEventListener("click", (e) => {
     const openBtn = e.target.closest("[data-open-profile]");
     if (openBtn) {
@@ -24,17 +19,25 @@
       return;
     }
 
-    // 🔒 CLOSE panel (X button OR backdrop)
+    // CLOSE via explicit close triggers
     const closeBtn = e.target.closest("[data-close-profile]");
     if (closeBtn) {
-      e.preventDefault();
       panel.classList.remove("open");
       panel.setAttribute("aria-hidden", "true");
       return;
     }
+
+    // CLOSE when clicking OUTSIDE card
+    if (
+      panel.classList.contains("open") &&
+      !card.contains(e.target)
+    ) {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+    }
   });
 
-  // 🔒 ESC key close (accessibility)
+  // ESC key close
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       panel.classList.remove("open");
@@ -43,6 +46,6 @@
   });
 
   document.dispatchEvent(
-    new CustomEvent("profile-panel:loaded")
+    new CustomEvent("profile-panel:ready")
   );
 })();
