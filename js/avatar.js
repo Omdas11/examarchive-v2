@@ -1,11 +1,10 @@
-alert("avatar.js loaded");
+document.body.style.border = "4px solid red";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("header:loaded", () => {
+  alert("avatar.js is running");
+
   const trigger = document.getElementById("avatarTrigger");
   const popup = document.getElementById("avatar-popup");
-
-  console.log("trigger:", trigger);
-  console.log("popup:", popup);
 
   if (!trigger || !popup) {
     alert("Avatar elements NOT found");
@@ -14,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
-    alert("Avatar clicked");
     popup.classList.toggle("open");
+    alert("Avatar clicked");
   });
 });
