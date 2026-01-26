@@ -1,11 +1,12 @@
 // ===============================
-// Expanded Profile Panel Logic (FINAL)
+// Expanded Profile Panel Logic (FINAL & SAFE)
 // ===============================
 
 (function () {
   const panel = document.getElementById("profile-panel");
-
   if (!panel) return;
+
+  const card = panel.querySelector(".profile-panel-card");
 
   // OPEN
   document.addEventListener("click", (e) => {
@@ -15,15 +16,19 @@
     }
   });
 
-  // CLOSE (X button OR backdrop OR anywhere outside card)
+  // CLOSE (X button OR outside click)
   document.addEventListener("click", (e) => {
     if (!panel.classList.contains("open")) return;
 
-    // Close triggers
-    if (
-      e.target.closest("[data-close-profile]") ||
-      e.target === panel
-    ) {
+    // ❌ Close button
+    if (e.target.closest("[data-close-profile]")) {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+      return;
+    }
+
+    // 👇 Click outside the card
+    if (!card.contains(e.target)) {
       panel.classList.remove("open");
       panel.setAttribute("aria-hidden", "true");
     }
