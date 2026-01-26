@@ -1,55 +1,59 @@
 <!-- ================================
      Expanded Profile Panel
+     Backend-ready
      ================================ -->
-<div id="profile-panel" class="profile-panel" aria-hidden="true">
+<div class="profile-panel" id="profilePanel" aria-hidden="true">
 
-  <div class="profile-card">
+  <div class="profile-panel-card">
 
     <!-- Header -->
     <div class="profile-header">
-      <div
-        class="profile-avatar"
-        data-initials="OM"
-        data-color=""
-      ></div>
+      <div class="profile-avatar" data-initials="OD"></div>
 
-      <div class="profile-identity">
+      <div class="profile-meta">
         <h2 class="profile-name">Om Das</h2>
         <p class="profile-username">@omdas11</p>
-        <p class="profile-member">Member since · Jan 2025</p>
+        <p class="profile-since">Member since · Jan 2025</p>
       </div>
     </div>
 
     <!-- Badges -->
     <div class="profile-badges">
-      <div class="badge blue"><span>★</span></div>
-      <div class="badge gold"><span>★</span></div>
-      <div class="badge red"><span>🛡</span></div>
-      <div class="badge ghost"><span></span></div>
+      <div class="badge badge-blue"></div>
+      <div class="badge badge-yellow"></div>
+      <div class="badge badge-red"></div>
+      <div class="badge badge-muted"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="profile-actions">
+      <button class="btn btn-red">Manage Account</button>
+
+      <div class="profile-actions-row">
+        <button class="btn btn-soft">Log out</button>
+        <button class="btn btn-soft">Switch account</button>
+      </div>
     </div>
 
     <!-- Stats -->
     <div class="profile-stats">
       <div class="stat">
-        <span class="value">12</span>
-        <span class="label">Uploads</span>
+        <span class="stat-value">12</span>
+        <span class="stat-label">Uploads</span>
       </div>
       <div class="stat">
-        <span class="value">480</span>
-        <span class="label">Points</span>
+        <span class="stat-value">10</span>
+        <span class="stat-label">Approved</span>
       </div>
       <div class="stat">
-        <span class="value">7</span>
-        <span class="label">Streak</span>
+        <span class="stat-value">480</span>
+        <span class="stat-label">Points</span>
       </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="profile-actions">
-      <a href="settings.html" class="btn btn-red">Manage Account</a>
-      <button class="btn btn-ghost" id="closeProfile">Close</button>
+      <div class="stat">
+        <span class="stat-value">7 days</span>
+        <span class="stat-label">Streak</span>
+      </div>
     </div>
 
   </div>
-
 </div>
