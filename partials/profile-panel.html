@@ -1,58 +1,88 @@
 <!-- ================================
      Expanded Profile Panel
-     Backend-ready
+     Global / Backend-ready
      ================================ -->
-<div class="profile-panel" id="profilePanel" aria-hidden="true">
+<div
+  id="profile-panel"
+  class="profile-panel"
+  aria-hidden="true"
+>
 
-  <div class="profile-panel-card">
+  <!-- Backdrop -->
+  <div class="profile-backdrop" id="closeProfile"></div>
+
+  <!-- Panel -->
+  <div class="profile-sheet">
 
     <!-- Header -->
     <div class="profile-header">
-      <div class="profile-avatar" data-initials="OD"></div>
+      <div
+        class="profile-avatar"
+        data-initials="OD"
+        data-avatar=""
+        data-color=""
+        aria-hidden="true"
+      ></div>
 
-      <div class="profile-meta">
-        <h2 class="profile-name">Om Das</h2>
-        <p class="profile-username">@omdas11</p>
-        <p class="profile-since">Member since · Jan 2025</p>
+      <div class="profile-info">
+        <h2 class="profile-name" data-field="name">
+          Om Das
+        </h2>
+
+        <p class="profile-username" data-field="username">
+          @omdas11
+        </p>
+
+        <p class="profile-member" data-field="memberSince">
+          Member since · Jan 2025
+        </p>
       </div>
-    </div>
 
-    <!-- Badges -->
-    <div class="profile-badges">
-      <div class="badge badge-blue"></div>
-      <div class="badge badge-yellow"></div>
-      <div class="badge badge-red"></div>
-      <div class="badge badge-muted"></div>
-    </div>
-
-    <!-- Actions -->
-    <div class="profile-actions">
-      <button class="btn btn-red">Manage Account</button>
-
-      <div class="profile-actions-row">
-        <button class="btn btn-soft">Log out</button>
-        <button class="btn btn-soft">Switch account</button>
-      </div>
+      <button
+        class="profile-close"
+        id="closeProfile"
+        aria-label="Close profile"
+        type="button"
+      >
+        ✕
+      </button>
     </div>
 
     <!-- Stats -->
     <div class="profile-stats">
       <div class="stat">
-        <span class="stat-value">12</span>
-        <span class="stat-label">Uploads</span>
+        <strong>12</strong>
+        <span>Uploads</span>
       </div>
       <div class="stat">
-        <span class="stat-value">10</span>
-        <span class="stat-label">Approved</span>
+        <strong>10</strong>
+        <span>Approved</span>
       </div>
       <div class="stat">
-        <span class="stat-value">480</span>
-        <span class="stat-label">Points</span>
+        <strong>480</strong>
+        <span>Points</span>
       </div>
       <div class="stat">
-        <span class="stat-value">7 days</span>
-        <span class="stat-label">Streak</span>
+        <strong>7</strong>
+        <span>Streak</span>
       </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="profile-badges">
+      <span class="badge role">Contributor</span>
+      <span class="badge rank">Gold</span>
+      <span class="badge admin">Admin</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="profile-actions">
+      <a href="settings.html" class="btn btn-red">
+        Manage Account
+      </a>
+      <button class="btn btn-ghost">
+        Log out
+      </button>
     </div>
 
   </div>
