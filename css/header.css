@@ -1,8 +1,7 @@
 /* ================================
-   ExamArchive – Header (FINAL FIXED)
+   ExamArchive – Header (MOBILE FIXED)
    ================================ */
 
-/* ---------- Header ---------- */
 .site-header {
   position: sticky;
   top: 0;
@@ -23,7 +22,6 @@
 .logo {
   font-weight: 700;
   font-size: 0.95rem;
-  color: var(--text);
   white-space: nowrap;
 }
 
@@ -38,31 +36,31 @@
   color: var(--text-muted);
 }
 
-.nav-link:hover,
 .nav-link.active {
   color: var(--red);
   font-weight: 600;
 }
 
-/* ---------- Right Actions ---------- */
+/* ---------- RIGHT ACTIONS (CRITICAL FIX) ---------- */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  flex-shrink: 0;          /* 🔥 prevent squeeze */
+  pointer-events: auto;   /* 🔥 allow touch */
 }
 
-/* ---------- ICON SYSTEM ---------- */
+/* ---------- ICONS ---------- */
 .icon {
   width: 20px;
   height: 20px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
-/* ---------- Theme Toggle ---------- */
+/* ---------- THEME TOGGLE ---------- */
 .theme-toggle {
   display: flex;
   gap: 0.3rem;
@@ -77,31 +75,31 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: none;
   background: none;
+  border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.theme-btn:hover,
-.night-btn:hover {
-  transform: scale(1.05);
-}
-
-/* ---------- Avatar ---------- */
+/* ---------- AVATAR ---------- */
 .avatar-wrapper {
   position: relative;
+  flex-shrink: 0;         /* 🔥 NO SQUEEZE */
 }
 
 .avatar-trigger {
   width: 36px;
   height: 36px;
+
   border: none;
   background: none;
+  padding: 0;
   cursor: pointer;
-  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: auto;  /* 🔥 tap fix */
 }
 
 .avatar-trigger::before {
@@ -114,24 +112,24 @@
 }
 
 .avatar-mini {
-  width: 100%;
-  height: 100%;
+  width: 36px;            /* 🔥 force circle */
+  height: 36px;
   border-radius: 50%;
+
   background: #ede9fe;
   color: #4c1d95;
   font-size: 0.75rem;
   font-weight: 600;
+
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ================================
-   🔥 AVATAR POPUP — MOBILE SAFE
-   ================================ */
+/* ---------- AVATAR POPUP ---------- */
 .avatar-popup {
-  position: fixed;          /* ✅ KEY FIX */
-  top: 64px;                /* below header */
+  position: fixed;
+  top: 64px;
   right: 12px;
 
   width: 240px;
@@ -141,7 +139,7 @@
   box-shadow: var(--shadow-md);
 
   opacity: 0;
-  transform: translateY(-6px) scale(0.96);
+  transform: translateY(-6px);
   pointer-events: none;
 
   transition: opacity 0.15s ease, transform 0.15s ease;
@@ -150,41 +148,48 @@
 
 .avatar-popup.open {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
   pointer-events: auto;
 }
 
-/* ---------- Hamburger ---------- */
+/* ---------- HAMBURGER ---------- */
 .menu-btn {
-  display: none;
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background: none;
   border: none;
   cursor: pointer;
+
+  flex-shrink: 0;        /* 🔥 prevent overlap */
 }
 
+/* ---------- MOBILE NAV ---------- */
 .mobile-nav {
-  position: absolute;
-  top: 100%;
-  right: 1rem;
+  position: fixed;       /* 🔥 detach from header */
+  top: 64px;
+  right: 12px;
+
   min-width: 180px;
   padding: 0.6rem;
+
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow-md);
+
   display: none;
   flex-direction: column;
+  gap: 0.4rem;
+
+  z-index: 15000;
 }
 
 .mobile-nav.open {
   display: flex;
 }
 
-/* ---------- Responsive ---------- */
+/* ---------- RESPONSIVE ---------- */
 @media (max-width: 768px) {
   .nav { display: none; }
-  .menu-btn { display: flex; }
 }
