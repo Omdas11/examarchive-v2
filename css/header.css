@@ -202,6 +202,30 @@
   }
 }
 
+/* ================================
+   Header icon color fix (Dark / AMOLED)
+   ================================ */
+
+/* Force header foreground to white */
+body[data-theme="dark"] .site-header,
+body[data-theme="amoled"] .site-header {
+  color: #ffffff;
+}
+
+/* Ensure buttons inherit correctly */
+body[data-theme="dark"] .site-header button,
+body[data-theme="amoled"] .site-header button {
+  color: inherit;
+}
+
+/* Active button contrast */
+body[data-theme="dark"] .theme-btn.active,
+body[data-theme="amoled"] .theme-btn.active,
+body[data-theme="dark"] .night-btn.active,
+body[data-theme="amoled"] .night-btn.active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 @media (min-width: 769px) {
   .mobile-nav {
     display: none !important;
