@@ -1,5 +1,5 @@
 // ===============================
-// Expanded Profile Panel Logic (FINAL & SAFE)
+// Expanded Profile Panel Logic (FINAL FINAL)
 // ===============================
 
 (function () {
@@ -8,27 +8,29 @@
 
   const card = panel.querySelector(".profile-panel-card");
 
-  // OPEN
   document.addEventListener("click", (e) => {
-    if (e.target.closest("[data-open-profile]")) {
+    const openBtn = e.target.closest("[data-open-profile]");
+    const closeBtn = e.target.closest("[data-close-profile]");
+    const isOpen = panel.classList.contains("open");
+
+    // 👉 OPEN
+    if (openBtn) {
+      e.stopPropagation();
       panel.classList.add("open");
       panel.setAttribute("aria-hidden", "false");
+      return;
     }
-  });
 
-  // CLOSE (X button OR outside click)
-  document.addEventListener("click", (e) => {
-    if (!panel.classList.contains("open")) return;
-
-    // ❌ Close button
-    if (e.target.closest("[data-close-profile]")) {
+    // 👉 CLOSE via ❌
+    if (closeBtn && isOpen) {
+      e.stopPropagation();
       panel.classList.remove("open");
       panel.setAttribute("aria-hidden", "true");
       return;
     }
 
-    // 👇 Click outside the card
-    if (!card.contains(e.target)) {
+    // 👉 CLOSE by clicking outside card
+    if (isOpen && !card.contains(e.target)) {
       panel.classList.remove("open");
       panel.setAttribute("aria-hidden", "true");
     }
