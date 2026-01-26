@@ -1,5 +1,5 @@
 /* ================================
-   Settings Page
+   Settings Page (FINAL)
    ================================ */
 
 .settings {
@@ -9,68 +9,125 @@
 }
 
 .settings h1 {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   margin-bottom: 1.2rem;
 }
 
 .settings-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1rem;
+  border-radius: 16px;
+  padding: 1.2rem;
 }
 
+/* ================================
+   Groups
+   ================================ */
+
 .setting-group + .setting-group {
-  margin-top: 1.2rem;
+  margin-top: 1.4rem;
 }
 
 .setting-label {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 
 /* ================================
-   Theme Buttons (Settings ONLY)
+   Theme Options (Pills)
    ================================ */
 
-.settings .theme-options {
+.theme-options {
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
 }
 
-.settings .theme-btn {
-  padding: 0.55rem 0.9rem;
+/* ⚠️ IMPORTANT:
+   DO NOT reuse `.theme-btn` from header
+*/
+.settings-theme-btn {
+  padding: 0.55rem 1rem;
   font-size: 0.85rem;
   border-radius: 999px;
+
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text);
+
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, border 0.2s;
+  transition: background 0.2s ease,
+              color 0.2s ease,
+              border 0.2s ease;
 }
 
-/* Hover */
-.settings .theme-btn:hover {
-  background: rgba(0,0,0,0.04);
+.settings-theme-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* Active theme */
-.settings .theme-btn.active {
+.settings-theme-btn.active {
   background: var(--red);
   color: #fff;
   border-color: var(--red);
 }
 
-/* AMOLED special feel */
-body[data-theme="amoled"] .settings .theme-btn {
+/* AMOLED polish */
+body[data-theme="amoled"] .settings-theme-btn {
   background: transparent;
+  color: #ddd;
 }
 
-/* Night mode active (settings only) */
-.settings .night-btn.active {
+body[data-theme="amoled"] .settings-theme-btn.active {
+  background: var(--red);
+  color: #fff;
+}
+
+/* ================================
+   Night Mode Button
+   ================================ */
+
+.settings-night-btn {
+  padding: 0.55rem 1rem;
+  font-size: 0.85rem;
+  border-radius: 999px;
+
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+
+  cursor: pointer;
+  transition: background 0.2s ease,
+              color 0.2s ease,
+              border 0.2s ease;
+}
+
+.settings-night-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Night active */
+.settings-night-btn.active {
   background: #f4c97a;
   color: #2b1b00;
   border-color: #f4c97a;
+}
+
+/* ================================
+   Night Strength Slider
+   ================================ */
+
+.night-strength {
+  margin-top: 0.8rem;
+}
+
+.night-strength label {
+  font-size: 0.8rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.night-strength input[type="range"] {
+  width: 100%;
 }
