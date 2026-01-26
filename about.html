@@ -8,7 +8,7 @@
 
   <!-- Global styles -->
   <link rel="stylesheet" href="css/common.css" />
-<link rel="stylesheet" href="css/avatar-popup.css">
+  <link rel="stylesheet" href="css/avatar-popup.css">
   <link rel="stylesheet" href="css/header.css" />
   <link rel="stylesheet" href="css/avatar.css">
   <link rel="stylesheet" href="css/about.css" />
@@ -61,46 +61,45 @@
     </section>
 
     <!-- =====================
-     LIVE PROJECT STATUS
-     ===================== -->
-<section class="about-status">
-  <h2>Project Status</h2>
+         LIVE PROJECT STATUS
+         ===================== -->
+    <section class="about-status">
+      <h2>Project Status</h2>
 
-  <p class="section-note">
-    This section auto-updates based on repository data.
-  </p>
+      <p class="section-note">
+        This section auto-updates based on repository data.
+      </p>
 
-  <ul class="status-list">
-    <li><strong>Total papers archived:</strong> <span data-stat="papers">—</span></li>
-    <li><strong>Subjects covered:</strong> <span data-stat="subjects">—</span></li>
-    <li><strong>Total PDFs stored:</strong> <span data-stat="pdfs">—</span></li>
-    <li><strong>Last content update:</strong> <span data-stat="content-update">—</span></li>
-    <li><strong>Last system update:</strong> <span data-stat="system-update">—</span></li>
-  </ul>
+      <ul class="status-list">
+        <li><strong>Total papers archived:</strong> <span data-stat="papers">—</span></li>
+        <li><strong>Subjects covered:</strong> <span data-stat="subjects">—</span></li>
+        <li><strong>Total PDFs stored:</strong> <span data-stat="pdfs">—</span></li>
+        <li><strong>Last content update:</strong> <span data-stat="content-update">—</span></li>
+        <li><strong>Last system update:</strong> <span data-stat="system-update">—</span></li>
+      </ul>
 
-  <!-- PDFs Breakdown -->
-  <h2 class="subsection">PDFs Breakdown</h2>
+      <h2 class="subsection">PDFs Breakdown</h2>
 
-  <button id="toggleBreakdown" class="breakdown-toggle">
-    View breakdown of PDFs
-  </button>
+      <button id="toggleBreakdown" class="breakdown-toggle">
+        View breakdown of PDFs
+      </button>
 
-  <div id="pdfBreakdown" class="breakdown-card hidden"></div>
-</section>
+      <div id="pdfBreakdown" class="breakdown-card hidden"></div>
+    </section>
 
-<!-- =====================
-     PROJECT TIMELINE
-     ===================== -->
-<section class="about-timeline">
-  <h2>Project Timeline</h2>
+    <!-- =====================
+         PROJECT TIMELINE
+         ===================== -->
+    <section class="about-timeline">
+      <h2>Project Timeline</h2>
 
-  <p class="section-note">
-    This timeline is generated automatically from project history data.
-  </p>
+      <p class="section-note">
+        This timeline is generated automatically from project history data.
+      </p>
 
-  <div class="timeline"></div>
-</section>
-    
+      <div class="timeline"></div>
+    </section>
+
     <!-- =====================
          FUTURE DIRECTION
          ===================== -->
@@ -143,13 +142,15 @@
   <!-- Footer include -->
   <div id="footer"></div>
 
+  <!-- ✅ GLOBAL PORTALS (MUST EXIST BEFORE JS) -->
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
   <!-- Scripts -->
   <script src="js/common.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/about.js"></script>
+  <script src="js/profile-panel.js" defer></script>
 
-<div id="avatar-portal"></div>
-<div id="profile-panel-portal"></div>
-<script src="js/profile-panel.js" defer></script>
 </body>
 </html>
