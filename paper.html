@@ -7,7 +7,7 @@
 
   <!-- Global styles -->
   <link rel="stylesheet" href="css/common.css">
-<link rel="stylesheet" href="css/avatar-popup.css">
+  <link rel="stylesheet" href="css/avatar-popup.css">
   <link rel="stylesheet" href="css/avatar.css">
   <link rel="stylesheet" href="css/header.css">
 
@@ -47,23 +47,17 @@
     <section class="paper-section card">
       <h2>Available Question Papers</h2>
 
-      <ul class="paper-list" id="availablePapers">
-        <!-- injected by paper.js -->
-      </ul>
+      <ul class="paper-list" id="availablePapers"></ul>
     </section>
 
     <!-- =========================
          SYLLABUS
     ========================== -->
     <section class="paper-section syllabus-section card">
-
       <div class="section-header syllabus-header-wrap">
         <h2>Syllabus</h2>
 
-        <!-- Download wrapper (anchor) -->
         <div class="download-wrap">
-
-          <!-- Download toggle -->
           <button
             id="syllabus-download-toggle"
             class="download-btn"
@@ -76,7 +70,6 @@
             </svg>
           </button>
 
-          <!-- Floating download menu -->
           <div id="syllabus-download-menu" class="download-menu hidden">
             <a id="download-syllabus-paragraph" href="#" target="_blank">
               <svg viewBox="0 0 24 24">
@@ -92,13 +85,10 @@
               <span>Checklist</span>
             </a>
           </div>
-
         </div>
       </div>
 
-      <div id="syllabus-container">
-        <!-- syllabus injected by JS -->
-      </div>
+      <div id="syllabus-container"></div>
 
       <p id="no-syllabus" class="coming-soon" hidden>
         Syllabus is not available for this paper yet.
@@ -110,7 +100,6 @@
     ========================== -->
     <section class="paper-section card">
       <h2>Repeated Questions</h2>
-
       <div id="repeated-container">
         <p class="coming-soon">Loading repeated questions…</p>
       </div>
@@ -121,11 +110,9 @@
     ========================== -->
     <section class="paper-section card">
       <h2>Notes & Resources</h2>
-
       <div class="skeleton-group">
         <div class="skeleton skeleton-box"></div>
       </div>
-
       <p class="coming-soon">
         Notes, formulas, and references will appear here.
       </p>
@@ -136,12 +123,15 @@
   <!-- Footer -->
   <div id="footer"></div>
 
+  <!-- ✅ GLOBAL PORTALS (MUST EXIST BEFORE JS) -->
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
   <!-- Scripts -->
   <script src="js/common.js"></script>
   <script src="js/paper.js"></script>
   <script src="js/theme.js"></script>
-<div id="avatar-portal"></div>
-<div id="profile-panel-portal"></div>
-<script src="js/profile-panel.js" defer></script>
+  <script src="js/profile-panel.js" defer></script>
+
 </body>
 </html>
