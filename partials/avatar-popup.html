@@ -1,19 +1,76 @@
 <!-- ================================
      Avatar Popup (Global Portal)
+     Backend-ready / Auth-agnostic
      ================================ -->
-<div id="avatar-popup" class="avatar-popup" aria-hidden="true">
+<div
+  id="avatar-popup"
+  class="avatar-popup"
+  aria-hidden="true"
+  data-auth="guest"
+>
 
   <div class="avatar-card">
-    <div class="avatar-info">
-      <h3>Hi, Om 👋</h3>
-      <p class="username">@omdas11</p>
+
+    <!-- Avatar Header -->
+    <div class="avatar-header">
+
+      <!-- Avatar Circle -->
+      <!--
+        BACKEND NOTES:
+        - data-initials → set to user initials (e.g. OD)
+        - data-avatar   → image URL (optional)
+        - data-color    → hex / token for background (optional)
+      -->
+      <div
+        class="avatar-circle"
+        data-initials="?"
+        data-avatar=""
+        data-color=""
+        aria-hidden="true"
+      ></div>
+
+      <!-- User Info -->
+      <div class="avatar-info">
+        <!-- Display name -->
+        <h3 class="display-name" data-field="name">
+          Guest
+        </h3>
+
+        <!-- Username / meta -->
+        <p class="username" data-field="username">
+          Not signed in
+        </p>
+
+        <!-- Member since -->
+        <p class="member-since" data-field="memberSince" hidden>
+          Member since · —
+        </p>
+      </div>
     </div>
 
+    <!-- Actions -->
     <div class="avatar-actions">
-      <a href="settings.html" class="btn btn-red">
+
+      <!-- Logged-in action -->
+      <a
+        href="settings.html"
+        class="btn btn-red"
+        data-auth-only="user"
+        hidden
+      >
         Manage Account
       </a>
-    </div>
-  </div>
 
+      <!-- Guest action -->
+      <a
+        href="login.html"
+        class="btn btn-outline"
+        data-auth-only="guest"
+      >
+        Sign in
+      </a>
+
+    </div>
+
+  </div>
 </div>
