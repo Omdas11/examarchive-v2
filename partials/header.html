@@ -2,7 +2,6 @@
 
   <!-- Left: Logo -->
   <div class="logo">
-    <!-- Logo placeholder (we’ll design later) -->
     <div class="logo-mark"></div>
     <span class="logo-text">ExamArchive</span>
   </div>
@@ -52,10 +51,18 @@
       </button>
     </div>
 
-    <!-- Profile + Hamburger Pill -->
+    <!-- Hamburger + Profile Pill -->
     <div class="header-pill">
 
-      <!-- Avatar Trigger (UNCHANGED) -->
+      <!-- Hamburger (=) -->
+      <button class="menu-btn" aria-label="Menu" id="menuBtn">
+        <svg class="hamburger-icon" viewBox="0 0 24 24">
+          <line x1="4" y1="9"  x2="20" y2="9"/>
+          <line x1="4" y1="15" x2="20" y2="15"/>
+        </svg>
+      </button>
+
+      <!-- Profile (OM) -->
       <button
         class="avatar-trigger"
         id="avatarTrigger"
@@ -65,29 +72,10 @@
         <div class="avatar-mini">OM</div>
       </button>
 
-      <!-- Profile + Hamburger Pill -->
-<div class="header-pill">
+    </div>
+  </div>
 
-  <!-- Hamburger FIRST -->
-  <button class="menu-btn" aria-label="Menu" id="menuBtn">
-    <svg class="hamburger-icon" viewBox="0 0 24 24">
-      <line x1="4" y1="9"  x2="20" y2="9"/>
-      <line x1="4" y1="15" x2="20" y2="15"/>
-    </svg>
-  </button>
-
-  <!-- Avatar SECOND -->
-  <button
-    class="avatar-trigger"
-    id="avatarTrigger"
-    aria-label="User menu"
-    type="button"
-  >
-    <div class="avatar-mini">OM</div>
-  </button>
-
-</div>
-  <!-- Mobile Navigation (UNCHANGED) -->
+  <!-- Mobile Navigation -->
   <div class="mobile-nav" id="mobileNav">
     <a href="index.html">Home</a>
     <a href="browse.html">Browse</a>
