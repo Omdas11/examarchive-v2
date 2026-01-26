@@ -1,46 +1,52 @@
 /* ================================
-   Expanded Profile Panel – FINAL FIX
+   Expanded Profile Panel – EVENT SAFE
    ================================ */
 
-(() => {
-  const panel = document.getElementById("profile-panel");
-  if (!panel) return;
+(function () {
 
-  // DEBUG (remove later if you want)
-  console.log("profile-panel.js ACTIVE");
-
-  // ---------- OPEN ----------
-  document.addEventListener("click", (e) => {
-    const openBtn = e.target.closest("[data-open-profile]");
-    if (!openBtn) return;
-
-    e.preventDefault();
-    panel.classList.add("open");
-    panel.setAttribute("aria-hidden", "false");
-  });
-
-  // ---------- CLOSE (X button OR backdrop OR anywhere outside card) ----------
-  document.addEventListener("click", (e) => {
-    if (!panel.classList.contains("open")) return;
-
-    const closeBtn = e.target.closest("[data-close-profile]");
-    const card = e.target.closest(".profile-panel-card");
-
-    // Close if:
-    // 1. Clicked X
-    // 2. Clicked backdrop
-    // 3. Clicked anywhere outside the card
-    if (closeBtn || !card) {
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
+  function initProfilePanel() {
+    const panel = document.getElementById("profile-panel");
+    if (!panel) {
+      console.warn("profile-panel not found at init");
+      return;
     }
-  });
 
-  // ---------- ESC KEY ----------
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && panel.classList.contains("open")) {
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
-    }
-  });
+    console.log("profile-panel initialized");
+
+    // ---------- OPEN ----------
+    document.addEventListener("click", (e) => {
+      const openBtn = e.target.closest("[data-open-profile]");
+      if (!openBtn) return;
+
+      e.preventDefault();
+      panel.classList.add("open");
+      panel.setAttribute("aria-hidden", "false");
+    });
+
+    // ---------- CLOSE ----------
+    document.addEventListener("click", (e) => {
+      if (!panel.classList.contains("open")) return;
+
+      const closeBtn = e.target.closest("[data-close-profile]");
+      const card = e.target.closest(".profile-panel-card");
+
+      // close if X, backdrop, or outside card
+      if (closeBtn || !card) {
+        panel.classList.remove("open");
+        panel.setAttribute("aria-hidden", "true");
+      }
+    });
+
+    // ---------- ESC ----------
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && panel.classList.contains("open")) {
+        panel.classList.remove("open");
+        panel.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
+  // 🔑 WAIT until partial is injected
+  document.addEventListener("profile-panel:loaded", initProfilePanel);
+
 })();
