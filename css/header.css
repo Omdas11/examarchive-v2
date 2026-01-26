@@ -1,5 +1,5 @@
 /* ================================
-   ExamArchive – Header (STABLE)
+   ExamArchive – Header (REDESIGNED)
    ================================ */
 
 /* ---------- Header ---------- */
@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
 
-  height: 56px;
+  height: 62px;
   padding: 0 1rem;
 
   background: var(--surface);
@@ -21,10 +21,22 @@
 
 /* ---------- Logo ---------- */
 .logo {
-  font-weight: 700;
-  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--red); /* placeholder */
+}
+
+.logo-text {
+  font-weight: 600;
+  font-size: 1rem;
   color: var(--text);
-  white-space: nowrap;
 }
 
 /* ---------- Desktop Nav ---------- */
@@ -90,7 +102,20 @@
   background: rgba(0,0,0,0.06);
 }
 
-/* ---------- Avatar Trigger (FIXED) ---------- */
+/* ---------- Profile + Menu Pill ---------- */
+.header-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+}
+
+/* ---------- Avatar Trigger (UNCHANGED) ---------- */
 .avatar-trigger {
   width: 36px;
   height: 36px;
@@ -101,11 +126,9 @@
 
   display: grid;
   place-items: center;
-
   position: relative;
 }
 
-/* ring */
 .avatar-trigger::before {
   content: "";
   position: absolute;
@@ -115,11 +138,9 @@
   pointer-events: none;
 }
 
-/* avatar circle */
 .avatar-mini {
   width: 100%;
   height: 100%;
-  aspect-ratio: 1 / 1;   /* 🔒 PREVENTS SQUEEZE */
   border-radius: 50%;
 
   background: #ede9fe;
@@ -129,12 +150,10 @@
 
   display: grid;
   place-items: center;
-  line-height: 1;
 }
 
-/* ---------- Hamburger ---------- */
+/* ---------- Hamburger (SVG Animated) ---------- */
 .menu-btn {
-  display: none;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -145,6 +164,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.hamburger-icon {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.hamburger-icon line {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  transform-origin: center;
+}
+
+/* Hamburger → X */
+body.menu-open .hamburger-icon line:nth-child(1) {
+  transform: translateY(5px) rotate(45deg);
+}
+
+body.menu-open .hamburger-icon line:nth-child(2) {
+  opacity: 0;
+}
+
+body.menu-open .hamburger-icon line:nth-child(3) {
+  transform: translateY(-5px) rotate(-45deg);
 }
 
 /* ---------- Mobile Menu ---------- */
@@ -193,41 +237,31 @@
     display: none;
   }
 
-  .menu-btn {
-    display: flex;
-  }
-
   .site-header {
-    height: 52px;
+    height: 58px;
   }
-}
-
-/* ================================
-   Header icon color fix (Dark / AMOLED)
-   ================================ */
-
-/* Force header foreground to white */
-body[data-theme="dark"] .site-header,
-body[data-theme="amoled"] .site-header {
-  color: #ffffff;
-}
-
-/* Ensure buttons inherit correctly */
-body[data-theme="dark"] .site-header button,
-body[data-theme="amoled"] .site-header button {
-  color: inherit;
-}
-
-/* Active button contrast */
-body[data-theme="dark"] .theme-btn.active,
-body[data-theme="amoled"] .theme-btn.active,
-body[data-theme="dark"] .night-btn.active,
-body[data-theme="amoled"] .night-btn.active {
-  background: rgba(255, 255, 255, 0.14);
 }
 
 @media (min-width: 769px) {
   .mobile-nav {
     display: none !important;
   }
+}
+
+/* ---------- Dark / AMOLED fixes (UNCHANGED) ---------- */
+body[data-theme="dark"] .site-header,
+body[data-theme="amoled"] .site-header {
+  color: #ffffff;
+}
+
+body[data-theme="dark"] .site-header button,
+body[data-theme="amoled"] .site-header button {
+  color: inherit;
+}
+
+body[data-theme="dark"] .theme-btn.active,
+body[data-theme="amoled"] .theme-btn.active,
+body[data-theme="dark"] .night-btn.active,
+body[data-theme="amoled"] .night-btn.active {
+  background: rgba(255, 255, 255, 0.14);
 }
