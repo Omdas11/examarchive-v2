@@ -4,55 +4,121 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Upload Paper | ExamArchive</title>
+  <title>Upload Paper · ExamArchive</title>
 
+  <!-- Global styles -->
   <link rel="stylesheet" href="css/common.css">
-<link rel="stylesheet" href="css/avatar-popup.css">
-  <link rel="stylesheet" href="css/avatar.css">
   <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/pages.css">
+
+  <!-- Page-specific -->
+  <link rel="stylesheet" href="css/upload.css">
 </head>
 <body>
 
-  <!-- Header include -->
+  <!-- Header -->
   <div id="night-layer"></div>
   <div id="header"></div>
 
-  <main class="upload-page">
-    <h1>Upload Question Paper</h1>
-    <p class="page-desc">
-      Upload a clear PDF of a question paper to help others.
-    </p>
+  <main class="upload-page container">
 
-    <form class="upload-form">
-      <label>
-        Paper / Subject Code
-        <input type="text" placeholder="e.g. PHSHCC-201T" required>
-      </label>
+    <!-- ================= HEADER ================= -->
+    <section class="upload-intro">
+      <h1>Upload Question Paper</h1>
+      <p class="text-muted">
+        Help fellow students by uploading a clean, readable PDF of a university
+        question paper.
+      </p>
+    </section>
 
-      <label>
-        Year
-        <input type="number" placeholder="e.g. 2023" required>
-      </label>
+    <!-- ================= UPLOAD CARD ================= -->
+    <section class="upload-card card">
 
-      <label>
-        PDF File
-        <input type="file" accept="application/pdf" required>
-      </label>
+      <!-- STEP 1 -->
+      <div class="upload-step">
+        <h2>Paper details</h2>
 
-      <button type="submit" class="primary-btn">
-        Upload Paper
-      </button>
-    </form>
+        <label class="field">
+          <span class="field-label">Paper / Subject Code</span>
+          <input
+            type="text"
+            placeholder="e.g. PHYDSC102T"
+            required
+          />
+          <small class="field-hint">
+            Use the official paper code printed on the question paper.
+          </small>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Examination Year</span>
+          <input
+            type="number"
+            placeholder="e.g. 2023"
+            min="1990"
+            max="2099"
+            required
+          />
+        </label>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="upload-step">
+        <h2>Upload PDF</h2>
+
+        <label class="file-drop">
+          <input
+            type="file"
+            accept="application/pdf"
+            required
+            hidden
+          />
+
+          <div class="file-ui">
+            <strong>Select PDF file</strong>
+            <p class="text-muted">
+              Only PDF files · Clear scan preferred · Max size limits may apply
+            </p>
+          </div>
+        </label>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="upload-step upload-submit">
+        <button type="submit" class="btn btn-red">
+          Upload Paper
+        </button>
+
+        <p class="upload-note text-muted">
+          Uploaded papers are reviewed before appearing publicly.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ================= FUTURE INFO ================= -->
+    <section class="upload-info card">
+      <h2>Upload guidelines</h2>
+      <ul class="text-muted">
+        <li>Ensure all pages are visible and upright</li>
+        <li>Avoid cropped or blurry images</li>
+        <li>One paper per upload</li>
+        <li>Incorrect uploads may be removed</li>
+      </ul>
+    </section>
+
   </main>
 
-  <!-- Footer include -->
+  <!-- Footer -->
   <div id="footer"></div>
 
+  <!-- Global portals -->
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
   <script src="js/common.js"></script>
   <script src="js/theme.js"></script>
-<div id="avatar-portal"></div>
-<div id="profile-panel-portal"></div>
-<script src="js/profile-panel.js" defer></script>
+  <script src="js/profile-panel.js" defer></cript>
+
 </body>
-</html>
+  </html>
