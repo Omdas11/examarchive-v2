@@ -205,12 +205,12 @@
 
 /* 🔥 SVG FIX */
 .hamburger-icon line {
-  transform-box: fill-box;      /* CRITICAL */
-  transform-origin: center;     /* now works correctly */
+  transform-box: fill-box;
+  transform-origin: center;
   transition: transform 0.25s ease;
 }
 
-/* Perfect symmetric X */
+/* = → X */
 body.menu-open .hamburger-icon line:nth-child(1) {
   transform: rotate(45deg);
 }
@@ -218,6 +218,7 @@ body.menu-open .hamburger-icon line:nth-child(1) {
 body.menu-open .hamburger-icon line:nth-child(2) {
   transform: rotate(-45deg);
 }
+
 /* ---------- Mobile Menu ---------- */
 .mobile-nav {
   position: absolute;
