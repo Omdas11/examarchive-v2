@@ -134,11 +134,12 @@
   flex-shrink: 0;
 }
 
+/* Perfectly centered ring */
 .avatar-trigger::before {
   content: "";
   position: absolute;
-  width: 42px;
-  height: 42px;
+  width: 40px;          /* 36 + 2px border × 2 */
+  height: 40px;
   border-radius: 50%;
   border: 2px solid var(--avatar-ring);
 
@@ -148,8 +149,8 @@
 }
 
 .avatar-mini {
-  width: 100%;
-  height: 100%;
+  width: 36px;
+  height: 36px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
 
@@ -194,12 +195,13 @@
   transform-origin: center;
 }
 
+/* Symmetric = → X */
 body.menu-open .hamburger-icon line:nth-child(1) {
-  transform: translateY(3px) rotate(45deg);
+  transform: rotate(45deg);
 }
 
 body.menu-open .hamburger-icon line:nth-child(2) {
-  transform: translateY(-3px) rotate(-45deg);
+  transform: rotate(-45deg);
 }
 
 /* ---------- Mobile Menu ---------- */
@@ -227,24 +229,22 @@ body.menu-open .hamburger-icon line:nth-child(2) {
 
 /* Mobile menu items */
 .mobile-nav a {
-  font-size: 0.85rem;          /* slightly smaller */
+  font-size: 0.85rem;
   padding: 0.45rem 0.6rem;
   border-radius: 6px;
 
-  color: var(--text-muted);    /* calm grey by default */
+  color: var(--text-muted);
   font-weight: 500;
 
   text-decoration: none;
   line-height: 1.3;
 }
 
-/* Hover / focus */
 .mobile-nav a:hover {
   background: var(--bg-soft);
   color: var(--text);
 }
 
-/* Active page */
 .mobile-nav a.active {
   color: var(--red);
   font-weight: 600;
