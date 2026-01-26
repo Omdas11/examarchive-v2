@@ -1,4 +1,6 @@
-document.body.style.border = "4px solid red";
+// ===============================
+// Avatar Popup – MOBILE SAFE
+// ===============================
 
 document.addEventListener("header:loaded", () => {
   const trigger = document.getElementById("avatarTrigger");
@@ -6,13 +8,25 @@ document.addEventListener("header:loaded", () => {
 
   if (!trigger || !popup) return;
 
-  trigger.addEventListener("click", (e) => {
+  // 🔥 IMPORTANT: remove any old handlers
+  trigger.onclick = null;
+
+  // ✅ OPEN / CLOSE (TOUCH + CLICK SAFE)
+  const togglePopup = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     popup.classList.toggle("open");
-  });
+  };
 
-  // Close when clicking outside
+  trigger.addEventListener("click", togglePopup);
+  trigger.addEventListener("touchstart", togglePopup, { passive: false });
+
+  // ✅ CLOSE when tapping outside
   document.addEventListener("click", () => {
     popup.classList.remove("open");
   });
+
+  document.addEventListener("touchstart", () => {
+    popup.classList.remove("open");
+  }, { passive: true });
 });
