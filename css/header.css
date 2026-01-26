@@ -1,8 +1,7 @@
 /* ================================
-   ExamArchive – Header (REDESIGNED)
+   ExamArchive – Header (FINAL)
    ================================ */
 
-/* ---------- Header ---------- */
 .site-header {
   position: sticky;
   top: 0;
@@ -70,7 +69,6 @@
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
-  display: block;
 }
 
 /* ---------- Theme Toggle ---------- */
@@ -102,7 +100,7 @@
   background: rgba(0,0,0,0.06);
 }
 
-/* ---------- Profile + Menu Pill ---------- */
+/* ---------- Pill ---------- */
 .header-pill {
   display: flex;
   align-items: center;
@@ -115,11 +113,10 @@
   border: 1px solid var(--border);
 }
 
-/* ---------- Avatar Trigger (UNCHANGED) ---------- */
+/* ---------- Avatar ---------- */
 .avatar-trigger {
   width: 36px;
   height: 36px;
-  padding: 0;
   border: none;
   background: none;
   cursor: pointer;
@@ -135,7 +132,6 @@
   inset: -3px;
   border-radius: 50%;
   border: 2px solid #16a34a;
-  pointer-events: none;
 }
 
 .avatar-mini {
@@ -152,13 +148,12 @@
   place-items: center;
 }
 
-/* ---------- Hamburger (SVG Animated) ---------- */
+/* ---------- Hamburger (2-line SVG) ---------- */
 .menu-btn {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: none;
   border: none;
+  background: none;
   cursor: pointer;
 
   display: flex;
@@ -173,13 +168,12 @@
   stroke-width: 2;
 }
 
-/* ---------- Hamburger (SVG Animated – 2 lines) ---------- */
 .hamburger-icon line {
   transition: transform 0.25s ease;
   transform-origin: center;
 }
 
-/* = → X */
+/* = → X animation */
 body.menu-open .hamburger-icon line:nth-child(1) {
   transform: translateY(3px) rotate(45deg);
 }
@@ -211,23 +205,6 @@ body.menu-open .hamburger-icon line:nth-child(2) {
   display: flex;
 }
 
-.mobile-nav a {
-  font-size: 0.9rem;
-  padding: 0.45rem 0.6rem;
-  border-radius: 6px;
-  color: var(--text-muted);
-}
-
-.mobile-nav a:hover {
-  background: var(--bg-soft);
-  color: var(--text);
-}
-
-.mobile-nav a.active {
-  color: var(--red);
-  font-weight: 600;
-}
-
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .nav {
@@ -245,20 +222,13 @@ body.menu-open .hamburger-icon line:nth-child(2) {
   }
 }
 
-/* ---------- Dark / AMOLED fixes (UNCHANGED) ---------- */
+/* ---------- Dark / AMOLED ---------- */
 body[data-theme="dark"] .site-header,
 body[data-theme="amoled"] .site-header {
-  color: #ffffff;
+  color: #fff;
 }
 
 body[data-theme="dark"] .site-header button,
 body[data-theme="amoled"] .site-header button {
   color: inherit;
-}
-
-body[data-theme="dark"] .theme-btn.active,
-body[data-theme="amoled"] .theme-btn.active,
-body[data-theme="dark"] .night-btn.active,
-body[data-theme="amoled"] .night-btn.active {
-  background: rgba(255, 255, 255, 0.14);
 }
