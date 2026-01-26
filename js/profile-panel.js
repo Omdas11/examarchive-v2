@@ -1,30 +1,43 @@
 // ===============================
-// Expanded Profile Panel Logic (FINAL FIX)
+// Expanded Profile Panel – HARD DEBUG
 // ===============================
 
 (function () {
-  // Wait until profile panel HTML is injected
+  alert("profile-panel.js LOADED");
+
   document.addEventListener("profile-panel:loaded", () => {
+    alert("EVENT: profile-panel:loaded fired");
+
     const panel = document.getElementById("profile-panel");
 
     if (!panel) {
-      console.error("Profile panel not found after load");
+      alert("❌ profile-panel NOT FOUND in DOM");
+      console.error("profile-panel missing");
       return;
     }
 
+    alert("✅ profile-panel FOUND");
+
+    // FORCE VISUAL DEBUG
+    panel.style.outline = "4px solid red";
+    panel.style.background = "rgba(255,0,0,0.05)";
+    panel.style.display = "block";
+    panel.style.opacity = "1";
+    panel.style.pointerEvents = "auto";
+
     document.addEventListener("click", (e) => {
-      // OPEN from avatar popup
       if (e.target.closest("[data-open-profile]")) {
-        e.preventDefault();
+        alert("👉 View profile CLICK detected");
         panel.classList.add("open");
-        return;
+        panel.style.display = "block";
+        panel.style.opacity = "1";
       }
 
-      // CLOSE on backdrop or close button
       if (
         e.target.id === "profile-panel" ||
         e.target.closest("[data-close-profile]")
       ) {
+        alert("✖ Close profile");
         panel.classList.remove("open");
       }
     });
