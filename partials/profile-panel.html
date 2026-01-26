@@ -1,21 +1,22 @@
 <!-- ================================
      Expanded Profile Panel
-     Global / Backend-ready
+     Backend-ready / Auth-agnostic
      ================================ -->
 <div
   id="profile-panel"
   class="profile-panel"
   aria-hidden="true"
+  data-auth="guest"
 >
 
   <!-- Backdrop -->
-  <div class="profile-backdrop" id="closeProfile"></div>
+  <div class="profile-panel-backdrop" data-close-profile></div>
 
-  <!-- Panel -->
-  <div class="profile-sheet">
+  <!-- Panel Card -->
+  <div class="profile-panel-card">
 
     <!-- Header -->
-    <div class="profile-header">
+    <header class="profile-header">
       <div
         class="profile-avatar"
         data-initials="OD"
@@ -24,7 +25,7 @@
         aria-hidden="true"
       ></div>
 
-      <div class="profile-info">
+      <div class="profile-meta">
         <h2 class="profile-name" data-field="name">
           Om Das
         </h2>
@@ -33,57 +34,83 @@
           @omdas11
         </p>
 
-        <p class="profile-member" data-field="memberSince">
+        <p class="profile-since" data-field="memberSince">
           Member since · Jan 2025
         </p>
       </div>
 
       <button
         class="profile-close"
-        id="closeProfile"
         aria-label="Close profile"
+        data-close-profile
         type="button"
       >
         ✕
       </button>
-    </div>
-
-    <!-- Stats -->
-    <div class="profile-stats">
-      <div class="stat">
-        <strong>12</strong>
-        <span>Uploads</span>
-      </div>
-      <div class="stat">
-        <strong>10</strong>
-        <span>Approved</span>
-      </div>
-      <div class="stat">
-        <strong>480</strong>
-        <span>Points</span>
-      </div>
-      <div class="stat">
-        <strong>7</strong>
-        <span>Streak</span>
-      </div>
-    </div>
+    </header>
 
     <!-- Badges -->
-    <div class="profile-badges">
-      <span class="badge role">Contributor</span>
-      <span class="badge rank">Gold</span>
-      <span class="badge admin">Admin</span>
-    </div>
+    <section class="profile-badges">
+
+      <!-- Badge -->
+      <div class="badge badge-role">
+        <span class="badge-icon"></span>
+        <span class="badge-label">Contributor</span>
+      </div>
+
+      <div class="badge badge-rank">
+        <span class="badge-icon"></span>
+        <span class="badge-label">Gold</span>
+      </div>
+
+      <div class="badge badge-admin" data-auth-only="admin" hidden>
+        <span class="badge-icon"></span>
+        <span class="badge-label">Admin</span>
+      </div>
+
+    </section>
+
+    <!-- Stats -->
+    <section class="profile-stats">
+      <div class="stat">
+        <strong data-field="uploads">12</strong>
+        <span>Uploads</span>
+      </div>
+
+      <div class="stat">
+        <strong data-field="approved">10</strong>
+        <span>Approved</span>
+      </div>
+
+      <div class="stat">
+        <strong data-field="points">480</strong>
+        <span>Points</span>
+      </div>
+
+      <div class="stat">
+        <strong data-field="streak">7</strong>
+        <span>Streak</span>
+      </div>
+    </section>
 
     <!-- Actions -->
-    <div class="profile-actions">
-      <a href="settings.html" class="btn btn-red">
+    <section class="profile-actions">
+      <a
+        href="settings.html"
+        class="btn btn-red"
+        data-auth-only="user"
+      >
         Manage Account
       </a>
-      <button class="btn btn-ghost">
-        Log out
-      </button>
-    </div>
+
+      <a
+        href="login.html"
+        class="btn btn-outline"
+        data-auth-only="guest"
+      >
+        Sign in
+      </a>
+    </section>
 
   </div>
 </div>
