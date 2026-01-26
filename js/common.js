@@ -49,11 +49,16 @@ loadPartial("footer", "partials/footer.html", () => {
 });
 
 // ===============================
-// Load AVATAR POPUP (IMPORTANT)
+// Load AVATAR POPUP
 // ===============================
 loadPartial("avatar-portal", "partials/avatar-popup.html", () => {
   document.dispatchEvent(new CustomEvent("avatar:loaded"));
 });
+
+// ===============================
+// Load PROFILE PANEL (NEW)
+// ===============================
+loadPartial("profile-panel-portal", "partials/profile-panel.html");
 
 // ===============================
 // Highlight active nav link
