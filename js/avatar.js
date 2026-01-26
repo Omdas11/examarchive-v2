@@ -1,32 +1,25 @@
 // ===============================
-// Avatar Popup – MOBILE SAFE
+// Avatar Popup Logic (FINAL)
 // ===============================
 
-document.addEventListener("header:loaded", () => {
-  const trigger = document.getElementById("avatarTrigger");
-  const popup = document.getElementById("avatar-popup");
+(function () {
+  // Debug proof
+  document.body.style.border = "4px solid red";
 
-  if (!trigger || !popup) return;
+  document.addEventListener("click", (e) => {
+    const trigger = e.target.closest("#avatarTrigger");
+    const popup = document.getElementById("avatar-popup");
 
-  // 🔥 IMPORTANT: remove any old handlers
-  trigger.onclick = null;
+    if (!popup) return;
 
-  // ✅ OPEN / CLOSE (TOUCH + CLICK SAFE)
-  const togglePopup = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    popup.classList.toggle("open");
-  };
+    // Click on avatar → toggle
+    if (trigger) {
+      e.stopPropagation();
+      popup.classList.toggle("open");
+      return;
+    }
 
-  trigger.addEventListener("click", togglePopup);
-  trigger.addEventListener("touchstart", togglePopup, { passive: false });
-
-  // ✅ CLOSE when tapping outside
-  document.addEventListener("click", () => {
+    // Click outside → close
     popup.classList.remove("open");
   });
-
-  document.addEventListener("touchstart", () => {
-    popup.classList.remove("open");
-  }, { passive: true });
-});
+})();
