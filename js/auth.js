@@ -1,11 +1,17 @@
 // ===============================
 // Supabase Init
 // ===============================
-alert("auth.js loaded");
 const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CvnyoKEI2PZ6I3RHR4Shyw_lIMB8NdN";
 
-const supabase = supabaseJs.createClient(
+// Safety check (prevents silent failure)
+if (!window.supabase) {
+  console.error("Supabase CDN not loaded");
+} else {
+  console.log("Supabase loaded");
+}
+
+const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
@@ -22,20 +28,8 @@ function setAvatar(user) {
   const avatar = document.querySelector(".avatar-mini");
   if (!avatar) return;
 
-  avatar.textContent = getInitials(user?.email);
+  avatar.textContent = getInitials(user.email);
 }
-
-// ===============================
-// Auth State Listener
-// ===============================
-supabase.auth.onAuthStateChange((_event, session) => {
-  if (session?.user) {
-    setAvatar(session.user);
-    document.body.classList.add("logged-in");
-  } else {
-    document.body.classList.remove("logged-in");
-  }
-});
 
 // ===============================
 // Initial Session Check
@@ -49,7 +43,19 @@ supabase.auth.onAuthStateChange((_event, session) => {
 })();
 
 // ===============================
-// Login (Email Magic Link)
+// Auth State Change
+// ===============================
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session?.user) {
+    setAvatar(session.user);
+    document.body.classList.add("logged-in");
+  } else {
+    document.body.classList.remove("logged-in");
+  }
+});
+
+// ===============================
+// Login / Logout
 // ===============================
 async function login() {
   const email = prompt("Enter your email to login:");
@@ -65,18 +71,28 @@ async function login() {
   if (error) {
     alert(error.message);
   } else {
-    alert("Check your email for login link ✉️");
+    alert("Check your email for the login link ✉️");
   }
 }
 
-// ===============================
-// Logout
-// ===============================
 async function logout() {
   await supabase.auth.signOut();
   location.reload();
 }
 
-// Expose for buttons
-window.login = login;
-window.logout = logout;
+// ===============================
+// Attach avatar click AFTER header loads
+// ===============================
+document.addEventListener("header:loaded", () => {
+  const avatarTrigger = document.getElementById("avatarTrigger");
+  if (!avatarTrigger) return;
+
+  avatarTrigger.addEventListener("click", async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user) {
+      await logout();
+    } else {
+      await login();
+    }
+  });
+});
