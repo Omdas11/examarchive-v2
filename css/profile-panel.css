@@ -1,124 +1,193 @@
-/* ================================
-   Profile Panel (Expanded)
-   ================================ */
+/* ======================================
+   Expanded Profile Panel – FINAL UI
+   ====================================== */
 
 .profile-panel {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: none;
-  place-items: center;
   z-index: 10060;
+
+  display: none;
 }
 
 .profile-panel.open {
-  display: grid;
+  display: block;
 }
 
+/* ---------- Backdrop ---------- */
+.profile-panel-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+/* ---------- Panel Card ---------- */
 .profile-panel-card {
-  width: 92%;
-  max-width: 380px;
+  position: absolute;
+  top: 72px;
+  right: 1rem;
+
+  width: 340px;
+  max-width: calc(100vw - 2rem);
+
   background: var(--surface);
-  border-radius: 18px;
-  padding: 1.2rem;
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+
+  box-shadow: var(--shadow-md);
+  padding: 1rem;
+
+  transform: translateY(-8px) scale(0.96);
+  opacity: 0;
+
+  animation: profileIn 0.22s ease forwards;
 }
 
-/* Header */
+@keyframes profileIn {
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Header ---------- */
 .profile-header {
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.8rem;
+  position: relative;
 }
 
+/* Avatar */
 .profile-avatar {
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: #ede9fe;
-  color: #4c1d95;
+
+  background: #e0e7ff;
+  color: #3730a3;
+
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1rem;
+
   display: grid;
   place-items: center;
+  flex-shrink: 0;
 }
 
-.profile-meta h2 {
+/* Name & meta */
+.profile-meta {
+  flex: 1;
+}
+
+.profile-name {
+  font-size: 1rem;
   margin: 0;
-  font-size: 1.1rem;
+  color: var(--text);
 }
 
 .profile-username {
   font-size: 0.85rem;
   color: var(--text-muted);
+  margin: 0.15rem 0;
 }
 
 .profile-since {
   font-size: 0.75rem;
   color: var(--text-muted);
+  margin-top: 0.3rem;
 }
 
-/* Badges */
+/* Close */
+.profile-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Badges ---------- */
 .profile-badges {
   display: flex;
-  gap: 0.8rem;
-  margin: 1rem 0;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.9rem 0;
 }
 
 .badge {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  padding: 0.3rem 0.55rem;
+  font-size: 0.7rem;
+
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+/* Rotated inner square */
+.badge-icon {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
   transform: rotate(45deg);
-  display: grid;
-  place-items: center;
+  background: currentColor;
+  opacity: 0.8;
 }
 
-.badge::after {
-  content: "";
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
-  background: #fff;
-  transform: rotate(-45deg);
-}
+/* Badge variants */
+.badge-role { color: #2563eb; }
+.badge-rank { color: #ca8a04; }
+.badge-admin { color: #dc2626; }
 
-.badge-blue { background: #6366f1; }
-.badge-yellow { background: #f59e0b; }
-.badge-red { background: #ef4444; }
-.badge-muted { background: #e5e7eb; }
-
-/* Actions */
-.profile-actions .btn {
-  width: 100%;
-}
-
-.profile-actions-row {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: 0.6rem;
-}
-
-/* Stats */
+/* ---------- Stats ---------- */
 .profile-stats {
-  margin-top: 1rem;
   display: grid;
-  grid-template-columns: repeat(2,1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.6rem;
+  margin: 0.8rem 0;
 }
 
 .stat {
-  background: var(--bg-soft);
-  border-radius: 12px;
-  padding: 0.6rem;
   text-align: center;
 }
 
-.stat-value {
-  font-weight: 700;
+.stat strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text);
 }
 
-.stat-label {
-  font-size: 0.75rem;
+.stat span {
+  font-size: 0.7rem;
   color: var(--text-muted);
+}
+
+/* ---------- Actions ---------- */
+.profile-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.profile-actions .btn {
+  flex: 1;
+  text-align: center;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 480px) {
+  .profile-panel-card {
+    right: 50%;
+    transform: translate(50%, -6px) scale(0.96);
+  }
 }
