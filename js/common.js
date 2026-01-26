@@ -13,9 +13,9 @@
 })();
 
 // ===============================
-// Load header, footer & avatar popup
+// Load partial helper
 // ===============================
-function loadPartial(id, file) {
+function loadPartial(id, file, callback) {
   fetch(file)
     .then(res => res.text())
     .then(html => {
@@ -24,19 +24,8 @@ function loadPartial(id, file) {
 
       container.innerHTML = html;
 
-      // 🔔 Header ready
-      if (id === "header") {
-        highlightActiveNav();
-        document.dispatchEvent(
-          new CustomEvent("header:loaded", { bubbles: true })
-        );
-      }
-
-      // 🔔 Footer ready
-      if (id === "footer") {
-        document.dispatchEvent(
-          new CustomEvent("footer:loaded", { bubbles: true })
-        );
+      if (typeof callback === "function") {
+        callback();
       }
     })
     .catch(err => {
@@ -44,9 +33,27 @@ function loadPartial(id, file) {
     });
 }
 
-loadPartial("header", "partials/header.html");
-loadPartial("footer", "partials/footer.html");
-loadPartial("avatar-portal", "partials/avatar-popup.html");
+// ===============================
+// Load HEADER
+// ===============================
+loadPartial("header", "partials/header.html", () => {
+  highlightActiveNav();
+  document.dispatchEvent(new CustomEvent("header:loaded"));
+});
+
+// ===============================
+// Load FOOTER
+// ===============================
+loadPartial("footer", "partials/footer.html", () => {
+  document.dispatchEvent(new CustomEvent("footer:loaded"));
+});
+
+// ===============================
+// Load AVATAR POPUP (IMPORTANT)
+// ===============================
+loadPartial("avatar-portal", "partials/avatar-popup.html", () => {
+  document.dispatchEvent(new CustomEvent("avatar:loaded"));
+});
 
 // ===============================
 // Highlight active nav link
@@ -88,9 +95,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// Avatar JS loader (CORRECT)
+// Load avatar.js ONLY AFTER popup exists
 // ===============================
-document.addEventListener("header:loaded", () => {
+document.addEventListener("avatar:loaded", () => {
   if (document.getElementById("avatar-script")) return;
 
   const script = document.createElement("script");
