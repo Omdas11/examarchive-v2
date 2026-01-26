@@ -1,25 +1,40 @@
 // ===============================
-// Avatar Popup Logic (FINAL)
+// Avatar Popup Logic (BULLETPROOF)
 // ===============================
 
 (function () {
-  // Debug proof
-  document.body.style.border = "4px solid red";
-
-  document.addEventListener("click", (e) => {
-    const trigger = e.target.closest("#avatarTrigger");
+  function initAvatarPopup() {
+    const trigger = document.getElementById("avatarTrigger");
     const popup = document.getElementById("avatar-popup");
 
-    if (!popup) return;
-
-    // Click on avatar → toggle
-    if (trigger) {
-      e.stopPropagation();
-      popup.classList.toggle("open");
+    // ⛔ If elements not ready, retry
+    if (!trigger || !popup) {
+      setTimeout(initAvatarPopup, 50);
       return;
     }
 
-    // Click outside → close
-    popup.classList.remove("open");
-  });
+    // ✅ DEBUG: prove JS is running
+    trigger.style.outline = "2px solid lime";
+
+    // ---------- TOGGLE ----------
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      popup.classList.toggle("open");
+      popup.setAttribute(
+        "aria-hidden",
+        popup.classList.contains("open") ? "false" : "true"
+      );
+    });
+
+    // ---------- CLICK OUTSIDE ----------
+    document.addEventListener("click", (e) => {
+      if (!popup.contains(e.target) && !trigger.contains(e.target)) {
+        popup.classList.remove("open");
+        popup.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
+  // Start once DOM is usable
+  document.addEventListener("DOMContentLoaded", initAvatarPopup);
 })();
