@@ -1,27 +1,20 @@
+alert("avatar.js loaded");
+
 document.addEventListener("DOMContentLoaded", () => {
   const trigger = document.getElementById("avatarTrigger");
   const popup = document.getElementById("avatar-popup");
 
-  if (!trigger || !popup) return;
+  console.log("trigger:", trigger);
+  console.log("popup:", popup);
 
-  // Toggle popup
+  if (!trigger || !popup) {
+    alert("Avatar elements NOT found");
+    return;
+  }
+
   trigger.addEventListener("click", (e) => {
-    e.stopPropagation(); // 🔑 critical
-    popup.classList.toggle("open");
-  });
-
-  // Prevent inside clicks from closing
-  popup.addEventListener("click", (e) => {
     e.stopPropagation();
-  });
-
-  // Close ONLY when clicking outside
-  document.addEventListener("click", () => {
-    popup.classList.remove("open");
-  });
-
-  // Mobile touch safety
-  document.addEventListener("touchstart", () => {
-    popup.classList.remove("open");
+    alert("Avatar clicked");
+    popup.classList.toggle("open");
   });
 });
