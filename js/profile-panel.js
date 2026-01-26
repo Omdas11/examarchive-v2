@@ -1,35 +1,48 @@
 // ===============================
-// Expanded Profile Panel Logic (FINAL FIX)
+// Expanded Profile Panel Logic (FINAL FIXED)
 // ===============================
 
 (function () {
+  alert("profile-panel.js LOADED");
+
   const panel = document.getElementById("profile-panel");
+  if (!panel) {
+    alert("❌ profile-panel NOT FOUND");
+    return;
+  }
 
-  if (!panel) return;
+  alert("✅ profile-panel FOUND");
 
-  // 🔒 ENSURE CLOSED ON LOAD
-  panel.classList.remove("open");
-  panel.setAttribute("aria-hidden", "true");
-
+  // 🔓 OPEN panel
   document.addEventListener("click", (e) => {
-    // Open from avatar popup
-    if (e.target.closest("[data-open-profile]")) {
+    const openBtn = e.target.closest("[data-open-profile]");
+    if (openBtn) {
       e.preventDefault();
       e.stopPropagation();
-
       panel.classList.add("open");
       panel.setAttribute("aria-hidden", "false");
       return;
     }
 
-    // Close conditions
-    if (
-      e.target.closest("[data-close-profile]") ||
-      e.target === panel
-    ) {
+    // 🔒 CLOSE panel (X button OR backdrop)
+    const closeBtn = e.target.closest("[data-close-profile]");
+    if (closeBtn) {
+      e.preventDefault();
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+      return;
+    }
+  });
+
+  // 🔒 ESC key close (accessibility)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
       panel.classList.remove("open");
       panel.setAttribute("aria-hidden", "true");
     }
   });
 
+  document.dispatchEvent(
+    new CustomEvent("profile-panel:loaded")
+  );
 })();
