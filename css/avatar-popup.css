@@ -1,55 +1,28 @@
 /* ================================
-   Avatar Popup (FINAL, VISIBLE)
+   Avatar Popup — VISUAL DEBUG
    ================================ */
 
 #avatar-popup {
   position: fixed;
-  top: 64px;
-  right: 12px;
+  top: 70px;
+  right: 10px;
 
-  z-index: 99999;
+  width: 90vw;
+  max-width: 320px;
 
-  opacity: 0;
-  transform: translateY(-8px) scale(0.98);
-  pointer-events: none;
+  padding: 20px;
 
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  background: crimson;
+  color: white;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  z-index: 9999999;
+
+  display: none;
 }
 
-/* OPEN STATE */
 #avatar-popup.open {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
-
-/* CARD */
-.avatar-card {
-  min-width: 220px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow-lg);
-  padding: 1rem;
-}
-
-/* TEXT */
-.avatar-info h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.avatar-info .username {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
-}
-
-/* BUTTON */
-.avatar-actions {
-  margin-top: 0.8rem;
-}
-
-.avatar-actions .btn {
-  width: 100%;
+  display: block;
 }
