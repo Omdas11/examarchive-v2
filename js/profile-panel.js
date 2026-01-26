@@ -4,48 +4,28 @@
 
 (function () {
   const panel = document.getElementById("profile-panel");
+
   if (!panel) return;
 
-  const card = panel.querySelector(".profile-panel-card");
-
-  // OPEN panel
+  // OPEN
   document.addEventListener("click", (e) => {
-    const openBtn = e.target.closest("[data-open-profile]");
-    if (openBtn) {
-      e.preventDefault();
-      e.stopPropagation();
+    if (e.target.closest("[data-open-profile]")) {
       panel.classList.add("open");
       panel.setAttribute("aria-hidden", "false");
-      return;
     }
+  });
 
-    // CLOSE via explicit close triggers
-    const closeBtn = e.target.closest("[data-close-profile]");
-    if (closeBtn) {
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
-      return;
-    }
+  // CLOSE (X button OR backdrop OR anywhere outside card)
+  document.addEventListener("click", (e) => {
+    if (!panel.classList.contains("open")) return;
 
-    // CLOSE when clicking OUTSIDE card
+    // Close triggers
     if (
-      panel.classList.contains("open") &&
-      !card.contains(e.target)
+      e.target.closest("[data-close-profile]") ||
+      e.target === panel
     ) {
       panel.classList.remove("open");
       panel.setAttribute("aria-hidden", "true");
     }
   });
-
-  // ESC key close
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
-    }
-  });
-
-  document.dispatchEvent(
-    new CustomEvent("profile-panel:ready")
-  );
 })();
