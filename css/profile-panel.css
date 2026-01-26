@@ -1,46 +1,30 @@
 /* ================================
-   Expanded Profile Panel
+   Profile Panel (Expanded)
    ================================ */
 
 .profile-panel {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
-
-  display: grid;
+  display: none;
   place-items: center;
-
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-
-  z-index: 20000;
+  z-index: 10060;
 }
 
 .profile-panel.open {
-  opacity: 1;
-  pointer-events: auto;
+  display: grid;
 }
 
-/* ---------- Card ---------- */
-
-.profile-card {
+.profile-panel-card {
   width: 92%;
-  max-width: 420px;
-
+  max-width: 380px;
   background: var(--surface);
-  border-radius: 20px;
-  padding: 1.25rem;
-
+  border-radius: 18px;
+  padding: 1.2rem;
   box-shadow: var(--shadow-lg);
-
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
 }
 
-/* ---------- Header ---------- */
-
+/* Header */
 .profile-header {
   display: flex;
   gap: 1rem;
@@ -51,24 +35,15 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-
   background: #ede9fe;
   color: #4c1d95;
-
+  font-weight: 700;
+  font-size: 1.2rem;
   display: grid;
   place-items: center;
-
-  font-size: 1.2rem;
-  font-weight: 700;
 }
 
-.profile-avatar::before {
-  content: attr(data-initials);
-}
-
-/* ---------- Identity ---------- */
-
-.profile-name {
+.profile-meta h2 {
   margin: 0;
   font-size: 1.1rem;
 }
@@ -78,74 +53,72 @@
   color: var(--text-muted);
 }
 
-.profile-member {
+.profile-since {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
 
-/* ---------- Badges ---------- */
-
+/* Badges */
 .profile-badges {
   display: flex;
-  gap: 0.7rem;
-  justify-content: center;
+  gap: 0.8rem;
+  margin: 1rem 0;
 }
 
 .badge {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 10px;
   transform: rotate(45deg);
-
   display: grid;
   place-items: center;
 }
 
-.badge span {
+.badge::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: #fff;
   transform: rotate(-45deg);
-  font-size: 0.8rem;
 }
 
-.badge.blue { background: #e0e7ff; }
-.badge.gold { background: #fde68a; }
-.badge.red  { background: #fee2e2; }
-.badge.ghost {
-  background: transparent;
-  border: 1px dashed var(--border);
+.badge-blue { background: #6366f1; }
+.badge-yellow { background: #f59e0b; }
+.badge-red { background: #ef4444; }
+.badge-muted { background: #e5e7eb; }
+
+/* Actions */
+.profile-actions .btn {
+  width: 100%;
 }
 
-/* ---------- Stats ---------- */
+.profile-actions-row {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
 
+/* Stats */
 .profile-stats {
+  margin-top: 1rem;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.8rem;
+  grid-template-columns: repeat(2,1fr);
+  gap: 0.6rem;
 }
 
 .stat {
   background: var(--bg-soft);
   border-radius: 12px;
-  padding: 0.7rem;
+  padding: 0.6rem;
   text-align: center;
 }
 
-.stat .value {
+.stat-value {
   font-weight: 700;
-  font-size: 1rem;
 }
 
-.stat .label {
+.stat-label {
   font-size: 0.75rem;
   color: var(--text-muted);
-}
-
-/* ---------- Actions ---------- */
-
-.profile-actions {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.profile-actions .btn {
-  flex: 1;
 }
