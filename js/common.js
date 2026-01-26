@@ -24,7 +24,7 @@ function loadPartial(id, file) {
 
       container.innerHTML = html;
 
-      // 🔔 Header ready event
+      // 🔔 Header ready
       if (id === "header") {
         highlightActiveNav();
         document.dispatchEvent(
@@ -32,7 +32,7 @@ function loadPartial(id, file) {
         );
       }
 
-      // 🔔 Footer ready event (NEW, REQUIRED)
+      // 🔔 Footer ready
       if (id === "footer") {
         document.dispatchEvent(
           new CustomEvent("footer:loaded", { bubbles: true })
@@ -84,4 +84,18 @@ document.addEventListener("click", (e) => {
 document.addEventListener("DOMContentLoaded", () => {
   const year = document.getElementById("year");
   if (year) year.textContent = new Date().getFullYear();
+});
+
+// ===============================
+// Avatar logic loader (THE FIX)
+// ===============================
+document.addEventListener("footer:loaded", () => {
+  // prevent double loading
+  if (document.getElementById("avatar-script")) return;
+
+  const script = document.createElement("script");
+  script.src = "js/avatar.js";
+  script.defer = true;
+  script.id = "avatar-script";
+  document.body.appendChild(script);
 });
