@@ -6,7 +6,10 @@
   const night = localStorage.getItem("night");
 
   document.body.setAttribute("data-theme", theme);
-  if (night === "on") document.body.setAttribute("data-night", "on");
+
+  if (night === "on") {
+    document.body.setAttribute("data-night", "on");
+  }
 })();
 
 // ===============================
@@ -16,12 +19,18 @@ function loadPartial(id, file, callback) {
   fetch(file)
     .then(res => res.text())
     .then(html => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.innerHTML = html;
-      callback && callback();
+      const container = document.getElementById(id);
+      if (!container) return;
+
+      container.innerHTML = html;
+
+      if (typeof callback === "function") {
+        callback();
+      }
     })
-    .catch(err => console.error(file, err));
+    .catch(err => {
+      console.error(`Failed to load ${file}:`, err);
+    });
 }
 
 // ===============================
@@ -29,62 +38,91 @@ function loadPartial(id, file, callback) {
 // ===============================
 loadPartial("header", "partials/header.html", () => {
   highlightActiveNav();
-  document.dispatchEvent(new Event("header:loaded"));
+  document.dispatchEvent(new CustomEvent("header:loaded"));
 });
 
 // ===============================
 // FOOTER
 // ===============================
-loadPartial("footer", "partials/footer.html");
+loadPartial("footer", "partials/footer.html", () => {
+  document.dispatchEvent(new CustomEvent("footer:loaded"));
+});
 
 // ===============================
 // AVATAR POPUP
 // ===============================
 loadPartial("avatar-portal", "partials/avatar-popup.html", () => {
-  document.dispatchEvent(new Event("avatar:loaded"));
+  document.dispatchEvent(new CustomEvent("avatar:loaded"));
 });
 
 // ===============================
-// EXPANDED PROFILE PANEL  🔥 THIS WAS MISSING
+// PROFILE PANEL (🔥 REQUIRED)
 // ===============================
-loadPartial("profile-panel-portal", "partials/profile-panel.html");
+loadPartial("profile-panel-portal", "partials/profile-panel.html", () => {
+  document.dispatchEvent(new CustomEvent("profile:loaded"));
+});
 
 // ===============================
-// Active nav
+// Highlight active nav link
 // ===============================
 function highlightActiveNav() {
-  const current = location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll(".nav-link").forEach(a => {
-    if (a.getAttribute("href") === current) a.classList.add("active");
+  const current =
+    window.location.pathname.split("/").pop() || "index.html";
+
+  document.querySelectorAll(".nav-link").forEach(link => {
+    if (link.getAttribute("href") === current) {
+      link.classList.add("active");
+    }
   });
 }
 
 // ===============================
-// Mobile menu
+// Mobile menu toggle
 // ===============================
 document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".menu-btn");
-  const nav = document.getElementById("mobileNav");
-  if (btn && nav) nav.classList.toggle("open");
-  if (e.target.closest(".mobile-nav a")) nav?.classList.remove("open");
+  const menuBtn = e.target.closest(".menu-btn");
+  const mobileNav = document.getElementById("mobileNav");
+
+  if (menuBtn && mobileNav) {
+    mobileNav.classList.toggle("open");
+    return;
+  }
+
+  if (e.target.closest(".mobile-nav a")) {
+    mobileNav?.classList.remove("open");
+  }
 });
 
 // ===============================
 // Footer year
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
-  const y = document.getElementById("year");
-  if (y) y.textContent = new Date().getFullYear();
+  const year = document.getElementById("year");
+  if (year) year.textContent = new Date().getFullYear();
 });
 
 // ===============================
-// Load avatar.js AFTER popup exists
+// Load avatar.js AFTER avatar popup exists
 // ===============================
 document.addEventListener("avatar:loaded", () => {
   if (document.getElementById("avatar-script")) return;
-  const s = document.createElement("script");
-  s.src = "js/avatar.js";
-  s.id = "avatar-script";
-  s.defer = true;
-  document.body.appendChild(s);
+
+  const script = document.createElement("script");
+  script.src = "js/avatar.js";
+  script.defer = true;
+  script.id = "avatar-script";
+  document.body.appendChild(script);
+});
+
+// ===============================
+// Load profile-panel.js AFTER panel exists
+// ===============================
+document.addEventListener("profile:loaded", () => {
+  if (document.getElementById("profile-panel-script")) return;
+
+  const script = document.createElement("script");
+  script.src = "js/profile-panel.js";
+  script.defer = true;
+  script.id = "profile-panel-script";
+  document.body.appendChild(script);
 });
