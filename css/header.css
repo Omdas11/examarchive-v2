@@ -2,6 +2,13 @@
    ExamArchive – Header (FINAL)
    ================================ */
 
+:root {
+  /* Avatar color defaults (overridden by JS) */
+  --avatar-bg: #ecfeff;
+  --avatar-text: #155e75;
+  --avatar-ring: #16a34a;
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -29,7 +36,7 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: var(--red); /* placeholder */
+  background: var(--red);
 }
 
 .logo-text {
@@ -124,6 +131,7 @@
   display: grid;
   place-items: center;
   position: relative;
+  flex-shrink: 0;
 }
 
 .avatar-trigger::before {
@@ -131,16 +139,18 @@
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  border: 2px solid #16a34a;
+  border: 2px solid var(--avatar-ring);
 }
 
 .avatar-mini {
   width: 100%;
   height: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
 
-  background: #ede9fe;
-  color: #4c1d95;
+  background: var(--avatar-bg);
+  color: var(--avatar-text);
+
   font-size: 0.75rem;
   font-weight: 600;
 
@@ -148,17 +158,22 @@
   place-items: center;
 }
 
-/* ---------- Hamburger (2-line SVG) ---------- */
+/* ---------- Hamburger ---------- */
 .menu-btn {
   width: 32px;
   height: 32px;
   border: none;
   background: none;
   cursor: pointer;
+  color: var(--text);
 
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.menu-btn:hover {
+  color: var(--red);
 }
 
 .hamburger-icon {
@@ -173,7 +188,6 @@
   transform-origin: center;
 }
 
-/* = → X animation */
 body.menu-open .hamburger-icon line:nth-child(1) {
   transform: translateY(3px) rotate(45deg);
 }
