@@ -1,6 +1,18 @@
 /* ================================
    Expanded Profile Panel (FINAL)
    ================================ */
+/* 🔥 DEBUG VISIBILITY TEST */
+.profile-panel {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(255, 0, 0, 0.15) !important;
+  z-index: 99999 !important;
+}
+.profile-panel.open {
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
 
 #profile-panel {
   position: fixed;
