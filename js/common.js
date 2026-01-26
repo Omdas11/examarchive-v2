@@ -13,7 +13,7 @@
 })();
 
 // ===============================
-// Load header & footer partials
+// Load header, footer & avatar popup
 // ===============================
 function loadPartial(id, file) {
   fetch(file)
@@ -46,6 +46,7 @@ function loadPartial(id, file) {
 
 loadPartial("header", "partials/header.html");
 loadPartial("footer", "partials/footer.html");
+loadPartial("avatar-portal", "partials/avatar-popup.html");
 
 // ===============================
 // Highlight active nav link
@@ -62,7 +63,7 @@ function highlightActiveNav() {
 }
 
 // ===============================
-// Mobile menu toggle (FIXED)
+// Mobile menu toggle
 // ===============================
 document.addEventListener("click", (e) => {
   const menuBtn = e.target.closest(".menu-btn");
@@ -79,7 +80,7 @@ document.addEventListener("click", (e) => {
 });
 
 // ===============================
-// Auto-update footer year
+// Footer year
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
   const year = document.getElementById("year");
@@ -87,10 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// Avatar logic loader (THE FIX)
+// Avatar JS loader (CORRECT)
 // ===============================
-document.addEventListener("footer:loaded", () => {
-  // prevent double loading
+document.addEventListener("header:loaded", () => {
   if (document.getElementById("avatar-script")) return;
 
   const script = document.createElement("script");
