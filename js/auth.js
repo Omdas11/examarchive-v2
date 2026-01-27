@@ -1,16 +1,56 @@
 // ===============================
-// Supabase Init
+// 🔍 MOBILE VISUAL DEBUG BAR
+// ===============================
+(function createDebugBar() {
+  const bar = document.createElement("div");
+  bar.id = "auth-debug";
+  bar.style.cssText = `
+    position: fixed;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    z-index: 99999;
+    opacity: 0.85;
+    max-width: 90%;
+    text-align: center;
+  `;
+  bar.textContent = "Auth: loading…";
+  document.body.appendChild(bar);
+})();
+
+function debug(msg) {
+  console.log("[AUTH]", msg);
+  const bar = document.getElementById("auth-debug");
+  if (bar) bar.textContent = `Auth: ${msg}`;
+}
+
+// ===============================
+// 🧠 SUPABASE INIT
 // ===============================
 const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CvnyoKEI2PZ6I3RHR4Shyw_lIMB8NdN";
+
+if (!window.supabase) {
+  debug("❌ Supabase CDN not loaded");
+  throw new Error("Supabase CDN missing");
+}
+
+debug("✅ Supabase CDN loaded");
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
+window.supabaseClient = supabase;
+
 // ===============================
-// Helpers
+// 👤 HELPERS
 // ===============================
 function getInitials(email) {
   if (!email) return "??";
@@ -19,90 +59,89 @@ function getInitials(email) {
 
 function setAvatar(user) {
   const avatar = document.querySelector(".avatar-mini");
-  if (!avatar) return;
+  if (!avatar) {
+    debug("⚠️ avatar-mini not found");
+    return;
+  }
   avatar.textContent = getInitials(user.email);
+  debug("👤 Avatar set");
 }
 
-/**
- * 🔥 SINGLE SOURCE OF TRUTH
- * Applies auth state to the UI
- */
+// ===============================
+// 🔁 APPLY AUTH STATE (SINGLE SOURCE)
+// ===============================
 function applyAuthState(user) {
   const isLoggedIn = !!user;
 
-  // Body flag (you already use this pattern)
   document.body.classList.toggle("logged-in", isLoggedIn);
+  debug(isLoggedIn ? "🟢 logged in" : "⚪ guest");
 
-  // Toggle data-auth-only elements
   document.querySelectorAll("[data-auth-only]").forEach(el => {
-    const wants = el.getAttribute("data-auth-only"); // user | guest
+    const wants = el.getAttribute("data-auth-only");
     const show =
       (wants === "user" && isLoggedIn) ||
       (wants === "guest" && !isLoggedIn);
-
     el.hidden = !show;
   });
 
-  // Update avatar
   if (isLoggedIn) {
     setAvatar(user);
   }
 }
 
 // ===============================
-// Initial Session Check
+// 🔍 INITIAL SESSION CHECK
 // ===============================
 (async () => {
-  const { data } = await supabase.auth.getSession();
+  debug("⏳ checking session");
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error) {
+    debug("❌ session error");
+    console.error(error);
+    return;
+  }
+
   applyAuthState(data.session?.user || null);
 })();
 
 // ===============================
-// Auth State Listener
+// 🔄 AUTH STATE LISTENER
 // ===============================
-supabase.auth.onAuthStateChange((_event, session) => {
+supabase.auth.onAuthStateChange((event, session) => {
+  debug(`🔄 auth event: ${event}`);
   applyAuthState(session?.user || null);
 });
 
 // ===============================
-// Login / Logout
+// 🚪 LOGOUT
 // ===============================
-async function login() {
-  const email = prompt("Enter your email to login:");
-  if (!email) return;
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: window.location.href
-    }
-  });
-
-  if (error) {
-    alert(error.message);
-  } else {
-    alert("Check your email for the login link ✉️");
-  }
-}
-
 async function logout() {
+  debug("🚪 logging out");
   await supabase.auth.signOut();
   location.reload();
 }
 
 // ===============================
-// Attach avatar click AFTER header loads
+// 🧩 HEADER AVATAR CLICK
 // ===============================
 document.addEventListener("header:loaded", () => {
+  debug("📦 header loaded");
+
   const avatarTrigger = document.getElementById("avatarTrigger");
-  if (!avatarTrigger) return;
+  if (!avatarTrigger) {
+    debug("❌ avatarTrigger missing");
+    return;
+  }
 
   avatarTrigger.addEventListener("click", async () => {
     const { data } = await supabase.auth.getSession();
+
     if (data.session?.user) {
-      await logout();
+      logout();
     } else {
-      await login();
+      debug("➡️ redirect login");
+      window.location.href = "login.html";
     }
   });
 });
