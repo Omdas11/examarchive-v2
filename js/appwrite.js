@@ -1,10 +1,8 @@
 // ===============================
 // Appwrite Client Configuration
 // ===============================
-// TODO: Replace these with your actual Appwrite project details
-// Get these from: https://cloud.appwrite.io/console/project-XXXXX/settings
 const APPWRITE_ENDPOINT = "https://cloud.appwrite.io/v1";
-const APPWRITE_PROJECT_ID = "YOUR_PROJECT_ID"; // Replace with your actual Appwrite project ID
+const APPWRITE_PROJECT_ID = "6978b0e3000761212146";
 
 // Initialize Appwrite SDK
 if (!window.Appwrite) {
