@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/header.css">
 </head>
-<body>
+
+<body data-auth-page>
 
   <!-- Header -->
   <div id="header"></div>
@@ -125,7 +126,7 @@
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: window.location.origin + "/examarchive-v2/"
+          emailRedirectTo: "https://omdas11.github.io/examarchive-v2/"
         }
       });
 
