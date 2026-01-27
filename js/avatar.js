@@ -4,8 +4,6 @@
 // ===============================
 
 (function () {
-  console.log("avatar.js loaded");
-
   const popup = document.getElementById("avatar-popup");
   const panel = document.getElementById("profile-panel");
 
@@ -14,20 +12,28 @@
     return;
   }
 
-  // DEBUG: visual proof popup exists
-  popup.style.outline = "2px dashed #22c55e";
-
   document.addEventListener("click", (e) => {
     const trigger = e.target.closest("#avatarTrigger");
     const openProfileBtn = e.target.closest("[data-open-profile]");
 
     // ---------------------------
-    // Toggle avatar popup
+    // Avatar trigger clicked
     // ---------------------------
     if (trigger) {
       e.stopPropagation();
-      popup.classList.toggle("open");
-      console.log("Avatar trigger clicked");
+      
+      // Check if user is logged in
+      const isLoggedIn = document.body.classList.contains("logged-in");
+      
+      if (isLoggedIn) {
+        // Logged in: toggle popup
+        popup.classList.toggle("open");
+        console.log("Avatar trigger clicked (logged in)");
+      } else {
+        // Guest: redirect to login page
+        console.log("Avatar trigger clicked (guest) - redirecting to login");
+        window.location.href = "login.html";
+      }
       return;
     }
 
@@ -42,9 +48,7 @@
 
       if (panel) {
         panel.classList.add("open");
-
-        // visual proof
-        panel.style.outline = "3px solid #3b82f6";
+        panel.setAttribute("aria-hidden", "false");
       } else {
         console.warn("profile-panel not found");
       }

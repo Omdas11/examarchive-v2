@@ -62,12 +62,34 @@ function applyAuthState(user) {
 }
 
 // ===============================
-// Initial Session
+// Initial Session (WAIT FOR DOM + PARTIALS)
 // ===============================
-(async () => {
+async function initAuthState() {
   const { data } = await supabase.auth.getSession();
   applyAuthState(data.session?.user || null);
-})();
+}
+
+// Wait for both header and profile-panel partials to load
+let headerLoaded = false;
+let profilePanelLoaded = false;
+
+document.addEventListener("header:loaded", () => {
+  headerLoaded = true;
+  if (profilePanelLoaded) initAuthState();
+});
+
+document.addEventListener("profile-panel:loaded", () => {
+  profilePanelLoaded = true;
+  if (headerLoaded) initAuthState();
+});
+
+// Fallback: if partials don't load within 3 seconds, init anyway
+setTimeout(() => {
+  if (!headerLoaded || !profilePanelLoaded) {
+    console.warn("Auth init fallback triggered");
+    initAuthState();
+  }
+}, 3000);
 
 // ===============================
 // Auth Listener
