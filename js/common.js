@@ -63,18 +63,6 @@ function applyAvatarColors(name) {
 // ===============================
 loadPartial("header", "partials/header.html", () => {
   highlightActiveNav();
-
-  // NEW: Apply avatar colors (no image case)
-  // Replace later with real auth user
-  const user = {
-    name: "Om Das",
-    avatar: null
-  };
-
-  if (!user.avatar) {
-    applyAvatarColors(user.name);
-  }
-
   document.dispatchEvent(new CustomEvent("header:loaded"));
 });
 
