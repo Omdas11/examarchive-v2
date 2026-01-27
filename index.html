@@ -8,27 +8,35 @@
   <link rel="stylesheet" href="css/common.css" />
   <link rel="stylesheet" href="css/avatar-popup.css">
   <link rel="stylesheet" href="css/header.css" />
-<link rel="stylesheet" href="css/profile-panel.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/profile-panel.css">
   <link rel="stylesheet" href="css/avatar.css">
   <link rel="stylesheet" href="css/home.css" />
+
+  <!-- Accessibility and SEO -->
+  <meta name="description" content="ExamArchive - A simple and community-driven archive of university question papers. Browse, upload, and preserve papers for everyone." />
+  <meta name="theme-color" content="#d32f2f" />
 </head>
 <body>
+
+  <!-- Skip to content link for accessibility -->
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
 
   <!-- Header include -->
   <div id="night-layer"></div>
   <div id="header"></div>
 
-  <main class="home">
+  <main class="home" id="main-content">
 
     <!-- ================= HERO ================= -->
-    <section class="hero">
+    <section class="hero" aria-label="Welcome section">
       <h1>ExamArchive</h1>
       <p>
         A simple and community-driven archive of university question papers.
         Browse, upload, and preserve papers for everyone.
       </p>
 
-      <div class="hero-actions">
+      <div class="hero-actions" role="navigation" aria-label="Main actions">
         <a href="browse.html" class="btn btn-red">Browse Papers</a>
         <a href="upload.html" class="btn">Upload Paper</a>
         <a href="about.html" class="btn">About Us</a>
@@ -36,10 +44,10 @@
     </section>
 
     <!-- ================= UNIVERSAL SEARCH ================= -->
-    <section class="home-search">
+    <section class="home-search" aria-label="Search papers">
       <div class="search-wrapper">
 
-        <div class="search-bar">
+        <div class="search-bar" role="search">
           <input
             type="text"
             class="search-input"
@@ -47,11 +55,11 @@
             aria-label="Universal search"
           />
 
-          <button type="button" class="search-mode-btn" id="searchModeBtn">
+          <button type="button" class="search-mode-btn" id="searchModeBtn" aria-haspopup="true" aria-expanded="false">
             Universal
           </button>
 
-          <button type="button" class="btn btn-red search-btn">
+          <button type="button" class="btn btn-red search-btn" aria-label="Perform search">
             Search
           </button>
         </div>
@@ -70,23 +78,23 @@
     </section>
 
     <!-- ================= QUICK ACCESS ================= -->
-    <section class="quick-access">
+    <section class="quick-access" aria-label="Quick access navigation">
       <h2>Quick Access</h2>
 
-      <div class="quick-grid">
-        <a class="quick-btn" href="browse.html">By Subject</a>
-        <a class="quick-btn" href="browse.html">By University</a>
-        <a class="quick-btn" href="browse.html#year">By Year</a>
-        <a class="quick-btn" href="browse.html">Repeated Questions</a>
-        <a class="quick-btn" href="browse.html">Notes & Resources</a>
-        <a class="quick-btn" href="browse.html">Syllabus</a>
+      <div class="quick-grid" role="navigation" aria-label="Browse by category">
+        <a class="quick-btn" href="browse.html" aria-label="Browse papers by subject">By Subject</a>
+        <a class="quick-btn" href="browse.html" aria-label="Browse papers by university">By University</a>
+        <a class="quick-btn" href="browse.html#year" aria-label="Browse papers by year">By Year</a>
+        <a class="quick-btn" href="browse.html" aria-label="View repeated questions">Repeated Questions</a>
+        <a class="quick-btn" href="browse.html" aria-label="Access notes and resources">Notes & Resources</a>
+        <a class="quick-btn" href="browse.html" aria-label="View syllabus">Syllabus</a>
       </div>
     </section>
 
     <!-- ================= NOTICE BOARD ================= -->
-    <section class="notice-board">
+    <section class="notice-board" aria-label="University notices">
       <h2>Notices & Updates</h2>
-      <div class="notice-box">
+      <div class="notice-box" role="region" aria-live="polite">
         <p class="notice-empty">
           University notices and important academic updates will appear here.
         </p>
@@ -94,9 +102,9 @@
     </section>
 
     <!-- ================= ACADEMIC CALENDAR ================= -->
-    <section class="academic-calendar">
+    <section class="academic-calendar" aria-label="Academic calendar">
       <h2>Academic Calendar</h2>
-      <div class="calendar-box">
+      <div class="calendar-box" role="region" aria-live="polite">
         <p class="calendar-empty">
           Academic calendar events will be displayed here.
         </p>
@@ -116,6 +124,7 @@
   <script src="js/common.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/home-search.js"></script>
+  <script src="js/notices-calendar.js"></script>
   <script src="js/profile-panel.js" defer></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

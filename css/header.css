@@ -102,9 +102,13 @@
   justify-content: center;
 }
 
-.theme-btn.active,
-.night-btn.active {
+.theme-btn.active {
   background: rgba(0,0,0,0.06);
+}
+
+.night-btn.active {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 /* ---------- Pill ---------- */
@@ -279,6 +283,14 @@ body.menu-open .hamburger-icon line:nth-child(2) {
 @media (min-width: 769px) {
   .mobile-nav {
     display: none !important;
+  }
+
+  .menu-btn {
+    display: none;
+  }
+
+  .header-pill {
+    padding: 6px 12px;
   }
 }
 
