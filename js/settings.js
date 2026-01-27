@@ -502,25 +502,29 @@ class SettingsRenderer {
 // Initialize Settings Page
 // ================================
 document.addEventListener("DOMContentLoaded", async () => {
-  // Wait for Appwrite to be ready
-  await new Promise(resolve => {
+  // Wait for Appwrite to be ready (with timeout)
+  const appwriteReady = await new Promise(resolve => {
     if (window.AppwriteAuth) {
-      resolve();
+      resolve(true);
     } else {
       const interval = setInterval(() => {
         if (window.AppwriteAuth) {
           clearInterval(interval);
-          resolve();
+          resolve(true);
         }
       }, 100);
       
-      // Timeout after 5 seconds
+      // Timeout after 3 seconds - continue without Appwrite
       setTimeout(() => {
         clearInterval(interval);
-        resolve();
-      }, 5000);
+        resolve(false);
+      }, 3000);
     }
   });
+
+  if (!appwriteReady) {
+    console.warn("Appwrite not available - settings will work in offline mode");
+  }
 
   const renderer = new SettingsRenderer(SETTINGS_CONFIG);
   await renderer.init();
