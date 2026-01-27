@@ -66,11 +66,13 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .search-input:focus {
   outline: none;
   border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
 }
 
 .search-mode-btn {
@@ -81,6 +83,12 @@
   font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.search-mode-btn:hover {
+  background: var(--bg);
+  border-color: var(--text-muted);
 }
 
 .search-btn {

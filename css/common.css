@@ -370,14 +370,14 @@ p {
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1023px) {
   /* Tablet-specific styles */
   .container {
     padding: 1rem;
   }
 }
 
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   /* Desktop enhancements */
   .container {
     padding: 1.5rem;
