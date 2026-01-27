@@ -3,8 +3,8 @@
  * FINAL (Year-resolved, schema-correct, UX-polished + PDF downloads)
  */
 
-const BASE = "https://omdas11.github.io/examarchive-v2";
-const PAPERS_URL = `${BASE}/data/papers.json`;
+// Use relative path to work with custom domain
+const PAPERS_URL = "data/papers.json";
 
 const params = new URLSearchParams(window.location.search);
 const CODE = params.get("code");
@@ -29,14 +29,19 @@ async function resolvePaperData(type, paper) {
   const subject = paper.subject.toLowerCase();
 
   const basePath =
-    `${BASE}/data/${type}/${universitySlug}/${programme}/${subject}/`;
+    `data/${type}/${universitySlug}/${programme}/${subject}/`;
 
   for (const code of paper.paper_codes) {
     try {
       const res = await fetch(`${basePath}${code}.json`);
-      if (res.ok) return { status: "found", data: await res.json() };
+      if (res.ok) {
+        const data = await res.json();
+        console.log(`✅ Loaded ${type} data for ${code}`);
+        return { status: "found", data };
+      }
     } catch {}
   }
+  console.log(`ℹ️ No ${type} found for codes: ${paper.paper_codes.join(", ")}`);
   return { status: "not_found" };
 }
 
@@ -160,8 +165,8 @@ function setupSyllabusDownloads(paperCode) {
 
   if (!toggle || !menu || !paragraph || !list) return;
 
-  paragraph.href = `${BASE}/assets/pdfs/syllabus/${paperCode}-paragraph.pdf`;
-  list.href = `${BASE}/assets/pdfs/syllabus/${paperCode}-list.pdf`;
+  paragraph.href = `assets/pdfs/syllabus/${paperCode}-paragraph.pdf`;
+  list.href = `assets/pdfs/syllabus/${paperCode}-list.pdf`;
 
   toggle.onclick = e => {
     e.stopPropagation();
