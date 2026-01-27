@@ -2,17 +2,20 @@
 // Supabase Init
 // ===============================
 const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppZ2VvZmZ0cmhoeXZuanBwdHh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU0NzY5ODMsImV4cCI6MjA1MTA1Mjk4M30.CvnyoKEI2PZ6I3RHR4Shyw_lIMB8NdN";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppZ2VvZmZ0cmhoeXZuanBwdHh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzMjUxMTYsImV4cCI6MjA1MTkwMTExNn0.CvnyoKEI2PZ6I3RHR4Shyw_lIMB8NdN";
 
 // Ensure supabase library is loaded
 if (!window.supabase) {
-  console.error("Supabase library not loaded. Please ensure the CDN script is loaded first.");
+  console.error("❌ Supabase library not loaded. Please ensure the CDN script is loaded first.");
+  throw new Error("Supabase library not available");
 }
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
+
+console.log("✅ Supabase client initialized successfully");
 
 // ===============================
 // Helpers
