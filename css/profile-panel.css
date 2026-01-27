@@ -71,10 +71,25 @@
 
   font-size: 1.4rem;
   font-weight: 700;
-  color: #5b2ecc;
+  color: var(--avatar-text, #5b2ecc);
 
-  background: radial-gradient(circle at top, #f2efff, #e6e1ff);
-  border: 4px solid #23a455;
+  background: var(--avatar-bg, radial-gradient(circle at top, #f2efff, #e6e1ff));
+  border: 4px solid var(--avatar-ring, #23a455);
+}
+
+/* Display initials from data attribute */
+.profile-avatar[data-initials]:not([data-avatar]):before {
+  content: attr(data-initials);
+}
+
+/* Hide initials when avatar image is present */
+.profile-avatar[data-avatar]:not([data-avatar=""]) {
+  background-size: cover;
+  background-position: center;
+}
+
+.profile-avatar[data-avatar]:not([data-avatar=""]):before {
+  content: none;
 }
 
 .profile-name {
