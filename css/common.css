@@ -291,6 +291,64 @@ p {
   transform: scale(0.97);
 }
 
+/* Glass/Glassmorphism button variant */
+.btn.btn-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text);
+}
+
+[data-theme="light"] .btn.btn-glass {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.btn.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="light"] .btn.btn-glass:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.btn.btn-glass:active {
+  transform: scale(0.97);
+}
+
+/* Outline danger button variant */
+.btn.btn-outline-danger {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+}
+
+.btn.btn-outline-danger:hover {
+  background: rgba(211, 47, 47, 0.1);
+}
+
+.btn.btn-outline-danger:active {
+  transform: scale(0.97);
+}
+
+/* Outline button variant */
+.btn.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn.btn-outline:hover {
+  background: var(--bg-soft);
+}
+
+.btn.btn-outline:active {
+  transform: scale(0.97);
+}
+
 /* ================================
    MEDIA QUERIES
    ================================ */
