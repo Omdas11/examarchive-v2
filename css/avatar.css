@@ -96,7 +96,7 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .avatar {
     width: 32px;
     height: 32px;

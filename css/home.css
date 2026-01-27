@@ -283,7 +283,7 @@
 }
 
 /* ---------- MOBILE OPTIMIZATIONS ---------- */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .hero h1 {
     font-size: 1.75rem;
   }

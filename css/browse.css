@@ -365,7 +365,7 @@
 }
 
 /* ---------- Mobile Optimizations ---------- */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .browse-page {
     padding: 1rem 0.75rem 1.5rem;
   }
