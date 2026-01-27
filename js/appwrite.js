@@ -1,7 +1,7 @@
 // ===============================
 // Appwrite Client Configuration
 // ===============================
-const APPWRITE_ENDPOINT = "https://cloud.appwrite.io/v1";
+const APPWRITE_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 const APPWRITE_PROJECT_ID = "6978b0e3000761212146";
 
 // Initialize Appwrite SDK
