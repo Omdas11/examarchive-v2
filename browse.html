@@ -13,49 +13,56 @@
   <link rel="stylesheet" href="css/footer.css">
   <link rel="stylesheet" href="css/profile-panel.css">
   <link rel="stylesheet" href="css/browse.css">
+
+  <!-- Accessibility and SEO -->
+  <meta name="description" content="Browse and search university question papers by subject, year, and program." />
+  <meta name="theme-color" content="#d32f2f" />
 </head>
 <body>
+
+  <!-- Skip to content link for accessibility -->
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
 
   <!-- Header -->
   <div id="night-layer"></div>
   <div id="header"></div>
 
-  <main class="browse-page">
+  <main class="browse-page" id="main-content">
 
     <!-- Title -->
-    <section class="browse-header">
-      <h1>Browse Question Papers</h1>
+    <section class="browse-header" aria-labelledby="browse-heading">
+      <h1 id="browse-heading">Browse Question Papers</h1>
       <p>Search and filter previous year question papers.</p>
-      <p class="paper-count" id="paperCount">Loading papers…</p>
+      <p class="paper-count" id="paperCount" role="status" aria-live="polite">Loading papers…</p>
     </section>
 
     <!-- Programme Toggle -->
-    <section class="filter-group">
-      <div class="toggle-row" id="programmeToggle">
-        <button class="toggle-btn active" data-programme="ALL">ALL</button>
-        <button class="toggle-btn" data-programme="CBCS">CBCS</button>
-        <button class="toggle-btn" data-programme="FYUG">FYUG</button>
+    <section class="filter-group" aria-label="Filter by program">
+      <div class="toggle-row" id="programmeToggle" role="group" aria-label="Programme filter">
+        <button class="toggle-btn active" data-programme="ALL" aria-pressed="true">ALL</button>
+        <button class="toggle-btn" data-programme="CBCS" aria-pressed="false">CBCS</button>
+        <button class="toggle-btn" data-programme="FYUG" aria-pressed="false">FYUG</button>
       </div>
     </section>
 
     <!-- Stream Toggle -->
-    <section class="filter-group">
-      <div class="toggle-row" id="streamToggle">
-        <button class="toggle-btn active" data-stream="Science">SCIENCE</button>
-        <button class="toggle-btn" data-stream="Arts">ARTS</button>
-        <button class="toggle-btn" data-stream="Commerce">COMMERCE</button>
+    <section class="filter-group" aria-label="Filter by stream">
+      <div class="toggle-row" id="streamToggle" role="group" aria-label="Stream filter">
+        <button class="toggle-btn active" data-stream="Science" aria-pressed="true">SCIENCE</button>
+        <button class="toggle-btn" data-stream="Arts" aria-pressed="false">ARTS</button>
+        <button class="toggle-btn" data-stream="Commerce" aria-pressed="false">COMMERCE</button>
       </div>
     </section>
 
     <!-- Year Filter -->
-    <section class="filter-group">
-      <div class="toggle-row" id="yearToggle">
+    <section class="filter-group" aria-label="Filter by year">
+      <div class="toggle-row" id="yearToggle" role="group" aria-label="Year filter">
         <!-- Year buttons injected by JS -->
       </div>
     </section>
 
     <!-- Search + Sort -->
-    <section class="browse-search sort-search-row">
+    <section class="browse-search sort-search-row" aria-label="Search and sort">
       <input
         type="text"
         id="searchInput"
@@ -68,6 +75,7 @@
         id="sortTrigger"
         aria-haspopup="dialog"
         aria-expanded="false"
+        aria-label="Open sort options"
       >
         <span class="sort-label">Sort:</span>
         <span class="sort-value" id="currentSort">Year (Newest)</span>
@@ -75,10 +83,10 @@
     </section>
 
     <!-- Papers -->
-    <section class="papers-list" id="papersList">
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
+    <section class="papers-list" id="papersList" aria-label="Question papers" role="region" aria-live="polite">
+      <div class="skeleton skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton skeleton-card" aria-hidden="true"></div>
     </section>
 
   </main>
