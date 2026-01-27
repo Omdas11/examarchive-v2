@@ -185,7 +185,6 @@
         setLoading(true, "Redirecting to GitHub…");
         showMessage("Redirecting to GitHub...");
 
-        await waitForAppwrite();
         await window.AppwriteAuth.loginWithGitHub();
 
       } catch (err) {
