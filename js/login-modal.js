@@ -22,7 +22,10 @@
       if (!openBtn) return;
 
       e.preventDefault();
-      modal.setAttribute("aria-hidden", "false");
+      
+      if (modal) {
+        modal.setAttribute("aria-hidden", "false");
+      }
       
       // Focus the GitHub button for accessibility
       setTimeout(() => {
