@@ -77,6 +77,24 @@
     </div>
   </main>
 
+  <!-- Mobile toast -->
+  <div id="loginAlert" role="alert" aria-live="polite" style="
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    max-width: 90%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    z-index: 99999;
+    text-align: center;
+  "></div>
+
   <!-- Footer -->
   <div id="footer"></div>
 
@@ -87,6 +105,15 @@
 
   <!-- Login logic -->
   <script>
+    const toast = document.getElementById("loginAlert");
+
+    function showToast(message, type = "info") {
+      toast.textContent = message;
+      toast.style.display = "block";
+      toast.style.color = type === "error" ? "var(--red)" : "var(--text-muted)";
+      toast.style.borderColor = type === "error" ? "var(--red)" : "var(--border)";
+    }
+
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -107,9 +134,11 @@
       if (error) {
         msg.textContent = error.message;
         msg.style.color = "var(--red)";
+        showToast(error.message, "error");
       } else {
         msg.textContent = "Check your email for the login link ✉️";
         msg.style.color = "var(--text-muted)";
+        showToast("Check your email for the login link ✉️");
       }
     });
   </script>
