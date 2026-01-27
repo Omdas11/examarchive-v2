@@ -29,7 +29,7 @@ async function resolvePaperData(type, paper) {
   const subject = paper.subject.toLowerCase();
 
   const basePath =
-    `/examarchive-v2/data/${type}/${universitySlug}/${programme}/${subject}/`;
+    `${BASE}/data/${type}/${universitySlug}/${programme}/${subject}/`;
 
   for (const code of paper.paper_codes) {
     try {

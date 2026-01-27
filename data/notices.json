@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "title": "Academic Session 2024-25 Time Table Released",
+    "date": "2024-12-15",
+    "category": "academic",
+    "priority": "high",
+    "pdf": "https://www.aus.ac.in/uploads/notifications/time-table-2024.pdf",
+    "description": "Complete time table for all programmes has been published."
+  },
+  {
+    "id": 2,
+    "title": "Examination Schedule - Semester End 2024",
+    "date": "2024-11-20",
+    "category": "examination",
+    "priority": "high",
+    "pdf": "https://www.aus.ac.in/uploads/notifications/exam-schedule.pdf",
+    "description": "Final examination schedule for all streams."
+  },
+  {
+    "id": 3,
+    "title": "Holiday List 2025",
+    "date": "2025-01-01",
+    "category": "general",
+    "priority": "medium",
+    "pdf": "https://www.aus.ac.in/uploads/notifications/holiday-list-2025.pdf",
+    "description": "Official holiday calendar for the year 2025."
+  }
+]

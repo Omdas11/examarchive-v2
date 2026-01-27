@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "title": "Republic Day",
+    "date": "2026-01-26",
+    "type": "holiday",
+    "description": "National Holiday"
+  },
+  {
+    "id": 2,
+    "title": "Semester Registration Begins",
+    "date": "2026-02-01",
+    "type": "academic",
+    "description": "Spring semester registration opens"
+  },
+  {
+    "id": 3,
+    "title": "Mid-Semester Examinations",
+    "date": "2026-03-15",
+    "type": "examination",
+    "description": "Mid-term exams for all programmes"
+  },
+  {
+    "id": 4,
+    "title": "Holi",
+    "date": "2026-03-25",
+    "type": "holiday",
+    "description": "Festival Holiday"
+  },
+  {
+    "id": 5,
+    "title": "Last Day of Classes",
+    "date": "2026-04-30",
+    "type": "academic",
+    "description": "Spring semester classes end"
+  },
+  {
+    "id": 6,
+    "title": "Final Examinations Begin",
+    "date": "2026-05-10",
+    "type": "examination",
+    "description": "Semester end examinations"
+  }
+]

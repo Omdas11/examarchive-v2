@@ -257,14 +257,168 @@
   line-height: 1.6;
   min-height: 60px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 
 .notice-empty,
 .calendar-empty {
   font-style: italic;
   opacity: 0.8;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Notice Items */
+.notice-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.notice-item:hover {
+  border-color: var(--red);
+}
+
+.notice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.notice-header.priority-high .notice-title {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.notice-title {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.notice-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.notice-description {
+  color: var(--text-muted);
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+.notice-link {
+  display: inline-block;
+  color: var(--red);
+  font-weight: 500;
+  font-size: 0.85rem;
+  text-decoration: none;
+  margin-top: 0.5rem;
+}
+
+.notice-link:hover {
+  text-decoration: underline;
+}
+
+/* Calendar Events */
+.calendar-events {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding-right: 0.5rem;
+}
+
+.calendar-events::-webkit-scrollbar {
+  width: 6px;
+}
+
+.calendar-events::-webkit-scrollbar-track {
+  background: var(--bg-soft);
+  border-radius: 3px;
+}
+
+.calendar-events::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.calendar-events::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+.calendar-event {
+  display: flex;
+  gap: 1rem;
+  padding: 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: var(--radius-sm);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.calendar-event:hover {
+  transform: translateX(4px);
+  border-left-color: var(--red);
+}
+
+.calendar-event.event-holiday {
+  border-left-color: #10b981;
+}
+
+.calendar-event.event-examination {
+  border-left-color: #f59e0b;
+}
+
+.event-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  padding: 0.5rem;
+  background: var(--bg-soft);
+  border-radius: var(--radius-sm);
+}
+
+.event-day {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.event-month {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+}
+
+.event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.event-title {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.event-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 /* ---------- DESKTOP ENHANCEMENTS ---------- */
