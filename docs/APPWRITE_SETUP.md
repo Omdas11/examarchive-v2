@@ -13,35 +13,50 @@ This guide explains how to configure Appwrite authentication for ExamArchive.
 2. Create a new project or select an existing one
 3. Note your **Project ID** from the Settings page
 
-## Step 2: Configure GitHub OAuth
+## Step 2: Configure GitHub OAuth and Platforms
+
+### Add Platforms in Appwrite
 
 1. In your Appwrite project, go to **Auth** → **Settings**
 2. Click **Add Platform** → **Web**
-3. Add your domain (e.g., `https://yourdomain.com` or `http://localhost:8000` for local testing)
-4. Go to **Auth** → **Providers** and enable **GitHub**
-5. Create a GitHub OAuth App:
+3. Add the following platforms:
+   - **Production**: `https://omdas11.github.io/examarchive-v2`
+   - **Local Development**: `http://localhost:8000` or `http://localhost:8080`
+   - **Custom Domain** (if using): `https://examarchive.dev`
+
+### Configure GitHub OAuth Provider
+
+1. Go to **Auth** → **Providers** and enable **GitHub**
+2. Create a GitHub OAuth App:
    - Go to GitHub Settings → Developer settings → OAuth Apps
-   - Create a new OAuth App
-   - Set **Authorization callback URL** to your Appwrite endpoint + `/v1/account/sessions/oauth2/callback/github/YOUR_PROJECT_ID`
-   - Example: `https://cloud.appwrite.io/v1/account/sessions/oauth2/callback/github/YOUR_PROJECT_ID`
-6. Copy the **Client ID** and **Client Secret** from GitHub
-7. Paste them into Appwrite's GitHub provider settings
+   - Create a new OAuth App with these settings:
+     - **Homepage URL**: `https://omdas11.github.io/examarchive-v2`
+     - **Authorization callback URL**: `https://sgp.cloud.appwrite.io/v1/account/sessions/oauth2/callback/github/6978b0e3000761212146`
+3. Copy the **Client ID** and **Client Secret** from GitHub
+4. Paste them into Appwrite's GitHub provider settings
 
-## Step 3: Update ExamArchive Configuration
+**Note**: The code automatically handles different environments:
+- GitHub Pages: Uses `https://omdas11.github.io/examarchive-v2`
+- localhost: Uses `http://localhost:[port]`
+- examarchive.dev: Uses `https://examarchive.dev`
 
-1. Open `js/appwrite.js`
-2. Replace `YOUR_PROJECT_ID` with your actual Appwrite project ID:
-   ```javascript
-   const APPWRITE_PROJECT_ID = "your-actual-project-id";
-   ```
+## Step 3: Verify Configuration
+
+The project is already configured with:
+- **Project ID**: `6978b0e3000761212146`
+- **Endpoint**: `https://sgp.cloud.appwrite.io/v1`
+- **OAuth Provider**: GitHub
+
+The code in `js/appwrite.js` automatically detects the environment and uses the correct redirect URL.
 
 ## Step 4: Test Authentication
 
-1. Open your ExamArchive site
-2. Click the avatar or Login button
-3. Click "Continue with GitHub"
-4. Authorize the application
-5. You should be redirected back and logged in
+1. Open your ExamArchive site at one of the configured URLs:
+   - **Production**: https://omdas11.github.io/examarchive-v2/login.html
+   - **Local**: http://localhost:8000/login.html
+2. Click "Continue with GitHub" button
+3. Authorize the application on GitHub
+4. You should be redirected back to the home page and see your avatar
 
 ## Features
 
