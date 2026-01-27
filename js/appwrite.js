@@ -4,6 +4,20 @@
 const APPWRITE_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 const APPWRITE_PROJECT_ID = "6978b0e3000761212146";
 
+// Determine the correct redirect URL based on hostname
+const PRODUCTION_URL = "https://omdas11.github.io/examarchive-v2";
+const getRedirectURL = () => {
+  const hostname = window.location.hostname;
+  
+  // Use production URL for GitHub Pages
+  if (hostname === "omdas11.github.io") {
+    return PRODUCTION_URL;
+  }
+  
+  // Use current origin for local dev and examarchive.dev
+  return window.location.origin;
+};
+
 // Initialize Appwrite SDK
 if (!window.Appwrite) {
   console.error("❌ Appwrite SDK not loaded. Please ensure the CDN script is loaded first.");
@@ -31,11 +45,13 @@ console.log("✅ Appwrite client initialized successfully");
  */
 async function loginWithGitHub() {
   try {
+    const redirectURL = getRedirectURL();
+    
     // Redirect to GitHub OAuth
     account.createOAuth2Session(
       'github',
-      window.location.origin + '/', // Success redirect
-      window.location.origin + '/login.html' // Failure redirect
+      redirectURL + '/', // Success redirect
+      redirectURL + '/login.html' // Failure redirect
     );
   } catch (error) {
     console.error("GitHub login error:", error);
