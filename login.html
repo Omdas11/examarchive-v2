@@ -64,8 +64,9 @@
             font-weight: 600;
             font-size: 0.95rem;
           "
+          disabled
         >
-          Continue
+          Loading…
         </button>
       </form>
 
@@ -125,65 +126,77 @@
   <script>
     const form = document.getElementById("loginForm");
     const emailInput = document.getElementById("loginEmail");
-    const submitBtn = form.querySelector('button[type="submit"]');
+    const submitBtn = form.querySelector("button");
     const msg = document.getElementById("loginMsg");
     const toast = document.getElementById("loginAlert");
-    
-    let toastTimer = null; // Track toast timeout to prevent leaks
+
+    let toastTimer = null;
 
     function showMessage(text, isError = false) {
       msg.style.display = "block";
       msg.textContent = text;
       msg.style.color = isError ? "var(--red)" : "var(--text-muted)";
-      
-      // Also show toast for better mobile visibility
+
       toast.textContent = text;
       toast.style.display = "block";
       toast.style.color = isError ? "var(--red)" : "var(--text)";
       toast.style.borderColor = isError ? "var(--red)" : "var(--border)";
-      
-      // Clear previous timer to prevent memory leaks
-      if (toastTimer) {
-        clearTimeout(toastTimer);
-      }
-      
-      // Auto-hide toast after 5 seconds
+
+      if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.style.display = "none";
-        toastTimer = null;
       }, 5000);
     }
 
-    function setLoading(loading) {
-      submitBtn.disabled = loading;
-      submitBtn.textContent = loading ? "Sending..." : "Continue";
-      submitBtn.style.opacity = loading ? "0.6" : "1";
-      submitBtn.style.cursor = loading ? "not-allowed" : "pointer";
-      emailInput.disabled = loading;
+    function setLoading(state) {
+      submitBtn.disabled = state;
+      submitBtn.textContent = state ? "Sending…" : "Continue";
+      submitBtn.style.opacity = state ? "0.6" : "1";
+      emailInput.disabled = state;
     }
+
+    // 🔑 WAIT FOR SUPABASE (FIXES THE BUG)
+    function waitForSupabase(timeout = 5000) {
+      return new Promise((resolve, reject) => {
+        const start = Date.now();
+        const timer = setInterval(() => {
+          if (window.supabase && window.supabase.auth) {
+            clearInterval(timer);
+            resolve();
+          } else if (Date.now() - start > timeout) {
+            clearInterval(timer);
+            reject(new Error("Supabase not loaded"));
+          }
+        }, 50);
+      });
+    }
+
+    // Enable form only after Supabase is ready
+    waitForSupabase()
+      .then(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Continue";
+      })
+      .catch(() => {
+        showMessage("Auth service failed to load. Please refresh.", true);
+      });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const email = emailInput.value.trim();
-
       if (!email) {
         showMessage("Please enter your email.", true);
         return;
       }
 
-      // Check if supabase is available
-      if (!window.supabase || !window.supabase.auth) {
-        console.error("Supabase client not available");
-        showMessage("Authentication service not ready. Please refresh the page.", true);
-        return;
-      }
-
       setLoading(true);
-      showMessage("Sending login link...");
+      showMessage("Sending login link…");
 
       try {
-        const { data, error } = await window.supabase.auth.signInWithOtp({
+        await waitForSupabase();
+
+        const { error } = await window.supabase.auth.signInWithOtp({
           email,
           options: {
             emailRedirectTo: window.location.origin
@@ -191,17 +204,15 @@
         });
 
         if (error) {
-          console.error("Supabase auth error:", error);
-          showMessage(error.message || "Authentication failed. Please try again.", true);
+          console.error(error);
+          showMessage(error.message, true);
           setLoading(false);
         } else {
-          console.log("OTP sent successfully:", data);
           showMessage("✉️ Check your email for the login link!");
-          // Keep button disabled after success to prevent duplicate sends
         }
       } catch (err) {
-        console.error("Network error during auth:", err);
-        showMessage("Network error: " + (err.message || "Please try again."), true);
+        console.error(err);
+        showMessage("Authentication failed. Please try again.", true);
         setLoading(false);
       }
     });
