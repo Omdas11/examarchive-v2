@@ -123,9 +123,13 @@ function startAutoScroll(container) {
   const pauseDuration = 3000; // pause at top/bottom
   let isPaused = false;
   let direction = 1; // 1 for down, -1 for up
+  let animationId = null;
   
   function scroll() {
-    if (isPaused) return;
+    if (isPaused) {
+      animationId = requestAnimationFrame(scroll);
+      return;
+    }
     
     scrollPosition += scrollSpeed * direction;
     container.scrollTop = scrollPosition;
@@ -143,6 +147,8 @@ function startAutoScroll(container) {
       direction = 1;
       setTimeout(() => isPaused = false, pauseDuration);
     }
+    
+    animationId = requestAnimationFrame(scroll);
   }
   
   // Pause on hover
@@ -150,7 +156,12 @@ function startAutoScroll(container) {
   container.addEventListener('mouseleave', () => isPaused = false);
   
   // Start scrolling
-  setInterval(scroll, 1000 / 60); // 60 FPS
+  animationId = requestAnimationFrame(scroll);
+  
+  // Return cleanup function
+  return () => {
+    if (animationId) cancelAnimationFrame(animationId);
+  };
 }
 
 /* ================= UTILITIES ================= */
