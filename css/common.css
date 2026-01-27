@@ -1,39 +1,32 @@
 /* ================================
    ExamArchive – common.css
-   Global foundation styles
+   Global foundation styles (STABLE)
    ================================ */
 
 /* ================================
    THEME TOKENS (DEFAULT: LIGHT)
    ================================ */
 :root {
-  /* Accent */
   --red: #d32f2f;
   --red-soft: #fdeaea;
 
-  /* Surfaces */
   --bg: #ffffff;
   --bg-soft: #f7f7f7;
   --surface: #ffffff;
 
-  /* Text */
   --text: #111111;
   --text-muted: #666666;
 
-  /* Border & shadow */
   --border: #e0e0e0;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
   --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
 
-  /* Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
 
-  /* Layout */
   --max-width: 1100px;
 
-  /* Night mode (filter-based) */
   --night-filter-strength: 0;
 }
 
@@ -74,13 +67,12 @@ body[data-theme="amoled"] {
 }
 
 /* ================================
-   NIGHT MODE – FILTER (GLOBAL)
+   NIGHT MODE – FILTER (SAFE)
    ================================ */
 body {
   filter: none;
 }
 
-/* Strong, visible night warmth */
 body[data-night="on"] {
   filter:
     sepia(calc(0.6 * var(--night-filter-strength)))
@@ -89,23 +81,18 @@ body[data-night="on"] {
     hue-rotate(-12deg);
 }
 
-/* ================================
-   NIGHT MODE – BACKGROUND SUPPORT
-   ================================ */
-
-/* Light theme needs darker base at night */
+/* Background fix for night */
 body[data-theme="light"][data-night="on"] {
   background-color: #f3efe6;
 }
 
-/* Dark & AMOLED already correct */
 body[data-theme="dark"][data-night="on"],
 body[data-theme="amoled"][data-night="on"] {
   background-color: var(--bg);
 }
 
 /* ================================
-   NIGHT LAYER (FIX)
+   NIGHT LAYER (NON-INTRUSIVE)
    ================================ */
 #night-layer {
   position: fixed;
@@ -116,7 +103,7 @@ body[data-theme="amoled"][data-night="on"] {
 }
 
 /* ================================
-   RESET
+   RESET (HORIZONTAL SAFETY)
    ================================ */
 *,
 *::before,
@@ -126,12 +113,14 @@ body[data-theme="amoled"][data-night="on"] {
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden; /* 🔥 critical */
 }
 
 html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
+  overflow-x: hidden; /* 🔥 fixes mobile right-gap */
 }
 
 /* ================================
@@ -161,15 +150,6 @@ a {
   transition: color 0.2s ease;
 }
 
-a:focus {
-  outline: 2px solid var(--red);
-  outline-offset: 2px;
-}
-
-a:focus:not(:focus-visible) {
-  outline: none;
-}
-
 a:focus-visible {
   outline: 2px solid var(--red);
   outline-offset: 2px;
@@ -189,11 +169,10 @@ a:focus-visible {
   margin: 1.5rem 0;
 }
 
-/* Page wrapper for consistent spacing */
 .page {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1.2rem 1rem 2rem;
+  padding: 1.25rem 1rem 2rem;
   min-height: calc(100vh - 200px);
 }
 
@@ -226,7 +205,6 @@ p {
   box-shadow: var(--shadow-md);
 }
 
-/* Card spacing */
 .card + .card {
   margin-top: 1rem;
 }
@@ -247,10 +225,11 @@ p {
 .gap-lg { gap: 1.5rem; }
 
 .full-width { width: 100%; }
-
 .text-center { text-align: center; }
 
-/* Visually hidden but accessible */
+/* ================================
+   ACCESSIBILITY
+   ================================ */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -260,34 +239,24 @@ p {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
-  border-width: 0;
 }
 
-/* Skip to content link - visible on focus */
 .sr-only-focusable:focus {
   position: fixed;
   top: 1rem;
   left: 1rem;
   z-index: 10000;
-  width: auto;
-  height: auto;
   padding: 0.75rem 1rem;
-  margin: 0;
-  overflow: visible;
-  clip: auto;
-  white-space: normal;
   background: var(--red);
   color: #fff;
   border-radius: var(--radius-sm);
   font-weight: 600;
-  text-decoration: none;
   box-shadow: var(--shadow-md);
 }
 
-/* =================================================
-   PRIMARY BUTTON — FINAL, CANONICAL
-   ================================================= */
-
+/* ================================
+   BUTTONS (CANONICAL)
+   ================================ */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -300,20 +269,11 @@ p {
   color: var(--text);
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .btn:hover {
   background: var(--bg-soft);
-}
-
-.btn:focus {
-  outline: 2px solid var(--red);
-  outline-offset: 2px;
-}
-
-.btn:focus:not(:focus-visible) {
-  outline: none;
 }
 
 .btn:focus-visible {
@@ -321,24 +281,10 @@ p {
   outline-offset: 2px;
 }
 
-/* ---- Red Primary Button ---- */
 .btn.btn-red {
   background: var(--red);
   color: #fff;
   border-color: var(--red);
-}
-
-.btn.btn-red:hover,
-.btn.btn-red:focus,
-.btn.btn-red:active {
-  background: var(--red);
-  color: #fff;
-  border-color: var(--red);
-}
-
-/* Mobile polish */
-.btn.btn-red {
-  -webkit-tap-highlight-color: transparent;
 }
 
 .btn.btn-red:active {
@@ -353,15 +299,9 @@ p {
     padding: 0.75rem;
   }
 
-  h1 {
-    font-size: 1.5rem;
-  }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
 
-  h2 {
-    font-size: 1.25rem;
-  }
-
-  /* Improve touch targets on mobile */
   .btn,
   button,
   a[role="button"] {
@@ -370,23 +310,9 @@ p {
   }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  /* Tablet-specific styles */
-  .container {
-    padding: 1rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  /* Desktop enhancements */
-  .container {
-    padding: 1.5rem;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
     animation: none !important;
   }
-}
+   }
