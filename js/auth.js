@@ -4,13 +4,6 @@
 const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CvnyoKEI2PZ6I3RHR4Shyw_lIMB8NdN";
 
-// Safety check (prevents silent failure)
-if (!window.supabase) {
-  console.error("Supabase CDN not loaded");
-} else {
-  console.log("Supabase loaded");
-}
-
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
@@ -27,8 +20,33 @@ function getInitials(email) {
 function setAvatar(user) {
   const avatar = document.querySelector(".avatar-mini");
   if (!avatar) return;
-
   avatar.textContent = getInitials(user.email);
+}
+
+/**
+ * 🔥 SINGLE SOURCE OF TRUTH
+ * Applies auth state to the UI
+ */
+function applyAuthState(user) {
+  const isLoggedIn = !!user;
+
+  // Body flag (you already use this pattern)
+  document.body.classList.toggle("logged-in", isLoggedIn);
+
+  // Toggle data-auth-only elements
+  document.querySelectorAll("[data-auth-only]").forEach(el => {
+    const wants = el.getAttribute("data-auth-only"); // user | guest
+    const show =
+      (wants === "user" && isLoggedIn) ||
+      (wants === "guest" && !isLoggedIn);
+
+    el.hidden = !show;
+  });
+
+  // Update avatar
+  if (isLoggedIn) {
+    setAvatar(user);
+  }
 }
 
 // ===============================
@@ -36,22 +54,14 @@ function setAvatar(user) {
 // ===============================
 (async () => {
   const { data } = await supabase.auth.getSession();
-  if (data.session?.user) {
-    setAvatar(data.session.user);
-    document.body.classList.add("logged-in");
-  }
+  applyAuthState(data.session?.user || null);
 })();
 
 // ===============================
-// Auth State Change
+// Auth State Listener
 // ===============================
 supabase.auth.onAuthStateChange((_event, session) => {
-  if (session?.user) {
-    setAvatar(session.user);
-    document.body.classList.add("logged-in");
-  } else {
-    document.body.classList.remove("logged-in");
-  }
+  applyAuthState(session?.user || null);
 });
 
 // ===============================
