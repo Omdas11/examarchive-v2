@@ -69,27 +69,36 @@ async function initAuthState() {
   applyAuthState(data.session?.user || null);
 }
 
-// Wait for both header and profile-panel partials to load
+// Wait for required partials based on what's on the page
 let headerLoaded = false;
 let profilePanelLoaded = false;
 
+// Check if profile panel portal exists on this page
+const hasProfilePanel = !!document.getElementById("profile-panel-portal");
+
 document.addEventListener("header:loaded", () => {
   headerLoaded = true;
-  if (profilePanelLoaded) initAuthState();
+  // If no profile panel on page, or both loaded, init auth
+  if (!hasProfilePanel || profilePanelLoaded) {
+    initAuthState();
+  }
 });
 
 document.addEventListener("profile-panel:loaded", () => {
   profilePanelLoaded = true;
-  if (headerLoaded) initAuthState();
+  // Both are now loaded, init auth
+  if (headerLoaded) {
+    initAuthState();
+  }
 });
 
-// Fallback: if partials don't load within 3 seconds, init anyway
+// Fallback: if partials don't load within 2 seconds, init anyway
 setTimeout(() => {
-  if (!headerLoaded || !profilePanelLoaded) {
+  if (!headerLoaded || (hasProfilePanel && !profilePanelLoaded)) {
     console.warn("Auth init fallback triggered");
     initAuthState();
   }
-}, 3000);
+}, 2000);
 
 // ===============================
 // Auth Listener
