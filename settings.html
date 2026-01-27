@@ -11,6 +11,9 @@
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/footer.css">
   <link rel="stylesheet" href="css/profile-panel.css">
+  <link rel="stylesheet" href="css/avatar-popup.css">
+  <link rel="stylesheet" href="css/avatar.css">
+  <link rel="stylesheet" href="css/login-modal.css">
 
   <!-- Page-specific CSS -->
   <link rel="stylesheet" href="css/settings.css">
@@ -30,69 +33,8 @@
   <main class="settings" id="main-content">
     <h1>Settings</h1>
 
-    <!-- ================= APPEARANCE ================= -->
-    <section class="settings-card">
-      <h2>Appearance</h2>
-
-      <!-- Theme -->
-      <div class="setting-group">
-        <p class="setting-label">Theme</p>
-
-        <div class="theme-options">
-          <button class="settings-theme-btn" data-theme="light" type="button">
-            Light
-          </button>
-
-          <button class="settings-theme-btn" data-theme="dark" type="button">
-            Dark
-          </button>
-
-          <button class="settings-theme-btn" data-theme="amoled" type="button">
-            AMOLED
-          </button>
-        </div>
-      </div>
-
-      <!-- Night mode -->
-      <div class="setting-group">
-        <p class="setting-label">Eye comfort</p>
-
-        <button
-          class="settings-night-btn"
-          data-night="toggle"
-          type="button">
-          Night mode
-        </button>
-      </div>
-
-      <div class="night-strength">
-        <label for="nightRange" class="text-muted">Warmth</label>
-        <input
-          type="range"
-          id="nightRange"
-          min="0"
-          max="60"
-          step="1"
-          value="8"
-        />
-      </div>
-    </section>
-
-    <!-- ================= FUTURE SETTINGS (PLACEHOLDER) ================= -->
-    <section class="settings-card">
-      <h2>Account & Privacy</h2>
-
-      <p class="text-muted">
-        More account-related settings will appear here in future updates.
-      </p>
-
-      <!-- visual skeleton (no logic) -->
-      <div class="card" style="opacity:0.5">
-        <p class="text-muted">• Profile preferences</p>
-        <p class="text-muted">• Contribution visibility</p>
-        <p class="text-muted">• Security & sessions</p>
-      </div>
-    </section>
+    <!-- Settings will be dynamically rendered here -->
+    <div id="settings-container"></div>
 
   </main>
 
@@ -102,13 +44,15 @@
   <!-- ✅ GLOBAL PORTALS (MUST EXIST BEFORE JS) -->
   <div id="avatar-portal"></div>
   <div id="profile-panel-portal"></div>
+  <div id="login-modal-portal"></div>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+  <script src="js/appwrite.js"></script>
   <script src="js/common.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/profile-panel.js" defer></script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/auth.js"></script>
+  <script src="js/login-modal.js" defer></script>
+  <script src="js/settings.js"></script>
 </body>
 </html>

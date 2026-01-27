@@ -25,6 +25,21 @@
   text-transform: uppercase;
 }
 
+/* Display initials from data attribute */
+.avatar-circle[data-initials]:not([data-avatar]):before {
+  content: attr(data-initials);
+}
+
+/* Hide initials when avatar image is present */
+.avatar-circle[data-avatar]:not([data-avatar=""]) {
+  background-size: cover;
+  background-position: center;
+}
+
+.avatar-circle[data-avatar]:not([data-avatar=""]):before {
+  content: none;
+}
+
 /* Avatar with image */
 .avatar-circle img {
   width: 100%;

@@ -98,6 +98,13 @@ loadPartial("profile-panel-portal", "partials/profile-panel.html", () => {
 });
 
 // ===============================
+// Load LOGIN MODAL
+// ===============================
+loadPartial("login-modal-portal", "partials/login-modal.html", () => {
+  document.dispatchEvent(new CustomEvent("login-modal:loaded"));
+});
+
+// ===============================
 // Highlight active nav link
 // ===============================
 function highlightActiveNav() {
