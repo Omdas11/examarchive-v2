@@ -18,24 +18,178 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.settings-card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.settings-card > .text-muted {
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 /* ================================
    Groups
    ================================ */
 
-.setting-group + .setting-group {
-  margin-top: 1.4rem;
+.setting-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-group:last-child {
+  border-bottom: none;
+}
+
+.setting-label-container {
+  flex: 1;
 }
 
 .setting-label {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  margin: 0 0 0.25rem 0;
+  font-weight: 500;
+}
+
+.setting-description {
+  font-size: 0.8rem;
   color: var(--text-muted);
-  margin-bottom: 0.6rem;
+  margin: 0;
 }
 
 /* ================================
-   Theme Options (Pills)
+   Controls
+   ================================ */
+
+/* Toggle Switch */
+.setting-toggle {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.setting-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border);
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.setting-toggle input:checked + .toggle-slider {
+  background-color: var(--red);
+}
+
+.setting-toggle input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+/* Select */
+.setting-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+/* Text Input */
+.setting-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.setting-input:focus {
+  outline: none;
+  border-color: var(--red);
+}
+
+/* Range Slider */
+.setting-range-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 180px;
+}
+
+.setting-range {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.setting-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--red);
+  cursor: pointer;
+}
+
+.setting-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--red);
+  cursor: pointer;
+  border: none;
+}
+
+.range-value {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  min-width: 30px;
+  text-align: right;
+}
+
+/* ================================
+   Theme Options (Pills) - Legacy Support
    ================================ */
 
 .theme-options {
@@ -44,36 +198,27 @@
   flex-wrap: wrap;
 }
 
-/* ⚠️ IMPORTANT:
-   DO NOT reuse `.theme-btn` from header
-*/
 .settings-theme-btn {
   padding: 0.55rem 1rem;
   font-size: 0.85rem;
   border-radius: 999px;
-
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text);
-
   cursor: pointer;
-  transition: background 0.2s ease,
-              color 0.2s ease,
-              border 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
 }
 
 .settings-theme-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-/* Active theme */
 .settings-theme-btn.active {
   background: var(--red);
   color: #fff;
   border-color: var(--red);
 }
 
-/* AMOLED polish */
 body[data-theme="amoled"] .settings-theme-btn {
   background: transparent;
   color: #ddd;
@@ -85,29 +230,24 @@ body[data-theme="amoled"] .settings-theme-btn.active {
 }
 
 /* ================================
-   Night Mode Button
+   Night Mode Button - Legacy Support
    ================================ */
 
 .settings-night-btn {
   padding: 0.55rem 1rem;
   font-size: 0.85rem;
   border-radius: 999px;
-
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text);
-
   cursor: pointer;
-  transition: background 0.2s ease,
-              color 0.2s ease,
-              border 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
 }
 
 .settings-night-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-/* Night active */
 .settings-night-btn.active {
   background: #f4c97a;
   color: #2b1b00;
@@ -115,7 +255,7 @@ body[data-theme="amoled"] .settings-theme-btn.active {
 }
 
 /* ================================
-   Night Strength Slider
+   Night Strength Slider - Legacy Support
    ================================ */
 
 .night-strength {
@@ -136,7 +276,6 @@ body[data-theme="amoled"] .settings-theme-btn.active {
    Responsive Design
    ================================ */
 
-/* Mobile */
 @media (max-width: 767px) {
   .settings {
     margin: 1rem auto;
@@ -151,21 +290,22 @@ body[data-theme="amoled"] .settings-theme-btn.active {
     padding: 1rem;
   }
 
-  .settings-theme-btn,
-  .settings-night-btn {
-    padding: 0.6rem 1.1rem;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  .setting-group {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .theme-options {
-    gap: 0.5rem;
+  .setting-input,
+  .setting-select {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .setting-range-container {
+    width: 100%;
   }
 }
 
-/* Tablet */
 @media (min-width: 768px) and (max-width: 1023px) {
   .settings {
     margin: 1.5rem auto;
@@ -176,7 +316,6 @@ body[data-theme="amoled"] .settings-theme-btn.active {
   }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
   .settings {
     margin: 2.5rem auto;
@@ -190,3 +329,17 @@ body[data-theme="amoled"] .settings-theme-btn.active {
     padding: 1.5rem;
   }
 }
+
+/* ================================
+   Accessibility
+   ================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle-slider,
+  .toggle-slider:before,
+  .settings-theme-btn,
+  .settings-night-btn {
+    transition: none;
+  }
+}
+

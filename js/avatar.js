@@ -5,7 +5,6 @@
 
 (function () {
   const popup = document.getElementById("avatar-popup");
-  const panel = document.getElementById("profile-panel");
 
   if (!popup) {
     console.warn("avatar-popup not found");
@@ -14,7 +13,7 @@
 
   document.addEventListener("click", (e) => {
     const trigger = e.target.closest("#avatarTrigger");
-    const openProfileBtn = e.target.closest("[data-open-profile]");
+    const logoutBtn = e.target.closest("#avatarLogoutBtn");
 
     // ---------------------------
     // Avatar trigger clicked
@@ -22,37 +21,32 @@
     if (trigger) {
       e.stopPropagation();
       
-      // Check if user is logged in
-      const isLoggedIn = document.body.classList.contains("logged-in");
-      
-      if (isLoggedIn) {
-        // Logged in: toggle popup
-        popup.classList.toggle("open");
-        console.log("Avatar trigger clicked (logged in)");
-      } else {
-        // Guest: redirect to login page
-        console.log("Avatar trigger clicked (guest) - redirecting to login");
-        window.location.href = "login.html";
-      }
+      // Always toggle popup (whether logged in or not)
+      popup.classList.toggle("open");
+      console.log("Avatar trigger clicked - toggling popup");
       return;
     }
 
     // ---------------------------
-    // Open expanded profile panel
+    // Logout button clicked
     // ---------------------------
-    if (openProfileBtn) {
+    if (logoutBtn) {
+      e.preventDefault();
       e.stopPropagation();
-      console.log("Open profile clicked");
+      console.log("Logout clicked");
 
-      popup.classList.remove("open");
-
-      if (panel) {
-        panel.classList.add("open");
-        panel.setAttribute("aria-hidden", "false");
-      } else {
-        console.warn("profile-panel not found");
+      if (window.AppwriteAuth) {
+        window.AppwriteAuth.logout()
+          .then(() => {
+            // Close popup and reload page
+            popup.classList.remove("open");
+            location.reload();
+          })
+          .catch(err => {
+            console.error("Logout error:", err);
+            alert("Logout failed. Please try again.");
+          });
       }
-
       return;
     }
 

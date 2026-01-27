@@ -50,28 +50,29 @@
 
     <!-- Actions -->
     <div class="avatar-actions">
-         <button class="btn btn-ghost" data-open-profile>
-  View profile
-         </button>
+      <!-- Guest actions -->
+      <button class="btn btn-red" data-open-login data-auth-only="guest">
+        Sign in
+      </button>
 
-      <!-- Logged-in action -->
+      <!-- Logged-in actions -->
       <a
         href="settings.html"
-        class="btn btn-red"
+        class="btn btn-outline"
         data-auth-only="user"
         hidden
       >
-        Manage Account
+        Settings
       </a>
 
-      <!-- Guest action -->
-      <a
-        href="login.html"
-        class="btn btn-outline"
-        data-auth-only="guest"
+      <button
+        class="btn btn-red"
+        id="avatarLogoutBtn"
+        data-auth-only="user"
+        hidden
       >
-        Sign in
-      </a>
+        Logout
+      </button>
 
     </div>
 

@@ -13,6 +13,8 @@
 
     console.log("profile-panel initialized");
 
+    const logoutBtn = document.getElementById("profileLogoutBtn");
+
     // ---------- OPEN ----------
     document.addEventListener("click", (e) => {
       const openBtn = e.target.closest("[data-open-profile]");
@@ -44,6 +46,21 @@
         panel.setAttribute("aria-hidden", "true");
       }
     });
+
+    // ---------- LOGOUT ----------
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        if (window.AppwriteAuth) {
+          try {
+            await window.AppwriteAuth.logout();
+            location.reload();
+          } catch (err) {
+            console.error("Logout error:", err);
+            alert("Logout failed. Please try again.");
+          }
+        }
+      });
+    }
   }
 
   // 🔑 WAIT until partial is injected
