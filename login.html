@@ -172,11 +172,18 @@
         return;
       }
 
+      // Check if supabase is available
+      if (!window.supabase || !window.supabase.auth) {
+        console.error("Supabase client not available");
+        showMessage("Authentication service not ready. Please refresh the page.", true);
+        return;
+      }
+
       setLoading(true);
       showMessage("Sending login link...");
 
       try {
-        const { error } = await supabase.auth.signInWithOtp({
+        const { data, error } = await window.supabase.auth.signInWithOtp({
           email,
           options: {
             emailRedirectTo: window.location.origin
@@ -184,14 +191,17 @@
         });
 
         if (error) {
-          showMessage(error.message, true);
+          console.error("Supabase auth error:", error);
+          showMessage(error.message || "Authentication failed. Please try again.", true);
           setLoading(false);
         } else {
+          console.log("OTP sent successfully:", data);
           showMessage("✉️ Check your email for the login link!");
           // Keep button disabled after success to prevent duplicate sends
         }
       } catch (err) {
-        showMessage("Network error. Please try again.", true);
+        console.error("Network error during auth:", err);
+        showMessage("Network error: " + (err.message || "Please try again."), true);
         setLoading(false);
       }
     });

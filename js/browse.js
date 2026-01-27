@@ -3,7 +3,8 @@
  * FINAL STABLE VERSION (RQ / Notes badges added)
  */
 
-const DATA_URL = "https://omdas11.github.io/examarchive-v2/data/papers.json";
+// Use relative path to work with custom domain
+const DATA_URL = "data/papers.json";
 
 /* -------------------- State -------------------- */
 let allPapers = [];
@@ -38,8 +39,18 @@ const currentSortLabel = document.getElementById("currentSort");
 
 /* -------------------- Load -------------------- */
 async function loadPapers() {
-  const res = await fetch(DATA_URL);
-  allPapers = await res.json();
+  try {
+    const res = await fetch(DATA_URL);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch papers: ${res.status} ${res.statusText}`);
+    }
+    allPapers = await res.json();
+    console.log(`Loaded ${allPapers.length} papers successfully`);
+  } catch (error) {
+    console.error("Error loading papers:", error);
+    document.getElementById("paperCount").textContent = "Error loading papers. Please refresh the page.";
+    throw error;
+  }
 }
 
 /* -------------------- Year Toggle -------------------- */
@@ -258,8 +269,13 @@ document.getElementById("searchInput").addEventListener("input", e => {
 
 /* -------------------- Init -------------------- */
 (async function () {
-  await loadPapers();
-  buildYearToggle();
-  renderSortOptions();
-  applyFilters();
+  try {
+    await loadPapers();
+    buildYearToggle();
+    renderSortOptions();
+    applyFilters();
+  } catch (error) {
+    console.error("Failed to initialize browse page:", error);
+    // Error message already shown by loadPapers
+  }
 })();
