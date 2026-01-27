@@ -18,9 +18,26 @@ function getInitials(email) {
 }
 
 function setAvatar(user) {
-  const avatar = document.querySelector(".avatar-mini");
-  if (!avatar) return;
-  avatar.textContent = getInitials(user.email);
+  // Header avatar
+  const avatarMini = document.querySelector(".avatar-mini");
+  if (avatarMini) {
+    avatarMini.textContent = getInitials(user.email);
+  }
+
+  // Profile panel avatar
+  const avatarLarge = document.querySelector(".profile-avatar");
+  if (avatarLarge) {
+    avatarLarge.setAttribute("data-initials", getInitials(user.email));
+  }
+
+  // Text fields
+  document.querySelectorAll('[data-field="name"]').forEach(el => {
+    el.textContent = user.email;
+  });
+
+  document.querySelectorAll('[data-field="username"]').forEach(el => {
+    el.textContent = user.email;
+  });
 }
 
 /**
@@ -60,43 +77,46 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 
 // ===============================
-// Login / Logout (HEADER ONLY)
+// Profile Panel Login / Logout
 // ===============================
-async function login() {
-  const email = prompt("Enter your email to login:");
-  if (!email) return;
+document.addEventListener("profile-panel:loaded", () => {
+  const emailInput = document.getElementById("profileLoginEmail");
+  const loginBtn = document.getElementById("profileLoginBtn");
+  const loginMsg = document.getElementById("profileLoginMsg");
+  const logoutBtn = document.getElementById("profileLogoutBtn");
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: "https://omdas11.github.io/examarchive-v2/"
-    }
-  });
+  // Login (guest)
+  if (loginBtn && emailInput) {
+    loginBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      if (!email) {
+        loginMsg.textContent = "Please enter your email.";
+        return;
+      }
 
-  if (error) alert(error.message);
-  else alert("Check your email for the login link ✉️");
-}
+      loginMsg.textContent = "Sending login link…";
 
-async function logout() {
-  await supabase.auth.signOut();
-  location.reload();
-}
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: "https://omdas11.github.io/examarchive-v2/"
+        }
+      });
 
-// ===============================
-// Attach avatar click (NOT on login page)
-// ===============================
-if (!document.body.hasAttribute("data-auth-page")) {
-  document.addEventListener("header:loaded", () => {
-    const avatarTrigger = document.getElementById("avatarTrigger");
-    if (!avatarTrigger) return;
-
-    avatarTrigger.addEventListener("click", async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session?.user) {
-        await logout();
+      if (error) {
+        loginMsg.textContent = error.message;
       } else {
-        await login();
+        loginMsg.textContent =
+          "Check your email ✉️ (open link in the same browser)";
       }
     });
-  });
-}
+  }
+
+  // Logout (user)
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      location.reload();
+    });
+  }
+});
