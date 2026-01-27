@@ -48,6 +48,8 @@ async function loginWithGitHub() {
  * @returns {Promise<void>}
  */
 async function logout() {
+  setAuthCache(null, {});
+  applyAuthState(null, {});
   try {
     await account.deleteSession('current');
     console.log("✅ User logged out successfully");
@@ -239,26 +241,89 @@ function applyAuthState(user, prefs = {}) {
 // Initialization
 // ===============================
 const AUTH_INIT_TIMEOUT_MS = 2000;
+const OAUTH_SESSION_RETRY_DELAY_MS = 250;
+const OAUTH_SESSION_MAX_ATTEMPTS = 3;
+const OAUTH_PARAM_KEYS = ["userId", "secret", "provider", "oauth", "code", "state", "error"];
 let headerLoaded = false;
 let profilePanelLoaded = false;
 let authInitialized = false;
+let authReady = false;
+let cachedUser = null;
+let cachedPrefs = {};
+let oauthReturnHandled = false;
+
+function setAuthCache(user, prefs = {}) {
+  cachedUser = user;
+  cachedPrefs = prefs;
+}
+
+function closeLoginModal() {
+  const loginModal = document.getElementById("login-modal");
+  if (loginModal) {
+    loginModal.setAttribute("aria-hidden", "true");
+  }
+}
+
+function hasOAuthReturnParams() {
+  const params = new URLSearchParams(window.location.search);
+  return OAUTH_PARAM_KEYS.some(key => params.has(key));
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function waitForSessionReady() {
+  for (let attempt = 0; attempt < OAUTH_SESSION_MAX_ATTEMPTS; attempt++) {
+    try {
+      const session = await account.getSession("current");
+      if (session) return session;
+    } catch (error) {
+      // Session not ready yet
+    }
+
+    if (attempt < OAUTH_SESSION_MAX_ATTEMPTS - 1) {
+      await delay(OAUTH_SESSION_RETRY_DELAY_MS);
+    }
+  }
+
+  return null;
+}
+
+function markAuthReady() {
+  if (authReady) return;
+  authReady = true;
+  document.dispatchEvent(new CustomEvent("auth:ready"));
+}
+
+function waitForAuthReady() {
+  if (authReady) return Promise.resolve();
+  return new Promise(resolve => {
+    document.addEventListener("auth:ready", resolve, { once: true });
+  });
+}
 
 async function initAuthState() {
   try {
+    if (hasOAuthReturnParams()) {
+      await waitForSessionReady();
+    }
+
     const user = await getCurrentUser();
     const prefs = user ? await getUserPrefs() : {};
+    setAuthCache(user, prefs);
     applyAuthState(user, prefs);
     
     // Close login modal if user just logged in
     if (user) {
-      const loginModal = document.getElementById("login-modal");
-      if (loginModal && loginModal.getAttribute("aria-hidden") === "false") {
-        loginModal.setAttribute("aria-hidden", "true");
-      }
+      closeLoginModal();
     }
   } catch (error) {
     console.error("Auth init error:", error);
+    setAuthCache(null, {});
     applyAuthState(null, {});
+  } finally {
+    markAuthReady();
   }
 }
 
@@ -270,11 +335,25 @@ async function refreshAuthState() {
   try {
     const user = await getCurrentUser();
     const prefs = user ? await getUserPrefs() : {};
+    setAuthCache(user, prefs);
     applyAuthState(user, prefs);
   } catch (error) {
     console.error("Auth refresh error:", error);
+    setAuthCache(null, {});
     applyAuthState(null, {});
   }
+}
+
+async function handleOAuthRedirect() {
+  if (oauthReturnHandled || !hasOAuthReturnParams()) return;
+  oauthReturnHandled = true;
+
+  const session = await waitForSessionReady();
+  if (!session) return;
+
+  await waitForAuthReady();
+  await refreshAuthState();
+  closeLoginModal();
 }
 
 // Check if profile panel portal exists on this page
@@ -308,6 +387,10 @@ setTimeout(() => {
     initAuthState();
   }
 }, AUTH_INIT_TIMEOUT_MS);
+
+if (hasOAuthReturnParams()) {
+  handleOAuthRedirect();
+}
 
 // Export for use in other scripts
 window.AppwriteAuth = {

@@ -3,13 +3,37 @@
    ================================ */
 
 (function () {
-  
+  const AUTH_WAIT_DELAY_MS = 200;
+  const AUTH_WAIT_MAX_ATTEMPTS = 3;
+  let modalInitialized = false;
+
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async function waitForAppwriteAuth() {
+    for (let attempt = 0; attempt < AUTH_WAIT_MAX_ATTEMPTS; attempt++) {
+      if (window.AppwriteAuth && typeof window.AppwriteAuth.loginWithGitHub === "function") {
+        return window.AppwriteAuth;
+      }
+
+      if (attempt < AUTH_WAIT_MAX_ATTEMPTS - 1) {
+        await delay(AUTH_WAIT_DELAY_MS);
+      }
+    }
+
+    throw new Error("Appwrite not initialized");
+  }
+
   function initLoginModal() {
+    if (modalInitialized) return;
+
     const modal = document.getElementById("login-modal");
     if (!modal) {
       console.warn("login-modal not found at init");
       return;
     }
+    modalInitialized = true;
 
     console.log("login-modal initialized");
 
@@ -70,9 +94,7 @@
     if (githubBtn) {
       githubBtn.addEventListener("click", async () => {
         try {
-          if (!window.AppwriteAuth) {
-            throw new Error("Appwrite not initialized");
-          }
+          const appwriteAuth = await waitForAppwriteAuth();
 
           // Show loading message
           if (msgEl) {
@@ -85,7 +107,7 @@
           githubBtn.textContent = "Redirecting...";
 
           // Trigger GitHub OAuth (will redirect to GitHub)
-          await window.AppwriteAuth.loginWithGitHub();
+          await appwriteAuth.loginWithGitHub();
 
         } catch (error) {
           console.error("Login error:", error);
