@@ -81,20 +81,37 @@
   <!-- Mobile toast -->
   <div id="loginAlert" role="alert" aria-live="polite" style="
     position: fixed;
-    bottom: 16px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     display: none;
     max-width: 90%;
-    padding: 0.75rem 1rem;
+    min-width: 280px;
+    padding: 1rem 1.25rem;
     border-radius: 12px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     z-index: 99999;
     text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    animation: slideUp 0.3s ease-out;
   "></div>
+
+  <style>
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+  </style>
 
   <!-- Footer -->
   <div id="footer"></div>
@@ -106,40 +123,76 @@
 
   <!-- Login logic -->
   <script>
+    const form = document.getElementById("loginForm");
+    const emailInput = document.getElementById("loginEmail");
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const msg = document.getElementById("loginMsg");
     const toast = document.getElementById("loginAlert");
+    
+    let toastTimer = null; // Track toast timeout to prevent leaks
 
-    function showToast(message, type = "info") {
-      toast.textContent = message;
+    function showMessage(text, isError = false) {
+      msg.style.display = "block";
+      msg.textContent = text;
+      msg.style.color = isError ? "var(--red)" : "var(--text-muted)";
+      
+      // Also show toast for better mobile visibility
+      toast.textContent = text;
       toast.style.display = "block";
-      toast.style.color = type === "error" ? "var(--red)" : "var(--text-muted)";
-      toast.style.borderColor = type === "error" ? "var(--red)" : "var(--border)";
+      toast.style.color = isError ? "var(--red)" : "var(--text)";
+      toast.style.borderColor = isError ? "var(--red)" : "var(--border)";
+      
+      // Clear previous timer to prevent memory leaks
+      if (toastTimer) {
+        clearTimeout(toastTimer);
+      }
+      
+      // Auto-hide toast after 5 seconds
+      toastTimer = setTimeout(() => {
+        toast.style.display = "none";
+        toastTimer = null;
+      }, 5000);
     }
 
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      submitBtn.textContent = loading ? "Sending..." : "Continue";
+      submitBtn.style.opacity = loading ? "0.6" : "1";
+      submitBtn.style.cursor = loading ? "not-allowed" : "pointer";
+      emailInput.disabled = loading;
+    }
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const email = document.getElementById("loginEmail").value.trim();
-      const msg = document.getElementById("loginMsg");
+      const email = emailInput.value.trim();
 
-      if (!email) return;
+      if (!email) {
+        showMessage("Please enter your email.", true);
+        return;
+      }
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: "https://omdas11.github.io/examarchive-v2/"
+      setLoading(true);
+      showMessage("Sending login link...");
+
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: "https://omdas11.github.io/examarchive-v2/"
+          }
+        });
+
+        if (error) {
+          showMessage(error.message, true);
+          setLoading(false);
+        } else {
+          showMessage("✉️ Check your email for the login link!");
+          // Keep button disabled after success to prevent duplicate sends
         }
-      });
-
-      msg.style.display = "block";
-
-      if (error) {
-        msg.textContent = error.message;
-        msg.style.color = "var(--red)";
-        showToast(error.message, "error");
-      } else {
-        msg.textContent = "Check your email for the login link ✉️";
-        msg.style.color = "var(--text-muted)";
-        showToast("Check your email for the login link ✉️");
+      } catch (err) {
+        showMessage("Network error. Please try again.", true);
+        setLoading(false);
       }
     });
   </script>

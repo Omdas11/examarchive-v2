@@ -62,12 +62,53 @@ function applyAuthState(user) {
 }
 
 // ===============================
-// Initial Session
+// Initial Session (WAIT FOR DOM + PARTIALS)
 // ===============================
-(async () => {
+
+// Maximum time to wait for partials before falling back (2 seconds)
+const AUTH_INIT_TIMEOUT_MS = 2000;
+
+async function initAuthState() {
   const { data } = await supabase.auth.getSession();
   applyAuthState(data.session?.user || null);
-})();
+}
+
+// Wait for required partials based on what's on the page
+let headerLoaded = false;
+let profilePanelLoaded = false;
+let authInitialized = false; // Prevent duplicate initialization
+
+// Check if profile panel portal exists on this page
+const hasProfilePanel = !!document.getElementById("profile-panel-portal");
+
+function tryInitAuth() {
+  if (authInitialized) return; // Already initialized
+  
+  const canInit = headerLoaded && (!hasProfilePanel || profilePanelLoaded);
+  if (canInit) {
+    authInitialized = true;
+    initAuthState();
+  }
+}
+
+document.addEventListener("header:loaded", () => {
+  headerLoaded = true;
+  tryInitAuth();
+});
+
+document.addEventListener("profile-panel:loaded", () => {
+  profilePanelLoaded = true;
+  tryInitAuth();
+});
+
+// Fallback: if partials don't load within timeout, init anyway
+setTimeout(() => {
+  if (!authInitialized) {
+    console.warn("Auth init fallback triggered after", AUTH_INIT_TIMEOUT_MS, "ms");
+    authInitialized = true;
+    initAuthState();
+  }
+}, AUTH_INIT_TIMEOUT_MS);
 
 // ===============================
 // Auth Listener
