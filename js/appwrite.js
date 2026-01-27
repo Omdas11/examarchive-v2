@@ -248,8 +248,31 @@ async function initAuthState() {
     const user = await getCurrentUser();
     const prefs = user ? await getUserPrefs() : {};
     applyAuthState(user, prefs);
+    
+    // Close login modal if user just logged in
+    if (user) {
+      const loginModal = document.getElementById("login-modal");
+      if (loginModal && loginModal.getAttribute("aria-hidden") === "false") {
+        loginModal.setAttribute("aria-hidden", "true");
+      }
+    }
   } catch (error) {
     console.error("Auth init error:", error);
+    applyAuthState(null, {});
+  }
+}
+
+/**
+ * Refresh auth state without page reload
+ * @returns {Promise<void>}
+ */
+async function refreshAuthState() {
+  try {
+    const user = await getCurrentUser();
+    const prefs = user ? await getUserPrefs() : {};
+    applyAuthState(user, prefs);
+  } catch (error) {
+    console.error("Auth refresh error:", error);
     applyAuthState(null, {});
   }
 }
@@ -294,6 +317,7 @@ window.AppwriteAuth = {
   getUserPrefs,
   updateUserPrefs,
   applyAuthState,
+  refreshAuthState,
   getInitials,
   getAvatarColor
 };

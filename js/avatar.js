@@ -38,9 +38,9 @@
       if (window.AppwriteAuth) {
         window.AppwriteAuth.logout()
           .then(() => {
-            // Close popup and reload page
+            // Close popup and refresh auth state
             popup.classList.remove("open");
-            location.reload();
+            return window.AppwriteAuth.refreshAuthState();
           })
           .catch(err => {
             console.error("Logout error:", err);
