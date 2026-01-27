@@ -179,7 +179,7 @@
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: "https://omdas11.github.io/examarchive-v2/"
+            emailRedirectTo: window.location.origin
           }
         });
 
