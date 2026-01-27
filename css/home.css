@@ -292,16 +292,6 @@
     font-size: 0.9rem;
   }
 
-  .hero-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .hero-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
   .quick-grid {
     gap: 0.6rem;
   }
