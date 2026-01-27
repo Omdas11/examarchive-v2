@@ -271,6 +271,18 @@
 
 /* ---------- Mobile ---------- */
 @media (max-width: 720px) {
+  .about-page {
+    padding: 1rem 0.75rem 2rem;
+  }
+
+  .about-page h1 {
+    font-size: 1.6rem;
+  }
+
+  .about-page h2 {
+    font-size: 1.2rem;
+  }
+
   .timeline::before {
     left: 24px;
   }
@@ -284,5 +296,31 @@
 
   .timeline-dot {
     left: 18px !important;
+  }
+
+  .about-page section {
+    margin-bottom: 2rem;
+  }
+}
+
+/* ---------- Tablet ---------- */
+@media (min-width: 721px) and (max-width: 1023px) {
+  .about-page {
+    padding: 1.2rem 1rem 2.5rem;
+  }
+
+  .about-page h1 {
+    font-size: 1.8rem;
+  }
+}
+
+/* ---------- Desktop ---------- */
+@media (min-width: 1024px) {
+  .about-page {
+    padding: 2rem 1rem 3.5rem;
+  }
+
+  .about-page h1 {
+    font-size: 2.2rem;
   }
 }

@@ -15,6 +15,7 @@
 /* ---------- HERO ---------- */
 .hero {
   text-align: center;
+  padding: 1rem 0;
 }
 
 .hero h1 {
@@ -28,6 +29,7 @@
   color: var(--text-muted);
   max-width: 640px;
   margin: 0 auto;
+  line-height: 1.6;
 }
 
 /* ---------- HERO ACTIONS ---------- */
@@ -217,19 +219,37 @@
   background: var(--bg-soft);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1rem;
+  padding: 1.2rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.notice-board:hover,
+.academic-calendar:hover {
+  box-shadow: var(--shadow-sm);
 }
 
 .notice-board h2,
 .academic-calendar h2 {
   font-size: 1.15rem;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.8rem;
+  color: var(--text);
 }
 
 .notice-box,
 .calendar-box {
   font-size: 0.85rem;
   color: var(--text-muted);
+  line-height: 1.6;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notice-empty,
+.calendar-empty {
+  font-style: italic;
+  opacity: 0.8;
 }
 
 /* ---------- DESKTOP ENHANCEMENTS ---------- */
@@ -238,6 +258,47 @@
     font-size: 2.3rem;
   }
 
+  .quick-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .home {
+    padding: 2rem 1rem 3rem;
+  }
+}
+
+/* ---------- MOBILE OPTIMIZATIONS ---------- */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 1.75rem;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .quick-grid {
+    gap: 0.6rem;
+  }
+
+  .home {
+    gap: 2rem;
+    padding: 1rem 0.75rem 2rem;
+  }
+}
+
+/* ---------- TABLET OPTIMIZATIONS ---------- */
+@media (min-width: 769px) and (max-width: 1023px) {
   .quick-grid {
     grid-template-columns: repeat(3, 1fr);
   }

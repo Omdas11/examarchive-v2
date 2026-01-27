@@ -131,3 +131,62 @@ body[data-theme="amoled"] .settings-theme-btn.active {
 .night-strength input[type="range"] {
   width: 100%;
 }
+
+/* ================================
+   Responsive Design
+   ================================ */
+
+/* Mobile */
+@media (max-width: 767px) {
+  .settings {
+    margin: 1rem auto;
+    padding: 0 0.75rem;
+  }
+
+  .settings h1 {
+    font-size: 1.3rem;
+  }
+
+  .settings-card {
+    padding: 1rem;
+  }
+
+  .settings-theme-btn,
+  .settings-night-btn {
+    padding: 0.6rem 1.1rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .theme-options {
+    gap: 0.5rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .settings {
+    margin: 1.5rem auto;
+  }
+
+  .settings h1 {
+    font-size: 1.4rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .settings {
+    margin: 2.5rem auto;
+  }
+
+  .settings h1 {
+    font-size: 1.5rem;
+  }
+
+  .settings-card {
+    padding: 1.5rem;
+  }
+}

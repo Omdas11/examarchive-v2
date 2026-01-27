@@ -304,4 +304,34 @@ body[data-night="on"] .paper-row {
   .paper-title {
     font-size: 1.6rem;
   }
+
+  .paper-page {
+    padding: 1.5rem 1rem 2rem;
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  .paper-page {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .paper-title {
+    font-size: 1.3rem;
+  }
+
+  .paper-header.card {
+    padding: 0.9rem;
+  }
+
+  .paper-section.card {
+    padding: 0.8rem 0.9rem 0.9rem;
+  }
+}
+
+/* ---------- Tablet ---------- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .paper-page {
+    padding: 1.2rem 1rem 1.8rem;
+  }
 }

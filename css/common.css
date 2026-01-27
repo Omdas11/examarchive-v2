@@ -169,6 +169,14 @@ a {
   margin: 1.5rem 0;
 }
 
+/* Page wrapper for consistent spacing */
+.page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.2rem 1rem 2rem;
+  min-height: calc(100vh - 200px);
+}
+
 /* ================================
    TYPOGRAPHY
    ================================ */
@@ -191,6 +199,16 @@ p {
   border-radius: var(--radius-md);
   padding: 1rem;
   box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Card spacing */
+.card + .card {
+  margin-top: 1rem;
 }
 
 /* ================================
@@ -201,6 +219,29 @@ p {
 .flex { display: flex; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 .flex-col { display: flex; flex-direction: column; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-wrap { flex-wrap: wrap; }
+
+.gap-sm { gap: 0.5rem; }
+.gap-md { gap: 1rem; }
+.gap-lg { gap: 1.5rem; }
+
+.full-width { width: 100%; }
+
+.text-center { text-align: center; }
+
+/* Visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
 /* =================================================
    PRIMARY BUTTON — FINAL, CANONICAL
@@ -254,6 +295,36 @@ p {
 @media (max-width: 768px) {
   .container {
     padding: 0.75rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  /* Improve touch targets on mobile */
+  .btn,
+  button,
+  a[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet-specific styles */
+  .container {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  /* Desktop enhancements */
+  .container {
+    padding: 1.5rem;
   }
 }
 

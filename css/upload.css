@@ -129,4 +129,50 @@
   .upload-page {
     margin-top: 3rem;
   }
+
+  .upload-intro h1 {
+    font-size: 1.6rem;
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  .upload-page {
+    margin: 1rem auto;
+    padding: 0 0.75rem;
+  }
+
+  .upload-intro h1 {
+    font-size: 1.3rem;
+  }
+
+  .upload-card {
+    gap: 1.2rem;
+  }
+
+  .field input {
+    padding: 0.7rem 0.8rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .file-ui {
+    padding: 1.5rem 1rem;
+  }
+
+  .btn.btn-red {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+}
+
+/* ---------- Tablet ---------- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .upload-page {
+    margin: 2rem auto;
+  }
+
+  .upload-intro h1 {
+    font-size: 1.5rem;
+  }
 }

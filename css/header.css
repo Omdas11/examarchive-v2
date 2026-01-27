@@ -273,12 +273,46 @@ body.menu-open .hamburger-icon line:nth-child(2) {
 
   .site-header {
     height: 58px;
+    padding: 0 0.75rem;
+  }
+
+  .logo-text {
+    font-size: 0.95rem;
+  }
+
+  .logo-mark {
+    width: 26px;
+    height: 26px;
+  }
+
+  .theme-toggle {
+    gap: 0.15rem;
+    padding: 0.25rem;
+  }
+
+  .theme-btn,
+  .night-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .icon {
+    width: 18px;
+    height: 18px;
   }
 }
 
 @media (min-width: 769px) {
   .mobile-nav {
     display: none !important;
+  }
+
+  .menu-btn {
+    display: none;
+  }
+
+  .header-pill {
+    padding: 6px 12px;
   }
 }
 
