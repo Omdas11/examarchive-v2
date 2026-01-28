@@ -115,3 +115,8 @@ function syncAuthToDOM(user) {
 onAuthChange(user => {
   syncAuthToDOM(user);
 });
+
+// Re-sync when header loads (in case auth resolved before header existed)
+document.addEventListener("header:loaded", () => {
+  syncAuthToDOM(currentUser);
+});
