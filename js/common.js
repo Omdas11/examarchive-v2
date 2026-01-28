@@ -145,3 +145,27 @@ window.addEventListener("load", async () => {
     await window.AppwriteAuth.restoreSession();
   }
 });
+
+// ===============================
+// 🔥 APPLY data-auth-only VISIBILITY
+// ===============================
+function applyAuthVisibility(user) {
+  document.querySelectorAll("[data-auth-only]").forEach(el => {
+    const mode = el.getAttribute("data-auth-only");
+
+    if (mode === "user") {
+      el.hidden = !user;
+    }
+
+    if (mode === "guest") {
+      el.hidden = !!user;
+    }
+  });
+}
+
+// Listen to auth changes (GLOBAL)
+if (window.AppwriteAuth?.onAuthChange) {
+  window.AppwriteAuth.onAuthChange(user => {
+    applyAuthVisibility(user);
+  });
+}
