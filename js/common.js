@@ -1,3 +1,9 @@
+// js/common.js
+// ============================================
+// GLOBAL BOOTSTRAP (Theme + Partials + Layout)
+// Phase 1: Auth-safe (no auth logic here)
+// ============================================
+
 // ===============================
 // Apply saved theme early (GLOBAL)
 // ===============================
@@ -34,16 +40,19 @@ function loadPartial(id, file, callback) {
 }
 
 // ===============================
-// NEW: Deterministic Avatar Color Generator
+// Deterministic Avatar Color Helper
+// (NO auth dependency here)
 // ===============================
 function applyAvatarColors(name) {
+  if (!name) return;
+
   const palettes = [
-    { bg: "#ecfeff", text: "#155e75", ring: "#16a34a" }, // cyan
-    { bg: "#fef3c7", text: "#92400e", ring: "#f59e0b" }, // amber
-    { bg: "#ede9fe", text: "#4c1d95", ring: "#8b5cf6" }, // violet
-    { bg: "#dcfce7", text: "#14532d", ring: "#22c55e" }, // green
-    { bg: "#ffe4e6", text: "#9f1239", ring: "#fb7185" }, // rose
-    { bg: "#e0f2fe", text: "#075985", ring: "#38bdf8" }  // sky
+    { bg: "#ecfeff", text: "#155e75", ring: "#16a34a" },
+    { bg: "#fef3c7", text: "#92400e", ring: "#f59e0b" },
+    { bg: "#ede9fe", text: "#4c1d95", ring: "#8b5cf6" },
+    { bg: "#dcfce7", text: "#14532d", ring: "#22c55e" },
+    { bg: "#ffe4e6", text: "#9f1239", ring: "#fb7185" },
+    { bg: "#e0f2fe", text: "#075985", ring: "#38bdf8" }
   ];
 
   let hash = 0;
@@ -79,7 +88,7 @@ loadPartial("avatar-portal", "partials/avatar-popup.html", () => {
 });
 
 // ===============================
-// 🔥 LOAD EXPANDED PROFILE PANEL (THIS WAS MISSING)
+// Load PROFILE PANEL
 // ===============================
 loadPartial("profile-panel-portal", "partials/profile-panel.html", () => {
   document.dispatchEvent(new CustomEvent("profile-panel:loaded"));
@@ -115,10 +124,7 @@ document.addEventListener("click", (e) => {
 
   if (menuBtn && mobileNav) {
     mobileNav.classList.toggle("open");
-
-    // NEW: sync hamburger animation
     document.body.classList.toggle("menu-open");
-
     return;
   }
 
@@ -137,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// Load avatar.js AFTER popup exists
+// Lazy-load avatar.js AFTER popup exists
 // ===============================
 document.addEventListener("avatar:loaded", () => {
   if (document.getElementById("avatar-script")) return;
