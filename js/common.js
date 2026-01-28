@@ -155,14 +155,14 @@ document.addEventListener("avatar:loaded", () => {
 });
 
 // ===============================
-// 🔥 FIX: Lazy-load login-modal.js AFTER modal exists
+// 🔥 FIX: Lazy-load login-modal.js AS MODULE
 // ===============================
 document.addEventListener("login-modal:loaded", () => {
   if (document.getElementById("login-modal-script")) return;
 
   const script = document.createElement("script");
   script.src = "js/login-modal.js";
-  script.defer = true;
+  script.type = "module"; // 🔥 REQUIRED
   script.id = "login-modal-script";
   document.body.appendChild(script);
 });
