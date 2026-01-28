@@ -4,6 +4,7 @@
 // FINAL – Session-safe, UI-safe
 // Supports: Google, GitHub, Microsoft
 // ==================================
+alert("AUTH.JS LOADED FROM PR13");
 
 import { account } from "./appwrite.js";
 
