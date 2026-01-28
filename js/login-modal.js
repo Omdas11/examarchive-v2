@@ -1,45 +1,32 @@
 // js/login-modal.js
 import { loginWithProvider } from "./auth.js";
 
-let modal, msg;
-
-function init() {
-  modal = document.getElementById("login-modal");
-  msg = document.getElementById("loginModalMsg");
-  if (!modal) return;
-}
-
-function openModal() {
-  modal.setAttribute("aria-hidden", "false");
-  msg && (msg.hidden = true);
-}
-
-function closeModal() {
-  modal.setAttribute("aria-hidden", "true");
-  msg && (msg.hidden = true);
-}
-
-// Global click handling
-document.addEventListener("click", (e) => {
-  // Open
-  if (e.target.closest(".login-trigger")) {
-    openModal();
+function initLoginModal() {
+  const modal = document.getElementById("login-modal");
+  if (!modal) {
+    alert("❌ login-modal NOT found");
     return;
   }
 
-  // Provider buttons
-  const btn = e.target.closest("[data-provider]");
-  if (btn) {
-    const provider = btn.getAttribute("data-provider");
-    loginWithProvider(provider);
-    return;
-  }
+  alert("✅ login-modal FOUND");
 
-  // Close
-  if (e.target.hasAttribute("data-close-login")) {
-    closeModal();
-  }
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".login-trigger")) {
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    if (e.target.hasAttribute("data-close-login")) {
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    if (e.target.closest("[data-provider='google']")) {
+      loginWithProvider("google");
+    }
+  });
+}
+
+// 🚨 WAIT for modal HTML
+document.addEventListener("login-modal:loaded", () => {
+  alert("📦 login-modal:loaded event");
+  initLoginModal();
 });
-
-// Init after modal HTML exists
-init();
