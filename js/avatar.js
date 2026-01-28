@@ -1,35 +1,24 @@
 // js/avatar.js
 // ============================================
-// Avatar + Header Auth State Controller
+// Avatar + Header Auth UI Binder (FINAL)
 // ============================================
 
-import {
-  onAuthChange,
-  logout
-} from "./auth.js";
+import { onAuthChange, logout } from "./auth.js";
 
-// Elements
 let loginBtn;
 let avatarBtn;
-let avatarInitial;
-let avatarName;
+let avatarMini;
 
-// ===============================
-// Init AFTER header is loaded
-// ===============================
+// Init after header loads
 document.addEventListener("header:loaded", () => {
   loginBtn = document.querySelector(".login-trigger");
   avatarBtn = document.querySelector(".avatar-trigger");
-  avatarInitial = document.querySelector(".avatar-initial");
-  avatarName = document.querySelector(".avatar-name");
+  avatarMini = document.querySelector(".avatar-mini");
 
-  bindAuth();
+  bindAuthUI();
 });
 
-// ===============================
-// Bind auth state to UI
-// ===============================
-function bindAuth() {
+function bindAuthUI() {
   onAuthChange(user => {
     if (user) {
       showUser(user);
@@ -39,43 +28,33 @@ function bindAuth() {
   });
 }
 
-// ===============================
-// Show logged-in user
-// ===============================
 function showUser(user) {
-  loginBtn?.classList.add("hidden");
-  avatarBtn?.classList.remove("hidden");
+  // Toggle visibility
+  loginBtn?.setAttribute("hidden", "true");
+  avatarBtn?.removeAttribute("hidden");
 
-  const name =
-    user.name ||
-    user.email?.split("@")[0] ||
-    "User";
-
-  if (avatarInitial) {
-    avatarInitial.textContent = name.charAt(0).toUpperCase();
+  // Show initial
+  const name = user.name || user.email || "U";
+  if (avatarMini) {
+    avatarMini.textContent = name.charAt(0).toUpperCase();
   }
 
-  if (avatarName) {
-    avatarName.textContent = name;
-  }
-
-  // Deterministic avatar color
+  // Optional: color
   if (window.applyAvatarColors) {
     window.applyAvatarColors(name);
   }
 }
 
-// ===============================
-// Show guest state
-// ===============================
 function showGuest() {
-  avatarBtn?.classList.add("hidden");
-  loginBtn?.classList.remove("hidden");
+  avatarBtn?.setAttribute("hidden", "true");
+  loginBtn?.removeAttribute("hidden");
+
+  if (avatarMini) {
+    avatarMini.textContent = "?";
+  }
 }
 
-// ===============================
-// Logout handler (profile panel)
-// ===============================
+// Logout (from profile panel)
 document.addEventListener("click", async (e) => {
   if (e.target.closest("[data-logout]")) {
     await logout();
