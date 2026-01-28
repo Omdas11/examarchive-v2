@@ -11,12 +11,8 @@ function initLoginModal() {
   form = document.getElementById("loginForm");
   msg = document.getElementById("loginModalMsg");
 
-  if (!modal || !form || !msg) {
-    // Modal not present on this page
-    return;
-  }
+  if (!modal || !form || !msg) return;
 
-  // Handle form submit
   form.addEventListener("submit", handleLogin);
 }
 
@@ -26,7 +22,7 @@ function initLoginModal() {
 function openModal() {
   if (!modal) return;
   modal.setAttribute("aria-hidden", "false");
-  modal.classList.add("open"); // safe even if CSS ignores it
+  modal.classList.add("open");
   msg.hidden = true;
 }
 
@@ -42,7 +38,7 @@ function closeModal() {
 }
 
 /**
- * Handle login submit
+ * Handle login submit (WITH VISUAL DEBUG)
  */
 async function handleLogin(e) {
   e.preventDefault();
@@ -52,18 +48,27 @@ async function handleLogin(e) {
 
   if (!email || !password) {
     msg.hidden = false;
-    msg.textContent = "Please enter email and password.";
+    msg.textContent = "❌ Email or password missing";
     return;
   }
 
   msg.hidden = false;
-  msg.textContent = "Signing in…";
+  msg.textContent = "⏳ Signing in…";
 
   try {
     await login(email, password);
-    closeModal(); // success
+    msg.textContent = "✅ Login success";
+    setTimeout(closeModal, 500);
   } catch (err) {
-    msg.textContent = "Invalid email or password.";
+    // 🔥 VISUAL DEBUG OUTPUT
+    const details = [
+      "❌ Login failed",
+      `Message: ${err?.message || "unknown"}`,
+      `Code: ${err?.code || "none"}`,
+      `Type: ${err?.type || "none"}`
+    ].join("\n");
+
+    msg.textContent = details;
   }
 }
 
@@ -71,13 +76,11 @@ async function handleLogin(e) {
  * Global click handlers
  */
 document.addEventListener("click", (e) => {
-  // Open modal
   if (e.target.closest(".login-trigger")) {
     openModal();
     return;
   }
 
-  // Close modal
   if (e.target.hasAttribute("data-close-login")) {
     closeModal();
   }
