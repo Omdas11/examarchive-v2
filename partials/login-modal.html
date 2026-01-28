@@ -1,62 +1,29 @@
 <!-- ================================
-     Login Modal (Email + Password)
-     Modal-only auth (NO login page)
+     Login Modal (OAuth Providers)
      ================================ -->
-<div
-  id="login-modal"
-  class="login-modal"
-  aria-hidden="true"
-  role="dialog"
-  aria-labelledby="login-modal-title"
->
-
-  <!-- Backdrop -->
+<div id="login-modal" class="login-modal" aria-hidden="true" role="dialog">
   <div class="login-modal-backdrop" data-close-login></div>
 
-  <!-- Modal Card -->
   <div class="login-modal-card">
+    <button class="login-modal-close" data-close-login type="button">✕</button>
 
-    <!-- Close Button -->
-    <button
-      class="login-modal-close"
-      aria-label="Close login modal"
-      data-close-login
-      type="button"
-    >
-      ✕
-    </button>
-
-    <!-- Content -->
     <div class="login-modal-content">
-      <h2 id="login-modal-title">Sign in to ExamArchive</h2>
-      <p class="login-modal-description">
-        Sign in to upload papers and manage your profile.
-      </p>
+      <h2>Sign in to ExamArchive</h2>
+      <p>Choose a provider to continue.</p>
 
-      <!-- Login Form -->
-      <form id="loginForm" class="login-form">
-        <input
-          type="email"
-          id="loginEmail"
-          placeholder="Email"
-          required
-        />
+      <button class="btn btn-google" data-provider="google" type="button">
+        Continue with Google
+      </button>
 
-        <input
-          type="password"
-          id="loginPassword"
-          placeholder="Password"
-          required
-        />
+      <button class="btn btn-github" data-provider="github" type="button">
+        Continue with GitHub
+      </button>
 
-        <button type="submit" class="btn btn-primary">
-          Sign in
-        </button>
-      </form>
+      <button class="btn btn-microsoft" data-provider="microsoft" type="button">
+        Continue with Microsoft
+      </button>
 
-      <!-- Status Message -->
       <p id="loginModalMsg" class="login-modal-message" hidden></p>
     </div>
-
   </div>
 </div>
