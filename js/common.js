@@ -1,7 +1,7 @@
 // js/common.js
 // ============================================
 // GLOBAL BOOTSTRAP (Theme + Partials + Layout)
-// Phase 1: Auth-safe (no auth logic here)
+// Phase 1–2: Auth-safe (no auth logic here)
 // ============================================
 
 // ===============================
@@ -41,7 +41,6 @@ function loadPartial(id, file, callback) {
 
 // ===============================
 // Deterministic Avatar Color Helper
-// (NO auth dependency here)
 // ===============================
 function applyAvatarColors(name) {
   if (!name) return;
@@ -152,5 +151,18 @@ document.addEventListener("avatar:loaded", () => {
   script.src = "js/avatar.js";
   script.defer = true;
   script.id = "avatar-script";
+  document.body.appendChild(script);
+});
+
+// ===============================
+// 🔥 FIX: Lazy-load login-modal.js AFTER modal exists
+// ===============================
+document.addEventListener("login-modal:loaded", () => {
+  if (document.getElementById("login-modal-script")) return;
+
+  const script = document.createElement("script");
+  script.src = "js/login-modal.js";
+  script.defer = true;
+  script.id = "login-modal-script";
   document.body.appendChild(script);
 });
