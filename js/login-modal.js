@@ -21,6 +21,9 @@ function closeModal() {
 
 // Global click handling
 document.addEventListener("click", (e) => {
+  // Ensure modal is initialized
+  if (!modal) init();
+  
   // Open
   if (e.target.closest(".login-trigger")) {
     openModal();
@@ -41,5 +44,9 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Init after modal HTML exists
-init();
+// Init when DOM is ready (modal should be loaded by now)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
