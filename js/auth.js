@@ -1,26 +1,32 @@
 // js/auth.js
-import { client, account } from "./appwrite.js";
+// ==================================
+// Central Appwrite Auth Controller
+// Phase 1: Logic only (NO UI / NO DOM)
+// ==================================
+
+import { account } from "./appwrite.js";
 
 /**
- * Global auth state
+ * Internal auth state
  */
 let currentUser = null;
-const listeners = new Set();
+const subscribers = new Set();
 
 /**
- * Notify subscribers when auth state changes
+ * Notify all subscribers of auth state change
  */
 function notify() {
-  listeners.forEach(cb => cb(currentUser));
+  subscribers.forEach(cb => cb(currentUser));
 }
 
 /**
- * Subscribe to auth changes
+ * Subscribe to auth state changes
+ * @param {(user:Object|null)=>void} callback
  */
 export function onAuthChange(callback) {
-  listeners.add(callback);
+  subscribers.add(callback);
   callback(currentUser); // immediate sync
-  return () => listeners.delete(callback);
+  return () => subscribers.delete(callback);
 }
 
 /**
@@ -29,17 +35,15 @@ export function onAuthChange(callback) {
 export async function restoreSession() {
   try {
     currentUser = await account.get();
-    notify();
-    return currentUser;
-  } catch (err) {
+  } catch {
     currentUser = null;
-    notify();
-    return null;
   }
+  notify();
+  return currentUser;
 }
 
 /**
- * Login
+ * Login with email + password
  */
 export async function login(email, password) {
   await account.createEmailPasswordSession(email, password);
@@ -49,7 +53,7 @@ export async function login(email, password) {
 }
 
 /**
- * Logout
+ * Logout current user
  */
 export async function logout() {
   await account.deleteSession("current");
@@ -58,7 +62,7 @@ export async function logout() {
 }
 
 /**
- * Get current user (sync)
+ * Get current user synchronously
  */
 export function getCurrentUser() {
   return currentUser;
