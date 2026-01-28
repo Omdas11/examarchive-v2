@@ -54,25 +54,36 @@
     <!-- Hamburger + Profile Pill -->
     <div class="header-pill">
 
-      <!-- Hamburger (=) -->
-      <button class="menu-btn" aria-label="Menu" id="menuBtn">
+      <!-- Hamburger -->
+      <button class="menu-btn" aria-label="Menu">
         <svg class="hamburger-icon" viewBox="0 0 24 24">
            <line x1="4" y1="12" x2="20" y2="12" />
            <line x1="4" y1="12" x2="20" y2="12" />
         </svg>
       </button>
 
-      <!-- Profile Avatar -->
+      <!-- Profile / Login Trigger -->
       <button
-  class="avatar-trigger"
-  id="avatarTrigger"
-  aria-label="User menu"
-  type="button"
->
-  <div class="avatar-wrap">
-    <div class="avatar-mini">?</div>
-  </div>
-</button>
+        class="avatar-trigger"
+        id="avatarTrigger"
+        type="button"
+        aria-label="User menu"
+        data-auth-only="user"
+      >
+        <div class="avatar-wrap">
+          <div class="avatar-mini">?</div>
+        </div>
+      </button>
+
+      <!-- Login button (shown when logged out) -->
+      <button
+        class="login-trigger"
+        type="button"
+        data-auth-only="guest"
+        aria-label="Login"
+      >
+        Login
+      </button>
 
     </div>
   </div>
