@@ -145,18 +145,6 @@ document.addEventListener("avatar:loaded", () => {
 });
 
 // ===============================
-// Lazy-load login-modal.js (MODULE)
-// ===============================
-document.addEventListener("login-modal:loaded", () => {
-  if (document.getElementById("login-modal-script")) return;
-  const s = document.createElement("script");
-  s.src = "js/login-modal.js";
-  s.type = "module";
-  s.id = "login-modal-script";
-  document.body.appendChild(s);
-});
-
-// ===============================
 // 🔥 AUTH RESTORE + UI SYNC (DEBUG)
 // ===============================
 async function syncAuthToUI(stage) {
