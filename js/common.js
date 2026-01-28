@@ -1,6 +1,7 @@
 // js/common.js
 // ============================================
 // GLOBAL BOOTSTRAP (Theme + Partials + Auth Hook)
+// MOBILE DEBUG VERSION
 // ============================================
 
 // ===============================
@@ -17,6 +18,29 @@
 })();
 
 // ===============================
+// Mobile debug helper (VISIBLE)
+// ===============================
+function debugBox(text) {
+  let box = document.getElementById("debug-box");
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "debug-box";
+    box.style.position = "fixed";
+    box.style.bottom = "10px";
+    box.style.left = "10px";
+    box.style.zIndex = "999999";
+    box.style.background = "#000";
+    box.style.color = "#0f0";
+    box.style.padding = "8px";
+    box.style.fontSize = "12px";
+    box.style.fontFamily = "monospace";
+    box.style.maxWidth = "90vw";
+    document.body.appendChild(box);
+  }
+  box.textContent = text;
+}
+
+// ===============================
 // Load partial helper
 // ===============================
 function loadPartial(id, file, callback) {
@@ -24,11 +48,14 @@ function loadPartial(id, file, callback) {
     .then(res => res.text())
     .then(html => {
       const container = document.getElementById(id);
-      if (!container) return;
+      if (!container) {
+        debugBox("❌ Missing container: #" + id);
+        return;
+      }
       container.innerHTML = html;
       callback && callback();
     })
-    .catch(err => console.error(`Failed to load ${file}`, err));
+    .catch(err => debugBox("❌ Failed to load " + file));
 }
 
 // ===============================
@@ -37,6 +64,7 @@ function loadPartial(id, file, callback) {
 loadPartial("header", "partials/header.html", () => {
   highlightActiveNav();
   document.dispatchEvent(new CustomEvent("header:loaded"));
+  debugBox("✅ Header loaded");
 });
 
 // ===============================
@@ -129,43 +157,52 @@ document.addEventListener("login-modal:loaded", () => {
 });
 
 // ===============================
-// 🔥 AUTH RESTORE HOOK (CRITICAL)
+// 🔥 AUTH RESTORE + UI SYNC (DEBUG)
 // ===============================
+async function syncAuthToUI(stage) {
+  if (!window.AppwriteAuth) {
+    debugBox("❌ " + stage + ": AppwriteAuth missing");
+    return;
+  }
+
+  const user = window.AppwriteAuth.getCurrentUser
+    ? window.AppwriteAuth.getCurrentUser()
+    : null;
+
+  debugBox(
+    "🔎 " + stage +
+    " | auth=" + (user ? "USER" : "NULL") +
+    " | authEls=" + document.querySelectorAll("[data-auth-only]").length
+  );
+
+  document.querySelectorAll("[data-auth-only]").forEach(el => {
+    const mode = el.getAttribute("data-auth-only");
+    el.hidden = mode === "user" ? !user : !!user;
+  });
+
+  const avatarMini = document.querySelector(".avatar-mini");
+  if (avatarMini && user) {
+    const name = user.name || user.email || "U";
+    avatarMini.textContent = name[0].toUpperCase();
+  }
+}
+
+// Restore session twice (safe)
 document.addEventListener("DOMContentLoaded", async () => {
   if (window.AppwriteAuth?.restoreSession) {
     await window.AppwriteAuth.restoreSession();
+    syncAuthToUI("DOMContentLoaded");
   }
 });
 
-// ===============================
-// 🔥 FORCE FINAL AUTH → UI SYNC
-// ===============================
 window.addEventListener("load", async () => {
   if (window.AppwriteAuth?.restoreSession) {
     await window.AppwriteAuth.restoreSession();
+    syncAuthToUI("window.load");
   }
 });
 
-// ===============================
-// 🔥 APPLY data-auth-only VISIBILITY
-// ===============================
-function applyAuthVisibility(user) {
-  document.querySelectorAll("[data-auth-only]").forEach(el => {
-    const mode = el.getAttribute("data-auth-only");
-
-    if (mode === "user") {
-      el.hidden = !user;
-    }
-
-    if (mode === "guest") {
-      el.hidden = !!user;
-    }
-  });
-}
-
-// Listen to auth changes (GLOBAL)
-if (window.AppwriteAuth?.onAuthChange) {
-  window.AppwriteAuth.onAuthChange(user => {
-    applyAuthVisibility(user);
-  });
-}
+// Re-sync when header arrives
+document.addEventListener("header:loaded", () => {
+  syncAuthToUI("header.loaded");
+});
