@@ -1,50 +1,89 @@
 // js/login-modal.js
 import { login } from "./auth.js";
 
-// Elements
-const modal = document.getElementById("login-modal");
-const form = document.getElementById("loginForm");
-const msg = document.getElementById("loginModalMsg");
+let modal, form, msg;
 
-// Open modal
-document.addEventListener("click", (e) => {
-  if (e.target.closest(".login-trigger")) {
-    openModal();
+/**
+ * Initialize modal references AFTER DOM exists
+ */
+function initLoginModal() {
+  modal = document.getElementById("login-modal");
+  form = document.getElementById("loginForm");
+  msg = document.getElementById("loginModalMsg");
+
+  if (!modal || !form || !msg) {
+    // Modal not present on this page
+    return;
   }
-});
 
-// Close modal
-document.addEventListener("click", (e) => {
-  if (e.target.hasAttribute("data-close-login")) {
-    closeModal();
-  }
-});
+  // Handle form submit
+  form.addEventListener("submit", handleLogin);
+}
 
+/**
+ * Open modal
+ */
 function openModal() {
-  modal?.setAttribute("aria-hidden", "false");
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", "false");
+  modal.classList.add("open"); // safe even if CSS ignores it
   msg.hidden = true;
 }
 
+/**
+ * Close modal
+ */
 function closeModal() {
-  modal?.setAttribute("aria-hidden", "true");
-  form?.reset();
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", "true");
+  modal.classList.remove("open");
+  form.reset();
   msg.hidden = true;
 }
 
-// Handle login
-form?.addEventListener("submit", async (e) => {
+/**
+ * Handle login submit
+ */
+async function handleLogin(e) {
   e.preventDefault();
 
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
+  const email = document.getElementById("loginEmail")?.value.trim();
+  const password = document.getElementById("loginPassword")?.value;
+
+  if (!email || !password) {
+    msg.hidden = false;
+    msg.textContent = "Please enter email and password.";
+    return;
+  }
 
   msg.hidden = false;
   msg.textContent = "Signing in…";
 
   try {
     await login(email, password);
-    closeModal(); // success → modal closes
+    closeModal(); // success
   } catch (err) {
     msg.textContent = "Invalid email or password.";
   }
+}
+
+/**
+ * Global click handlers
+ */
+document.addEventListener("click", (e) => {
+  // Open modal
+  if (e.target.closest(".login-trigger")) {
+    openModal();
+    return;
+  }
+
+  // Close modal
+  if (e.target.hasAttribute("data-close-login")) {
+    closeModal();
+  }
 });
+
+/**
+ * Init once modal HTML is loaded
+ */
+initLoginModal();
