@@ -1,32 +1,31 @@
 // js/login-modal.js
-import { loginWithProvider } from "./auth.js";
+console.log("✅ login-modal.js loaded");
 
 function initLoginModal() {
   const modal = document.getElementById("login-modal");
-  if (!modal) {
-    alert("❌ login-modal NOT found");
+  const loginBtn = document.querySelector(".login-trigger");
+
+  if (!modal || !loginBtn) {
+    alert("❌ Modal or Login button NOT found");
     return;
   }
 
-  alert("✅ login-modal FOUND");
+  alert("✅ Login modal JS initialized");
 
-  document.addEventListener("click", (e) => {
-    if (e.target.closest(".login-trigger")) {
-      modal.setAttribute("aria-hidden", "false");
-    }
+  loginBtn.addEventListener("click", () => {
+    alert("🔥 Opening login modal");
+    modal.setAttribute("aria-hidden", "false");
+    modal.style.display = "flex";
+  });
 
+  modal.addEventListener("click", (e) => {
     if (e.target.hasAttribute("data-close-login")) {
       modal.setAttribute("aria-hidden", "true");
-    }
-
-    if (e.target.closest("[data-provider='google']")) {
-      loginWithProvider("google");
+      modal.style.display = "none";
     }
   });
 }
 
-// 🚨 WAIT for modal HTML
-document.addEventListener("login-modal:loaded", () => {
-  alert("📦 login-modal:loaded event");
-  initLoginModal();
-});
+// 🔥 Wait for header + modal to exist
+document.addEventListener("login-modal:loaded", initLoginModal);
+document.addEventListener("header:loaded", initLoginModal);
