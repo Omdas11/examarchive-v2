@@ -52,17 +52,11 @@ function getCurrentUser() {
 }
 
 // -------------------------------
-// 🔥 EXPOSE GLOBALLY (THIS WAS MISSING)
-// -------------------------------
+// 🔥 EXPOSE AUTH GLOBALLY (REQUIRED)
 window.AppwriteAuth = {
   restoreSession,
   onAuthChange,
-  loginWithGoogle,
+  loginWithProvider,
   logout,
   getCurrentUser
 };
-
-// -------------------------------
-// Auto-restore immediately
-// -------------------------------
-restoreSession();
