@@ -136,3 +136,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     await window.AppwriteAuth.restoreSession();
   }
 });
+
+// ===============================
+// 🔥 FORCE FINAL AUTH → UI SYNC
+// ===============================
+window.addEventListener("load", async () => {
+  if (window.AppwriteAuth?.restoreSession) {
+    await window.AppwriteAuth.restoreSession();
+  }
+});
