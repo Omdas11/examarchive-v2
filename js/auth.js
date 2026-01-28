@@ -4,7 +4,15 @@
 // FINAL – Session-safe, UI-safe
 // Supports: Google, GitHub, Microsoft
 // ==================================
-alert("AUTH.JS LOADED FROM PR13");
+console.log(
+  "AUTH DOM CHECK",
+  {
+    login: document.querySelector(".login-trigger"),
+    avatar: document.querySelector(".avatar-trigger"),
+    avatarMini: document.querySelector(".avatar-mini"),
+    authUser: currentUser
+  }
+);
 
 import { account } from "./appwrite.js";
 
