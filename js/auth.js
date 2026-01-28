@@ -1,35 +1,29 @@
 // js/auth.js
 // ==================================
-// Central Appwrite Auth Controller
-// Phase 1–2: Logic only (NO UI / NO DOM)
+// Appwrite Auth Controller (OAuth)
+// Supports: Google, GitHub, Microsoft
 // ==================================
 
 import { account } from "./appwrite.js";
 
-/**
- * Internal auth state
- */
 let currentUser = null;
 const subscribers = new Set();
 
-/**
- * Notify all subscribers of auth state change
- */
 function notify() {
   subscribers.forEach(cb => cb(currentUser));
 }
 
 /**
- * Subscribe to auth state changes
+ * Subscribe to auth changes
  */
-export function onAuthChange(callback) {
-  subscribers.add(callback);
-  callback(currentUser); // immediate sync
-  return () => subscribers.delete(callback);
+export function onAuthChange(cb) {
+  subscribers.add(cb);
+  cb(currentUser);
+  return () => subscribers.delete(cb);
 }
 
 /**
- * Restore session on page load
+ * Restore session on load
  */
 export async function restoreSession() {
   try {
@@ -42,19 +36,21 @@ export async function restoreSession() {
 }
 
 /**
- * 🔥 FIXED: Login with email + password
- * (correct method for window.Appwrite SDK)
+ * 🔐 Login with OAuth provider
+ * @param {"google"|"github"|"microsoft"} provider
  */
-export async function login(email, password) {
-  // IMPORTANT: correct API for this SDK
-  await account.createSession("email", email, password);
-  currentUser = await account.get();
-  notify();
-  return currentUser;
+export function loginWithProvider(provider) {
+  const redirect = window.location.origin;
+
+  account.createOAuth2Session(
+    provider,
+    redirect, // success
+    redirect  // failure
+  );
 }
 
 /**
- * Logout current user
+ * Logout
  */
 export async function logout() {
   await account.deleteSession("current");
@@ -62,9 +58,6 @@ export async function logout() {
   notify();
 }
 
-/**
- * Get current user synchronously
- */
 export function getCurrentUser() {
   return currentUser;
 }
