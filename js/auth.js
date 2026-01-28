@@ -116,7 +116,15 @@ onAuthChange(user => {
   syncAuthToDOM(user);
 });
 
-// Re-sync when header loads (in case auth resolved before header existed)
+// Re-sync when partials load (in case auth resolved before DOM existed)
 document.addEventListener("header:loaded", () => {
+  syncAuthToDOM(currentUser);
+});
+
+document.addEventListener("avatar:loaded", () => {
+  syncAuthToDOM(currentUser);
+});
+
+document.addEventListener("profile-panel:loaded", () => {
   syncAuthToDOM(currentUser);
 });
