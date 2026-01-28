@@ -94,3 +94,24 @@ window.AppwriteAuth = {
   getCurrentUser,
   onAuthChange
 };
+
+// ===============================
+// 🔥 DIRECT DOM SYNC (NO BRIDGES)
+// ===============================
+function syncAuthToDOM(user) {
+  document.querySelectorAll("[data-auth-only]").forEach(el => {
+    const mode = el.getAttribute("data-auth-only");
+    el.hidden = mode === "user" ? !user : !!user;
+  });
+
+  const avatarMini = document.querySelector(".avatar-mini");
+  if (avatarMini && user) {
+    const name = user.name || user.email || "U";
+    avatarMini.textContent = name[0].toUpperCase();
+  }
+}
+
+// Force sync AFTER session restore
+onAuthChange(user => {
+  syncAuthToDOM(user);
+});
