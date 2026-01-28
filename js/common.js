@@ -166,3 +166,10 @@ document.addEventListener("login-modal:loaded", () => {
   script.id = "login-modal-script";
   document.body.appendChild(script);
 });
+
+// ===============================
+// 🔥 RESTORE APPWRITE SESSION ON PAGE LOAD
+// ===============================
+import("./auth.js").then(({ restoreSession }) => {
+  restoreSession();
+});
