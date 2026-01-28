@@ -1,7 +1,7 @@
 // js/auth.js
 // ==================================
 // Central Appwrite Auth Controller
-// Phase 1: Logic only (NO UI / NO DOM)
+// Phase 1–2: Logic only (NO UI / NO DOM)
 // ==================================
 
 import { account } from "./appwrite.js";
@@ -21,7 +21,6 @@ function notify() {
 
 /**
  * Subscribe to auth state changes
- * @param {(user:Object|null)=>void} callback
  */
 export function onAuthChange(callback) {
   subscribers.add(callback);
@@ -43,10 +42,12 @@ export async function restoreSession() {
 }
 
 /**
- * Login with email + password
+ * 🔥 FIXED: Login with email + password
+ * (correct method for window.Appwrite SDK)
  */
 export async function login(email, password) {
-  await account.createEmailPasswordSession(email, password);
+  // IMPORTANT: correct API for this SDK
+  await account.createSession("email", email, password);
   currentUser = await account.get();
   notify();
   return currentUser;
