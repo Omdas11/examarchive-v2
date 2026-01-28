@@ -1,32 +1,22 @@
 // js/auth.js
 // ==================================
-// Appwrite Auth Controller (OAuth)
-// FINAL – Session-safe, UI-safe
-// Supports: Google, GitHub, Microsoft
+// Appwrite Auth Controller (GLOBAL)
+// Google OAuth only (for now)
 // ==================================
-console.log(
-  "AUTH DOM CHECK",
-  {
-    login: document.querySelector(".login-trigger"),
-    avatar: document.querySelector(".avatar-trigger"),
-    avatarMini: document.querySelector(".avatar-mini"),
-    authUser: currentUser
-  }
-);
 
 import { account } from "./appwrite.js";
 
 let currentUser = null;
 const subscribers = new Set();
 
-/* -----------------------------
-   Internal helpers
------------------------------- */
 function notify() {
   subscribers.forEach(cb => cb(currentUser));
 }
 
-async function fetchUser() {
+// -------------------------------
+// Public API
+// -------------------------------
+async function restoreSession() {
   try {
     currentUser = await account.get();
   } catch {
@@ -36,104 +26,43 @@ async function fetchUser() {
   return currentUser;
 }
 
-/* -----------------------------
-   Public API
------------------------------- */
-
-/**
- * Subscribe to auth changes
- */
-export function onAuthChange(callback) {
-  subscribers.add(callback);
-  callback(currentUser);
-  return () => subscribers.delete(callback);
+function onAuthChange(cb) {
+  subscribers.add(cb);
+  cb(currentUser);
+  return () => subscribers.delete(cb);
 }
 
-/**
- * Restore session (OAuth redirect safe)
- */
-export async function restoreSession() {
-  return await fetchUser();
-}
-
-/**
- * OAuth login
- * @param {"google"|"github"|"microsoft"} provider
- */
-export function loginWithProvider(provider) {
-  const redirect = window.location.origin + window.location.pathname;
-
+function loginWithGoogle() {
+  const redirect = window.location.origin;
   account.createOAuth2Session(
-    provider,
-    redirect, // success
-    redirect  // failure
+    "google",
+    redirect,
+    redirect
   );
 }
 
-/**
- * Logout
- */
-export async function logout() {
-  try {
-    await account.deleteSession("current");
-  } catch {}
+async function logout() {
+  await account.deleteSession("current");
   currentUser = null;
   notify();
 }
 
-/**
- * Get current user synchronously
- */
-export function getCurrentUser() {
+function getCurrentUser() {
   return currentUser;
 }
 
-/* -----------------------------
-   🔥 AUTO-RUN ON LOAD
------------------------------- */
-
-// Restore session immediately after OAuth redirect
-fetchUser();
-
-// Expose global bridge for non-module scripts
+// -------------------------------
+// 🔥 EXPOSE GLOBALLY (THIS WAS MISSING)
+// -------------------------------
 window.AppwriteAuth = {
-  loginWithProvider,
-  logout,
   restoreSession,
-  getCurrentUser,
-  onAuthChange
+  onAuthChange,
+  loginWithGoogle,
+  logout,
+  getCurrentUser
 };
 
-// ===============================
-// 🔥 DIRECT DOM SYNC (NO BRIDGES)
-// ===============================
-function syncAuthToDOM(user) {
-  document.querySelectorAll("[data-auth-only]").forEach(el => {
-    const mode = el.getAttribute("data-auth-only");
-    el.hidden = mode === "user" ? !user : !!user;
-  });
-
-  const avatarMini = document.querySelector(".avatar-mini");
-  if (avatarMini && user) {
-    const name = user.name || user.email || "U";
-    avatarMini.textContent = name[0].toUpperCase();
-  }
-}
-
-// Force sync AFTER session restore
-onAuthChange(user => {
-  syncAuthToDOM(user);
-});
-
-// Re-sync when partials load (in case auth resolved before DOM existed)
-document.addEventListener("header:loaded", () => {
-  syncAuthToDOM(currentUser);
-});
-
-document.addEventListener("avatar:loaded", () => {
-  syncAuthToDOM(currentUser);
-});
-
-document.addEventListener("profile-panel:loaded", () => {
-  syncAuthToDOM(currentUser);
-});
+// -------------------------------
+// Auto-restore immediately
+// -------------------------------
+restoreSession();
