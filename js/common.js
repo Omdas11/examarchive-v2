@@ -1,18 +1,16 @@
 // js/common.js
 // ============================================
-// GLOBAL BOOTSTRAP (Theme + Partials + Layout)
-// Phase 1–2: Auth-safe (no auth logic here)
+// GLOBAL BOOTSTRAP (Theme + Partials + Auth Hook)
 // ============================================
 
 // ===============================
-// Apply saved theme early (GLOBAL)
+// Apply saved theme early
 // ===============================
 (function () {
   const theme = localStorage.getItem("theme") || "light";
   const night = localStorage.getItem("night");
 
   document.body.setAttribute("data-theme", theme);
-
   if (night === "on") {
     document.body.setAttribute("data-night", "on");
   }
@@ -27,47 +25,14 @@ function loadPartial(id, file, callback) {
     .then(html => {
       const container = document.getElementById(id);
       if (!container) return;
-
       container.innerHTML = html;
-
-      if (typeof callback === "function") {
-        callback();
-      }
+      callback && callback();
     })
-    .catch(err => {
-      console.error(`Failed to load ${file}:`, err);
-    });
+    .catch(err => console.error(`Failed to load ${file}`, err));
 }
 
 // ===============================
-// Deterministic Avatar Color Helper
-// ===============================
-function applyAvatarColors(name) {
-  if (!name) return;
-
-  const palettes = [
-    { bg: "#ecfeff", text: "#155e75", ring: "#16a34a" },
-    { bg: "#fef3c7", text: "#92400e", ring: "#f59e0b" },
-    { bg: "#ede9fe", text: "#4c1d95", ring: "#8b5cf6" },
-    { bg: "#dcfce7", text: "#14532d", ring: "#22c55e" },
-    { bg: "#ffe4e6", text: "#9f1239", ring: "#fb7185" },
-    { bg: "#e0f2fe", text: "#075985", ring: "#38bdf8" }
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const palette = palettes[Math.abs(hash) % palettes.length];
-
-  document.documentElement.style.setProperty("--avatar-bg", palette.bg);
-  document.documentElement.style.setProperty("--avatar-text", palette.text);
-  document.documentElement.style.setProperty("--avatar-ring", palette.ring);
-}
-
-// ===============================
-// Load HEADER
+// Header
 // ===============================
 loadPartial("header", "partials/header.html", () => {
   highlightActiveNav();
@@ -75,38 +40,36 @@ loadPartial("header", "partials/header.html", () => {
 });
 
 // ===============================
-// Load FOOTER
+// Footer
 // ===============================
 loadPartial("footer", "partials/footer.html");
 
 // ===============================
-// Load AVATAR POPUP
+// Avatar popup
 // ===============================
 loadPartial("avatar-portal", "partials/avatar-popup.html", () => {
   document.dispatchEvent(new CustomEvent("avatar:loaded"));
 });
 
 // ===============================
-// Load PROFILE PANEL
+// Profile panel
 // ===============================
 loadPartial("profile-panel-portal", "partials/profile-panel.html", () => {
   document.dispatchEvent(new CustomEvent("profile-panel:loaded"));
 });
 
 // ===============================
-// Load LOGIN MODAL
+// Login modal
 // ===============================
 loadPartial("login-modal-portal", "partials/login-modal.html", () => {
   document.dispatchEvent(new CustomEvent("login-modal:loaded"));
 });
 
 // ===============================
-// Highlight active nav link
+// Highlight active nav
 // ===============================
 function highlightActiveNav() {
-  const current =
-    window.location.pathname.split("/").pop() || "index.html";
-
+  const current = window.location.pathname.split("/").pop() || "index.html";
   document.querySelectorAll(".nav-link").forEach(link => {
     if (link.getAttribute("href") === current) {
       link.classList.add("active");
@@ -115,7 +78,7 @@ function highlightActiveNav() {
 }
 
 // ===============================
-// Mobile menu toggle
+// Mobile menu
 // ===============================
 document.addEventListener("click", (e) => {
   const menuBtn = e.target.closest(".menu-btn");
@@ -142,34 +105,34 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// Lazy-load avatar.js AFTER popup exists
+// Lazy-load avatar.js
 // ===============================
 document.addEventListener("avatar:loaded", () => {
   if (document.getElementById("avatar-script")) return;
-
-  const script = document.createElement("script");
-  script.src = "js/avatar.js";
-  script.defer = true;
-  script.id = "avatar-script";
-  document.body.appendChild(script);
+  const s = document.createElement("script");
+  s.src = "js/avatar.js";
+  s.defer = true;
+  s.id = "avatar-script";
+  document.body.appendChild(s);
 });
 
 // ===============================
-// 🔥 FIX: Lazy-load login-modal.js AS MODULE
+// Lazy-load login-modal.js (MODULE)
 // ===============================
 document.addEventListener("login-modal:loaded", () => {
   if (document.getElementById("login-modal-script")) return;
-
-  const script = document.createElement("script");
-  script.src = "js/login-modal.js";
-  script.type = "module"; // 🔥 REQUIRED
-  script.id = "login-modal-script";
-  document.body.appendChild(script);
+  const s = document.createElement("script");
+  s.src = "js/login-modal.js";
+  s.type = "module";
+  s.id = "login-modal-script";
+  document.body.appendChild(s);
 });
 
 // ===============================
-// 🔥 RESTORE APPWRITE SESSION ON PAGE LOAD
+// 🔥 AUTH RESTORE HOOK (CRITICAL)
 // ===============================
-import("./auth.js").then(({ restoreSession }) => {
-  restoreSession();
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.AppwriteAuth?.restoreSession) {
+    await window.AppwriteAuth.restoreSession();
+  }
 });
