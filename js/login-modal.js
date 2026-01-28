@@ -1,31 +1,43 @@
 // js/login-modal.js
-console.log("✅ login-modal.js loaded");
+// ===============================
+// Login Modal Controller (Google only)
+// ===============================
 
-function initLoginModal() {
-  const modal = document.getElementById("login-modal");
+import { account } from "./appwrite.js";
+
+document.addEventListener("login-modal:loaded", () => {
+  alert("✅ Login modal JS initialized");
+
+  const modal = document.querySelector(".login-modal");
   const loginBtn = document.querySelector(".login-trigger");
+  const closeBtn = modal?.querySelector(".modal-close");
+  const googleBtn = modal?.querySelector("[data-provider='google']");
 
-  if (!modal || !loginBtn) {
-    alert("❌ Modal or Login button NOT found");
+  if (!modal || !googleBtn) {
+    alert("❌ Login modal or Google button NOT found");
     return;
   }
 
-  alert("✅ Login modal JS initialized");
-
-  loginBtn.addEventListener("click", () => {
-    alert("🔥 Opening login modal");
-    modal.setAttribute("aria-hidden", "false");
-    modal.style.display = "flex";
+  // Open modal
+  loginBtn?.addEventListener("click", () => {
+    modal.classList.add("open");
   });
 
-  modal.addEventListener("click", (e) => {
-    if (e.target.hasAttribute("data-close-login")) {
-      modal.setAttribute("aria-hidden", "true");
-      modal.style.display = "none";
-    }
+  // Close modal
+  closeBtn?.addEventListener("click", () => {
+    modal.classList.remove("open");
   });
-}
 
-// 🔥 Wait for header + modal to exist
-document.addEventListener("login-modal:loaded", initLoginModal);
-document.addEventListener("header:loaded", initLoginModal);
+  // 🔐 GOOGLE LOGIN
+  googleBtn.addEventListener("click", () => {
+    alert("🔥 Google OAuth triggered");
+
+    const redirect = window.location.origin;
+
+    account.createOAuth2Session(
+      "google",
+      redirect, // success
+      redirect  // failure
+    );
+  });
+});
