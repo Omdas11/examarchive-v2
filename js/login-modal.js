@@ -21,12 +21,10 @@ function closeModal() {
 
 // Global click handling
 document.addEventListener("click", (e) => {
-  // Ensure modal is initialized
-  if (!modal) init();
-  
   // Open
   if (e.target.closest(".login-trigger")) {
-    openModal();
+    if (!modal) init();
+    if (modal) openModal();
     return;
   }
 
@@ -40,13 +38,10 @@ document.addEventListener("click", (e) => {
 
   // Close
   if (e.target.hasAttribute("data-close-login")) {
-    closeModal();
+    if (modal) closeModal();
   }
 });
 
-// Init when DOM is ready (modal should be loaded by now)
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+// Init immediately - modal HTML should be loaded since this script
+// is loaded via login-modal:loaded event after HTML injection
+init();
