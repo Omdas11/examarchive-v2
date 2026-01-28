@@ -1,60 +1,84 @@
+// js/avatar.js
+// ============================================
+// Avatar + Header Auth State Controller
+// ============================================
+
+import {
+  onAuthChange,
+  logout
+} from "./auth.js";
+
+// Elements
+let loginBtn;
+let avatarBtn;
+let avatarInitial;
+let avatarName;
+
 // ===============================
-// Avatar Popup + Profile Bridge
-// FINAL / BACKEND-READY
+// Init AFTER header is loaded
 // ===============================
+document.addEventListener("header:loaded", () => {
+  loginBtn = document.querySelector(".login-trigger");
+  avatarBtn = document.querySelector(".avatar-trigger");
+  avatarInitial = document.querySelector(".avatar-initial");
+  avatarName = document.querySelector(".avatar-name");
 
-(function () {
-  const popup = document.getElementById("avatar-popup");
+  bindAuth();
+});
 
-  if (!popup) {
-    console.warn("avatar-popup not found");
-    return;
-  }
-
-  document.addEventListener("click", (e) => {
-    const trigger = e.target.closest("#avatarTrigger");
-    const logoutBtn = e.target.closest("#avatarLogoutBtn");
-
-    // ---------------------------
-    // Avatar trigger clicked
-    // ---------------------------
-    if (trigger) {
-      e.stopPropagation();
-      
-      // Always toggle popup (whether logged in or not)
-      popup.classList.toggle("open");
-      console.log("Avatar trigger clicked - toggling popup");
-      return;
-    }
-
-    // ---------------------------
-    // Logout button clicked
-    // ---------------------------
-    if (logoutBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log("Logout clicked");
-
-      if (window.AppwriteAuth) {
-        window.AppwriteAuth.logout()
-          .then(() => {
-            // Close popup and refresh auth state
-            popup.classList.remove("open");
-            return window.AppwriteAuth.refreshAuthState();
-          })
-          .catch(err => {
-            console.error("Logout error:", err);
-            alert("Logout failed. Please try again.");
-          });
-      }
-      return;
-    }
-
-    // ---------------------------
-    // Click outside → close popup
-    // ---------------------------
-    if (!e.target.closest("#avatar-popup")) {
-      popup.classList.remove("open");
+// ===============================
+// Bind auth state to UI
+// ===============================
+function bindAuth() {
+  onAuthChange(user => {
+    if (user) {
+      showUser(user);
+    } else {
+      showGuest();
     }
   });
-})();
+}
+
+// ===============================
+// Show logged-in user
+// ===============================
+function showUser(user) {
+  loginBtn?.classList.add("hidden");
+  avatarBtn?.classList.remove("hidden");
+
+  const name =
+    user.name ||
+    user.email?.split("@")[0] ||
+    "User";
+
+  if (avatarInitial) {
+    avatarInitial.textContent = name.charAt(0).toUpperCase();
+  }
+
+  if (avatarName) {
+    avatarName.textContent = name;
+  }
+
+  // Deterministic avatar color
+  if (window.applyAvatarColors) {
+    window.applyAvatarColors(name);
+  }
+}
+
+// ===============================
+// Show guest state
+// ===============================
+function showGuest() {
+  avatarBtn?.classList.add("hidden");
+  loginBtn?.classList.remove("hidden");
+}
+
+// ===============================
+// Logout handler (profile panel)
+// ===============================
+document.addEventListener("click", async (e) => {
+  if (e.target.closest("[data-logout]")) {
+    await logout();
+    location.reload();
+  }
+});
