@@ -1,6 +1,7 @@
 // js/auth.js
 // ==================================
 // Appwrite Auth Controller (OAuth)
+// FINAL – Session-safe, UI-safe
 // Supports: Google, GitHub, Microsoft
 // ==================================
 
@@ -9,44 +10,54 @@ import { account } from "./appwrite.js";
 let currentUser = null;
 const subscribers = new Set();
 
+/* -----------------------------
+   Internal helpers
+------------------------------ */
 function notify() {
   subscribers.forEach(cb => cb(currentUser));
 }
 
-/**
- * Subscribe to auth changes
- */
-export function onAuthChange(cb) {
-  subscribers.add(cb);
-  cb(currentUser);
-  return () => subscribers.delete(cb);
-}
-
-/**
- * Restore session on load
- * 🔥 MUST be called after OAuth redirect
- */
-export async function restoreSession() {
+async function fetchUser() {
   try {
     currentUser = await account.get();
-  } catch (err) {
+  } catch {
     currentUser = null;
   }
   notify();
   return currentUser;
 }
 
+/* -----------------------------
+   Public API
+------------------------------ */
+
 /**
- * 🔐 Login with OAuth provider
+ * Subscribe to auth changes
+ */
+export function onAuthChange(callback) {
+  subscribers.add(callback);
+  callback(currentUser);
+  return () => subscribers.delete(callback);
+}
+
+/**
+ * Restore session (OAuth redirect safe)
+ */
+export async function restoreSession() {
+  return await fetchUser();
+}
+
+/**
+ * OAuth login
+ * @param {"google"|"github"|"microsoft"} provider
  */
 export function loginWithProvider(provider) {
-  const redirect = window.location.origin;
+  const redirect = window.location.origin + window.location.pathname;
 
-  // IMPORTANT: do not await — this redirects immediately
   account.createOAuth2Session(
     provider,
-    redirect,
-    redirect
+    redirect, // success
+    redirect  // failure
   );
 }
 
@@ -62,8 +73,24 @@ export async function logout() {
 }
 
 /**
- * Sync getter
+ * Get current user synchronously
  */
 export function getCurrentUser() {
   return currentUser;
 }
+
+/* -----------------------------
+   🔥 AUTO-RUN ON LOAD
+------------------------------ */
+
+// Restore session immediately after OAuth redirect
+fetchUser();
+
+// Expose global bridge for non-module scripts
+window.AppwriteAuth = {
+  loginWithProvider,
+  logout,
+  restoreSession,
+  getCurrentUser,
+  onAuthChange
+};
