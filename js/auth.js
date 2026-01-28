@@ -24,11 +24,12 @@ export function onAuthChange(cb) {
 
 /**
  * Restore session on load
+ * 🔥 MUST be called after OAuth redirect
  */
 export async function restoreSession() {
   try {
     currentUser = await account.get();
-  } catch {
+  } catch (err) {
     currentUser = null;
   }
   notify();
@@ -37,15 +38,15 @@ export async function restoreSession() {
 
 /**
  * 🔐 Login with OAuth provider
- * @param {"google"|"github"|"microsoft"} provider
  */
 export function loginWithProvider(provider) {
   const redirect = window.location.origin;
 
+  // IMPORTANT: do not await — this redirects immediately
   account.createOAuth2Session(
     provider,
-    redirect, // success
-    redirect  // failure
+    redirect,
+    redirect
   );
 }
 
@@ -53,11 +54,16 @@ export function loginWithProvider(provider) {
  * Logout
  */
 export async function logout() {
-  await account.deleteSession("current");
+  try {
+    await account.deleteSession("current");
+  } catch {}
   currentUser = null;
   notify();
 }
 
+/**
+ * Sync getter
+ */
 export function getCurrentUser() {
   return currentUser;
 }
