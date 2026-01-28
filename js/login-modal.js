@@ -1,92 +1,45 @@
 // js/login-modal.js
-import { login } from "./auth.js";
+import { loginWithProvider } from "./auth.js";
 
-let modal, form, msg;
+let modal, msg;
 
-/**
- * Initialize modal references AFTER DOM exists
- */
-function initLoginModal() {
+function init() {
   modal = document.getElementById("login-modal");
-  form = document.getElementById("loginForm");
   msg = document.getElementById("loginModalMsg");
-
-  if (!modal || !form || !msg) return;
-
-  form.addEventListener("submit", handleLogin);
+  if (!modal) return;
 }
 
-/**
- * Open modal
- */
 function openModal() {
-  if (!modal) return;
   modal.setAttribute("aria-hidden", "false");
-  modal.classList.add("open");
-  msg.hidden = true;
+  msg && (msg.hidden = true);
 }
 
-/**
- * Close modal
- */
 function closeModal() {
-  if (!modal) return;
   modal.setAttribute("aria-hidden", "true");
-  modal.classList.remove("open");
-  form.reset();
-  msg.hidden = true;
+  msg && (msg.hidden = true);
 }
 
-/**
- * Handle login submit (WITH VISUAL DEBUG)
- */
-async function handleLogin(e) {
-  e.preventDefault();
-
-  const email = document.getElementById("loginEmail")?.value.trim();
-  const password = document.getElementById("loginPassword")?.value;
-
-  if (!email || !password) {
-    msg.hidden = false;
-    msg.textContent = "❌ Email or password missing";
-    return;
-  }
-
-  msg.hidden = false;
-  msg.textContent = "⏳ Signing in…";
-
-  try {
-    await login(email, password);
-    msg.textContent = "✅ Login success";
-    setTimeout(closeModal, 500);
-  } catch (err) {
-    // 🔥 VISUAL DEBUG OUTPUT
-    const details = [
-      "❌ Login failed",
-      `Message: ${err?.message || "unknown"}`,
-      `Code: ${err?.code || "none"}`,
-      `Type: ${err?.type || "none"}`
-    ].join("\n");
-
-    msg.textContent = details;
-  }
-}
-
-/**
- * Global click handlers
- */
+// Global click handling
 document.addEventListener("click", (e) => {
+  // Open
   if (e.target.closest(".login-trigger")) {
     openModal();
     return;
   }
 
+  // Provider buttons
+  const btn = e.target.closest("[data-provider]");
+  if (btn) {
+    const provider = btn.getAttribute("data-provider");
+    loginWithProvider(provider);
+    return;
+  }
+
+  // Close
   if (e.target.hasAttribute("data-close-login")) {
     closeModal();
   }
 });
 
-/**
- * Init once modal HTML is loaded
- */
-initLoginModal();
+// Init after modal HTML exists
+init();
