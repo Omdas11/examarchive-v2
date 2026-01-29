@@ -1,7 +1,7 @@
 // js/common.js
 // ============================================
 // GLOBAL BOOTSTRAP (Theme + Partials + Auth Hook)
-// SUPABASE – MOBILE DEBUG VERSION
+// SUPABASE – MOBILE DEBUG VERSION (FIXED)
 // ============================================
 
 import { supabase } from "./supabase.js";
@@ -42,6 +42,28 @@ function debugBox(text) {
   box.textContent = text;
   console.log(text);
 }
+
+/* ==================================================
+   🔑 SUPABASE OAUTH CALLBACK (🔥 THIS WAS MISSING)
+   ================================================== */
+(async function handleOAuthRedirect() {
+  if (window.location.hash.includes("access_token")) {
+    debugBox("🔑 OAuth token detected in URL");
+
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+      debugBox("❌ Session creation failed: " + error.message);
+      alert("❌ Session exchange failed");
+    } else {
+      debugBox("✅ Supabase session established");
+      alert("✅ LOGIN SUCCESS");
+
+      // Clean URL (remove #access_token)
+      history.replaceState(null, "", window.location.pathname);
+    }
+  }
+})();
 
 /* ===============================
    Load partial helper
@@ -148,18 +170,12 @@ document.addEventListener("avatar:loaded", () => {
 });
 
 /* ===============================
-   🔥 SUPABASE AUTH RESTORE + UI SYNC (DEBUG)
+   🔥 AUTH → UI SYNC
    =============================== */
 async function syncAuthToUI(stage) {
   debugBox("🔄 syncAuthToUI @ " + stage);
 
-  const { data, error } = await supabase.auth.getUser();
-
-  if (error) {
-    debugBox("❌ Auth error: " + error.message);
-    return;
-  }
-
+  const { data } = await supabase.auth.getUser();
   const user = data?.user || null;
 
   debugBox(
@@ -181,7 +197,7 @@ async function syncAuthToUI(stage) {
 }
 
 /* ===============================
-   Restore session (SAFE MULTI-HOOK)
+   Initial restore
    =============================== */
 document.addEventListener("DOMContentLoaded", () => {
   syncAuthToUI("DOMContentLoaded");
@@ -198,7 +214,7 @@ document.addEventListener("header:loaded", () => {
 /* ===============================
    Supabase auth state listener
    =============================== */
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange((event) => {
   alert("🔔 AUTH EVENT: " + event);
   debugBox("🔔 Auth change: " + event);
   syncAuthToUI("auth.change");
