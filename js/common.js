@@ -44,25 +44,47 @@ function debugBox(text) {
 }
 
 /* ==================================================
-   🔑 SUPABASE OAUTH CALLBACK (🔥 THIS WAS MISSING)
+   🔑 SUPABASE OAUTH CALLBACK (FINAL – REQUIRED)
    ================================================== */
 (async function handleOAuthRedirect() {
-  if (window.location.hash.includes("access_token")) {
-    debugBox("🔑 OAuth token detected in URL");
+  const hash = window.location.hash;
 
-    const { data, error } = await supabase.auth.getSession();
-
-    if (error) {
-      debugBox("❌ Session creation failed: " + error.message);
-      alert("❌ Session exchange failed");
-    } else {
-      debugBox("✅ Supabase session established");
-      alert("✅ LOGIN SUCCESS");
-
-      // Clean URL (remove #access_token)
-      history.replaceState(null, "", window.location.pathname);
-    }
+  if (!hash || !hash.includes("access_token")) {
+    debugBox("ℹ️ No OAuth token in URL");
+    return;
   }
+
+  debugBox("🔑 OAuth token detected in URL");
+
+  const params = new URLSearchParams(hash.substring(1));
+
+  const access_token = params.get("access_token");
+  const refresh_token = params.get("refresh_token");
+
+  if (!access_token || !refresh_token) {
+    debugBox("❌ Missing tokens in URL");
+    alert("❌ OAuth tokens missing");
+    return;
+  }
+
+  debugBox("📦 Tokens extracted, setting session…");
+
+  const { error } = await supabase.auth.setSession({
+    access_token,
+    refresh_token,
+  });
+
+  if (error) {
+    debugBox("❌ setSession failed: " + error.message);
+    alert("❌ Session creation failed");
+    return;
+  }
+
+  debugBox("✅ Supabase session STORED");
+  alert("✅ LOGIN SUCCESS");
+
+  // 🔥 Clean URL
+  history.replaceState({}, document.title, window.location.pathname);
 })();
 
 /* ===============================
