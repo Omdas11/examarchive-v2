@@ -311,9 +311,9 @@ function attachEventListeners() {
       localStorage.setItem("font-family", value);
       
       if (value === "system") {
-        document.body.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+        document.body.classList.add("font-system");
       } else {
-        document.body.style.fontFamily = "";
+        document.body.classList.remove("font-system");
       }
       
       console.log(`✅ Font family changed to: ${value}`);
@@ -322,7 +322,7 @@ function attachEventListeners() {
     // Apply saved font
     const savedFont = localStorage.getItem("font-family");
     if (savedFont === "system") {
-      document.body.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      document.body.classList.add("font-system");
     }
   }
   

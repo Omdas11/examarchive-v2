@@ -101,8 +101,8 @@ function renderBadges(badges) {
   
   badgesSection.style.display = "flex";
   badgesSection.innerHTML = badges.map(badge => `
-    <div class="badge badge-${badge.type}" style="--badge-color: ${badge.color}">
-      <span class="badge-icon">${badge.icon}</span>
+    <div class="badge badge-${badge.type}" aria-label="${badge.label} badge">
+      <span class="badge-icon" aria-hidden="true">${badge.icon}</span>
       <span class="badge-label">${badge.label}</span>
     </div>
   `).join("");

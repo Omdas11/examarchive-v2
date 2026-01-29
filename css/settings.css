@@ -342,32 +342,3 @@ body[data-theme="amoled"] .settings-theme-btn.active {
     transition: none;
   }
 }
-
-/* ================================
-   Auth Required Section
-   ================================ */
-
-.auth-required {
-  text-align: center;
-  padding: 2rem 1rem;
-  background: var(--bg-soft);
-  border-radius: 12px;
-  border: 1px dashed var(--border);
-}
-
-.auth-required-text {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  margin-bottom: 1rem;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 10px rgba(211, 47, 47, 0);
-  }
-}

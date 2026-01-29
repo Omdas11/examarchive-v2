@@ -112,18 +112,7 @@ async function renderRepeatedQuestions(data) {
     // Attach click handler to open avatar popup
     const signInBtn = document.getElementById("rq-sign-in-btn");
     signInBtn?.addEventListener("click", () => {
-      const avatarPopup = document.getElementById("avatar-popup");
-      if (avatarPopup) {
-        avatarPopup.classList.add("open");
-        // Scroll to Sign in button
-        setTimeout(() => {
-          const signInButton = document.getElementById("avatarSignInBtn");
-          if (signInButton) {
-            signInButton.focus();
-            signInButton.style.animation = "pulse 0.6s ease-in-out 3";
-          }
-        }, 100);
-      }
+      openAvatarPopupWithHighlight();
     });
     return;
   }
@@ -299,10 +288,9 @@ async function loadPaper() {
 
 /* ================= PROTECT NOTES SECTION ================= */
 async function protectNotesSection() {
-  const notesSection = document.querySelector('.paper-section:has(h2:contains("Notes"))') || 
-                       Array.from(document.querySelectorAll('.paper-section')).find(s => 
-                         s.querySelector('h2')?.textContent.includes('Notes')
-                       );
+  const notesSection = Array.from(document.querySelectorAll('.paper-section')).find(s => 
+    s.querySelector('h2')?.textContent.includes('Notes')
+  );
   
   if (!notesSection) return;
 
@@ -326,20 +314,29 @@ async function protectNotesSection() {
       // Attach click handler to open avatar popup
       const signInBtn = document.getElementById("notes-sign-in-btn");
       signInBtn?.addEventListener("click", () => {
-        const avatarPopup = document.getElementById("avatar-popup");
-        if (avatarPopup) {
-          avatarPopup.classList.add("open");
-          // Scroll to Sign in button
-          setTimeout(() => {
-            const signInButton = document.getElementById("avatarSignInBtn");
-            if (signInButton) {
-              signInButton.focus();
-              signInButton.style.animation = "pulse 0.6s ease-in-out 3";
-            }
-          }, 100);
-        }
+        openAvatarPopupWithHighlight();
       });
     }
+  }
+}
+
+/* ================= HELPER: OPEN AVATAR POPUP WITH HIGHLIGHT ================= */
+function openAvatarPopupWithHighlight() {
+  const avatarPopup = document.getElementById("avatar-popup");
+  if (avatarPopup) {
+    avatarPopup.classList.add("open");
+    // Highlight Sign in button
+    setTimeout(() => {
+      const signInButton = document.getElementById("avatarSignInBtn");
+      if (signInButton) {
+        signInButton.focus();
+        signInButton.classList.add('btn-pulse');
+        // Remove animation after it completes
+        setTimeout(() => {
+          signInButton.classList.remove('btn-pulse');
+        }, 1800); // 0.6s * 3 iterations
+      }
+    }, 100);
   }
 }
 

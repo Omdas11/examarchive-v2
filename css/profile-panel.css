@@ -168,17 +168,6 @@
   color: #e65100;
 }
 
-/* Legacy support */
-.badge-role {
-  background: #eef1ff;
-  color: #4a5bdc;
-}
-
-.badge-rank {
-  background: #fff3d6;
-  color: #b87b00;
-}
-
 /* ---------- Stats ---------- */
 
 .profile-stats {
