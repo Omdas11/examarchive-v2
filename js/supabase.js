@@ -7,8 +7,9 @@ export const supabase = createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true, // 🔥 THIS IS THE FIX
-      flowType: "implicit",     // 🔥 REQUIRED for hash tokens
+      detectSessionInUrl: false, // 👈 MUST be false since YOU handle it manually
+      flowType: "implicit",      // 👈 REQUIRED for #access_token
+      storage: window.localStorage, // 👈 IMPORTANT on mobile
     },
   }
 );
