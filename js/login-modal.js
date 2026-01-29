@@ -9,8 +9,8 @@ import { supabase } from "./supabase.js";
    Mobile debug helper
    =============================== */
 function debug(msg) {
-  alert(msg);
-  console.log(msg);
+  // Removed alert to avoid blocking UX
+  console.log("[Login Modal]", msg);
 }
 
 /* ===============================

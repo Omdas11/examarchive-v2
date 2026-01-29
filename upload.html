@@ -127,8 +127,14 @@
   <div id="login-modal-portal"></div>
 
   <!-- Scripts -->
+  <!-- Supabase SDK (must load before ES modules) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- ES Modules -->
   <script type="module" src="js/common.js"></script>
-<script type="module" src="js/login-modal.js"></script>
+  <script type="module" src="js/login-modal.js"></script>
+  
+  <!-- Regular scripts -->
   <script src="js/theme.js"></script>
   <script src="js/profile-panel.js" defer></script>
 
