@@ -109,13 +109,6 @@ loadPartial("profile-panel-portal", "partials/profile-panel.html", () => {
 });
 
 /* ===============================
-   Login modal
-   =============================== */
-loadPartial("login-modal-portal", "partials/login-modal.html", () => {
-  document.dispatchEvent(new CustomEvent("login-modal:loaded"));
-});
-
-/* ===============================
    Highlight active nav
    =============================== */
 function highlightActiveNav() {
@@ -176,14 +169,8 @@ async function syncAuthToUI(stage) {
 
   debugBox(
     "🔎 " + stage +
-    " | auth=" + (user ? "USER" : "NULL") +
-    " | authEls=" + document.querySelectorAll("[data-auth-only]").length
+    " | auth=" + (user ? "USER" : "NULL")
   );
-
-  document.querySelectorAll("[data-auth-only]").forEach(el => {
-    const mode = el.getAttribute("data-auth-only");
-    el.hidden = mode === "user" ? !user : !!user;
-  });
 
   const avatarMini = document.querySelector(".avatar-mini");
   if (avatarMini && user) {
@@ -250,10 +237,5 @@ document.addEventListener("header:loaded", () => {
    =============================== */
 supabase.auth.onAuthStateChange((event) => {
   debugBox("🔔 AUTH EVENT: " + event);
-
-  if (event === "SIGNED_IN") {
-    document.querySelector(".login-modal")?.classList.remove("open");
-  }
-
   syncAuthToUI("auth.change");
 });
