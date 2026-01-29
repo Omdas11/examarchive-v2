@@ -81,13 +81,6 @@ function initializeProfilePanel() {
   backdrop?.addEventListener("click", closePanel);
   closeBtn?.addEventListener("click", closePanel);
 
-  // Handle [data-open-profile] elements to open profile panel
-  document.addEventListener("click", (e) => {
-    if (e.target.closest("[data-open-profile]")) {
-      openPanel();
-    }
-  });
-
   // Close on any [data-close-profile] element
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-profile]")) {
