@@ -33,6 +33,7 @@ function initializeProfilePanel() {
   const switchAccountBtn = document.getElementById("profileSwitchAccountBtn");
   const switchAccountModal = document.getElementById("switch-account-modal");
   const confirmSwitchBtn = document.getElementById("confirmSwitchAccountBtn");
+  const avatarTrigger = document.getElementById("avatarTrigger");
 
   if (!panel) {
     debug("❌ profile panel NOT found");
@@ -62,27 +63,36 @@ function initializeProfilePanel() {
       if (emailEl && user) {
         emailEl.textContent = user.email;
       }
+    }).catch(err => {
+      debug("❌ Error getting session for switch account: " + err.message);
     });
     
     switchAccountModal.classList.add("open");
+    switchAccountModal.setAttribute("aria-hidden", "false");
     debug("🟢 switch account modal opened");
   }
 
   function closeSwitchAccountModal() {
     if (!switchAccountModal) return;
     switchAccountModal.classList.remove("open");
+    switchAccountModal.setAttribute("aria-hidden", "true");
     debug("🔴 switch account modal closed");
   }
 
   backdrop?.addEventListener("click", closePanel);
   closeBtn?.addEventListener("click", closePanel);
 
-  // Open on avatar trigger or [data-open-profile] element
+  // Open panel on avatar trigger click
+  avatarTrigger?.addEventListener("click", (e) => {
+    openPanel();
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  // Also handle [data-open-profile] elements (for compatibility)
   document.addEventListener("click", (e) => {
-    if (e.target.closest("#avatarTrigger") || e.target.closest("[data-open-profile]")) {
+    if (e.target.closest("[data-open-profile]") && e.target !== avatarTrigger && !avatarTrigger?.contains(e.target)) {
       openPanel();
-      e.preventDefault();
-      e.stopPropagation();
     }
   });
 

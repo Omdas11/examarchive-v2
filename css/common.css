@@ -319,7 +319,7 @@ p {
   transform: scale(0.97);
 }
 
-/* Outline danger button variant */
+/* Outline danger button variant (legacy - prefer btn-outline-red for new code) */
 .btn.btn-outline-danger {
   background: transparent;
   color: var(--red);
@@ -334,7 +334,7 @@ p {
   transform: scale(0.97);
 }
 
-/* Outline red button variant (soft destructive) */
+/* Outline red button variant (soft destructive action - e.g., sign out, delete) */
 .btn.btn-outline-red {
   background: transparent;
   color: var(--red);
@@ -349,7 +349,7 @@ p {
   transform: scale(0.97);
 }
 
-/* Primary button variant (brand color) */
+/* Primary button variant (primary/brand actions - e.g., sign in, submit) */
 .btn.btn-primary {
   background: var(--red);
   color: #fff;
@@ -363,8 +363,6 @@ p {
 .btn.btn-primary:active {
   transform: scale(0.97);
 }
-
-/* Outline button variant */
 .btn.btn-outline {
   background: transparent;
   color: var(--text);
