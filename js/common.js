@@ -1,7 +1,7 @@
 // js/common.js
 // ============================================
 // GLOBAL BOOTSTRAP (Theme + Partials + Auth Hook)
-// SUPABASE – MOBILE DEBUG VERSION (FIXED)
+// SUPABASE – MOBILE DEBUG VERSION (STABLE)
 // ============================================
 
 import { supabase } from "./supabase.js";
@@ -44,47 +44,22 @@ function debugBox(text) {
 }
 
 /* ==================================================
-   🔑 SUPABASE OAUTH CALLBACK (FINAL – REQUIRED)
+   🔑 SUPABASE SESSION CHECK (NO TOKEN PARSING)
    ================================================== */
-(async function handleOAuthRedirect() {
-  const hash = window.location.hash;
+(async function checkSessionOnce() {
+  const { data } = await supabase.auth.getSession();
 
-  if (!hash || !hash.includes("access_token")) {
-    debugBox("ℹ️ No OAuth token in URL");
-    return;
+  if (data?.session) {
+    debugBox("✅ Active Supabase session found");
+  } else {
+    debugBox("ℹ️ No active session");
   }
 
-  debugBox("🔑 OAuth token detected in URL");
-
-  const params = new URLSearchParams(hash.substring(1));
-
-  const access_token = params.get("access_token");
-  const refresh_token = params.get("refresh_token");
-
-  if (!access_token || !refresh_token) {
-    debugBox("❌ Missing tokens in URL");
-    alert("❌ OAuth tokens missing");
-    return;
+  // 🔥 Always clean OAuth hash to prevent loops
+  if (window.location.hash.includes("access_token")) {
+    history.replaceState({}, document.title, window.location.pathname);
+    debugBox("🧹 OAuth hash cleaned from URL");
   }
-
-  debugBox("📦 Tokens extracted, setting session…");
-
-  const { error } = await supabase.auth.setSession({
-    access_token,
-    refresh_token,
-  });
-
-  if (error) {
-    debugBox("❌ setSession failed: " + error.message);
-    alert("❌ Session creation failed");
-    return;
-  }
-
-  debugBox("✅ Supabase session STORED");
-  alert("✅ LOGIN SUCCESS");
-
-  // 🔥 Clean URL
-  history.replaceState({}, document.title, window.location.pathname);
 })();
 
 /* ===============================
@@ -195,8 +170,6 @@ document.addEventListener("avatar:loaded", () => {
    🔥 AUTH → UI SYNC
    =============================== */
 async function syncAuthToUI(stage) {
-  debugBox("🔄 syncAuthToUI @ " + stage);
-
   const { data } = await supabase.auth.getUser();
   const user = data?.user || null;
 
@@ -219,7 +192,7 @@ async function syncAuthToUI(stage) {
 }
 
 /* ===============================
-   Initial restore
+   Initial restore (SAFE)
    =============================== */
 document.addEventListener("DOMContentLoaded", () => {
   syncAuthToUI("DOMContentLoaded");
@@ -234,10 +207,19 @@ document.addEventListener("header:loaded", () => {
 });
 
 /* ===============================
-   Supabase auth state listener
+   Supabase auth state listener (DEDUPED)
    =============================== */
+let lastAuthEvent = null;
+
 supabase.auth.onAuthStateChange((event) => {
-  alert("🔔 AUTH EVENT: " + event);
-  debugBox("🔔 Auth change: " + event);
+  if (event === lastAuthEvent) return;
+  lastAuthEvent = event;
+
+  debugBox("🔔 AUTH EVENT: " + event);
+
+  if (event === "SIGNED_IN") {
+    document.querySelector(".login-modal")?.classList.remove("open");
+  }
+
   syncAuthToUI("auth.change");
 });
