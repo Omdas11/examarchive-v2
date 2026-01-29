@@ -1,86 +1,43 @@
-// js/profile-panel.js
+// js/avatar-popup.js
 // ===============================
-// PROFILE PANEL CONTROLLER (FIXED)
+// AVATAR POPUP CONTROLLER
 // ===============================
 
 import { supabase } from "./supabase.js";
 
 function debug(msg) {
-  console.log("[profile-panel]", msg);
+  console.log("[avatar-popup]", msg);
 }
 
-/* ===============================
-   State tracking for both events
-   =============================== */
-let headerLoaded = false;
-let profilePanelLoaded = false;
-let clickHandlerAttached = false;
+let avatarPopupLoaded = false;
 
 /* ===============================
-   Initialize profile panel
+   Initialize avatar popup
    =============================== */
-function initializeProfilePanel() {
-  // Only run once both are ready
-  if (!headerLoaded || !profilePanelLoaded || clickHandlerAttached) {
+function initializeAvatarPopup() {
+  if (avatarPopupLoaded) return;
+
+  const popup = document.getElementById("avatar-popup");
+  const logoutBtn = document.getElementById("avatarLogoutBtn");
+  const switchBtn = document.getElementById("avatarSwitchBtn");
+
+  if (!popup) {
+    debug("❌ avatar popup NOT found");
     return;
   }
 
-  const panel = document.querySelector(".profile-panel");
-  const backdrop = document.querySelector(".profile-panel-backdrop");
-  const closeBtn = document.querySelector(".profile-panel-close");
-  const avatarBtn = document.querySelector(".avatar-trigger");
-  const logoutBtn = document.getElementById("profileLogoutBtn");
-  const switchAccountBtn = document.getElementById("profileSwitchAccountBtn");
-
-  if (!panel) {
-    debug("❌ profile panel NOT found");
-    return;
-  }
-
-  if (!avatarBtn) {
-    debug("⚠️ avatar trigger not found");
-    return;
-  }
-
-  debug("✅ profile panel DOM ready, attaching handlers");
-
-  function openPanel() {
-    panel.classList.add("open");
-    updateProfilePanel(); // Update user info when opening
-    debug("🟢 profile panel opened");
-  }
-
-  function closePanel() {
-    panel.classList.remove("open");
-    debug("🔴 profile panel closed");
-  }
-
-  backdrop?.addEventListener("click", closePanel);
-  closeBtn?.addEventListener("click", closePanel);
-
-  // Close on any [data-close-profile] element
-  document.addEventListener("click", (e) => {
-    if (e.target.closest("[data-close-profile]")) {
-      closePanel();
-    }
-  });
-
-  // Attach avatar click handler (ONLY ONCE)
-  avatarBtn.addEventListener("click", () => {
-    debug("👉 avatar clicked");
-    openPanel();
-  });
+  debug("✅ avatar popup DOM ready");
 
   // Logout handler
   logoutBtn?.addEventListener("click", async () => {
     debug("🚪 Signing out...");
     await supabase.auth.signOut();
-    closePanel();
+    closeAvatarPopup();
     location.reload();
   });
 
   // Switch account handler
-  switchAccountBtn?.addEventListener("click", async () => {
+  switchBtn?.addEventListener("click", async () => {
     debug("🔄 Switching account...");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -93,11 +50,10 @@ function initializeProfilePanel() {
     }
   });
 
-  clickHandlerAttached = true;
-  debug("✅ avatar click handler attached");
+  avatarPopupLoaded = true;
 
   // Initial update
-  updateProfilePanel();
+  updateAvatarPopup();
 }
 
 /* ===============================
@@ -113,22 +69,21 @@ function stringToColor(str) {
 }
 
 /* ===============================
-   Update profile panel with user data
+   Update avatar popup with user data
    =============================== */
-async function updateProfilePanel() {
+async function updateAvatarPopup() {
   const { data } = await supabase.auth.getSession();
   const user = data?.session?.user;
 
-  const nameEl = document.querySelector(".profile-panel .profile-name");
-  const usernameEl = document.querySelector(".profile-panel .profile-username");
-  const avatarEl = document.getElementById("profileAvatar");
+  const nameEl = document.querySelector("#avatar-popup .display-name");
+  const usernameEl = document.querySelector("#avatar-popup .username");
+  const avatarEl = document.getElementById("avatarPopupCircle");
 
   if (!nameEl || !usernameEl) {
     return;
   }
 
   if (user) {
-    // Priority: full_name from Gmail metadata, then email, then fallback
     const fullName = user.user_metadata?.full_name;
     const email = user.email;
     const avatarUrl = user.user_metadata?.avatar_url;
@@ -161,7 +116,7 @@ async function updateProfilePanel() {
       }
     }
 
-    debug(`✅ Profile updated: ${fullName || email || "User"}`);
+    debug(`✅ Avatar popup updated: ${fullName || email || "User"}`);
   } else {
     nameEl.textContent = "Guest";
     usernameEl.textContent = "Not signed in";
@@ -173,44 +128,42 @@ async function updateProfilePanel() {
       avatarEl.style.backgroundColor = "#888";
     }
     
-    debug("ℹ️ Profile showing guest state");
+    debug("ℹ️ Avatar popup showing guest state");
   }
 }
 
 /* ===============================
-   Listen for header loaded
+   Close avatar popup
    =============================== */
-document.addEventListener("header:loaded", () => {
-  debug("✅ header loaded");
-  headerLoaded = true;
-  initializeProfilePanel();
-});
+function closeAvatarPopup() {
+  const popup = document.getElementById("avatar-popup");
+  popup?.classList.remove("open");
+}
 
 /* ===============================
-   Listen for profile panel loaded
+   Listen for avatar loaded
    =============================== */
-document.addEventListener("profile-panel:loaded", () => {
-  debug("✅ profile panel loaded");
-  profilePanelLoaded = true;
-  initializeProfilePanel();
+document.addEventListener("avatar:loaded", () => {
+  debug("✅ avatar loaded event received");
+  initializeAvatarPopup();
 });
 
 /* ===============================
    Listen for auth changes
    =============================== */
 supabase.auth.onAuthStateChange(() => {
-  debug("🔔 Auth state changed, updating profile panel");
-  updateProfilePanel();
+  debug("🔔 Auth state changed, updating avatar popup");
+  updateAvatarPopup();
 });
 
 /* ===============================
-   Handle login button in header
+   Handle "View Profile" button
    =============================== */
 document.addEventListener("click", (e) => {
   if (e.target.closest("[data-open-profile]")) {
-    debug("👉 Opening profile panel from header");
+    debug("👉 Opening profile panel from avatar popup");
+    closeAvatarPopup();
     const panel = document.querySelector(".profile-panel");
     panel?.classList.add("open");
-    updateProfilePanel();
   }
 });
