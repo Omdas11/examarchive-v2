@@ -73,17 +73,21 @@ document.addEventListener("login-modal:loaded", () => {
 });
 
 /* ===============================
-   Attach Login button in header
+   Attach Login button in header (FIXED)
    =============================== */
 document.addEventListener("header:loaded", () => {
-  const loginBtn = document.querySelector("[data-login-btn]");
+  const loginBtn =
+    document.querySelector(".login-btn") ||
+    document.querySelector("button.login") ||
+    document.querySelector("header button:last-child");
+
   if (!loginBtn) {
-    debug("⚠️ Login button NOT found");
+    debug("❌ Login button NOT found in header");
     return;
   }
 
   loginBtn.addEventListener("click", () => {
-    debug("👉 Login button clicked");
+    debug("🟢 Login button clicked");
     window.openLoginModal?.();
   });
 });
