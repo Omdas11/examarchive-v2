@@ -1,61 +1,114 @@
+// js/login-modal.js
+// ============================================
+// LOGIN MODAL CONTROLLER – SUPABASE (MOBILE SAFE)
+// ============================================
+
 import { supabase } from "./supabase.js";
 
-alert("✅ login-modal.js loaded");
-
-/* =====================================
-   🚫 STOP MODAL LOGIC AFTER OAUTH RETURN
-   ===================================== */
-if (window.location.hash.includes("access_token")) {
-  alert("⛔ OAuth return detected — login modal DISABLED");
-  // Supabase will restore session automatically
-  throw new Error("OAuth return — stop login-modal.js");
+/* ===============================
+   Mobile debug helper
+   =============================== */
+function debug(msg) {
+  alert(msg);
+  console.log(msg);
 }
 
-/* =====================================
-   NORMAL LOGIN MODAL LOGIC (PRE-LOGIN)
-   ===================================== */
-function waitForModal() {
+/* ===============================
+   Wait for modal DOM
+   =============================== */
+document.addEventListener("login-modal:loaded", () => {
   const modal = document.querySelector(".login-modal");
-  const loginBtn = document.querySelector(".login-trigger");
-  const googleBtn = document.querySelector('[data-provider="google"]');
-  const closeBtn = document.querySelector(".modal-close");
-
-  if (!modal || !loginBtn || !googleBtn) {
-    alert("⏳ Waiting for login modal DOM…");
-    return setTimeout(waitForModal, 300);
+  if (!modal) {
+    debug("❌ login modal NOT found");
+    return;
   }
 
-  alert("🔥 Login modal + Google button FOUND");
+  debug("🔥 Login modal DOM ready");
 
-  // Open modal
-  loginBtn.addEventListener("click", () => {
-    alert("🟢 Login clicked → opening modal");
+  const closeBtn = modal.querySelector(".modal-close");
+  const backdrop = modal.querySelector(".login-modal-backdrop");
+  const providerBtns = modal.querySelectorAll(".login-provider");
+
+  /* ===============================
+     Open modal (GLOBAL)
+     =============================== */
+  window.openLoginModal = () => {
     modal.classList.add("open");
-  });
+    debug("🟢 Login modal opened");
+  };
 
-  // Close modal
-  closeBtn?.addEventListener("click", () => {
-    alert("❌ Login modal closed");
+  /* ===============================
+     Close modal
+     =============================== */
+  function closeModal() {
     modal.classList.remove("open");
-  });
+    debug("❌ Login modal closed");
+  }
 
-  // Google OAuth
-  googleBtn.addEventListener("click", async () => {
-    alert("🚀 GOOGLE OAUTH START");
+  closeBtn?.addEventListener("click", closeModal);
+  backdrop?.addEventListener("click", closeModal);
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
+  /* ===============================
+     OAuth buttons
+     =============================== */
+  providerBtns.forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const provider = btn.dataset.provider;
+      debug("🚀 OAuth start: " + provider);
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+
+      if (error) {
+        debug("❌ OAuth error: " + error.message);
+      } else {
+        debug("➡️ Redirecting to " + provider);
+      }
     });
-
-    if (error) {
-      alert("❌ OAuth error: " + error.message);
-    } else {
-      alert("🔁 Redirecting to Google…");
-    }
   });
-}
+});
 
-waitForModal();
+/* ===============================
+   Attach Login button in header
+   =============================== */
+document.addEventListener("header:loaded", () => {
+  const loginBtn = document.querySelector("[data-login-btn]");
+  if (!loginBtn) {
+    debug("⚠️ Login button NOT found");
+    return;
+  }
+
+  loginBtn.addEventListener("click", () => {
+    debug("👉 Login button clicked");
+    window.openLoginModal?.();
+  });
+});
+
+/* ===============================
+   OAuth return handler (SAFE)
+   =============================== */
+(async function handleOAuthReturn() {
+  if (!window.location.hash.includes("access_token")) return;
+
+  debug("🔁 OAuth return detected");
+
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error) {
+    debug("❌ Session error");
+    return;
+  }
+
+  if (data?.session) {
+    debug("✅ Session restored from OAuth");
+  } else {
+    debug("⚠️ No session after OAuth");
+  }
+
+  // 🔥 Clean hash ALWAYS
+  history.replaceState({}, document.title, window.location.pathname);
+})();
