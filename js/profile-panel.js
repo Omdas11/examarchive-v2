@@ -10,22 +10,41 @@ function debug(msg) {
 }
 
 /* ===============================
-   Wait for profile panel DOM
+   State tracking for both events
    =============================== */
-document.addEventListener("profile-panel:loaded", () => {
+let headerLoaded = false;
+let profilePanelLoaded = false;
+let clickHandlerAttached = false;
+
+/* ===============================
+   Initialize profile panel
+   =============================== */
+function initializeProfilePanel() {
+  // Only run once both are ready
+  if (!headerLoaded || !profilePanelLoaded || clickHandlerAttached) {
+    return;
+  }
+
   const panel = document.querySelector(".profile-panel");
   const backdrop = document.querySelector(".profile-panel-backdrop");
   const closeBtn = document.querySelector(".profile-panel-close");
+  const avatarBtn = document.querySelector(".avatar-trigger");
 
   if (!panel) {
     debug("❌ profile panel NOT found");
     return;
   }
 
-  debug("✅ profile panel DOM ready");
+  if (!avatarBtn) {
+    debug("⚠️ avatar trigger not found");
+    return;
+  }
+
+  debug("✅ profile panel DOM ready, attaching handlers");
 
   function openPanel() {
     panel.classList.add("open");
+    updateProfilePanel(); // Update user info when opening
     debug("🟢 profile panel opened");
   }
 
@@ -37,18 +56,86 @@ document.addEventListener("profile-panel:loaded", () => {
   backdrop?.addEventListener("click", closePanel);
   closeBtn?.addEventListener("click", closePanel);
 
-  /* ===============================
-     Attach avatar trigger
-     =============================== */
-  const avatarBtn = document.querySelector(".avatar-trigger");
+  // Close on any [data-close-profile] element
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close-profile]")) {
+      closePanel();
+    }
+  });
 
-  if (!avatarBtn) {
-    debug("⚠️ avatar trigger not found");
-    return;
-  }
-
+  // Attach avatar click handler (ONLY ONCE)
   avatarBtn.addEventListener("click", () => {
     debug("👉 avatar clicked");
     openPanel();
   });
+
+  clickHandlerAttached = true;
+  debug("✅ avatar click handler attached");
+
+  // Initial update
+  updateProfilePanel();
+}
+
+/* ===============================
+   Update profile panel with user data
+   =============================== */
+async function updateProfilePanel() {
+  const { data } = await supabase.auth.getSession();
+  const user = data?.session?.user;
+
+  const nameEl = document.querySelector(".profile-panel .profile-name");
+  const usernameEl = document.querySelector(".profile-panel .profile-username");
+
+  if (!nameEl || !usernameEl) {
+    return;
+  }
+
+  if (user) {
+    // Priority: full_name from Gmail metadata, then email, then fallback
+    const fullName = user.user_metadata?.full_name;
+    const email = user.email;
+
+    if (fullName) {
+      nameEl.textContent = fullName;
+      usernameEl.textContent = email;
+    } else if (email) {
+      nameEl.textContent = email;
+      usernameEl.textContent = "Signed in";
+    } else {
+      nameEl.textContent = "User";
+      usernameEl.textContent = "Signed in";
+    }
+
+    debug(`✅ Profile updated: ${fullName || email || "User"}`);
+  } else {
+    nameEl.textContent = "Guest";
+    usernameEl.textContent = "Not signed in";
+    debug("ℹ️ Profile showing guest state");
+  }
+}
+
+/* ===============================
+   Listen for header loaded
+   =============================== */
+document.addEventListener("header:loaded", () => {
+  debug("✅ header loaded");
+  headerLoaded = true;
+  initializeProfilePanel();
+});
+
+/* ===============================
+   Listen for profile panel loaded
+   =============================== */
+document.addEventListener("profile-panel:loaded", () => {
+  debug("✅ profile panel loaded");
+  profilePanelLoaded = true;
+  initializeProfilePanel();
+});
+
+/* ===============================
+   Listen for auth changes
+   =============================== */
+supabase.auth.onAuthStateChange(() => {
+  debug("🔔 Auth state changed, updating profile panel");
+  updateProfilePanel();
 });
