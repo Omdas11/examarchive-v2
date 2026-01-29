@@ -195,8 +195,21 @@ async function syncAuthToUI(stage) {
     avatarMini.textContent = name[0].toUpperCase();
     
     // Apply avatar image if available
+    // Validate URL before using
+    let sanitizedUrl = null;
     if (avatarUrl) {
-      avatarMini.style.backgroundImage = `url(${avatarUrl})`;
+      try {
+        const parsed = new URL(avatarUrl);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          sanitizedUrl = avatarUrl;
+        }
+      } catch (e) {
+        // Invalid URL, ignore
+      }
+    }
+    
+    if (sanitizedUrl) {
+      avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
       avatarMini.style.backgroundSize = "cover";
       avatarMini.style.backgroundPosition = "center";
       avatarMini.textContent = ""; // Hide initial when image is shown

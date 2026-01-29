@@ -4,6 +4,7 @@
 // ===============================
 
 import { supabase } from "./supabase.js";
+import { updateAvatarElement, handleLogout, handleSwitchAccount } from "./avatar-utils.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -61,24 +62,14 @@ function initializeProfilePanel() {
 
   // Logout handler
   logoutBtn?.addEventListener("click", async () => {
-    debug("🚪 Signing out...");
-    await supabase.auth.signOut();
     closePanel();
-    location.reload();
+    await handleLogout();
   });
 
   // Switch account handler
   switchAccountBtn?.addEventListener("click", async () => {
-    debug("🔄 Switching account...");
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin
-      }
-    });
-    if (error) {
-      debug("❌ Switch account error: " + error.message);
-    }
+    closePanel();
+    await handleSwitchAccount();
   });
 
   clickHandlerAttached = true;
@@ -86,18 +77,6 @@ function initializeProfilePanel() {
 
   // Initial update
   updateProfilePanel();
-}
-
-/* ===============================
-   Helper: Generate color from string
-   =============================== */
-function stringToColor(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const hue = hash % 360;
-  return `hsl(${hue}, 65%, 55%)`;
 }
 
 /* ===============================
@@ -119,7 +98,6 @@ async function updateProfilePanel() {
     // Priority: full_name from Gmail metadata, then email, then fallback
     const fullName = user.user_metadata?.full_name;
     const email = user.email;
-    const avatarUrl = user.user_metadata?.avatar_url;
 
     if (fullName) {
       nameEl.textContent = fullName;
@@ -132,34 +110,16 @@ async function updateProfilePanel() {
       usernameEl.textContent = "Signed in";
     }
 
-    // Update avatar
-    if (avatarEl) {
-      const initial = fullName ? fullName[0].toUpperCase() : email ? email[0].toUpperCase() : "U";
-      avatarEl.setAttribute("data-initials", initial);
-      
-      if (avatarUrl) {
-        avatarEl.setAttribute("data-avatar", avatarUrl);
-        avatarEl.style.backgroundImage = `url(${avatarUrl})`;
-        avatarEl.style.backgroundSize = "cover";
-        avatarEl.style.backgroundPosition = "center";
-      } else {
-        avatarEl.removeAttribute("data-avatar");
-        avatarEl.style.backgroundImage = "none";
-        avatarEl.style.backgroundColor = stringToColor(fullName || email || "User");
-      }
-    }
+    // Update avatar using shared utility
+    updateAvatarElement(avatarEl, user);
 
     debug(`✅ Profile updated: ${fullName || email || "User"}`);
   } else {
     nameEl.textContent = "Guest";
     usernameEl.textContent = "Not signed in";
     
-    if (avatarEl) {
-      avatarEl.setAttribute("data-initials", "?");
-      avatarEl.removeAttribute("data-avatar");
-      avatarEl.style.backgroundImage = "none";
-      avatarEl.style.backgroundColor = "#888";
-    }
+    // Update avatar for guest
+    updateAvatarElement(avatarEl, null);
     
     debug("ℹ️ Profile showing guest state");
   }
@@ -189,16 +149,4 @@ document.addEventListener("profile-panel:loaded", () => {
 supabase.auth.onAuthStateChange(() => {
   debug("🔔 Auth state changed, updating profile panel");
   updateProfilePanel();
-});
-
-/* ===============================
-   Handle login button in header
-   =============================== */
-document.addEventListener("click", (e) => {
-  if (e.target.closest("[data-open-profile]")) {
-    debug("👉 Opening profile panel from header");
-    const panel = document.querySelector(".profile-panel");
-    panel?.classList.add("open");
-    updateProfilePanel();
-  }
 });
