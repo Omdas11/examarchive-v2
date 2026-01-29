@@ -4,7 +4,7 @@
 // ===============================
 
 import { supabase } from "./supabase.js";
-import { updateAvatarElement, handleLogout, handleSwitchAccount } from "./avatar-utils.js";
+import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
 
 function debug(msg) {
   console.log("[avatar-popup]", msg);
@@ -147,7 +147,8 @@ supabase.auth.onAuthStateChange(() => {
    Handle "View Profile" button
    =============================== */
 document.addEventListener("click", (e) => {
-  if (e.target.closest("[data-open-profile]")) {
+  const viewProfileBtn = e.target.closest("#avatar-popup [data-open-profile]");
+  if (viewProfileBtn) {
     debug("👉 Opening profile panel from avatar popup");
     closeAvatarPopup();
     const panel = document.querySelector(".profile-panel");
@@ -163,19 +164,7 @@ document.addEventListener("click", async (e) => {
   if (signInBtn) {
     debug("👉 Sign in with Google clicked from avatar popup");
     closeAvatarPopup();
-    
-    // Directly trigger Google OAuth
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin
-      }
-    });
-    
-    if (error) {
-      debug("❌ OAuth error: " + error.message);
-      console.error("[avatar-popup] OAuth error:", error);
-    }
+    await handleSignIn();
   }
 });
 

@@ -4,7 +4,7 @@
 // ===============================
 
 import { supabase } from "./supabase.js";
-import { updateAvatarElement, handleLogout, handleSwitchAccount } from "./avatar-utils.js";
+import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -126,19 +126,7 @@ function initializeProfilePanel() {
     if (signInBtn) {
       debug("👉 Sign in with Google clicked from profile panel");
       closePanel();
-      
-      // Directly trigger Google OAuth
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin
-        }
-      });
-      
-      if (error) {
-        debug("❌ OAuth error: " + error.message);
-        console.error("[profile-panel] OAuth error:", error);
-      }
+      await handleSignIn();
     }
   });
 
