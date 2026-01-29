@@ -9,3 +9,6 @@ node_modules/
 .DS_Store
 
 *.zip
+
+# Test files
+test-*.js
