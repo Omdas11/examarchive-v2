@@ -1,6 +1,6 @@
 <!-- ================================
      Avatar Popup (Global Portal)
-     Backend-ready / Auth-agnostic
+     Dynamically rendered based on auth state
      ================================ -->
 <div
   id="avatar-popup"
@@ -35,58 +35,12 @@
         <p class="username" data-field="username">
           Not signed in
         </p>
-
-        <!-- Member since -->
-        <p class="member-since" data-field="memberSince" hidden>
-          Member since · —
-        </p>
       </div>
     </div>
 
-    <!-- Actions -->
+    <!-- Actions (Dynamically rendered by JS) -->
     <div class="avatar-actions">
-      <!-- Guest actions -->
-      <button class="btn btn-primary" data-open-login data-auth-only="guest">
-        Sign in with Google
-      </button>
-
-      <!-- Logged-in actions -->
-      <button
-        class="btn btn-glass"
-        data-open-profile
-        data-auth-only="user"
-        hidden
-      >
-        View Profile
-      </button>
-
-      <a
-        href="settings.html"
-        class="btn btn-outline"
-        data-auth-only="user"
-        hidden
-      >
-        Settings
-      </a>
-
-      <button
-        class="btn btn-outline"
-        id="avatarSwitchBtn"
-        data-auth-only="user"
-        hidden
-      >
-        Switch Account
-      </button>
-
-      <button
-        class="btn btn-outline-red"
-        id="avatarLogoutBtn"
-        data-auth-only="user"
-        hidden
-      >
-        Sign out
-      </button>
-
+      <!-- Content will be dynamically created by avatar-popup.js -->
     </div>
 
   </div>

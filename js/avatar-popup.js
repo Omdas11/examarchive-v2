@@ -1,6 +1,7 @@
 // js/avatar-popup.js
 // ===============================
 // AVATAR POPUP CONTROLLER
+// Dynamic Rendering Based on Auth State
 // ===============================
 
 import { supabase } from "./supabase.js";
@@ -21,8 +22,6 @@ function initializeAvatarPopup() {
   if (avatarPopupLoaded || !headerLoaded) return;
 
   const popup = document.getElementById("avatar-popup");
-  const logoutBtn = document.getElementById("avatarLogoutBtn");
-  const switchBtn = document.getElementById("avatarSwitchBtn");
   const avatarTrigger = document.querySelector(".avatar-trigger");
 
   if (!popup) {
@@ -35,8 +34,16 @@ function initializeAvatarPopup() {
   // Toggle avatar popup on avatar button click
   avatarTrigger?.addEventListener("click", (e) => {
     e.stopPropagation(); // Prevent event bubbling
+    
+    // Close mobile menu if open
+    const mobileNav = document.getElementById("mobileNav");
+    if (mobileNav?.classList.contains("open")) {
+      mobileNav.classList.remove("open");
+      document.body.classList.remove("menu-open");
+    }
+    
     popup.classList.toggle("open");
-    updateAvatarPopup();
+    renderAvatarPopup();
     debug("🔄 Avatar popup toggled");
   });
 
@@ -47,39 +54,36 @@ function initializeAvatarPopup() {
     }
   });
 
-  // Logout handler
-  logoutBtn?.addEventListener("click", async () => {
-    closeAvatarPopup();
-    await handleLogout();
-  });
-
-  // Switch account handler
-  switchBtn?.addEventListener("click", async () => {
-    closeAvatarPopup();
-    await handleSwitchAccount();
-  });
-
   avatarPopupLoaded = true;
 
-  // Initial update
-  updateAvatarPopup();
+  // Initial render
+  renderAvatarPopup();
 }
 
 /* ===============================
-   Update avatar popup with user data
+   Render avatar popup with dynamic elements
    =============================== */
-async function updateAvatarPopup() {
+async function renderAvatarPopup() {
   const { data } = await supabase.auth.getSession();
-  const user = data?.session?.user;
+  const session = data?.session;
+  const user = session?.user;
 
-  const nameEl = document.querySelector("#avatar-popup .display-name");
-  const usernameEl = document.querySelector("#avatar-popup .username");
+  const popup = document.getElementById("avatar-popup");
+  if (!popup) return;
+
+  // Update data-auth attribute for styling hooks
+  popup.setAttribute("data-auth", user ? "user" : "guest");
+
+  const nameEl = popup.querySelector(".display-name");
+  const usernameEl = popup.querySelector(".username");
   const avatarEl = document.getElementById("avatarPopupCircle");
+  const actionsContainer = popup.querySelector(".avatar-actions");
 
-  if (!nameEl || !usernameEl) {
+  if (!nameEl || !usernameEl || !actionsContainer) {
     return;
   }
 
+  // Update header info
   if (user) {
     const fullName = user.user_metadata?.full_name;
     const email = user.email;
@@ -98,15 +102,72 @@ async function updateAvatarPopup() {
     // Update avatar using shared utility
     updateAvatarElement(avatarEl, user);
 
-    debug(`✅ Avatar popup updated: ${fullName || email || "User"}`);
+    // Dynamically create logged-in actions
+    actionsContainer.innerHTML = `
+      <button class="btn btn-glass" id="avatarViewProfileBtn">
+        View Profile
+      </button>
+
+      <a href="settings.html" class="btn btn-outline">
+        Settings
+      </a>
+
+      <button class="btn btn-outline" id="avatarSwitchBtn">
+        Switch Account
+      </button>
+
+      <button class="btn btn-outline-red" id="avatarLogoutBtn">
+        Sign out
+      </button>
+    `;
+
+    // Attach event listeners to dynamically created elements
+    const logoutBtn = document.getElementById("avatarLogoutBtn");
+    const switchBtn = document.getElementById("avatarSwitchBtn");
+    const viewProfileBtn = document.getElementById("avatarViewProfileBtn");
+
+    logoutBtn?.addEventListener("click", async () => {
+      closeAvatarPopup();
+      await handleLogout();
+    });
+
+    switchBtn?.addEventListener("click", async () => {
+      closeAvatarPopup();
+      await handleSwitchAccount();
+    });
+
+    viewProfileBtn?.addEventListener("click", () => {
+      debug("👉 Opening profile panel from avatar popup");
+      closeAvatarPopup();
+      const panel = document.querySelector(".profile-panel");
+      panel?.classList.add("open");
+    });
+
+    debug(`✅ Avatar popup updated (logged-in): ${fullName || email || "User"}`);
   } else {
+    // Guest state
     nameEl.textContent = "Guest";
     usernameEl.textContent = "Not signed in";
     
     // Update avatar for guest
     updateAvatarElement(avatarEl, null);
     
-    debug("ℹ️ Avatar popup showing guest state");
+    // Dynamically create guest actions
+    actionsContainer.innerHTML = `
+      <button class="btn btn-primary" id="avatarSignInBtn">
+        Sign in with Google
+      </button>
+    `;
+
+    // Attach event listener to dynamically created element
+    const signInBtn = document.getElementById("avatarSignInBtn");
+    signInBtn?.addEventListener("click", async () => {
+      debug("👉 Sign in with Google clicked from avatar popup");
+      closeAvatarPopup();
+      await handleSignIn();
+    });
+    
+    debug("ℹ️ Avatar popup updated (guest)");
   }
 }
 
@@ -139,32 +200,7 @@ document.addEventListener("header:loaded", () => {
    Listen for auth changes
    =============================== */
 supabase.auth.onAuthStateChange(() => {
-  debug("🔔 Auth state changed, updating avatar popup");
-  updateAvatarPopup();
-});
-
-/* ===============================
-   Handle "View Profile" button
-   =============================== */
-document.addEventListener("click", (e) => {
-  const viewProfileBtn = e.target.closest("#avatar-popup [data-open-profile]");
-  if (viewProfileBtn) {
-    debug("👉 Opening profile panel from avatar popup");
-    closeAvatarPopup();
-    const panel = document.querySelector(".profile-panel");
-    panel?.classList.add("open");
-  }
-});
-
-/* ===============================
-   Handle "Sign in with Google" button
-   =============================== */
-document.addEventListener("click", async (e) => {
-  const signInBtn = e.target.closest("#avatar-popup [data-open-login]");
-  if (signInBtn) {
-    debug("👉 Sign in with Google clicked from avatar popup");
-    closeAvatarPopup();
-    await handleSignIn();
-  }
+  debug("🔔 Auth state changed, re-rendering avatar popup");
+  renderAvatarPopup();
 });
 

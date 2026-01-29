@@ -1,6 +1,7 @@
 // js/profile-panel.js
 // ===============================
-// PROFILE PANEL CONTROLLER (FIXED)
+// PROFILE PANEL CONTROLLER
+// Dynamic Rendering Based on Auth State
 // ===============================
 
 import { supabase } from "./supabase.js";
@@ -29,10 +30,7 @@ function initializeProfilePanel() {
   const panel = document.querySelector(".profile-panel");
   const backdrop = document.querySelector(".profile-panel-backdrop");
   const closeBtn = document.querySelector(".profile-panel-close");
-  const logoutBtn = document.getElementById("profileLogoutBtn");
-  const switchAccountBtn = document.getElementById("profileSwitchAccountBtn");
   const switchAccountModal = document.getElementById("switch-account-modal");
-  const confirmSwitchBtn = document.getElementById("confirmSwitchAccountBtn");
 
   if (!panel) {
     debug("❌ profile panel NOT found");
@@ -43,7 +41,7 @@ function initializeProfilePanel() {
 
   function openPanel() {
     panel.classList.add("open");
-    updateProfilePanel(); // Update user info when opening
+    renderProfilePanel(); // Render user info when opening
     debug("🟢 profile panel opened");
   }
 
@@ -88,24 +86,6 @@ function initializeProfilePanel() {
     }
   });
 
-  // Logout handler
-  logoutBtn?.addEventListener("click", async () => {
-    closePanel();
-    await handleLogout();
-  });
-
-  // Switch account handler - open confirmation modal
-  switchAccountBtn?.addEventListener("click", () => {
-    closePanel();
-    openSwitchAccountModal();
-  });
-
-  // Confirm switch account - actually trigger OAuth
-  confirmSwitchBtn?.addEventListener("click", async () => {
-    closeSwitchAccountModal();
-    await handleSwitchAccount();
-  });
-
   // Close switch account modal
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-switch]")) {
@@ -113,35 +93,61 @@ function initializeProfilePanel() {
     }
   });
 
-  // Handle Sign in with Google from profile panel (guest mode)
-  document.addEventListener("click", async (e) => {
-    const signInBtn = e.target.closest(".profile-panel [data-open-login]");
-    if (signInBtn) {
-      debug("👉 Sign in with Google clicked from profile panel");
+  // Event delegation for dynamically created buttons
+  panel.addEventListener("click", async (e) => {
+    // Logout button
+    if (e.target.id === "profileLogoutBtn") {
+      closePanel();
+      await handleLogout();
+      return;
+    }
+
+    // Switch account button
+    if (e.target.id === "profileSwitchAccountBtn") {
+      closePanel();
+      openSwitchAccountModal();
+      return;
+    }
+
+    // Sign in button (guest mode)
+    if (e.target.id === "profileSignInBtn") {
       closePanel();
       await handleSignIn();
+      return;
+    }
+  });
+
+  // Confirm switch account - actually trigger OAuth
+  switchAccountModal?.addEventListener("click", async (e) => {
+    if (e.target.id === "confirmSwitchAccountBtn") {
+      closeSwitchAccountModal();
+      await handleSwitchAccount();
     }
   });
 
   clickHandlerAttached = true;
   debug("✅ profile panel handlers attached");
 
-  // Initial update
-  updateProfilePanel();
+  // Initial render
+  renderProfilePanel();
 }
 
 /* ===============================
-   Update profile panel with user data
+   Render profile panel with dynamic elements
    =============================== */
-async function updateProfilePanel() {
+async function renderProfilePanel() {
   const { data } = await supabase.auth.getSession();
-  const user = data?.session?.user;
+  const session = data?.session;
+  const user = session?.user;
 
   const nameEl = document.querySelector(".profile-panel .profile-name");
   const usernameEl = document.querySelector(".profile-panel .profile-username");
   const avatarEl = document.getElementById("profileAvatar");
+  const badgesSection = document.querySelector(".profile-badges");
+  const statsSection = document.querySelector(".profile-stats");
+  const actionsSection = document.querySelector(".profile-actions");
 
-  if (!nameEl || !usernameEl) {
+  if (!nameEl || !usernameEl || !actionsSection) {
     return;
   }
 
@@ -164,13 +170,48 @@ async function updateProfilePanel() {
     // Update avatar using shared utility
     updateAvatarElement(avatarEl, user);
 
-    debug(`✅ Profile updated: ${fullName || email || "User"}`);
+    // Show badges and stats
+    if (badgesSection) badgesSection.style.display = "flex";
+    if (statsSection) statsSection.style.display = "grid";
+
+    // Dynamically create logged-in actions
+    actionsSection.innerHTML = `
+      <a href="settings.html" class="btn btn-outline">
+        Manage Account
+      </a>
+
+      <button id="profileSwitchAccountBtn" class="btn btn-outline">
+        Switch Account
+      </button>
+
+      <button id="profileLogoutBtn" class="btn btn-outline-red">
+        Sign out
+      </button>
+    `;
+
+    debug(`✅ Profile updated (logged-in): ${fullName || email || "User"}`);
   } else {
+    // Guest state
     nameEl.textContent = "Guest";
     usernameEl.textContent = "Not signed in";
     
     // Update avatar for guest
     updateAvatarElement(avatarEl, null);
+
+    // Hide badges and stats
+    if (badgesSection) badgesSection.style.display = "none";
+    if (statsSection) statsSection.style.display = "none";
+
+    // Dynamically create guest actions
+    actionsSection.innerHTML = `
+      <p class="muted">
+        Sign in to upload papers and track your progress.
+      </p>
+
+      <button id="profileSignInBtn" class="btn btn-primary">
+        Sign in with Google
+      </button>
+    `;
     
     debug("ℹ️ Profile showing guest state");
   }
@@ -198,6 +239,6 @@ document.addEventListener("profile-panel:loaded", () => {
    Listen for auth changes
    =============================== */
 supabase.auth.onAuthStateChange(() => {
-  debug("🔔 Auth state changed, updating profile panel");
-  updateProfilePanel();
+  debug("🔔 Auth state changed, re-rendering profile panel");
+  renderProfilePanel();
 });

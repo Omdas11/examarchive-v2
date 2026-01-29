@@ -1,6 +1,6 @@
 <!-- ================================
      Expanded Profile Panel
-     Auth-driven (Single login surface)
+     Dynamically rendered based on auth state
      ================================ -->
 <div
   id="profile-panel"
@@ -28,9 +28,6 @@
       <div class="profile-meta">
         <h2 class="profile-name" data-field="name">Guest</h2>
         <p class="profile-username" data-field="username">Not signed in</p>
-        <p class="profile-since" data-field="memberSince" hidden>
-          Member since · Jan 2025
-        </p>
       </div>
 
       <!-- SVG Close Button -->
@@ -55,8 +52,8 @@
       </button>
     </header>
 
-    <!-- Badges (USER ONLY) -->
-    <section class="profile-badges" data-auth-only="user" hidden>
+    <!-- Badges (Dynamically shown/hidden) -->
+    <section class="profile-badges" style="display: none;">
 
       <div class="badge badge-role">
         <span class="badge-icon"></span>
@@ -68,15 +65,10 @@
         <span class="badge-label">Gold</span>
       </div>
 
-      <div class="badge badge-admin" data-auth-only="admin" hidden>
-        <span class="badge-icon"></span>
-        <span class="badge-label">Admin</span>
-      </div>
-
     </section>
 
-    <!-- Stats (USER ONLY) -->
-    <section class="profile-stats" data-auth-only="user" hidden>
+    <!-- Stats (Dynamically shown/hidden) -->
+    <section class="profile-stats" style="display: none;">
       <div class="stat">
         <strong data-field="uploads">0</strong>
         <span>Uploads</span>
@@ -98,46 +90,9 @@
       </div>
     </section>
 
-    <!-- ================= LOGIN (GUEST) ================= -->
-    <section class="profile-actions" data-auth-only="guest">
-
-      <p class="muted">
-        Sign in to upload papers and track your progress.
-      </p>
-
-      <button
-        class="btn btn-primary"
-        data-open-login
-      >
-        Sign in with Google
-      </button>
-
-    </section>
-
-    <!-- ================= USER ACTIONS ================= -->
-    <section class="profile-actions" data-auth-only="user" hidden>
-
-      <a
-        href="settings.html"
-        class="btn btn-outline"
-      >
-        Manage Account
-      </a>
-
-      <button
-        id="profileSwitchAccountBtn"
-        class="btn btn-outline"
-      >
-        Switch Account
-      </button>
-
-      <button
-        id="profileLogoutBtn"
-        class="btn btn-outline-red"
-      >
-        Sign out
-      </button>
-
+    <!-- Actions (Dynamically rendered by JS) -->
+    <section class="profile-actions">
+      <!-- Content will be dynamically created by profile-panel.js -->
     </section>
 
   </div>
