@@ -119,6 +119,20 @@
 }
 
 /* ================================
+   Profile Popup Header Centering
+   ================================ */
+
+.profile-popup-header {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-popup-header .avatar-info {
+  align-items: center;
+}
+
+/* ================================
    Actions
    ================================ */
 

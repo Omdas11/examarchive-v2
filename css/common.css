@@ -401,4 +401,42 @@ p {
     transition: none !important;
     animation: none !important;
   }
-   }
+}
+
+/* ================================
+   ACCESSIBILITY CLASSES
+   ================================ */
+
+/* High Contrast Mode */
+body.high-contrast {
+  --text: #000;
+  --text-muted: #333;
+  --bg: #fff;
+  --surface: #fff;
+  --bg-soft: #f5f5f5;
+  --border: #000;
+  --red: #d32f2f;
+}
+
+body.high-contrast.dark,
+body.high-contrast[data-theme="dark"] {
+  --text: #fff;
+  --text-muted: #ddd;
+  --bg: #000;
+  --surface: #1a1a1a;
+  --bg-soft: #222;
+  --border: #fff;
+}
+
+body.high-contrast .card,
+body.high-contrast .btn,
+body.high-contrast .paper-row {
+  border-width: 2px;
+}
+
+/* Reduced Motion Class */
+body.reduced-motion * {
+  transition: none !important;
+  animation: none !important;
+}
+
