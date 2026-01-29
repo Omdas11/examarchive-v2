@@ -1,22 +1,43 @@
 <!-- Login Modal -->
-<div class="login-modal">
-  <div class="login-modal-backdrop"></div>
+<div class="login-modal" aria-hidden="true">
+  <div class="login-modal-backdrop" data-close-modal></div>
 
-  <div class="login-modal-content">
-    <button class="modal-close" aria-label="Close">×</button>
+  <div class="login-modal-content" role="dialog" aria-modal="true">
+    <button class="modal-close" aria-label="Close" data-close-modal>
+      ×
+    </button>
 
     <h2>Sign in to ExamArchive</h2>
     <p>Choose a provider to continue.</p>
 
-    <button class="login-provider" data-provider="google">
+    <!-- GOOGLE -->
+    <button
+      class="login-provider login-google"
+      type="button"
+      data-provider="google"
+    >
       Continue with Google
     </button>
 
-    <button class="login-provider" data-provider="github">
+    <!-- GITHUB (future) -->
+    <button
+      class="login-provider login-github"
+      type="button"
+      data-provider="github"
+      disabled
+      title="Coming soon"
+    >
       Continue with GitHub
     </button>
 
-    <button class="login-provider" data-provider="microsoft">
+    <!-- MICROSOFT (future) -->
+    <button
+      class="login-provider login-microsoft"
+      type="button"
+      data-provider="microsoft"
+      disabled
+      title="Coming soon"
+    >
       Continue with Microsoft
     </button>
   </div>
