@@ -139,14 +139,14 @@
 @media (max-width: 768px) {
   .theme-toggle {
     gap: 0.15rem;
-    padding: 0.2rem;
+    padding: 0.3rem;
   }
   
   .theme-btn,
   .night-btn {
-    width: 28px;
-    height: 28px;
-    /* Tap target maintained via padding on parent */
+    width: 32px;
+    height: 32px;
+    /* Tap target is 32px + (0.3rem padding * 2) = ~42px, meeting accessibility standards */
   }
 }
 

@@ -512,7 +512,6 @@ function attachEventListeners() {
   if (resetAccentBtn) {
     resetAccentBtn.addEventListener("click", () => {
       const defaultAccent = "red";
-      localStorage.setItem("accent-color", defaultAccent);
       localStorage.setItem("accent-color-preview", defaultAccent);
       document.documentElement.setAttribute("data-accent", defaultAccent);
       
@@ -521,7 +520,7 @@ function attachEventListeners() {
         btn.classList.toggle("active", btn.dataset.accent === defaultAccent);
       });
       
-      console.log(`🔄 Accent color reset to default`);
+      console.log(`🔄 Accent color reset to default (preview only - click Apply to persist)`);
     });
   }
   
@@ -565,23 +564,13 @@ function attachEventListeners() {
   if (resetFontBtn) {
     resetFontBtn.addEventListener("click", () => {
       const defaultFont = "default";
-      localStorage.setItem("font-family", defaultFont);
       localStorage.setItem("font-family-preview", defaultFont);
-      
-      // Remove font classes
-      document.body.className = document.body.className.replace(/font-\w+/g, '');
       
       // Update select
       if (fontSelect) fontSelect.value = defaultFont;
       
-      console.log(`🔄 Font family reset to default`);
+      console.log(`🔄 Font family reset to default (preview only - click Apply to persist)`);
     });
-  }
-  
-  // Apply saved font on load
-  const savedFont = localStorage.getItem("font-family") || "default";
-  if (savedFont !== "default") {
-    document.body.classList.add(`font-${savedFont}`);
   }
   
   // ========== GLASS UI ==========
@@ -598,8 +587,17 @@ function attachEventListeners() {
         document.body.classList.remove("glass-enabled");
       }
       
-      // Re-render to update dependent controls
-      renderSettings();
+      // Update dependent controls disabled state
+      const glassBlurRange = document.getElementById("glass-blur");
+      const glassOpacityRange = document.getElementById("glass-opacity");
+      const glassShadowRange = document.getElementById("glass-shadow-softness");
+      
+      [glassBlurRange, glassOpacityRange, glassShadowRange].forEach(control => {
+        if (control) {
+          control.disabled = !isEnabled;
+          control.parentElement.parentElement.style.opacity = isEnabled ? '1' : '0.5';
+        }
+      });
       
       console.log(`✨ Glass effect ${isEnabled ? "enabled" : "disabled"}`);
     });

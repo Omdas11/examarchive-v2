@@ -73,33 +73,36 @@
 }
 
 /* Dark theme accent adjustments */
-body[data-theme="dark"]:root[data-accent="red"],
-body[data-theme="amoled"]:root[data-accent="red"] {
+body[data-theme="dark"] {
   --accent: #ff5252;
 }
 
-body[data-theme="dark"]:root[data-accent="blue"],
-body[data-theme="amoled"]:root[data-accent="blue"] {
+body[data-theme="amoled"] {
+  --accent: #ff5252;
+}
+
+:root[data-accent="blue"] body[data-theme="dark"],
+:root[data-accent="blue"] body[data-theme="amoled"] {
   --accent: #42a5f5;
 }
 
-body[data-theme="dark"]:root[data-accent="green"],
-body[data-theme="amoled"]:root[data-accent="green"] {
+:root[data-accent="green"] body[data-theme="dark"],
+:root[data-accent="green"] body[data-theme="amoled"] {
   --accent: #66bb6a;
 }
 
-body[data-theme="dark"]:root[data-accent="purple"],
-body[data-theme="amoled"]:root[data-accent="purple"] {
+:root[data-accent="purple"] body[data-theme="dark"],
+:root[data-accent="purple"] body[data-theme="amoled"] {
   --accent: #ab47bc;
 }
 
-body[data-theme="dark"]:root[data-accent="amber"],
-body[data-theme="amoled"]:root[data-accent="amber"] {
+:root[data-accent="amber"] body[data-theme="dark"],
+:root[data-accent="amber"] body[data-theme="amoled"] {
   --accent: #ffa726;
 }
 
-body[data-theme="dark"]:root[data-accent="mono"],
-body[data-theme="amoled"]:root[data-accent="mono"] {
+:root[data-accent="mono"] body[data-theme="dark"],
+:root[data-accent="mono"] body[data-theme="amoled"] {
   --accent: #bdbdbd;
 }
 
