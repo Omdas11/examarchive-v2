@@ -1,12 +1,12 @@
 // js/login-modal.js
 // ============================================
-// LOGIN MODAL CONTROLLER – SUPABASE (MOBILE SAFE)
+// LOGIN MODAL CONTROLLER – SUPABASE (FINAL FIX)
 // ============================================
 
 import { supabase } from "./supabase.js";
 
 /* ===============================
-   Mobile debug helper
+   Debug helper (mobile)
    =============================== */
 function debug(msg) {
   alert(msg);
@@ -14,44 +14,37 @@ function debug(msg) {
 }
 
 /* ===============================
-   Wait for modal DOM
+   Global modal open helper
    =============================== */
-document.addEventListener("login-modal:loaded", () => {
+window.openLoginModal = function () {
   const modal = document.querySelector(".login-modal");
   if (!modal) {
     debug("❌ login modal NOT found");
     return;
   }
+  modal.classList.add("open");
+  debug("🟢 Login modal opened");
+};
+
+/* ===============================
+   Modal DOM ready
+   =============================== */
+document.addEventListener("login-modal:loaded", () => {
+  const modal = document.querySelector(".login-modal");
+  if (!modal) {
+    debug("❌ login modal missing after load");
+    return;
+  }
 
   debug("🔥 Login modal DOM ready");
 
-  const closeBtn = modal.querySelector(".modal-close");
-  const backdrop = modal.querySelector(".login-modal-backdrop");
-  const providerBtns = modal.querySelectorAll(".login-provider");
+  const close = () => modal.classList.remove("open");
 
-  /* ===============================
-     Open modal (GLOBAL)
-     =============================== */
-  window.openLoginModal = () => {
-    modal.classList.add("open");
-    debug("🟢 Login modal opened");
-  };
+  modal.querySelectorAll("[data-close-modal]").forEach(el =>
+    el.addEventListener("click", close)
+  );
 
-  /* ===============================
-     Close modal
-     =============================== */
-  function closeModal() {
-    modal.classList.remove("open");
-    debug("❌ Login modal closed");
-  }
-
-  closeBtn?.addEventListener("click", closeModal);
-  backdrop?.addEventListener("click", closeModal);
-
-  /* ===============================
-     OAuth buttons
-     =============================== */
-  providerBtns.forEach(btn => {
+  modal.querySelectorAll(".login-provider").forEach(btn => {
     btn.addEventListener("click", async () => {
       const provider = btn.dataset.provider;
       debug("🚀 OAuth start: " + provider);
@@ -65,54 +58,32 @@ document.addEventListener("login-modal:loaded", () => {
 
       if (error) {
         debug("❌ OAuth error: " + error.message);
-      } else {
-        debug("➡️ Redirecting to " + provider);
       }
     });
   });
 });
 
 /* ===============================
-   Attach Login button in header (FIXED)
+   🔥 GLOBAL CLICK DELEGATION
+   Works even if header reloads
    =============================== */
-document.addEventListener("header:loaded", () => {
-  const loginBtn =
-    document.querySelector(".login-btn") ||
-    document.querySelector("button.login") ||
-    document.querySelector("header button:last-child");
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".login-trigger");
+  if (!btn) return;
 
-  if (!loginBtn) {
-    debug("❌ Login button NOT found in header");
-    return;
-  }
-
-  loginBtn.addEventListener("click", () => {
-    debug("🟢 Login button clicked");
-    window.openLoginModal?.();
-  });
+  debug("👉 Login button clicked");
+  window.openLoginModal();
 });
 
 /* ===============================
-   OAuth return handler (SAFE)
+   OAuth return handler
    =============================== */
-(async function handleOAuthReturn() {
-  if (!window.location.hash.includes("access_token")) return;
+(async function () {
+  if (!location.hash.includes("access_token")) return;
 
   debug("🔁 OAuth return detected");
 
-  const { data, error } = await supabase.auth.getSession();
+  await supabase.auth.getSession();
 
-  if (error) {
-    debug("❌ Session error");
-    return;
-  }
-
-  if (data?.session) {
-    debug("✅ Session restored from OAuth");
-  } else {
-    debug("⚠️ No session after OAuth");
-  }
-
-  // 🔥 Clean hash ALWAYS
-  history.replaceState({}, document.title, window.location.pathname);
+  history.replaceState({}, document.title, location.pathname);
 })();
