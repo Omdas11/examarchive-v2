@@ -1,217 +1,49 @@
-/* ================================
-   Login Modal Styles
-   ================================ */
+/* Login Modal – DEBUG SAFE */
 
 .login-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
+  inset: 0;
   display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  z-index: 9999;
 }
 
-.login-modal[aria-hidden="false"] {
-  display: flex;
+/* When opened */
+.login-modal.open {
+  display: block;
 }
 
 /* Backdrop */
 .login-modal-backdrop {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.2s ease-out;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
 }
 
-[data-theme="amoled"] .login-modal-backdrop {
-  background: rgba(0, 0, 0, 0.8);
-}
-
-/* Modal Card */
-.login-modal-card {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease-out;
-  z-index: 1;
-}
-
-[data-theme="amoled"] .login-modal-card {
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-}
-
-/* Close Button */
-.login-modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-hover);
-  border: none;
-  border-radius: 8px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s;
-  z-index: 2;
-}
-
-.login-modal-close:hover {
-  background: var(--bg-hover-strong);
-  color: var(--text);
-}
-
-/* Content */
+/* Modal box */
 .login-modal-content {
-  padding: 2rem;
+  position: relative;
+  background: #fff;
+  max-width: 360px;
+  margin: 20vh auto;
+  padding: 20px;
+  border-radius: 12px;
+  z-index: 10000;
 }
 
-.login-modal-content h2 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.login-modal-description {
-  margin: 0 0 1.5rem 0;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-/* GitHub Button */
-.btn-github {
+/* Buttons */
+.login-provider {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  background: #24292e;
-  color: white;
+  margin-top: 12px;
+  padding: 12px;
+  font-size: 16px;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 22px;
+  background: none;
   border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-github:hover {
-  background: #1b1f23;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.btn-github:active {
-  transform: translateY(0);
-}
-
-.btn-github .github-icon {
-  flex-shrink: 0;
-}
-
-[data-theme="light"] .btn-github {
-  background: #24292e;
-}
-
-[data-theme="dark"] .btn-github,
-[data-theme="amoled"] .btn-github {
-  background: white;
-  color: #24292e;
-}
-
-[data-theme="dark"] .btn-github:hover,
-[data-theme="amoled"] .btn-github:hover {
-  background: #f6f8fa;
-}
-
-/* Note */
-.login-modal-note {
-  margin: 1rem 0 0 0;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  text-align: center;
-  line-height: 1.4;
-}
-
-/* Message */
-.login-modal-message {
-  margin: 1rem 0 0 0;
-  padding: 0.75rem;
-  background: var(--bg-hover);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 0.85rem;
-  text-align: center;
-}
-
-.login-modal-message.error {
-  background: rgba(211, 47, 47, 0.1);
-  color: var(--red);
-  border: 1px solid rgba(211, 47, 47, 0.2);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .login-modal-backdrop,
-  .login-modal-card {
-    animation: none;
-  }
-  
-  .btn-github:hover {
-    transform: none;
-  }
-}
-
-/* Mobile adjustments */
-@media (max-width: 480px) {
-  .login-modal-content {
-    padding: 1.5rem;
-  }
-  
-  .login-modal-content h2 {
-    font-size: 1.25rem;
-  }
-  
-  .login-modal-card {
-    border-radius: 12px;
-  }
 }
