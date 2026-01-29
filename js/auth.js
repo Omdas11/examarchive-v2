@@ -1,32 +1,22 @@
-// js/auth.js
-import { account } from "./appwrite.js";
+import { supabase } from "./supabase.js";
 
-window.AppwriteAuth = {
-  user: null,
+async function restoreSession() {
+  const { data, error } = await supabase.auth.getSession();
 
-  async restoreSession() {
-    try {
-      const user = await account.get();
-      this.user = user;
-
-      alert("✅ SESSION RESTORED: " + user.email);
-
-      // Hide login button
-      document.querySelectorAll(".login-trigger").forEach(btn => {
-        btn.hidden = true;
-      });
-
-      // Show avatar trigger
-      document.querySelectorAll("[data-auth-only='user']").forEach(el => {
-        el.hidden = false;
-      });
-
-      document.dispatchEvent(
-        new CustomEvent("auth:changed", { detail: user })
-      );
-
-    } catch (err) {
-      alert("ℹ️ No active session");
-    }
+  if (error) {
+    alert("❌ Auth error");
+    return;
   }
-};
+
+  if (!data.session) {
+    alert("ℹ️ No active session");
+    return;
+  }
+
+  alert("✅ Logged in: " + data.session.user.email);
+
+  // example UI update
+  document.querySelector(".login-trigger")?.classList.add("hidden");
+}
+
+restoreSession();
