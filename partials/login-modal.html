@@ -1,61 +1,23 @@
-// js/login-modal.js
-// ===================================
-// Login Modal Controller (Google only)
-// MOBILE DEBUG VERSION (ALERT BASED)
-// ===================================
+<!-- Login Modal -->
+<div class="login-modal">
+  <div class="login-modal-backdrop"></div>
 
-import { account } from "./appwrite.js";
+  <div class="login-modal-content">
+    <button class="modal-close" aria-label="Close">×</button>
 
-alert("✅ login-modal.js LOADED");
+    <h2>Sign in to ExamArchive</h2>
+    <p>Choose a provider to continue.</p>
 
-function waitForModal() {
-  const modal = document.querySelector(".login-modal");
-  const loginBtn = document.querySelector(".login-trigger");
-  const googleBtn = document.querySelector('[data-provider="google"]');
-  const closeBtn = document.querySelector(".modal-close");
+    <button class="login-provider" data-provider="google">
+      Continue with Google
+    </button>
 
-  if (!modal) {
-    alert("⏳ Modal NOT found yet");
-    return setTimeout(waitForModal, 300);
-  }
+    <button class="login-provider" data-provider="github">
+      Continue with GitHub
+    </button>
 
-  if (!loginBtn) {
-    alert("❌ Login button NOT found");
-    return;
-  }
-
-  if (!googleBtn) {
-    alert("❌ Google button NOT found (data-provider=google missing)");
-    return;
-  }
-
-  alert("🔥 Login modal + buttons FOUND");
-
-  // OPEN MODAL
-  loginBtn.addEventListener("click", () => {
-    alert("🟢 LOGIN BUTTON CLICKED");
-    modal.classList.add("open");
-  });
-
-  // CLOSE MODAL
-  closeBtn?.addEventListener("click", () => {
-    alert("❌ MODAL CLOSED");
-    modal.classList.remove("open");
-  });
-
-  // GOOGLE LOGIN
-  googleBtn.addEventListener("click", () => {
-    alert("🚀 GOOGLE BUTTON CLICKED");
-
-    const redirect = window.location.origin;
-    alert("➡️ Redirect URL: " + redirect);
-
-    account.createOAuth2Session(
-      "google",
-      redirect,
-      redirect
-    );
-  });
-}
-
-waitForModal();
+    <button class="login-provider" data-provider="microsoft">
+      Continue with Microsoft
+    </button>
+  </div>
+</div>
