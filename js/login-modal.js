@@ -2,23 +2,7 @@ import { supabase } from "./supabase.js";
 
 alert("✅ login-modal.js (supabase) loaded");
 
-/* ===============================
-   🔒 AUTH GUARD (ANTI-LOOP)
-   =============================== */
-let loginLocked = false;
-
-async function authGuard() {
-  const { data } = await supabase.auth.getUser();
-
-  if (data?.user) {
-    loginLocked = true;
-    alert("🛑 User already logged in — login modal DISABLED");
-  } else {
-    alert("ℹ️ No active user — login allowed");
-  }
-}
-
-authGuard();
+let oauthLocked = false;
 
 /* ===============================
    WAIT FOR MODAL
@@ -29,25 +13,18 @@ function waitForModal() {
   const googleBtn = document.querySelector('[data-provider="google"]');
   const closeBtn = document.querySelector(".modal-close");
 
-  if (!modal || !googleBtn) {
+  if (!modal || !googleBtn || !loginBtn) {
     alert("⏳ Waiting for login modal DOM…");
     return setTimeout(waitForModal, 300);
   }
 
-  alert("🔥 Modal + Google button FOUND");
+  alert("🔥 Modal + buttons FOUND");
 
   /* ===============================
-     OPEN MODAL
+     OPEN MODAL (ALWAYS ALLOWED)
      =============================== */
-  loginBtn?.addEventListener("click", async () => {
-    const { data } = await supabase.auth.getUser();
-
-    if (data?.user) {
-      alert("✅ Already logged in — modal will NOT open");
-      return;
-    }
-
-    alert("🟢 LOGIN CLICKED — opening modal");
+  loginBtn.addEventListener("click", () => {
+    alert("🟢 LOGIN CLICKED → opening modal");
     modal.classList.add("open");
   });
 
@@ -63,8 +40,8 @@ function waitForModal() {
      GOOGLE LOGIN
      =============================== */
   googleBtn.addEventListener("click", async () => {
-    if (loginLocked) {
-      alert("🛑 OAuth BLOCKED — user already signed in");
+    if (oauthLocked) {
+      alert("🛑 OAuth blocked — already signed in");
       return;
     }
 
@@ -88,13 +65,16 @@ function waitForModal() {
 waitForModal();
 
 /* ===============================
-   🔔 AUTH STATE LISTENER
+   AUTH STATE LISTENER (LOCK ONLY OAUTH)
    =============================== */
 supabase.auth.onAuthStateChange((event) => {
   alert("🔔 AUTH EVENT: " + event);
 
   if (event === "SIGNED_IN") {
-    loginLocked = true;
-    alert("🔒 Login locked after SIGNED_IN");
+    oauthLocked = true;
+    alert("🔒 OAuth locked after SIGNED_IN");
+
+    // Close modal if open
+    document.querySelector(".login-modal")?.classList.remove("open");
   }
 });
