@@ -33,7 +33,6 @@ function initializeProfilePanel() {
   const switchAccountBtn = document.getElementById("profileSwitchAccountBtn");
   const switchAccountModal = document.getElementById("switch-account-modal");
   const confirmSwitchBtn = document.getElementById("confirmSwitchAccountBtn");
-  const avatarTrigger = document.getElementById("avatarTrigger");
 
   if (!panel) {
     debug("❌ profile panel NOT found");
@@ -82,16 +81,9 @@ function initializeProfilePanel() {
   backdrop?.addEventListener("click", closePanel);
   closeBtn?.addEventListener("click", closePanel);
 
-  // Open panel on avatar trigger click
-  avatarTrigger?.addEventListener("click", (e) => {
-    openPanel();
-    e.preventDefault();
-    e.stopPropagation();
-  });
-
-  // Also handle [data-open-profile] elements (for compatibility)
+  // Handle [data-open-profile] elements to open profile panel
   document.addEventListener("click", (e) => {
-    if (e.target.closest("[data-open-profile]") && e.target !== avatarTrigger && !avatarTrigger?.contains(e.target)) {
+    if (e.target.closest("[data-open-profile]")) {
       openPanel();
     }
   });
@@ -125,6 +117,28 @@ function initializeProfilePanel() {
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-switch]")) {
       closeSwitchAccountModal();
+    }
+  });
+
+  // Handle Sign in with Google from profile panel (guest mode)
+  document.addEventListener("click", async (e) => {
+    const signInBtn = e.target.closest(".profile-panel [data-open-login]");
+    if (signInBtn) {
+      debug("👉 Sign in with Google clicked from profile panel");
+      closePanel();
+      
+      // Directly trigger Google OAuth
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      
+      if (error) {
+        debug("❌ OAuth error: " + error.message);
+        console.error("[profile-panel] OAuth error:", error);
+      }
     }
   });
 

@@ -46,11 +46,20 @@
     <!-- Actions -->
     <div class="avatar-actions">
       <!-- Guest actions -->
-      <button class="btn btn-glass" data-open-profile data-auth-only="guest">
-        View Profile
+      <button class="btn btn-primary" data-open-login data-auth-only="guest">
+        Sign in with Google
       </button>
 
       <!-- Logged-in actions -->
+      <button
+        class="btn btn-glass"
+        data-open-profile
+        data-auth-only="user"
+        hidden
+      >
+        View Profile
+      </button>
+
       <a
         href="settings.html"
         class="btn btn-outline"
@@ -70,7 +79,7 @@
       </button>
 
       <button
-        class="btn btn-outline-danger"
+        class="btn btn-outline-red"
         id="avatarLogoutBtn"
         data-auth-only="user"
         hidden

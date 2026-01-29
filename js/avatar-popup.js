@@ -155,3 +155,27 @@ document.addEventListener("click", (e) => {
   }
 });
 
+/* ===============================
+   Handle "Sign in with Google" button
+   =============================== */
+document.addEventListener("click", async (e) => {
+  const signInBtn = e.target.closest("#avatar-popup [data-open-login]");
+  if (signInBtn) {
+    debug("👉 Sign in with Google clicked from avatar popup");
+    closeAvatarPopup();
+    
+    // Directly trigger Google OAuth
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    
+    if (error) {
+      debug("❌ OAuth error: " + error.message);
+      console.error("[avatar-popup] OAuth error:", error);
+    }
+  }
+});
+
