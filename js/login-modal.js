@@ -2,28 +2,30 @@ import { supabase } from "./supabase.js";
 
 alert("✅ login-modal.js loaded");
 
+/* =====================================
+   🚫 STOP MODAL LOGIC AFTER OAUTH RETURN
+   ===================================== */
+if (window.location.hash.includes("access_token")) {
+  alert("⛔ OAuth return detected — login modal DISABLED");
+  // Supabase will restore session automatically
+  throw new Error("OAuth return — stop login-modal.js");
+}
+
+/* =====================================
+   NORMAL LOGIN MODAL LOGIC (PRE-LOGIN)
+   ===================================== */
 function waitForModal() {
   const modal = document.querySelector(".login-modal");
   const loginBtn = document.querySelector(".login-trigger");
   const googleBtn = document.querySelector('[data-provider="google"]');
   const closeBtn = document.querySelector(".modal-close");
 
-  if (!modal) {
-    alert("⏳ modal NOT found");
+  if (!modal || !loginBtn || !googleBtn) {
+    alert("⏳ Waiting for login modal DOM…");
     return setTimeout(waitForModal, 300);
   }
 
-  if (!loginBtn) {
-    alert("⏳ login button NOT found");
-    return setTimeout(waitForModal, 300);
-  }
-
-  if (!googleBtn) {
-    alert("❌ GOOGLE BUTTON NOT FOUND");
-    return setTimeout(waitForModal, 300);
-  }
-
-  alert("🔥 Modal + Google button FOUND");
+  alert("🔥 Login modal + Google button FOUND");
 
   // Open modal
   loginBtn.addEventListener("click", () => {
@@ -33,13 +35,13 @@ function waitForModal() {
 
   // Close modal
   closeBtn?.addEventListener("click", () => {
-    alert("❌ Modal closed");
+    alert("❌ Login modal closed");
     modal.classList.remove("open");
   });
 
   // Google OAuth
   googleBtn.addEventListener("click", async () => {
-    alert("🚀 GOOGLE BUTTON CLICKED");
+    alert("🚀 GOOGLE OAUTH START");
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
