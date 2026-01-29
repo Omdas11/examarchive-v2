@@ -56,11 +56,11 @@ function debugBox(text) {
   }
 
   // 🔥 Always clean OAuth hash (PREVENT LOOP)
- // if (window.location.hash.includes("access_token")) {
-   // history.replaceState({}, document.title, window.location.pathname);
- //   debugBox("🧹 OAuth hash cleaned from URL");
-//  }
-// })();
+  if (window.location.hash.includes("access_token")) {
+    history.replaceState({}, document.title, window.location.pathname);
+    debugBox("🧹 OAuth hash cleaned from URL");
+  }
+})();
 
 /* ===============================
    Load partial helper

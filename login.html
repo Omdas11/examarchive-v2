@@ -112,8 +112,12 @@
   <div id="footer"></div>
 
   <!-- Core scripts -->
+  <!-- Supabase SDK (must load before ES modules) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  
+  <!-- ES Modules -->
   <script type="module" src="js/common.js"></script>
-<script type="module" src="js/login-modal.js"></script>
+  <script type="module" src="js/login-modal.js"></script>
 
   <!-- Login logic -->
   <script>
