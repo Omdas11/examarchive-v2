@@ -1,33 +1,61 @@
-<!-- ================================
-     Login Modal (OAuth Providers)
-     ================================ -->
-<div id="login-modal" class="login-modal" aria-hidden="true" role="dialog">
-  <div class="login-modal-backdrop" data-close-login></div>
+// js/login-modal.js
+// ===================================
+// Login Modal Controller (Google only)
+// MOBILE DEBUG VERSION (ALERT BASED)
+// ===================================
 
-  <div class="login-modal-card">
-    <button class="login-modal-close" data-close-login type="button">✕</button>
+import { account } from "./appwrite.js";
 
-    <div class="login-modal-content">
-      <h2>Sign in to ExamArchive</h2>
-      <p>Choose a provider to continue.</p>
+alert("✅ login-modal.js LOADED");
 
-      <button
-  class="provider-btn google"
-  data-provider="google"
-  type="button"
->
-  Continue with Google
-      </button>
+function waitForModal() {
+  const modal = document.querySelector(".login-modal");
+  const loginBtn = document.querySelector(".login-trigger");
+  const googleBtn = document.querySelector('[data-provider="google"]');
+  const closeBtn = document.querySelector(".modal-close");
 
-      <button class="btn btn-github" data-provider="github" type="button">
-        Continue with GitHub
-      </button>
+  if (!modal) {
+    alert("⏳ Modal NOT found yet");
+    return setTimeout(waitForModal, 300);
+  }
 
-      <button class="btn btn-microsoft" data-provider="microsoft" type="button">
-        Continue with Microsoft
-      </button>
+  if (!loginBtn) {
+    alert("❌ Login button NOT found");
+    return;
+  }
 
-      <p id="loginModalMsg" class="login-modal-message" hidden></p>
-    </div>
-  </div>
-</div>
+  if (!googleBtn) {
+    alert("❌ Google button NOT found (data-provider=google missing)");
+    return;
+  }
+
+  alert("🔥 Login modal + buttons FOUND");
+
+  // OPEN MODAL
+  loginBtn.addEventListener("click", () => {
+    alert("🟢 LOGIN BUTTON CLICKED");
+    modal.classList.add("open");
+  });
+
+  // CLOSE MODAL
+  closeBtn?.addEventListener("click", () => {
+    alert("❌ MODAL CLOSED");
+    modal.classList.remove("open");
+  });
+
+  // GOOGLE LOGIN
+  googleBtn.addEventListener("click", () => {
+    alert("🚀 GOOGLE BUTTON CLICKED");
+
+    const redirect = window.location.origin;
+    alert("➡️ Redirect URL: " + redirect);
+
+    account.createOAuth2Session(
+      "google",
+      redirect,
+      redirect
+    );
+  });
+}
+
+waitForModal();
