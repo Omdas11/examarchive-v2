@@ -1,12 +1,14 @@
 // js/common.js
 // ============================================
 // GLOBAL BOOTSTRAP (Theme + Partials + Auth Hook)
-// MOBILE DEBUG VERSION
+// SUPABASE – MOBILE DEBUG VERSION
 // ============================================
 
-// ===============================
-// Apply saved theme early
-// ===============================
+import { supabase } from "./supabase.js";
+
+/* ===============================
+   Apply saved theme early
+   =============================== */
 (function () {
   const theme = localStorage.getItem("theme") || "light";
   const night = localStorage.getItem("night");
@@ -17,9 +19,9 @@
   }
 })();
 
-// ===============================
-// Mobile debug helper (VISIBLE)
-// ===============================
+/* ===============================
+   Mobile debug helper (VISIBLE)
+   =============================== */
 function debugBox(text) {
   let box = document.getElementById("debug-box");
   if (!box) {
@@ -38,11 +40,12 @@ function debugBox(text) {
     document.body.appendChild(box);
   }
   box.textContent = text;
+  console.log(text);
 }
 
-// ===============================
-// Load partial helper
-// ===============================
+/* ===============================
+   Load partial helper
+   =============================== */
 function loadPartial(id, file, callback) {
   fetch(file)
     .then(res => res.text())
@@ -55,47 +58,47 @@ function loadPartial(id, file, callback) {
       container.innerHTML = html;
       callback && callback();
     })
-    .catch(err => debugBox("❌ Failed to load " + file));
+    .catch(() => debugBox("❌ Failed to load " + file));
 }
 
-// ===============================
-// Header
-// ===============================
+/* ===============================
+   Header
+   =============================== */
 loadPartial("header", "partials/header.html", () => {
   highlightActiveNav();
   document.dispatchEvent(new CustomEvent("header:loaded"));
   debugBox("✅ Header loaded");
 });
 
-// ===============================
-// Footer
-// ===============================
+/* ===============================
+   Footer
+   =============================== */
 loadPartial("footer", "partials/footer.html");
 
-// ===============================
-// Avatar popup
-// ===============================
+/* ===============================
+   Avatar popup
+   =============================== */
 loadPartial("avatar-portal", "partials/avatar-popup.html", () => {
   document.dispatchEvent(new CustomEvent("avatar:loaded"));
 });
 
-// ===============================
-// Profile panel
-// ===============================
+/* ===============================
+   Profile panel
+   =============================== */
 loadPartial("profile-panel-portal", "partials/profile-panel.html", () => {
   document.dispatchEvent(new CustomEvent("profile-panel:loaded"));
 });
 
-// ===============================
-// Login modal
-// ===============================
+/* ===============================
+   Login modal
+   =============================== */
 loadPartial("login-modal-portal", "partials/login-modal.html", () => {
   document.dispatchEvent(new CustomEvent("login-modal:loaded"));
 });
 
-// ===============================
-// Highlight active nav
-// ===============================
+/* ===============================
+   Highlight active nav
+   =============================== */
 function highlightActiveNav() {
   const current = window.location.pathname.split("/").pop() || "index.html";
   document.querySelectorAll(".nav-link").forEach(link => {
@@ -105,9 +108,9 @@ function highlightActiveNav() {
   });
 }
 
-// ===============================
-// Mobile menu
-// ===============================
+/* ===============================
+   Mobile menu
+   =============================== */
 document.addEventListener("click", (e) => {
   const menuBtn = e.target.closest(".menu-btn");
   const mobileNav = document.getElementById("mobileNav");
@@ -124,17 +127,17 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ===============================
-// Footer year
-// ===============================
+/* ===============================
+   Footer year
+   =============================== */
 document.addEventListener("DOMContentLoaded", () => {
   const year = document.getElementById("year");
   if (year) year.textContent = new Date().getFullYear();
 });
 
-// ===============================
-// Lazy-load avatar.js
-// ===============================
+/* ===============================
+   Lazy-load avatar.js
+   =============================== */
 document.addEventListener("avatar:loaded", () => {
   if (document.getElementById("avatar-script")) return;
   const s = document.createElement("script");
@@ -144,18 +147,20 @@ document.addEventListener("avatar:loaded", () => {
   document.body.appendChild(s);
 });
 
-// ===============================
-// 🔥 AUTH RESTORE + UI SYNC (DEBUG)
-// ===============================
+/* ===============================
+   🔥 SUPABASE AUTH RESTORE + UI SYNC (DEBUG)
+   =============================== */
 async function syncAuthToUI(stage) {
-  if (!window.AppwriteAuth) {
-    debugBox("❌ " + stage + ": AppwriteAuth missing");
+  debugBox("🔄 syncAuthToUI @ " + stage);
+
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    debugBox("❌ Auth error: " + error.message);
     return;
   }
 
-  const user = window.AppwriteAuth.getCurrentUser
-    ? window.AppwriteAuth.getCurrentUser()
-    : null;
+  const user = data?.user || null;
 
   debugBox(
     "🔎 " + stage +
@@ -170,27 +175,31 @@ async function syncAuthToUI(stage) {
 
   const avatarMini = document.querySelector(".avatar-mini");
   if (avatarMini && user) {
-    const name = user.name || user.email || "U";
+    const name = user.user_metadata?.full_name || user.email || "U";
     avatarMini.textContent = name[0].toUpperCase();
   }
 }
 
-// Restore session twice (safe)
-document.addEventListener("DOMContentLoaded", async () => {
-  if (window.AppwriteAuth?.restoreSession) {
-    await window.AppwriteAuth.restoreSession();
-    syncAuthToUI("DOMContentLoaded");
-  }
+/* ===============================
+   Restore session (SAFE MULTI-HOOK)
+   =============================== */
+document.addEventListener("DOMContentLoaded", () => {
+  syncAuthToUI("DOMContentLoaded");
 });
 
-window.addEventListener("load", async () => {
-  if (window.AppwriteAuth?.restoreSession) {
-    await window.AppwriteAuth.restoreSession();
-    syncAuthToUI("window.load");
-  }
+window.addEventListener("load", () => {
+  syncAuthToUI("window.load");
 });
 
-// Re-sync when header arrives
 document.addEventListener("header:loaded", () => {
   syncAuthToUI("header.loaded");
+});
+
+/* ===============================
+   Supabase auth state listener
+   =============================== */
+supabase.auth.onAuthStateChange((event, session) => {
+  alert("🔔 AUTH EVENT: " + event);
+  debugBox("🔔 Auth change: " + event);
+  syncAuthToUI("auth.change");
 });
