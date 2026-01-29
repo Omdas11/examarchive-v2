@@ -4,7 +4,7 @@
 // ===============================
 
 import { supabase } from "./supabase.js";
-import { updateAvatarElement, handleLogout, handleSwitchAccount } from "./avatar-utils.js";
+import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -33,7 +33,6 @@ function initializeProfilePanel() {
   const switchAccountBtn = document.getElementById("profileSwitchAccountBtn");
   const switchAccountModal = document.getElementById("switch-account-modal");
   const confirmSwitchBtn = document.getElementById("confirmSwitchAccountBtn");
-  const avatarTrigger = document.getElementById("avatarTrigger");
 
   if (!panel) {
     debug("❌ profile panel NOT found");
@@ -82,20 +81,6 @@ function initializeProfilePanel() {
   backdrop?.addEventListener("click", closePanel);
   closeBtn?.addEventListener("click", closePanel);
 
-  // Open panel on avatar trigger click
-  avatarTrigger?.addEventListener("click", (e) => {
-    openPanel();
-    e.preventDefault();
-    e.stopPropagation();
-  });
-
-  // Also handle [data-open-profile] elements (for compatibility)
-  document.addEventListener("click", (e) => {
-    if (e.target.closest("[data-open-profile]") && e.target !== avatarTrigger && !avatarTrigger?.contains(e.target)) {
-      openPanel();
-    }
-  });
-
   // Close on any [data-close-profile] element
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-profile]")) {
@@ -125,6 +110,16 @@ function initializeProfilePanel() {
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-switch]")) {
       closeSwitchAccountModal();
+    }
+  });
+
+  // Handle Sign in with Google from profile panel (guest mode)
+  document.addEventListener("click", async (e) => {
+    const signInBtn = e.target.closest(".profile-panel [data-open-login]");
+    if (signInBtn) {
+      debug("👉 Sign in with Google clicked from profile panel");
+      closePanel();
+      await handleSignIn();
     }
   });
 

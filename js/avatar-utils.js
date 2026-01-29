@@ -78,6 +78,24 @@ export async function handleLogout() {
 }
 
 /**
+ * Shared sign-in handler
+ */
+export async function handleSignIn() {
+  console.log("[avatar-utils] 🔐 Signing in with Google...");
+  
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin
+    }
+  });
+  
+  if (error) {
+    console.error("[avatar-utils] ❌ Sign in error:", error.message);
+  }
+}
+
+/**
  * Shared switch account handler
  */
 export async function handleSwitchAccount() {
@@ -87,14 +105,5 @@ export async function handleSwitchAccount() {
   await supabase.auth.signOut();
   
   // Then trigger OAuth flow
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: window.location.origin
-    }
-  });
-  
-  if (error) {
-    console.error("[avatar-utils] ❌ Switch account error:", error.message);
-  }
+  await handleSignIn();
 }

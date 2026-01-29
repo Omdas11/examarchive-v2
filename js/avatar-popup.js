@@ -4,7 +4,7 @@
 // ===============================
 
 import { supabase } from "./supabase.js";
-import { updateAvatarElement, handleLogout, handleSwitchAccount } from "./avatar-utils.js";
+import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
 
 function debug(msg) {
   console.log("[avatar-popup]", msg);
@@ -147,11 +147,24 @@ supabase.auth.onAuthStateChange(() => {
    Handle "View Profile" button
    =============================== */
 document.addEventListener("click", (e) => {
-  if (e.target.closest("[data-open-profile]")) {
+  const viewProfileBtn = e.target.closest("#avatar-popup [data-open-profile]");
+  if (viewProfileBtn) {
     debug("👉 Opening profile panel from avatar popup");
     closeAvatarPopup();
     const panel = document.querySelector(".profile-panel");
     panel?.classList.add("open");
+  }
+});
+
+/* ===============================
+   Handle "Sign in with Google" button
+   =============================== */
+document.addEventListener("click", async (e) => {
+  const signInBtn = e.target.closest("#avatar-popup [data-open-login]");
+  if (signInBtn) {
+    debug("👉 Sign in with Google clicked from avatar popup");
+    closeAvatarPopup();
+    await handleSignIn();
   }
 });
 
