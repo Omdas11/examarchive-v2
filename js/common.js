@@ -55,7 +55,7 @@ function debugBox(text) {
     debugBox("ℹ️ No active session");
   }
 
-  // 🔥 Always clean OAuth hash to prevent loops
+  // 🔥 Always clean OAuth hash (PREVENT LOOP)
   if (window.location.hash.includes("access_token")) {
     history.replaceState({}, document.title, window.location.pathname);
     debugBox("🧹 OAuth hash cleaned from URL");
@@ -167,11 +167,12 @@ document.addEventListener("avatar:loaded", () => {
 });
 
 /* ===============================
-   🔥 AUTH → UI SYNC
+   🔥 AUTH → UI SYNC (SESSION-BASED)
    =============================== */
 async function syncAuthToUI(stage) {
-  const { data } = await supabase.auth.getUser();
-  const user = data?.user || null;
+  const { data } = await supabase.auth.getSession();
+  const session = data?.session || null;
+  const user = session?.user || null;
 
   debugBox(
     "🔎 " + stage +
@@ -186,13 +187,16 @@ async function syncAuthToUI(stage) {
 
   const avatarMini = document.querySelector(".avatar-mini");
   if (avatarMini && user) {
-    const name = user.user_metadata?.full_name || user.email || "U";
+    const name =
+      user.user_metadata?.full_name ||
+      user.email ||
+      "U";
     avatarMini.textContent = name[0].toUpperCase();
   }
 }
 
 /* ===============================
-   Initial restore (SAFE)
+   Initial restore
    =============================== */
 document.addEventListener("DOMContentLoaded", () => {
   syncAuthToUI("DOMContentLoaded");
@@ -207,14 +211,9 @@ document.addEventListener("header:loaded", () => {
 });
 
 /* ===============================
-   Supabase auth state listener (DEDUPED)
+   Supabase auth listener
    =============================== */
-let lastAuthEvent = null;
-
 supabase.auth.onAuthStateChange((event) => {
-  if (event === lastAuthEvent) return;
-  lastAuthEvent = event;
-
   debugBox("🔔 AUTH EVENT: " + event);
 
   if (event === "SIGNED_IN") {
