@@ -193,7 +193,121 @@
   margin-bottom: 0.4rem;
 }
 
-/* Softer red (less aggressive) */
-.btn.btn-red {
-  background: linear-gradient(135deg, #d63a3a, #c12d2d);
+/* Softer red (less aggressive) - REMOVED, using common.css styles instead */
+
+/* ================================
+   Switch Account Confirmation Modal
+   ================================ */
+
+.switch-account-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10070;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity 0.25s ease;
+}
+
+.switch-account-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.switch-account-modal-backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.switch-account-modal-content {
+  width: min(90vw, 420px);
+  max-height: 90vh;
+  
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  
+  padding: 1.5rem;
+  position: relative;
+  
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.25s ease;
+}
+
+.switch-account-modal.open .switch-account-modal-content {
+  transform: translateY(0) scale(1);
+}
+
+.switch-account-modal-content h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+}
+
+.switch-account-modal-content .modal-description {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.current-account-info {
+  background: var(--bg-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.current-account-info strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.current-account-info span {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.modal-actions .btn {
+  width: 100%;
+}
+
+.switch-account-modal .modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  line-height: 1;
+  padding: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.switch-account-modal .modal-close:hover {
+  background: var(--bg-soft);
+  color: var(--text);
 }

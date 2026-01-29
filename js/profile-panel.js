@@ -31,6 +31,8 @@ function initializeProfilePanel() {
   const closeBtn = document.querySelector(".profile-panel-close");
   const logoutBtn = document.getElementById("profileLogoutBtn");
   const switchAccountBtn = document.getElementById("profileSwitchAccountBtn");
+  const switchAccountModal = document.getElementById("switch-account-modal");
+  const confirmSwitchBtn = document.getElementById("confirmSwitchAccountBtn");
 
   if (!panel) {
     debug("❌ profile panel NOT found");
@@ -50,8 +52,39 @@ function initializeProfilePanel() {
     debug("🔴 profile panel closed");
   }
 
+  function openSwitchAccountModal() {
+    if (!switchAccountModal) return;
+    
+    // Update current account email
+    supabase.auth.getSession().then(({ data }) => {
+      const user = data?.session?.user;
+      const emailEl = document.getElementById("currentAccountEmail");
+      if (emailEl && user) {
+        emailEl.textContent = user.email;
+      }
+    });
+    
+    switchAccountModal.classList.add("open");
+    debug("🟢 switch account modal opened");
+  }
+
+  function closeSwitchAccountModal() {
+    if (!switchAccountModal) return;
+    switchAccountModal.classList.remove("open");
+    debug("🔴 switch account modal closed");
+  }
+
   backdrop?.addEventListener("click", closePanel);
   closeBtn?.addEventListener("click", closePanel);
+
+  // Open on avatar trigger or [data-open-profile] element
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#avatarTrigger") || e.target.closest("[data-open-profile]")) {
+      openPanel();
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  });
 
   // Close on any [data-close-profile] element
   document.addEventListener("click", (e) => {
@@ -66,10 +99,23 @@ function initializeProfilePanel() {
     await handleLogout();
   });
 
-  // Switch account handler
-  switchAccountBtn?.addEventListener("click", async () => {
+  // Switch account handler - open confirmation modal
+  switchAccountBtn?.addEventListener("click", () => {
     closePanel();
+    openSwitchAccountModal();
+  });
+
+  // Confirm switch account - actually trigger OAuth
+  confirmSwitchBtn?.addEventListener("click", async () => {
+    closeSwitchAccountModal();
     await handleSwitchAccount();
+  });
+
+  // Close switch account modal
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close-switch]")) {
+      closeSwitchAccountModal();
+    }
   });
 
   clickHandlerAttached = true;

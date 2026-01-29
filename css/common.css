@@ -334,6 +334,36 @@ p {
   transform: scale(0.97);
 }
 
+/* Outline red button variant (soft destructive) */
+.btn.btn-outline-red {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+}
+
+.btn.btn-outline-red:hover {
+  background: rgba(211, 47, 47, 0.08);
+}
+
+.btn.btn-outline-red:active {
+  transform: scale(0.97);
+}
+
+/* Primary button variant (brand color) */
+.btn.btn-primary {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.btn.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn.btn-primary:active {
+  transform: scale(0.97);
+}
+
 /* Outline button variant */
 .btn.btn-outline {
   background: transparent;

@@ -106,10 +106,10 @@
       </p>
 
       <button
-        class="btn btn-red"
+        class="btn btn-primary"
         data-open-login
       >
-        Continue with Google
+        Sign in with Google
       </button>
 
     </section>
@@ -133,12 +133,55 @@
 
       <button
         id="profileLogoutBtn"
-        class="btn btn-red"
+        class="btn btn-outline-red"
       >
         Sign out
       </button>
 
     </section>
 
+  </div>
+</div>
+
+<!-- ================================
+     Switch Account Confirmation Modal
+     ================================ -->
+<div
+  id="switch-account-modal"
+  class="switch-account-modal"
+  aria-hidden="true"
+>
+  <div class="switch-account-modal-backdrop" data-close-switch></div>
+  
+  <div class="switch-account-modal-content" role="dialog" aria-modal="true">
+    <button class="modal-close" aria-label="Close" data-close-switch>
+      ×
+    </button>
+
+    <h2>Switch Account</h2>
+    <p class="modal-description">
+      Switch account allows you to sign in with another Google account.
+    </p>
+
+    <div class="current-account-info" id="currentAccountInfo">
+      <strong>Current account:</strong>
+      <span id="currentAccountEmail">user@example.com</span>
+    </div>
+
+    <div class="modal-actions">
+      <button
+        id="confirmSwitchAccountBtn"
+        class="btn btn-primary"
+      >
+        Continue with another Google account
+      </button>
+      
+      <button
+        class="btn btn-outline"
+        data-close-switch
+      >
+        Cancel
+      </button>
+    </div>
   </div>
 </div>
