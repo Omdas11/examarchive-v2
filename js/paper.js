@@ -184,7 +184,7 @@ async function renderRepeatedQuestions(data) {
 }
 
 /* ================= SYLLABUS PDF DOWNLOAD ================= */
-function setupSyllabusDownloads(paperCode) {
+async function setupSyllabusDownloads(paperCode) {
   const toggle = document.getElementById("syllabus-download-toggle");
   const menu = document.getElementById("syllabus-download-menu");
   const paragraph = document.getElementById("download-syllabus-paragraph");
@@ -199,6 +199,28 @@ function setupSyllabusDownloads(paperCode) {
     e.stopPropagation();
     menu.classList.toggle("hidden");
   };
+
+  // Auth check for download links
+  const downloadLinks = [paragraph, list];
+  downloadLinks.forEach(link => {
+    link.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Check authentication
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData?.session;
+
+      if (!session) {
+        // Guest user - open avatar popup with highlighted sign-in
+        menu.classList.add("hidden");
+        openAvatarPopupWithHighlight();
+      } else {
+        // Logged-in user - proceed with download
+        window.open(link.href, "_blank");
+      }
+    });
+  });
 
   document.addEventListener("click", e => {
     if (!menu.contains(e.target) && !toggle.contains(e.target)) {

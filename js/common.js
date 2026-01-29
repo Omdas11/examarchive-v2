@@ -17,6 +17,39 @@ import { supabase } from "./supabase.js";
   if (night === "on") {
     document.body.setAttribute("data-night", "on");
   }
+  
+  // Apply saved accent color
+  const accent = localStorage.getItem("accent-color") || "red";
+  document.documentElement.setAttribute("data-accent", accent);
+  
+  // Apply saved font
+  const font = localStorage.getItem("font-family") || "default";
+  if (font !== "default") {
+    document.body.classList.add(`font-${font}`);
+  }
+  
+  // Apply glass effect
+  const glassEnabled = localStorage.getItem("glass-enabled") === "true";
+  if (glassEnabled) {
+    document.body.classList.add("glass-enabled");
+    
+    // Apply glass settings
+    const blur = localStorage.getItem("glass-blur") || "10";
+    const opacity = localStorage.getItem("glass-opacity") || "10";
+    const shadow = localStorage.getItem("glass-shadow-softness") || "15";
+    
+    document.documentElement.style.setProperty("--glass-blur", `${blur}px`);
+    document.documentElement.style.setProperty("--glass-opacity", opacity / 100);
+    document.documentElement.style.setProperty("--glass-shadow-softness", shadow / 100);
+  }
+  
+  // Apply accessibility settings
+  if (localStorage.getItem("high-contrast") === "true") {
+    document.body.classList.add("high-contrast");
+  }
+  if (localStorage.getItem("reduced-motion") === "true") {
+    document.body.classList.add("reduced-motion");
+  }
 })();
 
 /* ===============================
