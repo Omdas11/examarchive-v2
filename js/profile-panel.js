@@ -4,6 +4,7 @@
 // ===============================
 
 import { supabase } from "./supabase.js";
+import { updateAvatarElement, handleLogout, handleSwitchAccount } from "./avatar-utils.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -28,15 +29,11 @@ function initializeProfilePanel() {
   const panel = document.querySelector(".profile-panel");
   const backdrop = document.querySelector(".profile-panel-backdrop");
   const closeBtn = document.querySelector(".profile-panel-close");
-  const avatarBtn = document.querySelector(".avatar-trigger");
+  const logoutBtn = document.getElementById("profileLogoutBtn");
+  const switchAccountBtn = document.getElementById("profileSwitchAccountBtn");
 
   if (!panel) {
     debug("❌ profile panel NOT found");
-    return;
-  }
-
-  if (!avatarBtn) {
-    debug("⚠️ avatar trigger not found");
     return;
   }
 
@@ -63,14 +60,20 @@ function initializeProfilePanel() {
     }
   });
 
-  // Attach avatar click handler (ONLY ONCE)
-  avatarBtn.addEventListener("click", () => {
-    debug("👉 avatar clicked");
-    openPanel();
+  // Logout handler
+  logoutBtn?.addEventListener("click", async () => {
+    closePanel();
+    await handleLogout();
+  });
+
+  // Switch account handler
+  switchAccountBtn?.addEventListener("click", async () => {
+    closePanel();
+    await handleSwitchAccount();
   });
 
   clickHandlerAttached = true;
-  debug("✅ avatar click handler attached");
+  debug("✅ profile panel handlers attached");
 
   // Initial update
   updateProfilePanel();
@@ -85,6 +88,7 @@ async function updateProfilePanel() {
 
   const nameEl = document.querySelector(".profile-panel .profile-name");
   const usernameEl = document.querySelector(".profile-panel .profile-username");
+  const avatarEl = document.getElementById("profileAvatar");
 
   if (!nameEl || !usernameEl) {
     return;
@@ -106,10 +110,17 @@ async function updateProfilePanel() {
       usernameEl.textContent = "Signed in";
     }
 
+    // Update avatar using shared utility
+    updateAvatarElement(avatarEl, user);
+
     debug(`✅ Profile updated: ${fullName || email || "User"}`);
   } else {
     nameEl.textContent = "Guest";
     usernameEl.textContent = "Not signed in";
+    
+    // Update avatar for guest
+    updateAvatarElement(avatarEl, null);
+    
     debug("ℹ️ Profile showing guest state");
   }
 }

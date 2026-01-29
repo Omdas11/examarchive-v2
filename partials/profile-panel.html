@@ -18,7 +18,8 @@
     <header class="profile-header">
       <div
         class="profile-avatar"
-        data-initials="OD"
+        id="profileAvatar"
+        data-initials="?"
         data-avatar=""
         data-color=""
         aria-hidden="true"
@@ -101,28 +102,15 @@
     <section class="profile-actions" data-auth-only="guest">
 
       <p class="muted">
-        Sign in with your email to upload papers and track progress.
+        Sign in to upload papers and track your progress.
       </p>
 
-      <input
-        type="email"
-        id="profileLoginEmail"
-        placeholder="you@example.com"
-        class="profile-input"
-      />
-
       <button
-        id="profileLoginBtn"
         class="btn btn-red"
+        data-open-login
       >
-        Continue
+        Continue with Google
       </button>
-
-      <p
-        id="profileLoginMsg"
-        class="muted"
-        style="margin-top:0.5rem;"
-      ></p>
 
     </section>
 
@@ -137,10 +125,17 @@
       </a>
 
       <button
+        id="profileSwitchAccountBtn"
+        class="btn btn-outline"
+      >
+        Switch Account
+      </button>
+
+      <button
         id="profileLogoutBtn"
         class="btn btn-red"
       >
-        Log out
+        Sign out
       </button>
 
     </section>

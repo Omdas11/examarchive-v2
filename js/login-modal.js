@@ -66,10 +66,10 @@ document.addEventListener("login-modal:loaded", () => {
 });
 
 /* ==================================================
-   ✅ EVENT DELEGATION — FIXES YOUR ISSUE
+   ✅ EVENT DELEGATION — HANDLES ALL LOGIN BUTTONS
    ================================================== */
 document.addEventListener("click", (e) => {
-  const loginBtn = e.target.closest(".login-trigger");
+  const loginBtn = e.target.closest("[data-open-login]") || e.target.closest(".login-trigger");
   if (!loginBtn) return;
 
   debug("👉 Login button clicked (delegated)");

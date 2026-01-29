@@ -187,11 +187,46 @@ async function syncAuthToUI(stage) {
 
   const avatarMini = document.querySelector(".avatar-mini");
   if (avatarMini && user) {
-    const name =
-      user.user_metadata?.full_name ||
-      user.email ||
-      "U";
+    const fullName = user.user_metadata?.full_name;
+    const email = user.email;
+    const avatarUrl = user.user_metadata?.avatar_url;
+    
+    const name = fullName || email || "U";
     avatarMini.textContent = name[0].toUpperCase();
+    
+    // Apply avatar image if available
+    // Validate URL before using
+    let sanitizedUrl = null;
+    if (avatarUrl) {
+      try {
+        const parsed = new URL(avatarUrl);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          sanitizedUrl = avatarUrl;
+        }
+      } catch (e) {
+        // Invalid URL, ignore
+      }
+    }
+    
+    if (sanitizedUrl) {
+      avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
+      avatarMini.style.backgroundSize = "cover";
+      avatarMini.style.backgroundPosition = "center";
+      avatarMini.textContent = ""; // Hide initial when image is shown
+    } else {
+      avatarMini.style.backgroundImage = "none";
+      // Generate color from name
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const hue = hash % 360;
+      avatarMini.style.backgroundColor = `hsl(${hue}, 65%, 55%)`;
+    }
+  } else if (avatarMini) {
+    avatarMini.textContent = "?";
+    avatarMini.style.backgroundImage = "none";
+    avatarMini.style.backgroundColor = "";
   }
 }
 

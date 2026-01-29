@@ -15,14 +15,9 @@
     <div class="avatar-header">
 
       <!-- Avatar Circle -->
-      <!--
-        BACKEND NOTES:
-        - data-initials → set to user initials (e.g. OD)
-        - data-avatar   → image URL (optional)
-        - data-color    → hex / token for background (optional)
-      -->
       <div
         class="avatar-circle"
+        id="avatarPopupCircle"
         data-initials="?"
         data-avatar=""
         data-color=""
@@ -51,8 +46,8 @@
     <!-- Actions -->
     <div class="avatar-actions">
       <!-- Guest actions -->
-      <button class="btn btn-glass" data-open-login data-auth-only="guest">
-        Sign in
+      <button class="btn btn-glass" data-open-profile data-auth-only="guest">
+        View Profile
       </button>
 
       <!-- Logged-in actions -->
@@ -66,12 +61,21 @@
       </a>
 
       <button
+        class="btn btn-outline"
+        id="avatarSwitchBtn"
+        data-auth-only="user"
+        hidden
+      >
+        Switch Account
+      </button>
+
+      <button
         class="btn btn-outline-danger"
         id="avatarLogoutBtn"
         data-auth-only="user"
         hidden
       >
-        Logout
+        Sign out
       </button>
 
     </div>
