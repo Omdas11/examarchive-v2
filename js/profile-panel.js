@@ -1,6 +1,8 @@
 /* ================================
-   Expanded Profile Panel – EVENT SAFE
+   Expanded Profile Panel – EVENT SAFE (Supabase)
    ================================ */
+
+import { supabase } from "./supabase.js";
 
 (function () {
 
@@ -32,7 +34,6 @@
       const closeBtn = e.target.closest("[data-close-profile]");
       const card = e.target.closest(".profile-panel-card");
 
-      // close if X, backdrop, or outside card
       if (closeBtn || !card) {
         panel.classList.remove("open");
         panel.setAttribute("aria-hidden", "true");
@@ -47,18 +48,19 @@
       }
     });
 
-    // ---------- LOGOUT ----------
+    // ---------- LOGOUT (SUPABASE) ----------
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async () => {
-        if (window.AppwriteAuth) {
-          try {
-            await window.AppwriteAuth.logout();
-            location.reload();
-          } catch (err) {
-            console.error("Logout error:", err);
-            alert("Logout failed. Please try again.");
-          }
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+          console.error("Logout error:", error);
+          alert("❌ Logout failed");
+          return;
         }
+
+        alert("👋 Logged out");
+        location.reload();
       });
     }
   }
