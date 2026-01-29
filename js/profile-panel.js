@@ -2,6 +2,7 @@
 // ===============================
 // PROFILE PANEL CONTROLLER
 // Dynamic Rendering Based on Auth State
+// + DYNAMIC BADGES
 // ===============================
 
 import { supabase } from "./supabase.js";
@@ -9,6 +10,102 @@ import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } 
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
+}
+
+/* ===============================
+   Badge Configuration & Logic
+   =============================== */
+
+// Admin email allowlist (temporary, extendable)
+const ADMIN_EMAILS = [
+  "admin@examarchive.com",
+  "omdaschoudhary2018@gmail.com"
+];
+
+/**
+ * Compute badges for a user dynamically
+ * @param {Object} user - Supabase user object
+ * @returns {Array} Array of badge objects
+ */
+async function computeBadges(user) {
+  if (!user) return [];
+  
+  const badges = [];
+  const email = user.email;
+  
+  // Admin Badge - check email allowlist
+  if (ADMIN_EMAILS.includes(email)) {
+    badges.push({
+      type: "admin",
+      label: "Admin",
+      icon: "👑",
+      color: "#d32f2f"
+    });
+  }
+  
+  // Contributor Badge - check if user has uploaded papers
+  // TODO: Replace with actual database query when backend is ready
+  const hasUploadedPapers = await checkUserContributions(user.id);
+  if (hasUploadedPapers) {
+    badges.push({
+      type: "contributor",
+      label: "Contributor",
+      icon: "📝",
+      color: "#1976d2"
+    });
+  }
+  
+  // Gold Badge - reserved for future use
+  // Uncomment when criteria is defined
+  // badges.push({
+  //   type: "gold",
+  //   label: "Gold",
+  //   icon: "⭐",
+  //   color: "#f57c00"
+  // });
+  
+  return badges;
+}
+
+/**
+ * Check if user has contributed papers
+ * @param {string} userId - User ID
+ * @returns {boolean} True if user has uploaded papers
+ */
+async function checkUserContributions(userId) {
+  // TODO: Replace with actual Supabase query
+  // For now, return false as placeholder
+  // Example:
+  // const { data, error } = await supabase
+  //   .from('papers')
+  //   .select('id')
+  //   .eq('uploaded_by', userId)
+  //   .limit(1);
+  // return data && data.length > 0;
+  
+  return false;
+}
+
+/**
+ * Render badges dynamically in the profile panel
+ * @param {Array} badges - Array of badge objects
+ */
+function renderBadges(badges) {
+  const badgesSection = document.querySelector(".profile-badges");
+  if (!badgesSection) return;
+  
+  if (badges.length === 0) {
+    badgesSection.style.display = "none";
+    return;
+  }
+  
+  badgesSection.style.display = "flex";
+  badgesSection.innerHTML = badges.map(badge => `
+    <div class="badge badge-${badge.type}" aria-label="${badge.label} badge">
+      <span class="badge-icon" aria-hidden="true">${badge.icon}</span>
+      <span class="badge-label">${badge.label}</span>
+    </div>
+  `).join("");
 }
 
 /* ===============================
@@ -170,8 +267,11 @@ async function renderProfilePanel() {
     // Update avatar using shared utility
     updateAvatarElement(avatarEl, user);
 
-    // Show badges and stats
-    if (badgesSection) badgesSection.style.display = "flex";
+    // Compute and render badges dynamically
+    const badges = await computeBadges(user);
+    renderBadges(badges);
+
+    // Show stats
     if (statsSection) statsSection.style.display = "grid";
 
     // Dynamically create logged-in actions

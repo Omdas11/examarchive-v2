@@ -1,7 +1,11 @@
 /**
  * ExamArchive v2 — Paper Page
  * FINAL (Year-resolved, schema-correct, UX-polished + PDF downloads)
+ * + AUTH PROTECTED: RQ and Notes require login
  */
+
+// Import Supabase for auth checks
+import { supabase } from "./supabase.js";
 
 // Use relative path to work with custom domain
 const PAPERS_URL = "data/papers.json";
@@ -86,9 +90,32 @@ function renderSyllabus(data) {
 }
 
 /* ================= REPEATED QUESTIONS ================= */
-function renderRepeatedQuestions(data) {
+async function renderRepeatedQuestions(data) {
   const container = document.getElementById("repeated-container");
   container.innerHTML = "";
+
+  // Check authentication
+  const { data: sessionData } = await supabase.auth.getSession();
+  const session = sessionData?.session;
+
+  if (!session) {
+    // User is not logged in - show login prompt
+    container.innerHTML = `
+      <div class="auth-required">
+        <p class="auth-required-text">🔒 Sign in to view repeated questions</p>
+        <button class="btn btn-primary" id="rq-sign-in-btn">
+          Sign in with Google
+        </button>
+      </div>
+    `;
+    
+    // Attach click handler to open avatar popup
+    const signInBtn = document.getElementById("rq-sign-in-btn");
+    signInBtn?.addEventListener("click", () => {
+      openAvatarPopupWithHighlight();
+    });
+    return;
+  }
 
   if (!Array.isArray(data.sections) || !data.sections.length) {
     container.innerHTML =
@@ -253,7 +280,64 @@ async function loadPaper() {
 
   /* ---------- Repeated Questions ---------- */
   const rq = await resolvePaperData("repeated-questions", selected);
-  if (rq.status === "found") renderRepeatedQuestions(rq.data);
+  if (rq.status === "found") await renderRepeatedQuestions(rq.data);
+  
+  /* ---------- Notes & Resources (Auth Protected) ---------- */
+  await protectNotesSection();
+}
+
+/* ================= PROTECT NOTES SECTION ================= */
+async function protectNotesSection() {
+  const notesSection = Array.from(document.querySelectorAll('.paper-section')).find(s => 
+    s.querySelector('h2')?.textContent.includes('Notes')
+  );
+  
+  if (!notesSection) return;
+
+  // Check authentication
+  const { data: sessionData } = await supabase.auth.getSession();
+  const session = sessionData?.session;
+
+  if (!session) {
+    // User is not logged in - replace content with login prompt
+    const contentDiv = notesSection.querySelector('.skeleton-group, .coming-soon')?.parentElement;
+    if (contentDiv) {
+      contentDiv.innerHTML = `
+        <div class="auth-required">
+          <p class="auth-required-text">🔒 Sign in to view notes & resources</p>
+          <button class="btn btn-primary" id="notes-sign-in-btn">
+            Sign in with Google
+          </button>
+        </div>
+      `;
+      
+      // Attach click handler to open avatar popup
+      const signInBtn = document.getElementById("notes-sign-in-btn");
+      signInBtn?.addEventListener("click", () => {
+        openAvatarPopupWithHighlight();
+      });
+    }
+  }
+}
+
+/* ================= HELPER: OPEN AVATAR POPUP WITH HIGHLIGHT ================= */
+function openAvatarPopupWithHighlight() {
+  const avatarPopup = document.getElementById("avatar-popup");
+  if (avatarPopup) {
+    avatarPopup.classList.add("open");
+    // Highlight Sign in button
+    setTimeout(() => {
+      const signInButton = document.getElementById("avatarSignInBtn");
+      if (signInButton) {
+        signInButton.focus();
+        signInButton.classList.add('btn-pulse');
+        // Remove animation after it completes
+        setTimeout(() => {
+          signInButton.classList.remove('btn-pulse');
+        }, 1800); // 0.6s * 3 iterations
+      }
+    }, 100);
+  }
 }
 
 /* ---------- Init ---------- */

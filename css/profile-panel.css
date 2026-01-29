@@ -135,6 +135,7 @@
 
   display: inline-flex;
   align-items: center;
+  gap: 0.3rem;
   justify-content: center;
 
   font-size: 0.75rem;
@@ -142,19 +143,29 @@
   white-space: nowrap;
 }
 
-.badge-role {
-  background: #eef1ff;
-  color: #4a5bdc;
+.badge-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 
-.badge-rank {
-  background: #fff3d6;
-  color: #b87b00;
+.badge-label {
+  line-height: 1;
 }
 
+/* Dynamic badge styling using CSS custom properties */
 .badge-admin {
-  background: #ffe4e4;
-  color: #b40000;
+  background: rgba(211, 47, 47, 0.1);
+  color: #b71c1c;
+}
+
+.badge-contributor {
+  background: rgba(25, 118, 210, 0.1);
+  color: #1565c0;
+}
+
+.badge-gold {
+  background: rgba(245, 124, 0, 0.1);
+  color: #e65100;
 }
 
 /* ---------- Stats ---------- */
