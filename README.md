@@ -54,3 +54,61 @@ A **fully custom theme engine** built from scratch.
 Themes are implemented using CSS variables and:
 ```html
 <body data-theme="light | dark | amoled">
+```
+
+---
+
+## 📚 Documentation
+
+### Architecture & Planning
+- [Phase 4 Architecture Plan](docs/PHASE4_ARCHITECTURE.md) - Future-ready architecture design for automation & content pipeline
+
+### Setup Guides
+- [Supabase Authentication Setup](docs/SUPABASE_AUTH_SETUP.md)
+- [Appwrite Setup](docs/APPWRITE_SETUP.md)
+
+### Testing & Quality
+- [Testing Checklist](docs/TESTING_CHECKLIST.md)
+- [Visual Guide](docs/VISUAL_GUIDE.md)
+- [Fix Summary](docs/FIX_SUMMARY.md)
+
+### Schema Documentation
+- [Syllabus Schema](docs/schema/syllabus-schema.md)
+- [Repeated Questions Schema](docs/schema/repeated-questions-schema.md)
+- [Maps Schema](docs/schema/maps-schema.md)
+
+---
+
+## 🚀 Development
+
+This project is built as a static website with no build step required. Simply clone and open in a browser or serve with any static file server.
+
+```bash
+# Clone the repository
+git clone https://github.com/Omdas11/examarchive-v2.git
+
+# Serve locally (example with Python)
+cd examarchive-v2
+python -m http.server 8000
+
+# Open in browser
+# http://localhost:8000
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Whether it's:
+- Adding question papers
+- Improving documentation
+- Fixing bugs
+- Suggesting features
+
+Please see our [Architecture Plan](docs/PHASE4_ARCHITECTURE.md) for the long-term vision.
+
+---
+
+## 📄 License
+
+This project is open source and available for educational purposes.
