@@ -1,22 +1,31 @@
 import { supabase } from "./supabase.js";
 
-async function restoreSession() {
-  const { data, error } = await supabase.auth.getSession();
+console.log("🔐 auth.js loaded");
 
-  if (error) {
-    alert("❌ Auth error");
-    return;
-  }
+async function checkAuth() {
+  const { data } = await supabase.auth.getSession();
 
   if (!data.session) {
     alert("ℹ️ No active session");
     return;
   }
 
-  alert("✅ Logged in: " + data.session.user.email);
+  const user = data.session.user;
+  alert("✅ Logged in as: " + user.email);
 
-  // example UI update
-  document.querySelector(".login-trigger")?.classList.add("hidden");
+  // expose user globally
+  window.currentUser = user;
+
+  // update UI
+  document.body.classList.add("logged-in");
 }
 
-restoreSession();
+checkAuth();
+
+// listen for auth changes
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session) {
+    alert("🔄 Session updated");
+    window.location.reload();
+  }
+});
