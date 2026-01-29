@@ -1,71 +1,54 @@
-/* ================================
-   Expanded Profile Panel – EVENT SAFE (Supabase)
-   ================================ */
+// js/profile-panel.js
+// ===============================
+// PROFILE PANEL CONTROLLER (FIXED)
+// ===============================
 
 import { supabase } from "./supabase.js";
 
-(function () {
+function debug(msg) {
+  console.log("[profile-panel]", msg);
+}
 
-  function initProfilePanel() {
-    const panel = document.getElementById("profile-panel");
-    if (!panel) {
-      console.warn("profile-panel not found at init");
-      return;
-    }
+/* ===============================
+   Wait for profile panel DOM
+   =============================== */
+document.addEventListener("profile-panel:loaded", () => {
+  const panel = document.querySelector(".profile-panel");
+  const backdrop = document.querySelector(".profile-panel-backdrop");
+  const closeBtn = document.querySelector(".profile-panel-close");
 
-    console.log("profile-panel initialized");
-
-    const logoutBtn = document.getElementById("profileLogoutBtn");
-
-    // ---------- OPEN ----------
-    document.addEventListener("click", (e) => {
-      const openBtn = e.target.closest("[data-open-profile]");
-      if (!openBtn) return;
-
-      e.preventDefault();
-      panel.classList.add("open");
-      panel.setAttribute("aria-hidden", "false");
-    });
-
-    // ---------- CLOSE ----------
-    document.addEventListener("click", (e) => {
-      if (!panel.classList.contains("open")) return;
-
-      const closeBtn = e.target.closest("[data-close-profile]");
-      const card = e.target.closest(".profile-panel-card");
-
-      if (closeBtn || !card) {
-        panel.classList.remove("open");
-        panel.setAttribute("aria-hidden", "true");
-      }
-    });
-
-    // ---------- ESC ----------
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && panel.classList.contains("open")) {
-        panel.classList.remove("open");
-        panel.setAttribute("aria-hidden", "true");
-      }
-    });
-
-    // ---------- LOGOUT (SUPABASE) ----------
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async () => {
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-          console.error("Logout error:", error);
-          alert("❌ Logout failed");
-          return;
-        }
-
-        alert("👋 Logged out");
-        location.reload();
-      });
-    }
+  if (!panel) {
+    debug("❌ profile panel NOT found");
+    return;
   }
 
-  // 🔑 WAIT until partial is injected
-  document.addEventListener("profile-panel:loaded", initProfilePanel);
+  debug("✅ profile panel DOM ready");
 
-})();
+  function openPanel() {
+    panel.classList.add("open");
+    debug("🟢 profile panel opened");
+  }
+
+  function closePanel() {
+    panel.classList.remove("open");
+    debug("🔴 profile panel closed");
+  }
+
+  backdrop?.addEventListener("click", closePanel);
+  closeBtn?.addEventListener("click", closePanel);
+
+  /* ===============================
+     Attach avatar trigger
+     =============================== */
+  const avatarBtn = document.querySelector(".avatar-trigger");
+
+  if (!avatarBtn) {
+    debug("⚠️ avatar trigger not found");
+    return;
+  }
+
+  avatarBtn.addEventListener("click", () => {
+    debug("👉 avatar clicked");
+    openPanel();
+  });
+});
