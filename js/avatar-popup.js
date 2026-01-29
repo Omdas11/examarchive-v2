@@ -10,16 +10,19 @@ function debug(msg) {
 }
 
 let avatarPopupLoaded = false;
+let headerLoaded = false;
 
 /* ===============================
    Initialize avatar popup
    =============================== */
 function initializeAvatarPopup() {
-  if (avatarPopupLoaded) return;
+  // Wait for both avatar popup and header to be ready
+  if (avatarPopupLoaded || !headerLoaded) return;
 
   const popup = document.getElementById("avatar-popup");
   const logoutBtn = document.getElementById("avatarLogoutBtn");
   const switchBtn = document.getElementById("avatarSwitchBtn");
+  const avatarTrigger = document.querySelector(".avatar-trigger");
 
   if (!popup) {
     debug("❌ avatar popup NOT found");
@@ -27,6 +30,21 @@ function initializeAvatarPopup() {
   }
 
   debug("✅ avatar popup DOM ready");
+
+  // Toggle avatar popup on avatar button click
+  avatarTrigger?.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    popup.classList.toggle("open");
+    updateAvatarPopup();
+    debug("🔄 Avatar popup toggled");
+  });
+
+  // Close on click outside
+  document.addEventListener("click", (e) => {
+    if (!popup.contains(e.target) && !avatarTrigger?.contains(e.target)) {
+      closeAvatarPopup();
+    }
+  });
 
   // Logout handler
   logoutBtn?.addEventListener("click", async () => {
@@ -145,6 +163,15 @@ function closeAvatarPopup() {
    =============================== */
 document.addEventListener("avatar:loaded", () => {
   debug("✅ avatar loaded event received");
+  initializeAvatarPopup();
+});
+
+/* ===============================
+   Listen for header loaded
+   =============================== */
+document.addEventListener("header:loaded", () => {
+  debug("✅ header loaded event received");
+  headerLoaded = true;
   initializeAvatarPopup();
 });
 

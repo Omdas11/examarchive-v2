@@ -176,15 +176,21 @@
 
 .profile-actions {
   display: flex;
+  flex-direction: column;
   gap: 0.6rem;
 }
 
 .profile-actions .btn {
-  flex: 1;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+}
+
+.profile-actions .muted {
+  text-align: center;
+  margin-bottom: 0.4rem;
 }
 
 /* Softer red (less aggressive) */

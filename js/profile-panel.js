@@ -28,17 +28,11 @@ function initializeProfilePanel() {
   const panel = document.querySelector(".profile-panel");
   const backdrop = document.querySelector(".profile-panel-backdrop");
   const closeBtn = document.querySelector(".profile-panel-close");
-  const avatarBtn = document.querySelector(".avatar-trigger");
   const logoutBtn = document.getElementById("profileLogoutBtn");
   const switchAccountBtn = document.getElementById("profileSwitchAccountBtn");
 
   if (!panel) {
     debug("❌ profile panel NOT found");
-    return;
-  }
-
-  if (!avatarBtn) {
-    debug("⚠️ avatar trigger not found");
     return;
   }
 
@@ -65,12 +59,6 @@ function initializeProfilePanel() {
     }
   });
 
-  // Attach avatar click handler (ONLY ONCE)
-  avatarBtn.addEventListener("click", () => {
-    debug("👉 avatar clicked");
-    openPanel();
-  });
-
   // Logout handler
   logoutBtn?.addEventListener("click", async () => {
     debug("🚪 Signing out...");
@@ -94,7 +82,7 @@ function initializeProfilePanel() {
   });
 
   clickHandlerAttached = true;
-  debug("✅ avatar click handler attached");
+  debug("✅ profile panel handlers attached");
 
   // Initial update
   updateProfilePanel();
