@@ -28,6 +28,79 @@
   --max-width: 1100px;
 
   --night-filter-strength: 0;
+  
+  /* Accent colors - default is red */
+  --accent: var(--red);
+  --accent-soft: var(--red-soft);
+  
+  /* Glass UI settings */
+  --glass-opacity: 0.1;
+  --glass-blur: 10px;
+  --glass-shadow-softness: 0.15;
+}
+
+/* ================================
+   ACCENT COLOR VARIANTS
+   ================================ */
+:root[data-accent="red"] {
+  --accent: #d32f2f;
+  --accent-soft: #fdeaea;
+}
+
+:root[data-accent="blue"] {
+  --accent: #1976d2;
+  --accent-soft: #e3f2fd;
+}
+
+:root[data-accent="green"] {
+  --accent: #388e3c;
+  --accent-soft: #e8f5e9;
+}
+
+:root[data-accent="purple"] {
+  --accent: #7b1fa2;
+  --accent-soft: #f3e5f5;
+}
+
+:root[data-accent="amber"] {
+  --accent: #f57c00;
+  --accent-soft: #fff3e0;
+}
+
+:root[data-accent="mono"] {
+  --accent: #424242;
+  --accent-soft: #f5f5f5;
+}
+
+/* Dark theme accent adjustments */
+body[data-theme="dark"]:root[data-accent="red"],
+body[data-theme="amoled"]:root[data-accent="red"] {
+  --accent: #ff5252;
+}
+
+body[data-theme="dark"]:root[data-accent="blue"],
+body[data-theme="amoled"]:root[data-accent="blue"] {
+  --accent: #42a5f5;
+}
+
+body[data-theme="dark"]:root[data-accent="green"],
+body[data-theme="amoled"]:root[data-accent="green"] {
+  --accent: #66bb6a;
+}
+
+body[data-theme="dark"]:root[data-accent="purple"],
+body[data-theme="amoled"]:root[data-accent="purple"] {
+  --accent: #ab47bc;
+}
+
+body[data-theme="dark"]:root[data-accent="amber"],
+body[data-theme="amoled"]:root[data-accent="amber"] {
+  --accent: #ffa726;
+}
+
+body[data-theme="dark"]:root[data-accent="mono"],
+body[data-theme="amoled"]:root[data-accent="mono"] {
+  --accent: #bdbdbd;
 }
 
 /* ================================
@@ -151,7 +224,7 @@ a {
 }
 
 a:focus-visible {
-  outline: 2px solid var(--red);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -247,7 +320,7 @@ p {
   left: 1rem;
   z-index: 10000;
   padding: 0.75rem 1rem;
-  background: var(--red);
+  background: var(--accent);
   color: #fff;
   border-radius: var(--radius-sm);
   font-weight: 600;
@@ -277,14 +350,14 @@ p {
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--red);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 .btn.btn-red {
-  background: var(--red);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--red);
+  border-color: var(--accent);
 }
 
 .btn.btn-red:active {
@@ -351,9 +424,9 @@ p {
 
 /* Primary button variant (primary/brand actions - e.g., sign in, submit) */
 .btn.btn-primary {
-  background: var(--red);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--red);
+  border-color: var(--accent);
 }
 
 .btn.btn-primary:hover {
@@ -482,7 +555,80 @@ body.reduced-motion * {
    FONT SETTINGS
    ================================ */
 
+/* Archive Default - using system fonts */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* System Default */
 body.font-system {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Serif */
+body.font-serif {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+/* Sans-serif */
+body.font-sans {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Monospace */
+body.font-mono {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+/* ================================
+   GLASS UI EFFECTS
+   ================================ */
+
+/* Glass effect for cards */
+body.glass-enabled .card {
+  background: rgba(255, 255, 255, var(--glass-opacity));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, var(--glass-shadow-softness));
+}
+
+body[data-theme="dark"].glass-enabled .card,
+body[data-theme="amoled"].glass-enabled .card {
+  background: rgba(26, 26, 26, calc(var(--glass-opacity) + 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Glass effect for surfaces */
+body.glass-enabled .site-header,
+body.glass-enabled .settings-card,
+body.glass-enabled .paper-section {
+  background: rgba(255, 255, 255, var(--glass-opacity));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, var(--glass-shadow-softness));
+}
+
+body[data-theme="dark"].glass-enabled .site-header,
+body[data-theme="dark"].glass-enabled .settings-card,
+body[data-theme="dark"].glass-enabled .paper-section,
+body[data-theme="amoled"].glass-enabled .site-header,
+body[data-theme="amoled"].glass-enabled .settings-card,
+body[data-theme="amoled"].glass-enabled .paper-section {
+  background: rgba(26, 26, 26, calc(var(--glass-opacity) + 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Fallback for browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur(10px)) {
+  body.glass-enabled .card,
+  body.glass-enabled .site-header,
+  body.glass-enabled .settings-card,
+  body.glass-enabled .paper-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
 }
 

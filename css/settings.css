@@ -214,9 +214,9 @@
 }
 
 .settings-theme-btn.active {
-  background: var(--red);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--red);
+  border-color: var(--accent);
 }
 
 body[data-theme="amoled"] .settings-theme-btn {
@@ -225,8 +225,88 @@ body[data-theme="amoled"] .settings-theme-btn {
 }
 
 body[data-theme="amoled"] .settings-theme-btn.active {
-  background: var(--red);
+  background: var(--accent);
   color: #fff;
+}
+
+/* ================================
+   Accent Color Options
+   ================================ */
+
+.accent-options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.accent-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.accent-btn:hover {
+  border-color: var(--text-muted);
+  transform: scale(1.05);
+}
+
+.accent-btn.active {
+  border-color: var(--text);
+  border-width: 3px;
+  transform: scale(1.08);
+}
+
+.accent-color-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  display: block;
+}
+
+.accent-color-preview[data-color="red"] {
+  background: #d32f2f;
+}
+
+.accent-color-preview[data-color="blue"] {
+  background: #1976d2;
+}
+
+.accent-color-preview[data-color="green"] {
+  background: #388e3c;
+}
+
+.accent-color-preview[data-color="purple"] {
+  background: #7b1fa2;
+}
+
+.accent-color-preview[data-color="amber"] {
+  background: #f57c00;
+}
+
+.accent-color-preview[data-color="mono"] {
+  background: linear-gradient(135deg, #424242 0%, #bdbdbd 100%);
+}
+
+/* Accent actions */
+.accent-actions,
+.font-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.accent-actions .btn,
+.font-actions .btn {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
 }
 
 /* ================================

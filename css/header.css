@@ -88,6 +88,13 @@
   gap: 0.5rem;
 }
 
+/* Mobile: Increase spacing for breathability */
+@media (max-width: 768px) {
+  .header-actions {
+    gap: 0.75rem;
+  }
+}
+
 /* ---------- Icons ---------- */
 .icon {
   width: 20px;
@@ -95,6 +102,14 @@
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
+}
+
+/* Mobile: Slightly reduce icon size for better density */
+@media (max-width: 768px) {
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 /* ---------- Theme Toggle ---------- */
@@ -120,6 +135,21 @@
   place-items: center;
 }
 
+/* Mobile: Reduce button size but maintain tap targets */
+@media (max-width: 768px) {
+  .theme-toggle {
+    gap: 0.15rem;
+    padding: 0.2rem;
+  }
+  
+  .theme-btn,
+  .night-btn {
+    width: 28px;
+    height: 28px;
+    /* Tap target maintained via padding on parent */
+  }
+}
+
 .theme-btn.active {
   background: rgba(0,0,0,0.06);
 }
@@ -140,6 +170,14 @@
 
   background: var(--bg-soft);
   border: 1px solid var(--border);
+}
+
+/* Mobile: Increase internal spacing */
+@media (max-width: 768px) {
+  .header-pill {
+    gap: 0.6rem;
+    padding: 5px 8px;
+  }
 }
 
 /* ---------- Avatar ---------- */
