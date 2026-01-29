@@ -1,48 +1,54 @@
 // js/login-modal.js
 // ===================================
-// Login Modal Controller (Google only)
-// MOBILE SAFE – no race conditions
+// Login Modal Controller (DEBUG v2)
 // ===================================
 
 import { account } from "./appwrite.js";
 
 alert("✅ login-modal.js loaded");
 
-// Wait until modal HTML actually exists
 function waitForModal() {
-  const modal = document.querySelector(".login-modal");
-  const loginBtn = document.querySelector(".login-trigger");
-  const googleBtn = document.querySelector("[data-provider='google']");
-  const closeBtn = document.querySelector(".modal-close");
+  const portal = document.getElementById("login-modal-portal");
 
-  if (!modal || !googleBtn) {
-    setTimeout(waitForModal, 200);
+  if (!portal) {
+    alert("❌ login-modal-portal NOT found");
     return;
   }
 
-  alert("🔥 Login modal DOM found");
+  if (portal.innerHTML.trim() === "") {
+    alert("⏳ login-modal-portal EMPTY, waiting...");
+    return setTimeout(waitForModal, 300);
+  }
 
-  // Open modal
+  alert("🔥 login-modal HTML injected");
+
+  const modal = portal.querySelector(".login-modal");
+  const loginBtn = document.querySelector(".login-trigger");
+  const googleBtn = portal.querySelector('[data-provider="google"]');
+
+  if (!modal) {
+    alert("❌ .login-modal NOT found inside portal");
+    return;
+  }
+
+  if (!googleBtn) {
+    alert("❌ Google button NOT found");
+    return;
+  }
+
+  alert("✅ Modal + Google button FOUND");
+
   loginBtn?.addEventListener("click", () => {
-    alert("🟢 Login button clicked");
+    alert("🟢 LOGIN CLICKED");
     modal.classList.add("open");
   });
 
-  // Close modal
-  closeBtn?.addEventListener("click", () => {
-    modal.classList.remove("open");
-  });
-
-  // GOOGLE LOGIN
   googleBtn.addEventListener("click", () => {
-    alert("🚀 Google OAuth CLICKED");
-
-    const redirect = window.location.origin;
-
+    alert("🚀 GOOGLE CLICKED");
     account.createOAuth2Session(
       "google",
-      redirect,
-      redirect
+      window.location.origin,
+      window.location.origin
     );
   });
 }
