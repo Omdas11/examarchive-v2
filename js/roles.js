@@ -5,6 +5,11 @@
 
 import { supabase } from "./supabase.js";
 
+// In-memory cache for user role to avoid repeated queries
+let roleCache = null;
+let roleCacheTimestamp = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 /**
  * Role definitions with badges and permissions
  */
@@ -35,15 +40,36 @@ export const ROLES = {
 };
 
 /**
+ * Clear role cache (useful after auth state changes)
+ */
+export function clearRoleCache() {
+  roleCache = null;
+  roleCacheTimestamp = null;
+  console.log('[ROLE] Cache cleared');
+}
+
+/**
  * Get user's profile with role information
+ * @param {boolean} useCache - Whether to use cached data (default: true)
  * @returns {Promise<Object|null>} Profile data or null
  */
-export async function getUserProfile() {
+export async function getUserProfile(useCache = true) {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
+      console.log('[ROLE] No session found');
+      clearRoleCache();
       return null;
     }
+
+    // Check cache first
+    const now = Date.now();
+    if (useCache && roleCache && roleCacheTimestamp && (now - roleCacheTimestamp) < CACHE_DURATION) {
+      console.log('[ROLE] Using cached profile data');
+      return roleCache;
+    }
+
+    console.log('[ROLE] Fetching profile from database for user:', session.user.id);
 
     const { data: profile, error } = await supabase
       .from('profiles')
@@ -52,24 +78,56 @@ export async function getUserProfile() {
       .single();
 
     if (error) {
-      console.error('Error fetching profile:', error);
+      console.error('[ROLE] Error fetching profile:', error);
+      // User has auth but no profile - treat as guest/user
+      console.log('[ROLE] No profile found - treating as guest');
       return null;
     }
 
+    // Cache the result
+    roleCache = profile;
+    roleCacheTimestamp = now;
+    console.log('[ROLE] Profile fetched and cached:', profile.role);
+
     return profile;
   } catch (err) {
-    console.error('Error in getUserProfile:', err);
+    console.error('[ROLE] Error in getUserProfile:', err);
     return null;
   }
 }
 
 /**
  * Get user's role
+ * @param {boolean} useCache - Whether to use cached data (default: true)
  * @returns {Promise<string>} Role name (guest, user, reviewer, admin)
  */
-export async function getUserRole() {
+export async function getUserRole(useCache = true) {
+  const profile = await getUserProfile(useCache);
+  const role = profile?.role || 'guest';
+  console.log('[ROLE] getUserRole returning:', role);
+  return role;
+}
+
+/**
+ * Get current user's role and badge information
+ * @returns {Promise<Object>} Object with role and badge properties
+ */
+export async function getCurrentUserRole() {
   const profile = await getUserProfile();
-  return profile?.role || 'guest';
+  
+  if (!profile) {
+    console.log('[ROLE] getCurrentUserRole: No profile, returning guest');
+    return { role: 'guest', badge: null };
+  }
+  
+  const roleBadge = getRoleBadge(profile.role);
+  const result = {
+    role: profile.role,
+    badge: roleBadge ? roleBadge.name : null
+  };
+  
+  console.log('[ROLE] getCurrentUserRole returning:', result);
+  return result;
 }
 
 /**
@@ -85,11 +143,14 @@ export async function hasPermission(permission) {
 
 /**
  * Check if user has admin role
+ * @param {boolean} useCache - Whether to use cached data (default: true)
  * @returns {Promise<boolean>}
  */
-export async function isAdmin() {
-  const role = await getUserRole();
-  return role === 'admin';
+export async function isAdmin(useCache = true) {
+  const role = await getUserRole(useCache);
+  const result = role === 'admin';
+  console.log('[ADMIN]', result, '(role:', role + ')');
+  return result;
 }
 
 /**
