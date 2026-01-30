@@ -7,15 +7,89 @@
 import { supabase } from "./supabase.js";
 
 /* ===============================
-   Apply saved theme early
+   🔑 AUTH GUARD FUNCTION
+   =============================== */
+export async function requireAuth(options = {}) {
+  const { redirectToLogin = false, showMessage = true } = options;
+  
+  const { data } = await supabase.auth.getSession();
+  const isAuthenticated = !!data?.session;
+  
+  if (!isAuthenticated) {
+    debugBox("🔒 Auth required - user not logged in");
+    
+    if (showMessage) {
+      // Show auth required UI
+      const mainContent = document.querySelector("main");
+      if (mainContent) {
+        const authRequiredHTML = `
+          <div class="auth-required">
+            <svg class="icon" style="width: 48px; height: 48px; margin: 0 auto 1rem; stroke: var(--text-muted);" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <h2 style="color: var(--text); margin-bottom: 0.5rem;">Sign in required</h2>
+            <p class="auth-required-text">
+              You need to be signed in to upload papers.
+            </p>
+            <button class="btn btn-red" onclick="document.getElementById('avatarTrigger')?.click()">
+              Sign in
+            </button>
+          </div>
+        `;
+        mainContent.innerHTML = authRequiredHTML;
+        mainContent.style.display = "flex";
+        mainContent.style.alignItems = "center";
+        mainContent.style.justifyContent = "center";
+        mainContent.style.minHeight = "calc(100vh - 200px)";
+      }
+    }
+    
+    if (redirectToLogin) {
+      // Could redirect to a login page, but we use a modal
+      // For now, just trigger the avatar popup
+      setTimeout(() => {
+        document.getElementById("avatarTrigger")?.click();
+      }, 100);
+    }
+    
+    return false;
+  }
+  
+  debugBox("✅ Auth check passed");
+  return true;
+}
+
+/* ===============================
+   Apply saved theme early (GLOBAL)
    =============================== */
 (function () {
-  const theme = localStorage.getItem("theme") || "light";
-  const night = localStorage.getItem("night");
-
-  document.body.setAttribute("data-theme", theme);
-  if (night === "on") {
+  // Apply theme preset FIRST (coordinated colors)
+  const themePreset = localStorage.getItem("theme-preset") || "red-classic";
+  document.body.setAttribute("data-theme-preset", themePreset);
+  
+  // Apply theme mode (light/dark/amoled)
+  const themeMode = localStorage.getItem("theme-mode") || "auto";
+  if (themeMode === "auto") {
+    // Detect system preference
+    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.body.setAttribute("data-theme", isDark ? "dark" : "light");
+  } else {
+    document.body.setAttribute("data-theme", themeMode);
+  }
+  
+  // Legacy theme support (for header buttons)
+  const legacyTheme = localStorage.getItem("theme");
+  if (legacyTheme && !localStorage.getItem("theme-mode")) {
+    document.body.setAttribute("data-theme", legacyTheme);
+  }
+  
+  // Apply night mode
+  const night = localStorage.getItem("night") || localStorage.getItem("night-mode");
+  if (night === "on" || night === "true") {
     document.body.setAttribute("data-night", "on");
+    const nightStrength = localStorage.getItem("nightStrength") || localStorage.getItem("night-strength") || "50";
+    document.body.style.setProperty("--night-filter-strength", nightStrength / 100);
   }
   
   // Apply saved accent color

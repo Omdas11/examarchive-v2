@@ -572,8 +572,7 @@ function attachEventListeners() {
       document.querySelectorAll(".settings-theme-btn[data-theme-mode]").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       
-      // Apply theme mode
-      localStorage.setItem("theme-mode", mode);
+      // Apply theme mode (saves to localStorage)
       applyThemeMode(mode);
       
       console.log(`🌓 Theme mode applied: ${mode}`);
@@ -901,18 +900,21 @@ supabase.auth.onAuthStateChange(() => {
 });
 
 // ===============================
-// Theme Preset System
+// Theme Preset System (GLOBAL)
 // ===============================
 
 function applyThemePreset(preset) {
   document.body.setAttribute("data-theme-preset", preset);
+  localStorage.setItem("theme-preset", preset);
   
   // Each preset defines its own background, card, and accent colors
   // CSS will handle the actual color values
-  console.log(`✅ Theme preset ${preset} applied`);
+  console.log(`✅ Theme preset ${preset} applied globally`);
 }
 
 function applyThemeMode(mode) {
+  localStorage.setItem("theme-mode", mode);
+  
   if (mode === "auto") {
     // Detect system preference
     const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -920,14 +922,15 @@ function applyThemeMode(mode) {
   } else {
     document.body.setAttribute("data-theme", mode);
   }
-  console.log(`✅ Theme mode ${mode} applied`);
+  console.log(`✅ Theme mode ${mode} applied globally`);
 }
 
 // Initialize theme preset and mode on page load
+// (Already applied in common.js, just sync UI here)
 document.addEventListener("DOMContentLoaded", () => {
   const savedPreset = localStorage.getItem("theme-preset") || "red-classic";
   const savedMode = localStorage.getItem("theme-mode") || "auto";
   
-  applyThemePreset(savedPreset);
-  applyThemeMode(savedMode);
+  // Theme is already applied by common.js, no need to reapply
+  console.log(`Theme preset: ${savedPreset}, Theme mode: ${savedMode}`);
 });
