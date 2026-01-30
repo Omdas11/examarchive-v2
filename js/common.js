@@ -5,8 +5,7 @@
 // ============================================
 
 import { supabase } from "./supabase.js";
-import { clearRoleCache } from "./roles.js";
-import { loadAuthoritativeRole } from "./role-authority.js";
+import { getUserProfile, clearRoleCache, initializeGlobalRoleState } from "./roles.js";
 
 /* ===============================
    🔑 AUTH GUARD FUNCTION
@@ -165,53 +164,24 @@ function debugBox(text) {
 }
 
 /* ==================================================
-   🔑 INITIALIZE GLOBAL ROLE STATE (AUTHORITATIVE)
+   🔑 SUPABASE SESSION CHECK (NO TOKEN PARSING)
    ================================================== */
-(async function initializeAuthoritativeRole() {
-  // Set initial state to not ready
-  window.__ROLE_READY__ = false;
-  window.__APP_ROLE__ = {
-    role: null,
-    badge: null,
-    ready: false
-  };
-
+(async function checkSessionOnce() {
   const { data } = await supabase.auth.getSession();
 
-  if (!data?.session) {
+  if (data?.session) {
+    debugBox("✅ Active Supabase session found");
+  } else {
     debugBox("ℹ️ No active session");
     clearRoleCache(); // Clear any stale cache
   }
 
-  // Load authoritative role from database (NO CACHE)
+  // Initialize global role state (handles profile fetch internally)
   try {
-    console.log('[COMMON] Loading authoritative role...');
-    const roleData = await loadAuthoritativeRole();
-    
-    // Set global role state
-    window.__APP_ROLE__ = {
-      role: roleData.role,
-      badge: roleData.badge,
-      ready: true
-    };
-    window.__ROLE_READY__ = true;
-    
-    console.log('[COMMON] Global role state initialized:', window.__APP_ROLE__);
-    debugBox(`✅ Role loaded: ${roleData.role} (${roleData.badge})`);
-    
-    // Dispatch event to notify UI components
-    window.dispatchEvent(new Event('role:ready'));
-    console.log('[COMMON] role:ready event dispatched');
+    await initializeGlobalRoleState();
+    debugBox("✅ Global role state initialized");
   } catch (err) {
-    debugBox("⚠️ Error loading role: " + err.message);
-    // Default to guest on error
-    window.__APP_ROLE__ = {
-      role: 'guest',
-      badge: 'Guest',
-      ready: true
-    };
-    window.__ROLE_READY__ = true;
-    window.dispatchEvent(new Event('role:ready'));
+    debugBox("⚠️ Error initializing global role state: " + err.message);
   }
 
   // 🔥 Always clean OAuth hash (PREVENT LOOP)
@@ -394,43 +364,19 @@ document.addEventListener("header:loaded", () => {
 /* ===============================
    Supabase auth listener
    =============================== */
-supabase.auth.onAuthStateChange(async (event) => {
+supabase.auth.onAuthStateChange((event) => {
   debugBox("🔔 AUTH EVENT: " + event);
   
   // Clear role cache on auth changes (except token refresh)
   if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
     clearRoleCache();
     
-    // Re-load authoritative role from database (NO CACHE)
-    try {
-      console.log('[COMMON] Auth event, reloading authoritative role...');
-      const roleData = await loadAuthoritativeRole();
-      
-      window.__APP_ROLE__ = {
-        role: roleData.role,
-        badge: roleData.badge,
-        ready: true
-      };
-      window.__ROLE_READY__ = true;
-      
-      console.log('[COMMON] Role reloaded after', event, ':', window.__APP_ROLE__);
-      debugBox(`✅ Role updated: ${roleData.role} (${roleData.badge})`);
-      
-      // Dispatch event to notify UI components
-      window.dispatchEvent(new Event('role:ready'));
-    } catch (err) {
-      console.error('[COMMON] Error updating role after', event, ':', err);
-      debugBox(`⚠️ Error updating role after ${event}: ${err.message}`);
-      
-      // Set guest state on error to prevent stale role data
-      window.__APP_ROLE__ = {
-        role: 'guest',
-        badge: 'Guest',
-        ready: true
-      };
-      window.__ROLE_READY__ = true;
-      window.dispatchEvent(new Event('role:ready'));
-    }
+    // Re-initialize global role state
+    initializeGlobalRoleState().then(() => {
+      debugBox(`✅ Global role state updated after ${event}`);
+    }).catch(err => {
+      debugBox(`⚠️ Error updating role state after ${event}: ${err.message}`);
+    });
   }
   
   syncAuthToUI("auth.change");

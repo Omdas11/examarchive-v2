@@ -54,9 +54,9 @@ export const ROLES = {
 export function clearRoleCache() {
   roleCache = null;
   roleCacheTimestamp = null;
-  // Reset global role state (using new 'role' property instead of 'status')
+  // Reset global role state
   window.__APP_ROLE__ = {
-    role: 'unknown',
+    status: 'unknown',
     badge: null,
     ready: false
   };
@@ -302,7 +302,7 @@ export async function initializeGlobalRoleState() {
     if (!session) {
       // User is not logged in - set guest state
       window.__APP_ROLE__ = {
-        role: 'guest',
+        status: 'guest',
         badge: 'Guest',
         ready: true
       };
@@ -316,7 +316,7 @@ export async function initializeGlobalRoleState() {
       if (profile && profile.role) {
         const roleBadge = getRoleBadge(profile.role);
         window.__APP_ROLE__ = {
-          role: profile.role,
+          status: profile.role,
           badge: roleBadge ? roleBadge.name : null,
           ready: true
         };
@@ -326,7 +326,7 @@ export async function initializeGlobalRoleState() {
       } else {
         // Logged in but no profile - treat as user
         window.__APP_ROLE__ = {
-          role: 'user',
+          status: 'user',
           badge: 'Contributor',
           ready: true
         };
@@ -343,7 +343,7 @@ export async function initializeGlobalRoleState() {
     console.error('[ROLE] Error initializing global role state:', err);
     // Default to guest on error
     window.__APP_ROLE__ = {
-      role: 'guest',
+      status: 'guest',
       badge: 'Guest',
       ready: true
     };

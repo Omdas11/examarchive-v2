@@ -4,7 +4,7 @@
 // ============================================
 
 import { supabase } from "../js/supabase.js";
-import { waitForRoleReady } from "../js/role-authority.js";
+import { waitForRole } from "../js/roles.js";
 import { moveFile, copyFile, deleteFile, getPublicUrl, BUCKETS } from "../js/supabase-client.js";
 import { formatFileSize, formatDate } from "../js/upload-handler.js";
 
@@ -25,20 +25,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     // CRITICAL: Wait for role to be ready before checking access
     console.log('[ADMIN-DASHBOARD] Waiting for role:ready event...');
-    const roleState = await waitForRoleReady();
+    const roleState = await waitForRole();
     console.log('[ADMIN-DASHBOARD] Role state received:', roleState);
-    console.log('[ROLE] resolved:', roleState.role);
+    console.log('[ROLE] resolved:', roleState.status);
     
     // Hide loading state
     loadingState.style.display = 'none';
     
-    // Check if user has admin role - ONLY use global role state (AUTHORITATIVE)
-    const hasAdminAccess = roleState.role === 'admin';
+    // Check if user has admin role - ONLY use global role state
+    const hasAdminAccess = roleState.status === 'admin';
     console.log('[ADMIN-DASHBOARD] Admin access check:', hasAdminAccess ? 'GRANTED' : 'DENIED');
     
     if (!hasAdminAccess) {
       accessDenied.style.display = 'flex';
-      console.log("🔒 Admin dashboard access denied - user role is:", roleState.role);
+      console.log("🔒 Admin dashboard access denied - user role is:", roleState.status);
       return;
     }
 
