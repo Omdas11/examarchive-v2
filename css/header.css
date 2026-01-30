@@ -40,7 +40,7 @@
   width: 26px;
   height: 26px;
   border-radius: 7px;
-  background: var(--red);
+  background: var(--accent);
 }
 
 .logo-text {
@@ -63,7 +63,7 @@
 
 .nav-link:hover,
 .nav-link.active {
-  color: var(--red);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -257,19 +257,21 @@
   stroke-width: 2;
 }
 
-/* SVG animation fix */
+/* SVG animation fix - two bars to X */
 .hamburger-icon line {
   transform-box: fill-box;
   transform-origin: center;
-  transition: transform 0.25s ease;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
+/* First line: rotate 45deg and move to center */
 body.menu-open .hamburger-icon line:nth-child(1) {
-  transform: rotate(45deg);
+  transform: translateY(4px) rotate(45deg);
 }
 
+/* Second line: rotate -45deg and move to center */
 body.menu-open .hamburger-icon line:nth-child(2) {
-  transform: rotate(-45deg);
+  transform: translateY(-4px) rotate(-45deg);
 }
 
 /* ---------- Mobile Menu ---------- */
@@ -310,7 +312,7 @@ body.menu-open .hamburger-icon line:nth-child(2) {
 }
 
 .mobile-nav a.active {
-  color: var(--red);
+  color: var(--accent);
   font-weight: 600;
 }
 

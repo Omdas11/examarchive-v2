@@ -71,8 +71,8 @@
 
 .search-input:focus {
   outline: none;
-  border-color: var(--red);
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 211, 47, 47), 0.1);
 }
 
 .search-mode-btn {
@@ -177,7 +177,7 @@
 
 .search-results .result-item:hover {
   background: var(--bg);
-  border-color: var(--red);
+  border-color: var(--accent);
   transform: translateY(-1px);
 }
 
@@ -219,7 +219,7 @@
 }
 
 .quick-btn:hover {
-  border-color: var(--red);
+  border-color: var(--accent);
   background: var(--bg);
   transform: translateY(-2px);
 }
@@ -279,7 +279,7 @@
 }
 
 .notice-item:hover {
-  border-color: var(--red);
+  border-color: var(--accent);
 }
 
 .notice-header {

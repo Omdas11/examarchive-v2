@@ -68,7 +68,7 @@
 .toggle-btn.active {
   background: var(--red);
   color: #fff;
-  border-color: var(--red);
+  border-color: var(--accent);
   font-weight: 600;
 }
 
@@ -102,7 +102,7 @@
 
 #searchInput:focus {
   outline: none;
-  border-color: var(--red);
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
 }
 
@@ -311,7 +311,7 @@
 }
 
 .sort-option.active .radio {
-  border-color: var(--red);
+  border-color: var(--accent);
   background: var(--red);
 }
 

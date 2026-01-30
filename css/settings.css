@@ -109,7 +109,7 @@
 }
 
 .setting-toggle input:checked + .toggle-slider {
-  background-color: var(--red);
+  background-color: var(--accent);
 }
 
 .setting-toggle input:checked + .toggle-slider:before {
@@ -142,7 +142,7 @@
 
 .setting-input:focus {
   outline: none;
-  border-color: var(--red);
+  border-color: var(--accent);
 }
 
 /* Range Slider */
@@ -168,7 +168,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--red);
+  background: var(--accent);
   cursor: pointer;
 }
 
@@ -176,7 +176,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--red);
+  background: var(--accent);
   cursor: pointer;
   border: none;
 }

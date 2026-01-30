@@ -124,6 +124,31 @@ const settingsConfig = [
     ]
   },
   {
+    id: "night-mode-section",
+    title: "Night Mode",
+    description: "Warm filter to reduce eye strain and blue light",
+    settings: [
+      {
+        id: "night-mode",
+        type: "toggle",
+        label: "Enable Night Mode",
+        description: "Apply warm, low-contrast filter (independent of theme)"
+      },
+      {
+        id: "night-strength",
+        type: "range",
+        label: "Night Mode Strength",
+        description: "Adjust warmth and filter intensity",
+        min: 0,
+        max: 100,
+        step: 10,
+        unit: "%",
+        default: 50,
+        dependsOn: "night-mode"
+      }
+    ]
+  },
+  {
     id: "accessibility-section",
     title: "Accessibility",
     description: "Improve readability and reduce distractions",
@@ -651,6 +676,53 @@ function attachEventListeners() {
     // Apply saved value
     const savedShadow = localStorage.getItem("glass-shadow-softness") || "15";
     document.documentElement.style.setProperty("--glass-shadow-softness", savedShadow / 100);
+  }
+  
+  // ========== NIGHT MODE ==========
+  // Night mode toggle
+  const nightModeToggle = document.getElementById("night-mode");
+  if (nightModeToggle) {
+    nightModeToggle.addEventListener("change", (e) => {
+      const isEnabled = e.target.checked;
+      localStorage.setItem("night", isEnabled ? "on" : "off");
+      
+      if (isEnabled) {
+        document.body.setAttribute("data-night", "on");
+      } else {
+        document.body.removeAttribute("data-night");
+      }
+      
+      // Update dependent controls disabled state
+      const nightStrengthRange = document.getElementById("night-strength");
+      if (nightStrengthRange) {
+        nightStrengthRange.disabled = !isEnabled;
+        nightStrengthRange.parentElement.parentElement.style.opacity = isEnabled ? '1' : '0.5';
+      }
+      
+      console.log(`🌙 Night mode ${isEnabled ? "enabled" : "disabled"}`);
+    });
+    
+    // Apply saved preference
+    const savedNight = localStorage.getItem("night") || "off";
+    if (savedNight === "on") {
+      nightModeToggle.checked = true;
+      document.body.setAttribute("data-night", "on");
+    }
+  }
+  
+  // Night mode strength
+  const nightStrengthRange = document.getElementById("night-strength");
+  if (nightStrengthRange) {
+    nightStrengthRange.addEventListener("input", (e) => {
+      const value = e.target.value;
+      localStorage.setItem("nightStrength", value);
+      document.body.style.setProperty("--night-filter-strength", value / 100);
+      document.getElementById("night-strength-value").textContent = `${value}%`;
+    });
+    
+    // Apply saved value
+    const savedStrength = localStorage.getItem("nightStrength") || "50";
+    document.body.style.setProperty("--night-filter-strength", savedStrength / 100);
   }
   
   // ========== ACCESSIBILITY ==========
