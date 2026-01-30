@@ -111,6 +111,22 @@ export async function getUserRole(useCache = true) {
 }
 
 /**
+ * Get role badge information
+ * @param {string} roleName - Role name
+ * @returns {Object|null} Badge info with name and color
+ */
+export function getRoleBadge(roleName) {
+  const role = ROLES[roleName];
+  if (!role || !role.badge) {
+    return null;
+  }
+  return {
+    name: role.badge,
+    color: role.color
+  };
+}
+
+/**
  * Get current user's role and badge information
  * @param {boolean} useCache - Whether to use cached data (default: true)
  * @returns {Promise<Object>} Object with role and badge properties
@@ -165,22 +181,6 @@ export async function isAdmin(useCache = true) {
 export async function isReviewer(useCache = true) {
   const role = await getUserRole(useCache);
   return role === 'reviewer' || role === 'admin';
-}
-
-/**
- * Get role badge information
- * @param {string} roleName - Role name
- * @returns {Object|null} Badge info with name and color
- */
-export function getRoleBadge(roleName) {
-  const role = ROLES[roleName];
-  if (!role || !role.badge) {
-    return null;
-  }
-  return {
-    name: role.badge,
-    color: role.color
-  };
 }
 
 /**
