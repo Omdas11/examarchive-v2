@@ -4,7 +4,7 @@
 // ============================================
 
 import { supabase } from "../js/supabase.js";
-import { isAdmin } from "../js/roles.js";
+import { waitForRole } from "../js/roles.js";
 import { moveFile, copyFile, deleteFile, getPublicUrl, BUCKETS } from "../js/supabase-client.js";
 import { formatFileSize, formatDate } from "../js/upload-handler.js";
 
@@ -18,27 +18,38 @@ let allSubmissions = [];
 document.addEventListener("DOMContentLoaded", async () => {
   console.log('[ADMIN-DASHBOARD] Checking admin access...');
   
-  // Force fresh role check (don't use cache)
-  const hasAdminAccess = await isAdmin(false);
-  console.log('[ADMIN-DASHBOARD] Admin access result:', hasAdminAccess);
-  
   const loadingState = document.getElementById('loading-state');
   const accessDenied = document.getElementById('access-denied');
   const dashboardContent = document.getElementById('dashboard-content');
 
-  if (!hasAdminAccess) {
+  try {
+    // Wait for role to be ready before checking access
+    console.log('[ADMIN-DASHBOARD] Waiting for role:ready event...');
+    const roleState = await waitForRole();
+    console.log('[ADMIN-DASHBOARD] Role state:', roleState);
+    
+    // Check if user has admin role
+    const hasAdminAccess = roleState.status === 'admin';
+    console.log('[ADMIN-DASHBOARD] Admin access result:', hasAdminAccess);
+    
+    loadingState.style.display = 'none';
+    
+    if (!hasAdminAccess) {
+      accessDenied.style.display = 'flex';
+      console.log("🔒 Admin dashboard access denied");
+      return;
+    }
+
+    console.log("✅ Admin access granted");
+    dashboardContent.style.display = 'block';
+
+    // Initialize dashboard
+    initializeDashboard();
+  } catch (err) {
+    console.error('[ADMIN-DASHBOARD] Error checking access:', err);
     loadingState.style.display = 'none';
     accessDenied.style.display = 'flex';
-    console.log("🔒 Admin dashboard access denied");
-    return;
   }
-
-  console.log("✅ Admin access granted");
-  loadingState.style.display = 'none';
-  dashboardContent.style.display = 'block';
-
-  // Initialize dashboard
-  initializeDashboard();
 });
 
 /**

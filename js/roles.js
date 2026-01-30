@@ -10,6 +10,15 @@ let roleCache = null;
 let roleCacheTimestamp = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+// Global role state for UI synchronization
+if (!window.__APP_ROLE__) {
+  window.__APP_ROLE__ = {
+    status: 'unknown',
+    badge: null,
+    ready: false
+  };
+}
+
 /**
  * Role definitions with badges and permissions
  */
@@ -45,6 +54,12 @@ export const ROLES = {
 export function clearRoleCache() {
   roleCache = null;
   roleCacheTimestamp = null;
+  // Reset global role state
+  window.__APP_ROLE__ = {
+    status: 'unknown',
+    badge: null,
+    ready: false
+  };
   console.log('[ROLE] Cache cleared');
 }
 
@@ -221,4 +236,84 @@ export async function ensureProfile(userId, email) {
     console.error('Error in ensureProfile:', err);
     return false;
   }
+}
+
+/**
+ * Initialize global role state based on current session
+ * This should be called during app initialization
+ * @returns {Promise<void>}
+ */
+export async function initializeGlobalRoleState() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      // User is not logged in - set guest state
+      window.__APP_ROLE__ = {
+        status: 'guest',
+        badge: 'Guest',
+        ready: true
+      };
+      console.log('[ROLE] Global state initialized: guest');
+    } else {
+      // User is logged in - fetch profile
+      const profile = await getUserProfile(false); // Force fresh fetch
+      
+      if (profile && profile.role) {
+        const roleBadge = getRoleBadge(profile.role);
+        window.__APP_ROLE__ = {
+          status: profile.role,
+          badge: roleBadge ? roleBadge.name : null,
+          ready: true
+        };
+        console.log('[ROLE] Global state initialized:', profile.role);
+      } else {
+        // Logged in but no profile - treat as user
+        window.__APP_ROLE__ = {
+          status: 'user',
+          badge: 'Contributor',
+          ready: true
+        };
+        console.log('[ROLE] Global state initialized: user (no profile found)');
+      }
+    }
+    
+    // Dispatch event to notify UI components
+    window.dispatchEvent(new Event('role:ready'));
+    console.log('[ROLE] role:ready event dispatched');
+  } catch (err) {
+    console.error('[ROLE] Error initializing global role state:', err);
+    // Default to guest on error
+    window.__APP_ROLE__ = {
+      status: 'guest',
+      badge: 'Guest',
+      ready: true
+    };
+    window.dispatchEvent(new Event('role:ready'));
+  }
+}
+
+/**
+ * Wait for role to be ready
+ * @returns {Promise<Object>} Resolves with the role state when ready
+ */
+export function waitForRole() {
+  return new Promise((resolve) => {
+    // Safety check: ensure window.__APP_ROLE__ exists
+    if (!window.__APP_ROLE__) {
+      console.warn('[ROLE] window.__APP_ROLE__ not initialized, waiting for role:ready event');
+      window.addEventListener('role:ready', () => {
+        resolve(window.__APP_ROLE__);
+      }, { once: true });
+      return;
+    }
+    
+    if (window.__APP_ROLE__.ready) {
+      resolve(window.__APP_ROLE__);
+    } else {
+      window.addEventListener('role:ready', () => {
+        resolve(window.__APP_ROLE__);
+      }, { once: true });
+    }
+  });
 }

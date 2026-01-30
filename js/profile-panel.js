@@ -7,7 +7,6 @@
 
 import { supabase } from "./supabase.js";
 import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
-import { getUserProfile, getRoleBadge, isAdmin } from "./roles.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -23,56 +22,93 @@ function debug(msg) {
  * @returns {Array} Array of badge objects
  */
 async function computeBadges(user) {
-  if (!user) return [];
-  
   const badges = [];
   
-  // Get user profile with role - force fresh fetch to ensure latest data
-  const profile = await getUserProfile(false);
+  // Wait for role to be ready
+  await waitForRoleReady();
   
-  console.log('[BADGE] Computing badges for user, profile:', profile);
+  console.log('[BADGE] Computing badges, global role state:', window.__APP_ROLE__);
   
-  if (!profile) {
-    console.log('[BADGE] No profile found, returning empty badges');
+  // Use global role state
+  const roleStatus = window.__APP_ROLE__.status;
+  const roleBadgeName = window.__APP_ROLE__.badge;
+  
+  if (!user) {
+    // Guest user
+    if (roleStatus === 'guest') {
+      badges.push({
+        type: 'guest',
+        label: 'Guest',
+        icon: '👤',
+        color: '#9E9E9E'
+      });
+    }
+    console.log('[BADGE] Guest badges:', badges);
     return badges;
   }
   
-  // Get role badge from roles system
-  const roleBadge = getRoleBadge(profile.role);
-  
-  console.log('[BADGE] Role badge:', roleBadge, 'for role:', profile.role);
-  
-  if (roleBadge) {
-    // Map role badge to display format
+  // Logged in user - show role badge
+  if (roleBadgeName) {
     const badgeIcons = {
       'Admin': '👑',
       'Moderator': '🛡️',
-      'Contributor': '📝'
+      'Contributor': '📝',
+      'Guest': '👤'
+    };
+    
+    const badgeColors = {
+      'admin': '#f44336',
+      'reviewer': '#2196F3',
+      'user': '#4CAF50',
+      'guest': '#9E9E9E'
     };
     
     badges.push({
-      type: profile.role,
-      label: roleBadge.name,
-      icon: badgeIcons[roleBadge.name] || '✓',
-      color: roleBadge.color || '#1976d2'
+      type: roleStatus,
+      label: roleBadgeName,
+      icon: badgeIcons[roleBadgeName] || '✓',
+      color: badgeColors[roleStatus] || '#1976d2'
     });
     
     console.log('[BADGE] Added role badge:', badges[0]);
   }
   
   // Check if user has uploaded papers (contributor activity)
-  const hasUploads = await checkUserContributions(user.id);
-  if (hasUploads && profile.role !== 'admin' && profile.role !== 'reviewer') {
-    badges.push({
-      type: "active-contributor",
-      label: "Active",
-      icon: "⭐",
-      color: "#f57c00"
-    });
+  if (roleStatus !== 'admin' && roleStatus !== 'reviewer') {
+    const hasUploads = await checkUserContributions(user.id);
+    if (hasUploads) {
+      badges.push({
+        type: "active-contributor",
+        label: "Active",
+        icon: "⭐",
+        color: "#f57c00"
+      });
+    }
   }
   
   console.log('[BADGE] Final badges array:', badges);
   return badges;
+}
+
+/**
+ * Wait for role to be ready
+ * @returns {Promise<void>}
+ */
+function waitForRoleReady() {
+  return new Promise((resolve) => {
+    // Safety check: ensure window.__APP_ROLE__ exists
+    if (!window.__APP_ROLE__) {
+      console.warn('[BADGE] window.__APP_ROLE__ not initialized, waiting for role:ready event');
+      window.addEventListener('role:ready', resolve, { once: true });
+      return;
+    }
+    
+    if (window.__APP_ROLE__.ready) {
+      resolve();
+    } else {
+      window.addEventListener('role:ready', resolve, { once: true });
+    }
+  });
 }
 
 /**
@@ -116,7 +152,7 @@ function renderBadges(badges) {
   
   badgesSection.style.display = "flex";
   badgesSection.innerHTML = badges.map(badge => `
-    <div class="badge badge-${badge.type}" aria-label="${badge.label} badge">
+    <div class="badge badge-${badge.type}" aria-label="${badge.label} badge" style="border-color: ${badge.color};">
       <span class="badge-icon" aria-hidden="true">${badge.icon}</span>
       <span class="badge-label">${badge.label}</span>
     </div>
@@ -290,8 +326,9 @@ async function renderProfilePanel() {
     // Show stats
     if (statsSection) statsSection.style.display = "grid";
 
-    // Check if user is admin - force fresh check
-    const userIsAdmin = await isAdmin(false);
+    // Wait for role to be ready and check if user is admin
+    await waitForRoleReady();
+    const userIsAdmin = window.__APP_ROLE__.status === 'admin';
     console.log('[PROFILE-PANEL] User is admin:', userIsAdmin);
 
     // Dynamically create logged-in actions
@@ -324,8 +361,12 @@ async function renderProfilePanel() {
     // Update avatar for guest
     updateAvatarElement(avatarEl, null);
 
-    // Hide badges and stats
-    if (badgesSection) badgesSection.style.display = "none";
+    // Show guest badge
+    const guestBadges = await computeBadges(null);
+    console.log('[PROFILE-PANEL] Guest badges computed:', guestBadges);
+    renderBadges(guestBadges);
+
+    // Hide stats
     if (statsSection) statsSection.style.display = "none";
 
     // Dynamically create guest actions
@@ -366,5 +407,13 @@ document.addEventListener("profile-panel:loaded", () => {
    =============================== */
 supabase.auth.onAuthStateChange(() => {
   debug("🔔 Auth state changed, re-rendering profile panel");
+  renderProfilePanel();
+});
+
+/* ===============================
+   Listen for role:ready event
+   =============================== */
+window.addEventListener('role:ready', () => {
+  debug("🔔 Role ready event received, re-rendering profile panel");
   renderProfilePanel();
 });
