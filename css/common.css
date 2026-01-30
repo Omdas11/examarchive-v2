@@ -148,8 +148,9 @@ body[data-theme="amoled"] {
 
 /* Red Classic - Default ExamArchive */
 body[data-theme-preset="red-classic"] {
+  /* Light mode: red + white */
   --bg: #ffffff;
-  --bg-soft: #fdeaea;
+  --bg-soft: #f7f7f7;
   --surface: #ffffff;
   --text: #111111;
   --text-muted: #666666;
@@ -158,13 +159,33 @@ body[data-theme-preset="red-classic"] {
   --accent-soft: #fdeaea;
 }
 
-body[data-theme="dark"][data-theme-preset="red-classic"],
-body[data-theme="amoled"][data-theme-preset="red-classic"] {
+/* Dark mode: deep red + dark neutral */
+body[data-theme="dark"][data-theme-preset="red-classic"] {
+  --bg: #1a0a0a;
+  --bg-soft: #2d1515;
+  --surface: #251010;
+  --text: #f5e5e5;
+  --text-muted: #c9a8a8;
+  --border: #3d2020;
   --accent: #ff5252;
+  --accent-soft: #3d1515;
+}
+
+/* AMOLED mode: pure black + red accent */
+body[data-theme="amoled"][data-theme-preset="red-classic"] {
+  --bg: #000000;
+  --bg-soft: #000000;
+  --surface: #000000;
+  --text: #ffffff;
+  --text-muted: #cccccc;
+  --border: #1a1a1a;
+  --accent: #ff5252;
+  --accent-soft: #1a0000;
 }
 
 /* Blue Slate - Cool Professional */
 body[data-theme-preset="blue-slate"] {
+  /* Light mode */
   --bg: #f0f4f8;
   --bg-soft: #e3f2fd;
   --surface: #ffffff;
@@ -175,8 +196,8 @@ body[data-theme-preset="blue-slate"] {
   --accent-soft: #e3f2fd;
 }
 
-body[data-theme="dark"][data-theme-preset="blue-slate"],
-body[data-theme="amoled"][data-theme-preset="blue-slate"] {
+/* Dark mode */
+body[data-theme="dark"][data-theme-preset="blue-slate"] {
   --bg: #0a1929;
   --bg-soft: #0d2340;
   --surface: #132f4c;
@@ -187,8 +208,21 @@ body[data-theme="amoled"][data-theme-preset="blue-slate"] {
   --accent-soft: #0d2340;
 }
 
+/* AMOLED mode */
+body[data-theme="amoled"][data-theme-preset="blue-slate"] {
+  --bg: #000000;
+  --bg-soft: #000000;
+  --surface: #000000;
+  --text: #b2d4f7;
+  --text-muted: #7ba7d6;
+  --border: #1e3a5f;
+  --accent: #42a5f5;
+  --accent-soft: #0a1929;
+}
+
 /* Green Mint - Fresh Natural */
 body[data-theme-preset="green-mint"] {
+  /* Light mode */
   --bg: #f1f8f4;
   --bg-soft: #e8f5e9;
   --surface: #ffffff;
@@ -199,8 +233,8 @@ body[data-theme-preset="green-mint"] {
   --accent-soft: #e8f5e9;
 }
 
-body[data-theme="dark"][data-theme-preset="green-mint"],
-body[data-theme="amoled"][data-theme-preset="green-mint"] {
+/* Dark mode */
+body[data-theme="dark"][data-theme-preset="green-mint"] {
   --bg: #0d1f12;
   --bg-soft: #1a3320;
   --surface: #1e4620;
@@ -211,8 +245,21 @@ body[data-theme="amoled"][data-theme-preset="green-mint"] {
   --accent-soft: #1a3320;
 }
 
+/* AMOLED mode */
+body[data-theme="amoled"][data-theme-preset="green-mint"] {
+  --bg: #000000;
+  --bg-soft: #000000;
+  --surface: #000000;
+  --text: #a5d6a7;
+  --text-muted: #66bb6a;
+  --border: #2e5930;
+  --accent: #66bb6a;
+  --accent-soft: #0d1f12;
+}
+
 /* Purple Nebula - Deep Cosmic */
 body[data-theme-preset="purple-nebula"] {
+  /* Light mode */
   --bg: #f3e5f5;
   --bg-soft: #f3e5f5;
   --surface: #ffffff;
@@ -223,8 +270,8 @@ body[data-theme-preset="purple-nebula"] {
   --accent-soft: #f3e5f5;
 }
 
-body[data-theme="dark"][data-theme-preset="purple-nebula"],
-body[data-theme="amoled"][data-theme-preset="purple-nebula"] {
+/* Dark mode */
+body[data-theme="dark"][data-theme-preset="purple-nebula"] {
   --bg: #1a0a2e;
   --bg-soft: #2d1b4e;
   --surface: #3a2558;
@@ -235,8 +282,21 @@ body[data-theme="amoled"][data-theme-preset="purple-nebula"] {
   --accent-soft: #2d1b4e;
 }
 
+/* AMOLED mode */
+body[data-theme="amoled"][data-theme-preset="purple-nebula"] {
+  --bg: #000000;
+  --bg-soft: #000000;
+  --surface: #000000;
+  --text: #d1a3e8;
+  --text-muted: #ab47bc;
+  --border: #4a2f5e;
+  --accent: #ab47bc;
+  --accent-soft: #1a0a2e;
+}
+
 /* Amber Warm - Warm Inviting */
 body[data-theme-preset="amber-warm"] {
+  /* Light mode */
   --bg: #fffbf0;
   --bg-soft: #fff3e0;
   --surface: #ffffff;
@@ -247,8 +307,8 @@ body[data-theme-preset="amber-warm"] {
   --accent-soft: #fff3e0;
 }
 
-body[data-theme="dark"][data-theme-preset="amber-warm"],
-body[data-theme="amoled"][data-theme-preset="amber-warm"] {
+/* Dark mode */
+body[data-theme="dark"][data-theme-preset="amber-warm"] {
   --bg: #1f1508;
   --bg-soft: #2d2010;
   --surface: #3d2c15;
@@ -259,8 +319,21 @@ body[data-theme="amoled"][data-theme-preset="amber-warm"] {
   --accent-soft: #2d2010;
 }
 
+/* AMOLED mode */
+body[data-theme="amoled"][data-theme-preset="amber-warm"] {
+  --bg: #000000;
+  --bg-soft: #000000;
+  --surface: #000000;
+  --text: #ffd18c;
+  --text-muted: #ffa726;
+  --border: #4d3820;
+  --accent: #ffa726;
+  --accent-soft: #1f1508;
+}
+
 /* Mono Gray - Minimal Grayscale */
 body[data-theme-preset="mono-gray"] {
+  /* Light mode */
   --bg: #fafafa;
   --bg-soft: #f5f5f5;
   --surface: #ffffff;
@@ -271,8 +344,8 @@ body[data-theme-preset="mono-gray"] {
   --accent-soft: #f5f5f5;
 }
 
-body[data-theme="dark"][data-theme-preset="mono-gray"],
-body[data-theme="amoled"][data-theme-preset="mono-gray"] {
+/* Dark mode */
+body[data-theme="dark"][data-theme-preset="mono-gray"] {
   --bg: #121212;
   --bg-soft: #1e1e1e;
   --surface: #2a2a2a;
@@ -283,8 +356,21 @@ body[data-theme="amoled"][data-theme-preset="mono-gray"] {
   --accent-soft: #1e1e1e;
 }
 
+/* AMOLED mode */
+body[data-theme="amoled"][data-theme-preset="mono-gray"] {
+  --bg: #000000;
+  --bg-soft: #000000;
+  --surface: #000000;
+  --text: #e0e0e0;
+  --text-muted: #bdbdbd;
+  --border: #3a3a3a;
+  --accent: #bdbdbd;
+  --accent-soft: #121212;
+}
+
 /* Glass Light - Transparent Light */
 body[data-theme-preset="glass-light"] {
+  /* Light mode */
   --bg: rgba(255, 255, 255, 0.7);
   --bg-soft: rgba(245, 245, 245, 0.8);
   --surface: rgba(255, 255, 255, 0.6);
@@ -302,8 +388,47 @@ body[data-theme-preset="glass-light"] .site-header {
   -webkit-backdrop-filter: blur(20px);
 }
 
+/* Dark mode */
+body[data-theme="dark"][data-theme-preset="glass-light"] {
+  --bg: rgba(18, 18, 18, 0.7);
+  --bg-soft: rgba(30, 30, 30, 0.8);
+  --surface: rgba(26, 26, 26, 0.6);
+  --text: #eaeaea;
+  --text-muted: #aaaaaa;
+  --border: rgba(42, 42, 42, 0.5);
+  --accent: #42a5f5;
+  --accent-soft: rgba(13, 35, 64, 0.8);
+}
+
+body[data-theme="dark"][data-theme-preset="glass-light"] .card,
+body[data-theme="dark"][data-theme-preset="glass-light"] .settings-card,
+body[data-theme="dark"][data-theme-preset="glass-light"] .site-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* AMOLED mode */
+body[data-theme="amoled"][data-theme-preset="glass-light"] {
+  --bg: rgba(0, 0, 0, 0.8);
+  --bg-soft: rgba(0, 0, 0, 0.9);
+  --surface: rgba(0, 0, 0, 0.7);
+  --text: #ffffff;
+  --text-muted: #bbbbbb;
+  --border: rgba(26, 26, 26, 0.5);
+  --accent: #42a5f5;
+  --accent-soft: rgba(13, 35, 64, 0.8);
+}
+
+body[data-theme="amoled"][data-theme-preset="glass-light"] .card,
+body[data-theme="amoled"][data-theme-preset="glass-light"] .settings-card,
+body[data-theme="amoled"][data-theme-preset="glass-light"] .site-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
 /* Glass Dark - Transparent Dark */
 body[data-theme-preset="glass-dark"] {
+  /* Light mode - not typically used but provided for consistency */
   --bg: rgba(18, 18, 18, 0.7);
   --bg-soft: rgba(30, 30, 30, 0.8);
   --surface: rgba(26, 26, 26, 0.6);
@@ -317,6 +442,44 @@ body[data-theme-preset="glass-dark"] {
 body[data-theme-preset="glass-dark"] .card,
 body[data-theme-preset="glass-dark"] .settings-card,
 body[data-theme-preset="glass-dark"] .site-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Dark mode */
+body[data-theme="dark"][data-theme-preset="glass-dark"] {
+  --bg: rgba(18, 18, 18, 0.7);
+  --bg-soft: rgba(30, 30, 30, 0.8);
+  --surface: rgba(26, 26, 26, 0.6);
+  --text: #eaeaea;
+  --text-muted: #aaaaaa;
+  --border: rgba(42, 42, 42, 0.5);
+  --accent: #42a5f5;
+  --accent-soft: rgba(13, 35, 64, 0.8);
+}
+
+body[data-theme="dark"][data-theme-preset="glass-dark"] .card,
+body[data-theme="dark"][data-theme-preset="glass-dark"] .settings-card,
+body[data-theme="dark"][data-theme-preset="glass-dark"] .site-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* AMOLED mode */
+body[data-theme="amoled"][data-theme-preset="glass-dark"] {
+  --bg: rgba(0, 0, 0, 0.8);
+  --bg-soft: rgba(0, 0, 0, 0.9);
+  --surface: rgba(0, 0, 0, 0.7);
+  --text: #ffffff;
+  --text-muted: #bbbbbb;
+  --border: rgba(26, 26, 26, 0.5);
+  --accent: #42a5f5;
+  --accent-soft: rgba(13, 35, 64, 0.8);
+}
+
+body[data-theme="amoled"][data-theme-preset="glass-dark"] .card,
+body[data-theme="amoled"][data-theme-preset="glass-dark"] .settings-card,
+body[data-theme="amoled"][data-theme-preset="glass-dark"] .site-header {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
@@ -755,19 +918,53 @@ body.font-system {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Serif */
-body.font-serif {
-  font-family: Georgia, 'Times New Roman', Times, serif;
+/* Academic Serif - Crimson Pro (Google Font) */
+body.font-academic-serif {
+  font-family: 'Crimson Pro', Georgia, 'Times New Roman', serif;
 }
 
-/* Sans-serif */
-body.font-sans {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+body.font-academic-serif h1,
+body.font-academic-serif h2,
+body.font-academic-serif h3,
+body.font-academic-serif h4 {
+  font-weight: 700;
+}
+
+/* Clean Sans - Inter (Google Font) */
+body.font-clean-sans {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+body.font-clean-sans h1,
+body.font-clean-sans h2,
+body.font-clean-sans h3,
+body.font-clean-sans h4 {
+  font-weight: 700;
+}
+
+/* Reading Sans - Source Sans 3 (Google Font) */
+body.font-reading-sans {
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body.font-reading-sans h1,
+body.font-reading-sans h2,
+body.font-reading-sans h3,
+body.font-reading-sans h4 {
+  font-weight: 700;
 }
 
 /* Monospace */
-body.font-mono {
+body.font-monospace {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+body.font-monospace h1,
+body.font-monospace h2,
+body.font-monospace h3,
+body.font-monospace h4 {
+  font-weight: 700;
 }
 
 /* ================================

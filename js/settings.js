@@ -82,11 +82,12 @@ const settingsConfig = [
         description: "Choose your preferred font",
         requiresApply: true,
         options: [
-          { value: "default", label: "Archive Default" },
+          { value: "default", label: "Archive Default (System)" },
           { value: "system", label: "System Default" },
-          { value: "serif", label: "Serif" },
-          { value: "sans", label: "Sans-serif" },
-          { value: "mono", label: "Monospace" }
+          { value: "academic-serif", label: "Academic Serif (Crimson)" },
+          { value: "clean-sans", label: "Clean Sans (Inter)" },
+          { value: "reading-sans", label: "Reading Sans (Source)" },
+          { value: "monospace", label: "Monospace (Code)" }
         ]
       }
     ]
