@@ -7,7 +7,8 @@
 
 import { supabase } from "./supabase.js";
 import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
-import { mapRoleToBadge, getBadgeIcon, getBadgeColor } from "./roles.js";
+import { getBadgeIcon, getBadgeColor } from "./roles.js";
+import { waitForRoleReady } from "./role-authority.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -18,7 +19,7 @@ function debug(msg) {
    =============================== */
 
 /**
- * Compute badges for a user dynamically using Phase 8 roles
+ * Compute badges for a user dynamically using authoritative role state
  * CRITICAL: This function MUST NOT be called before role:ready event
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects
@@ -32,30 +33,30 @@ async function computeBadges(user) {
   console.log('[BADGE] Computing badges, global role state:', window.__APP_ROLE__);
   
   // Use global role state - SINGLE SOURCE OF TRUTH
-  const roleStatus = window.__APP_ROLE__.status;
+  const roleState = window.__APP_ROLE__.role;
   const roleBadgeName = window.__APP_ROLE__.badge;
   
   if (!user) {
     // Guest user - always show Guest badge
-    if (roleStatus === 'guest') {
+    if (roleState === 'guest') {
       badges.push({
         type: 'guest',
-        label: mapRoleToBadge('guest'), // Use centralized mapper
-        icon: getBadgeIcon('Guest'), // Use centralized icon
-        color: getBadgeColor('guest') // Use centralized color
+        label: 'Guest',
+        icon: getBadgeIcon('Guest'),
+        color: getBadgeColor('guest')
       });
     }
     console.log('[BADGE] rendered: Guest (profile-panel)');
     return badges;
   }
   
-  // Logged in user - show role badge using centralized mapping
+  // Logged in user - show role badge from global state
   if (roleBadgeName) {
     badges.push({
-      type: roleStatus,
-      label: roleBadgeName, // Already mapped by roles.js
-      icon: getBadgeIcon(roleBadgeName), // Use centralized icon
-      color: getBadgeColor(roleStatus) // Use centralized color
+      type: roleState,
+      label: roleBadgeName,
+      icon: getBadgeIcon(roleBadgeName),
+      color: getBadgeColor(roleState)
     });
     
     console.log(`[BADGE] rendered: ${roleBadgeName} (profile-panel)`);
@@ -63,7 +64,7 @@ async function computeBadges(user) {
   
   // Check if user has uploaded papers (contributor activity)
   // Only show for non-admin/non-reviewer users
-  if (roleStatus !== 'admin' && roleStatus !== 'reviewer') {
+  if (roleState !== 'admin' && roleState !== 'reviewer') {
     const hasUploads = await checkUserContributions(user.id);
     if (hasUploads) {
       badges.push({
@@ -77,27 +78,6 @@ async function computeBadges(user) {
   
   console.log('[BADGE] Final badges array:', badges);
   return badges;
-}
-
-/**
- * Wait for role to be ready
- * @returns {Promise<void>}
- */
-function waitForRoleReady() {
-  return new Promise((resolve) => {
-    // Safety check: ensure window.__APP_ROLE__ exists
-    if (!window.__APP_ROLE__) {
-      console.warn('[BADGE] window.__APP_ROLE__ not initialized, waiting for role:ready event');
-      window.addEventListener('role:ready', resolve, { once: true });
-      return;
-    }
-    
-    if (window.__APP_ROLE__.ready) {
-      resolve();
-    } else {
-      window.addEventListener('role:ready', resolve, { once: true });
-    }
-  });
 }
 
 /**
@@ -325,8 +305,8 @@ async function renderProfilePanel() {
     // Show stats
     if (statsSection) statsSection.style.display = "grid";
 
-    // Check if user is admin - use ONLY global role state
-    const userIsAdmin = window.__APP_ROLE__.status === 'admin';
+    // Check if user is admin - use ONLY global role state (AUTHORITATIVE)
+    const userIsAdmin = window.__APP_ROLE__.role === 'admin';
     console.log('[PROFILE-PANEL] User is admin:', userIsAdmin);
     console.log('[ADMIN] dashboard access', userIsAdmin ? 'granted' : 'denied');
 
@@ -416,7 +396,7 @@ supabase.auth.onAuthStateChange(() => {
 window.addEventListener('role:ready', () => {
   debug("🔔 Role ready event received, re-rendering profile panel");
   const roleState = window.__APP_ROLE__;
-  console.log('[ROLE] resolved:', roleState.status);
+  console.log('[ROLE] resolved:', roleState.role);
   console.log('[BADGE] should render:', roleState.badge);
   renderProfilePanel();
 });
