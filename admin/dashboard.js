@@ -16,7 +16,11 @@ let allSubmissions = [];
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
-  const hasAdminAccess = await isAdmin();
+  console.log('[ADMIN-DASHBOARD] Checking admin access...');
+  
+  // Force fresh role check (don't use cache)
+  const hasAdminAccess = await isAdmin(false);
+  console.log('[ADMIN-DASHBOARD] Admin access result:', hasAdminAccess);
   
   const loadingState = document.getElementById('loading-state');
   const accessDenied = document.getElementById('access-denied');

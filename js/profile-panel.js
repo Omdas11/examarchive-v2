@@ -27,15 +27,20 @@ async function computeBadges(user) {
   
   const badges = [];
   
-  // Get user profile with role
-  const profile = await getUserProfile();
+  // Get user profile with role - force fresh fetch to ensure latest data
+  const profile = await getUserProfile(false);
+  
+  console.log('[BADGE] Computing badges for user, profile:', profile);
   
   if (!profile) {
+    console.log('[BADGE] No profile found, returning empty badges');
     return badges;
   }
   
   // Get role badge from roles system
   const roleBadge = getRoleBadge(profile.role);
+  
+  console.log('[BADGE] Role badge:', roleBadge, 'for role:', profile.role);
   
   if (roleBadge) {
     // Map role badge to display format
@@ -51,6 +56,8 @@ async function computeBadges(user) {
       icon: badgeIcons[roleBadge.name] || '✓',
       color: roleBadge.color || '#1976d2'
     });
+    
+    console.log('[BADGE] Added role badge:', badges[0]);
   }
   
   // Check if user has uploaded papers (contributor activity)
@@ -64,6 +71,7 @@ async function computeBadges(user) {
     });
   }
   
+  console.log('[BADGE] Final badges array:', badges);
   return badges;
 }
 
@@ -276,13 +284,15 @@ async function renderProfilePanel() {
 
     // Compute and render badges dynamically
     const badges = await computeBadges(user);
+    console.log('[PROFILE-PANEL] Badges computed:', badges);
     renderBadges(badges);
 
     // Show stats
     if (statsSection) statsSection.style.display = "grid";
 
-    // Check if user is admin
-    const userIsAdmin = await isAdmin();
+    // Check if user is admin - force fresh check
+    const userIsAdmin = await isAdmin(false);
+    console.log('[PROFILE-PANEL] User is admin:', userIsAdmin);
 
     // Dynamically create logged-in actions
     actionsSection.innerHTML = `
