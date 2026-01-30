@@ -61,7 +61,11 @@ Themes are implemented using CSS variables and:
 ## 📚 Documentation
 
 ### Architecture & Planning
-- [Phase 4 Architecture Plan](docs/PHASE4_ARCHITECTURE.md) - Future-ready architecture design for automation & content pipeline
+- [Phase 7 Architecture](docs/PHASE7_ARCHITECTURE.md) - Web Architecture & AI Automation Planning (Latest)
+- [Phase 6 Architecture](docs/PHASE6_ARCHITECTURE.md) - Storage, Pipeline & Phase 5 Fixes
+- [Phase 5 & 6 Summary](docs/PHASE5_AND_6_SUMMARY.md) - Implementation Summary
+- [Phase 4 Architecture Plan](docs/PHASE4_ARCHITECTURE.md) - Repository Architecture & Content Pipeline
+- [Roadmap](docs/roadmap.md)
 
 ### Setup Guides
 - [Supabase Authentication Setup](docs/SUPABASE_AUTH_SETUP.md)
@@ -104,7 +108,7 @@ Contributions are welcome! Whether it's:
 - Fixing bugs
 - Suggesting features
 
-Please see our [Architecture Plan](docs/PHASE4_ARCHITECTURE.md) for the long-term vision.
+Please see our [Phase 7 Architecture](docs/PHASE7_ARCHITECTURE.md) for the latest architectural vision and implementation roadmap.
 
 ---
 
