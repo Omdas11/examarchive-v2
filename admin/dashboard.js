@@ -16,31 +16,34 @@ let allSubmissions = [];
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log('[ADMIN-DASHBOARD] Checking admin access...');
+  console.log('[ADMIN-DASHBOARD] DOMContentLoaded - Checking admin access...');
   
   const loadingState = document.getElementById('loading-state');
   const accessDenied = document.getElementById('access-denied');
   const dashboardContent = document.getElementById('dashboard-content');
 
   try {
-    // Wait for role to be ready before checking access
+    // CRITICAL: Wait for role to be ready before checking access
     console.log('[ADMIN-DASHBOARD] Waiting for role:ready event...');
     const roleState = await waitForRole();
-    console.log('[ADMIN-DASHBOARD] Role state:', roleState);
+    console.log('[ADMIN-DASHBOARD] Role state received:', roleState);
+    console.log('[ROLE] resolved:', roleState.status);
     
-    // Check if user has admin role
-    const hasAdminAccess = roleState.status === 'admin';
-    console.log('[ADMIN-DASHBOARD] Admin access result:', hasAdminAccess);
-    
+    // Hide loading state
     loadingState.style.display = 'none';
+    
+    // Check if user has admin role - ONLY use global role state
+    const hasAdminAccess = roleState.status === 'admin';
+    console.log('[ADMIN-DASHBOARD] Admin access check:', hasAdminAccess ? 'GRANTED' : 'DENIED');
     
     if (!hasAdminAccess) {
       accessDenied.style.display = 'flex';
-      console.log("🔒 Admin dashboard access denied");
+      console.log("🔒 Admin dashboard access denied - user role is:", roleState.status);
       return;
     }
 
     console.log("✅ Admin access granted");
+    console.log('[ADMIN] dashboard access granted');
     dashboardContent.style.display = 'block';
 
     // Initialize dashboard

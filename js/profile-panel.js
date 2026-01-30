@@ -7,6 +7,7 @@
 
 import { supabase } from "./supabase.js";
 import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
+import { mapRoleToBadge, getBadgeIcon, getBadgeColor } from "./roles.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -18,62 +19,50 @@ function debug(msg) {
 
 /**
  * Compute badges for a user dynamically using Phase 8 roles
+ * CRITICAL: This function MUST NOT be called before role:ready event
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects
  */
 async function computeBadges(user) {
   const badges = [];
   
-  // Wait for role to be ready
+  // CRITICAL: Wait for role to be ready before computing badges
   await waitForRoleReady();
   
   console.log('[BADGE] Computing badges, global role state:', window.__APP_ROLE__);
   
-  // Use global role state
+  // Use global role state - SINGLE SOURCE OF TRUTH
   const roleStatus = window.__APP_ROLE__.status;
   const roleBadgeName = window.__APP_ROLE__.badge;
   
   if (!user) {
-    // Guest user
+    // Guest user - always show Guest badge
     if (roleStatus === 'guest') {
       badges.push({
         type: 'guest',
-        label: 'Guest',
-        icon: '👤',
-        color: '#9E9E9E'
+        label: mapRoleToBadge('guest'), // Use centralized mapper
+        icon: getBadgeIcon('Guest'), // Use centralized icon
+        color: getBadgeColor('guest') // Use centralized color
       });
     }
-    console.log('[BADGE] Guest badges:', badges);
+    console.log('[BADGE] rendered: Guest (profile-panel)');
     return badges;
   }
   
-  // Logged in user - show role badge
+  // Logged in user - show role badge using centralized mapping
   if (roleBadgeName) {
-    const badgeIcons = {
-      'Admin': '👑',
-      'Moderator': '🛡️',
-      'Contributor': '📝',
-      'Guest': '👤'
-    };
-    
-    const badgeColors = {
-      'admin': '#f44336',
-      'reviewer': '#2196F3',
-      'user': '#4CAF50',
-      'guest': '#9E9E9E'
-    };
-    
     badges.push({
       type: roleStatus,
-      label: roleBadgeName,
-      icon: badgeIcons[roleBadgeName] || '✓',
-      color: badgeColors[roleStatus] || '#1976d2'
+      label: roleBadgeName, // Already mapped by roles.js
+      icon: getBadgeIcon(roleBadgeName), // Use centralized icon
+      color: getBadgeColor(roleStatus) // Use centralized color
     });
     
-    console.log('[BADGE] Added role badge:', badges[0]);
+    console.log(`[BADGE] rendered: ${roleBadgeName} (profile-panel)`);
   }
   
   // Check if user has uploaded papers (contributor activity)
+  // Only show for non-admin/non-reviewer users
   if (roleStatus !== 'admin' && roleStatus !== 'reviewer') {
     const hasUploads = await checkUserContributions(user.id);
     if (hasUploads) {
@@ -189,7 +178,8 @@ function initializeProfilePanel() {
 
   function openPanel() {
     panel.classList.add("open");
-    renderProfilePanel(); // Render user info when opening
+    // CRITICAL: Always refresh profile when opening to ensure latest role state
+    renderProfilePanel();
     debug("🟢 profile panel opened");
   }
 
@@ -276,14 +266,23 @@ function initializeProfilePanel() {
   clickHandlerAttached = true;
   debug("✅ profile panel handlers attached");
 
-  // Initial render
-  renderProfilePanel();
+  // CRITICAL: Only render profile after role is ready
+  // Do NOT render immediately on initialization
+  if (window.__APP_ROLE__ && window.__APP_ROLE__.ready) {
+    renderProfilePanel();
+  } else {
+    debug("⏳ Waiting for role:ready before initial profile render");
+  }
 }
 
 /* ===============================
    Render profile panel with dynamic elements
+   CRITICAL: This must wait for role:ready before rendering role-dependent UI
    =============================== */
 async function renderProfilePanel() {
+  // CRITICAL: Wait for role to be ready before rendering any role-dependent UI
+  await waitForRoleReady();
+  
   const { data } = await supabase.auth.getSession();
   const session = data?.session;
   const user = session?.user;
@@ -318,7 +317,7 @@ async function renderProfilePanel() {
     // Update avatar using shared utility
     updateAvatarElement(avatarEl, user);
 
-    // Compute and render badges dynamically
+    // Compute and render badges dynamically (already waits for role:ready internally)
     const badges = await computeBadges(user);
     console.log('[PROFILE-PANEL] Badges computed:', badges);
     renderBadges(badges);
@@ -326,12 +325,12 @@ async function renderProfilePanel() {
     // Show stats
     if (statsSection) statsSection.style.display = "grid";
 
-    // Wait for role to be ready and check if user is admin
-    await waitForRoleReady();
+    // Check if user is admin - use ONLY global role state
     const userIsAdmin = window.__APP_ROLE__.status === 'admin';
     console.log('[PROFILE-PANEL] User is admin:', userIsAdmin);
+    console.log('[ADMIN] dashboard access', userIsAdmin ? 'granted' : 'denied');
 
-    // Dynamically create logged-in actions
+    // Dynamically create logged-in actions with admin dashboard link if admin
     actionsSection.innerHTML = `
       ${userIsAdmin ? `
         <a href="admin/dashboard.html" class="btn btn-red">
@@ -361,7 +360,7 @@ async function renderProfilePanel() {
     // Update avatar for guest
     updateAvatarElement(avatarEl, null);
 
-    // Show guest badge
+    // Show guest badge (already waits for role:ready internally)
     const guestBadges = await computeBadges(null);
     console.log('[PROFILE-PANEL] Guest badges computed:', guestBadges);
     renderBadges(guestBadges);
@@ -412,8 +411,12 @@ supabase.auth.onAuthStateChange(() => {
 
 /* ===============================
    Listen for role:ready event
+   CRITICAL: This ensures UI updates when role state becomes available
    =============================== */
 window.addEventListener('role:ready', () => {
   debug("🔔 Role ready event received, re-rendering profile panel");
+  const roleState = window.__APP_ROLE__;
+  console.log('[ROLE] resolved:', roleState.status);
+  console.log('[BADGE] should render:', roleState.badge);
   renderProfilePanel();
 });
