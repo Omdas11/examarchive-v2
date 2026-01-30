@@ -81,6 +81,7 @@ export async function getUserProfile(useCache = true) {
       console.error('[ROLE] Error fetching profile:', error);
       // User has auth but no profile - treat as guest/user
       console.log('[ROLE] No profile found - treating as guest');
+      clearRoleCache(); // Clear cache on error
       return null;
     }
 
@@ -92,6 +93,7 @@ export async function getUserProfile(useCache = true) {
     return profile;
   } catch (err) {
     console.error('[ROLE] Error in getUserProfile:', err);
+    clearRoleCache(); // Clear cache on exception
     return null;
   }
 }
@@ -110,10 +112,11 @@ export async function getUserRole(useCache = true) {
 
 /**
  * Get current user's role and badge information
+ * @param {boolean} useCache - Whether to use cached data (default: true)
  * @returns {Promise<Object>} Object with role and badge properties
  */
-export async function getCurrentUserRole() {
-  const profile = await getUserProfile();
+export async function getCurrentUserRole(useCache = true) {
+  const profile = await getUserProfile(useCache);
   
   if (!profile) {
     console.log('[ROLE] getCurrentUserRole: No profile, returning guest');
@@ -133,10 +136,11 @@ export async function getCurrentUserRole() {
 /**
  * Check if user has a specific permission
  * @param {string} permission - Permission to check
+ * @param {boolean} useCache - Whether to use cached data (default: true)
  * @returns {Promise<boolean>}
  */
-export async function hasPermission(permission) {
-  const role = await getUserRole();
+export async function hasPermission(permission, useCache = true) {
+  const role = await getUserRole(useCache);
   const roleConfig = ROLES[role];
   return roleConfig?.permissions.includes(permission) || false;
 }
@@ -155,10 +159,11 @@ export async function isAdmin(useCache = true) {
 
 /**
  * Check if user has reviewer or admin role
+ * @param {boolean} useCache - Whether to use cached data (default: true)
  * @returns {Promise<boolean>}
  */
-export async function isReviewer() {
-  const role = await getUserRole();
+export async function isReviewer(useCache = true) {
+  const role = await getUserRole(useCache);
   return role === 'reviewer' || role === 'admin';
 }
 

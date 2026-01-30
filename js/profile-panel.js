@@ -7,7 +7,7 @@
 
 import { supabase } from "./supabase.js";
 import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
-import { getUserProfile, getRoleBadge, isAdmin, getCurrentUserRole } from "./roles.js";
+import { getUserProfile, getRoleBadge, isAdmin } from "./roles.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);

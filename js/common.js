@@ -371,8 +371,8 @@ document.addEventListener("header:loaded", () => {
 supabase.auth.onAuthStateChange((event) => {
   debugBox("🔔 AUTH EVENT: " + event);
   
-  // Clear role cache on auth changes
-  if (event === 'SIGNED_OUT' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+  // Clear role cache on auth changes (except token refresh)
+  if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
     clearRoleCache();
     
     // Fetch new profile if signed in
