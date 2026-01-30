@@ -5,7 +5,7 @@
 // ============================================
 
 import { supabase } from "./supabase.js";
-import { getUserProfile, clearRoleCache } from "./roles.js";
+import { getUserProfile, clearRoleCache, initializeGlobalRoleState } from "./roles.js";
 
 /* ===============================
    🔑 AUTH GUARD FUNCTION
@@ -186,6 +186,14 @@ function debugBox(text) {
   } else {
     debugBox("ℹ️ No active session");
     clearRoleCache(); // Clear any stale cache
+  }
+
+  // Initialize global role state
+  try {
+    await initializeGlobalRoleState();
+    debugBox("✅ Global role state initialized");
+  } catch (err) {
+    debugBox("⚠️ Error initializing global role state: " + err.message);
   }
 
   // 🔥 Always clean OAuth hash (PREVENT LOOP)
@@ -375,14 +383,21 @@ supabase.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
     clearRoleCache();
     
-    // Fetch new profile if signed in
+    // Fetch new profile and update global role state
     if (event === 'SIGNED_IN') {
       getUserProfile(false).then(profile => {
         if (profile) {
           debugBox(`✅ Profile loaded after ${event}: role=${profile.role}`);
         }
+        // Re-initialize global role state
+        return initializeGlobalRoleState();
       }).catch(err => {
         debugBox(`⚠️ Error loading profile after ${event}: ${err.message}`);
+      });
+    } else if (event === 'SIGNED_OUT') {
+      // Re-initialize global role state to guest
+      initializeGlobalRoleState().catch(err => {
+        debugBox(`⚠️ Error updating role state after ${event}: ${err.message}`);
       });
     }
   }
