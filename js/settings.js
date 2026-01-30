@@ -17,14 +17,31 @@ const settingsConfig = [
   {
     id: "theme-section",
     title: "Theme",
-    description: "Choose your preferred color scheme",
+    description: "Choose your preferred theme with unique backgrounds and colors",
     settings: [
       {
-        id: "theme",
-        type: "theme-pills",
-        label: "Color Theme",
-        description: "Select light, dark, or AMOLED theme",
+        id: "theme-preset",
+        type: "theme-preset-grid",
+        label: "Theme Preset",
+        description: "Each theme includes background, cards, and harmonized accent colors",
         options: [
+          { value: "red-classic", label: "Red Classic", desc: "Default ExamArchive look" },
+          { value: "blue-slate", label: "Blue Slate", desc: "Cool professional blue" },
+          { value: "green-mint", label: "Green Mint", desc: "Fresh and natural" },
+          { value: "purple-nebula", label: "Purple Nebula", desc: "Deep cosmic purple" },
+          { value: "amber-warm", label: "Amber Warm", desc: "Warm and inviting" },
+          { value: "mono-gray", label: "Mono Gray", desc: "Minimal grayscale" },
+          { value: "glass-light", label: "Glass Light", desc: "Transparent light" },
+          { value: "glass-dark", label: "Glass Dark", desc: "Transparent dark" }
+        ]
+      },
+      {
+        id: "theme-mode",
+        type: "theme-pills",
+        label: "Theme Mode",
+        description: "Override the base brightness for current theme",
+        options: [
+          { value: "auto", label: "Auto" },
           { value: "light", label: "Light" },
           { value: "dark", label: "Dark" },
           { value: "amoled", label: "AMOLED" }
@@ -34,14 +51,14 @@ const settingsConfig = [
   },
   {
     id: "accent-section",
-    title: "Accent Color",
-    description: "Customize the accent color for buttons, links, and active states",
+    title: "Accent Color (Legacy)",
+    description: "Fine-tune accent color - use Theme Presets above for coordinated looks",
     settings: [
       {
         id: "accent-color",
         type: "accent-pills",
         label: "Accent Color",
-        description: "Choose your preferred accent color",
+        description: "Choose your preferred accent color (overrides theme preset accent)",
         options: [
           { value: "red", label: "Red" },
           { value: "blue", label: "Blue" },
@@ -120,6 +137,31 @@ const settingsConfig = [
         unit: "%",
         default: 15,
         dependsOn: "glass-enabled"
+      }
+    ]
+  },
+  {
+    id: "night-mode-section",
+    title: "Night Mode",
+    description: "Warm filter to reduce eye strain and blue light",
+    settings: [
+      {
+        id: "night-mode",
+        type: "toggle",
+        label: "Enable Night Mode",
+        description: "Apply warm, low-contrast filter (independent of theme)"
+      },
+      {
+        id: "night-strength",
+        type: "range",
+        label: "Night Mode Strength",
+        description: "Adjust warmth and filter intensity",
+        min: 0,
+        max: 100,
+        step: 10,
+        unit: "%",
+        default: 50,
+        dependsOn: "night-mode"
       }
     ]
   },
@@ -224,6 +266,8 @@ function createSettingsSection(section, user) {
 
 function createSettingElement(setting, user) {
   switch (setting.type) {
+    case "theme-preset-grid":
+      return createThemePresetGrid(setting);
     case "theme-pills":
       return createThemePills(setting);
     case "accent-pills":
@@ -244,11 +288,43 @@ function createSettingElement(setting, user) {
 }
 
 // ===============================
+// Theme Preset Grid
+// ===============================
+
+function createThemePresetGrid(setting) {
+  const currentPreset = localStorage.getItem("theme-preset") || "red-classic";
+  
+  return `
+    <div class="setting-group" style="flex-direction: column; align-items: stretch;">
+      <div class="setting-label-container">
+        <p class="setting-label">${setting.label}</p>
+        <p class="setting-description">${setting.description}</p>
+      </div>
+      <div class="theme-preset-grid">
+        ${setting.options.map(opt => `
+          <button 
+            class="theme-preset-card ${opt.value === currentPreset ? 'active' : ''}"
+            data-preset="${opt.value}"
+            title="${opt.desc}"
+          >
+            <div class="preset-preview" data-preset="${opt.value}"></div>
+            <div class="preset-info">
+              <span class="preset-name">${opt.label}</span>
+              <span class="preset-desc">${opt.desc}</span>
+            </div>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+// ===============================
 // Theme Pills
 // ===============================
 
 function createThemePills(setting) {
-  const currentTheme = localStorage.getItem("theme") || "light";
+  const currentTheme = localStorage.getItem("theme-mode") || "auto";
   
   return `
     <div class="setting-group">
@@ -260,7 +336,7 @@ function createThemePills(setting) {
         ${setting.options.map(opt => `
           <button 
             class="settings-theme-btn ${opt.value === currentTheme ? 'active' : ''}"
-            data-theme="${opt.value}"
+            data-theme-mode="${opt.value}"
           >
             ${opt.label}
           </button>
@@ -469,7 +545,42 @@ function createButton(setting) {
 // ===============================
 
 function attachEventListeners() {
-  // Theme buttons are handled by theme.js
+  // ========== THEME PRESETS ==========
+  // Theme preset cards
+  document.querySelectorAll(".theme-preset-card").forEach(card => {
+    card.addEventListener("click", (e) => {
+      const preset = card.dataset.preset;
+      
+      // Update active state
+      document.querySelectorAll(".theme-preset-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      
+      // Apply theme preset
+      localStorage.setItem("theme-preset", preset);
+      applyThemePreset(preset);
+      
+      console.log(`🎨 Theme preset applied: ${preset}`);
+    });
+  });
+  
+  // Theme mode buttons (auto/light/dark/amoled)
+  document.querySelectorAll(".settings-theme-btn[data-theme-mode]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const mode = btn.dataset.themeMode;
+      
+      // Update active state
+      document.querySelectorAll(".settings-theme-btn[data-theme-mode]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      
+      // Apply theme mode
+      localStorage.setItem("theme-mode", mode);
+      applyThemeMode(mode);
+      
+      console.log(`🌓 Theme mode applied: ${mode}`);
+    });
+  });
+  
+  // Theme buttons are handled by theme.js (legacy header support)
   
   // ========== ACCENT COLOR ==========
   // Accent color preview (live preview as user clicks)
@@ -530,10 +641,23 @@ function attachEventListeners() {
   if (fontSelect) {
     fontSelect.addEventListener("change", (e) => {
       const value = e.target.value;
+      
+      // Apply preview immediately to body
+      document.body.className = document.body.className.replace(/font-\w+/g, '');
+      if (value !== "default") {
+        document.body.classList.add(`font-${value}`);
+      }
+      
       // Store as preview only
       localStorage.setItem("font-family-preview", value);
       console.log(`🔤 Font family preview: ${value}`);
     });
+    
+    // Apply saved preview on load
+    const previewFont = localStorage.getItem("font-family-preview") || localStorage.getItem("font-family") || "default";
+    if (previewFont !== "default") {
+      document.body.classList.add(`font-${previewFont}`);
+    }
   }
   
   // Apply font button
@@ -653,6 +777,60 @@ function attachEventListeners() {
     document.documentElement.style.setProperty("--glass-shadow-softness", savedShadow / 100);
   }
   
+  // ========== NIGHT MODE ==========
+  // Night mode toggle
+  const nightModeToggle = document.getElementById("night-mode");
+  if (nightModeToggle) {
+    nightModeToggle.addEventListener("change", (e) => {
+      const isEnabled = e.target.checked;
+      localStorage.setItem("night-mode", isEnabled.toString());
+      
+      if (isEnabled) {
+        document.body.setAttribute("data-night", "on");
+      } else {
+        document.body.removeAttribute("data-night");
+      }
+      
+      // Update dependent controls disabled state
+      const nightStrengthRange = document.getElementById("night-strength");
+      if (nightStrengthRange) {
+        nightStrengthRange.disabled = !isEnabled;
+        nightStrengthRange.parentElement.parentElement.style.opacity = isEnabled ? '1' : '0.5';
+      }
+      
+      console.log(`🌙 Night mode ${isEnabled ? "enabled" : "disabled"}`);
+    });
+    
+    // Apply saved preference
+    const savedNightMode = localStorage.getItem("night-mode") === "true";
+    if (savedNightMode) {
+      nightModeToggle.checked = true;
+      document.body.setAttribute("data-night", "on");
+    }
+    
+    // Initialize dependent controls disabled state
+    const nightStrengthRange = document.getElementById("night-strength");
+    if (nightStrengthRange) {
+      nightStrengthRange.disabled = !savedNightMode;
+      nightStrengthRange.parentElement.parentElement.style.opacity = savedNightMode ? '1' : '0.5';
+    }
+  }
+  
+  // Night mode strength
+  const nightStrengthRange = document.getElementById("night-strength");
+  if (nightStrengthRange) {
+    nightStrengthRange.addEventListener("input", (e) => {
+      const value = e.target.value;
+      localStorage.setItem("nightStrength", value);
+      document.body.style.setProperty("--night-filter-strength", value / 100);
+      document.getElementById("night-strength-value").textContent = `${value}%`;
+    });
+    
+    // Apply saved value
+    const savedStrength = localStorage.getItem("nightStrength") || "50";
+    document.body.style.setProperty("--night-filter-strength", savedStrength / 100);
+  }
+  
   // ========== ACCESSIBILITY ==========
   // High contrast toggle
   const highContrastToggle = document.getElementById("high-contrast");
@@ -720,4 +898,36 @@ document.addEventListener("DOMContentLoaded", () => {
 supabase.auth.onAuthStateChange(() => {
   console.log("🔔 Auth state changed, re-rendering settings");
   renderSettings();
+});
+
+// ===============================
+// Theme Preset System
+// ===============================
+
+function applyThemePreset(preset) {
+  document.body.setAttribute("data-theme-preset", preset);
+  
+  // Each preset defines its own background, card, and accent colors
+  // CSS will handle the actual color values
+  console.log(`✅ Theme preset ${preset} applied`);
+}
+
+function applyThemeMode(mode) {
+  if (mode === "auto") {
+    // Detect system preference
+    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.body.setAttribute("data-theme", isDark ? "dark" : "light");
+  } else {
+    document.body.setAttribute("data-theme", mode);
+  }
+  console.log(`✅ Theme mode ${mode} applied`);
+}
+
+// Initialize theme preset and mode on page load
+document.addEventListener("DOMContentLoaded", () => {
+  const savedPreset = localStorage.getItem("theme-preset") || "red-classic";
+  const savedMode = localStorage.getItem("theme-mode") || "auto";
+  
+  applyThemePreset(savedPreset);
+  applyThemeMode(savedMode);
 });

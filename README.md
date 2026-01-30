@@ -65,7 +65,6 @@ Themes are implemented using CSS variables and:
 
 ### Setup Guides
 - [Supabase Authentication Setup](docs/SUPABASE_AUTH_SETUP.md)
-- [Appwrite Setup](docs/APPWRITE_SETUP.md)
 
 ### Testing & Quality
 - [Testing Checklist](docs/TESTING_CHECKLIST.md)
