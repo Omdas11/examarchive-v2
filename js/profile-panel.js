@@ -19,7 +19,7 @@ function debug(msg) {
    =============================== */
 
 /**
- * Compute badges for a user dynamically using global role state
+ * Compute badges for a user dynamically using authoritative role state
  * CRITICAL: This function MUST NOT be called before role:ready event
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects
@@ -78,27 +78,6 @@ async function computeBadges(user) {
   
   console.log('[BADGE] Final badges array:', badges);
   return badges;
-}
-
-/**
- * Wait for role to be ready
- * @returns {Promise<void>}
- */
-function waitForRoleReady() {
-  return new Promise((resolve) => {
-    // Safety check: ensure window.__APP_ROLE__ exists
-    if (!window.__APP_ROLE__) {
-      console.warn('[BADGE] window.__APP_ROLE__ not initialized, waiting for role:ready event');
-      window.addEventListener('role:ready', resolve, { once: true });
-      return;
-    }
-    
-    if (window.__APP_ROLE__.ready) {
-      resolve();
-    } else {
-      window.addEventListener('role:ready', resolve, { once: true });
-    }
-  });
 }
 
 /**

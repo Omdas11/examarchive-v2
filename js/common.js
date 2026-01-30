@@ -419,7 +419,17 @@ supabase.auth.onAuthStateChange(async (event) => {
       // Dispatch event to notify UI components
       window.dispatchEvent(new Event('role:ready'));
     } catch (err) {
+      console.error('[COMMON] Error updating role after', event, ':', err);
       debugBox(`⚠️ Error updating role after ${event}: ${err.message}`);
+      
+      // Set guest state on error to prevent stale role data
+      window.__APP_ROLE__ = {
+        role: 'guest',
+        badge: 'Guest',
+        ready: true
+      };
+      window.__ROLE_READY__ = true;
+      window.dispatchEvent(new Event('role:ready'));
     }
   }
   
