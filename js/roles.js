@@ -142,6 +142,57 @@ export function getRoleBadge(roleName) {
 }
 
 /**
+ * Map role to badge name (single source of truth for UI)
+ * This is the ONLY function that should be used for role->badge conversion
+ * @param {string} role - Role name (admin, reviewer, user, guest)
+ * @returns {string} Badge display name
+ */
+export function mapRoleToBadge(role) {
+  switch (role) {
+    case 'admin':
+      return 'Admin';
+    case 'reviewer':
+      return 'Moderator';
+    case 'user':
+      return 'Contributor';
+    case 'guest':
+      return 'Guest';
+    default:
+      return 'Guest';
+  }
+}
+
+/**
+ * Get badge icon for a role badge name
+ * @param {string} badgeName - Badge name (Admin, Moderator, Contributor, Guest)
+ * @returns {string} Badge icon emoji
+ */
+export function getBadgeIcon(badgeName) {
+  const icons = {
+    'Admin': '👑',
+    'Moderator': '🛡️',
+    'Contributor': '📝',
+    'Guest': '👤'
+  };
+  return icons[badgeName] || '✓';
+}
+
+/**
+ * Get badge color for a role
+ * @param {string} role - Role name
+ * @returns {string} Badge color
+ */
+export function getBadgeColor(role) {
+  const colors = {
+    'admin': '#f44336',
+    'reviewer': '#2196F3',
+    'user': '#4CAF50',
+    'guest': '#9E9E9E'
+  };
+  return colors[role] || '#9E9E9E';
+}
+
+/**
  * Get current user's role and badge information
  * @param {boolean} useCache - Whether to use cached data (default: true)
  * @returns {Promise<Object>} Object with role and badge properties
@@ -245,6 +296,7 @@ export async function ensureProfile(userId, email) {
  */
 export async function initializeGlobalRoleState() {
   try {
+    console.log('[ROLE] Initializing global role state...');
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
@@ -255,8 +307,10 @@ export async function initializeGlobalRoleState() {
         ready: true
       };
       console.log('[ROLE] Global state initialized: guest');
+      console.log('[ROLE] resolved: guest');
     } else {
       // User is logged in - fetch profile
+      console.log('[ROLE] Session found, fetching profile for user:', session.user.id);
       const profile = await getUserProfile(false); // Force fresh fetch
       
       if (profile && profile.role) {
@@ -267,6 +321,8 @@ export async function initializeGlobalRoleState() {
           ready: true
         };
         console.log('[ROLE] Global state initialized:', profile.role);
+        console.log('[ROLE] resolved:', profile.role);
+        console.log('[BADGE] resolved:', roleBadge ? roleBadge.name : 'none');
       } else {
         // Logged in but no profile - treat as user
         window.__APP_ROLE__ = {
@@ -275,10 +331,12 @@ export async function initializeGlobalRoleState() {
           ready: true
         };
         console.log('[ROLE] Global state initialized: user (no profile found)');
+        console.log('[ROLE] resolved: user');
       }
     }
     
     // Dispatch event to notify UI components
+    console.log('[ROLE] Dispatching role:ready event');
     window.dispatchEvent(new Event('role:ready'));
     console.log('[ROLE] role:ready event dispatched');
   } catch (err) {
@@ -289,6 +347,7 @@ export async function initializeGlobalRoleState() {
       badge: 'Guest',
       ready: true
     };
+    console.log('[ROLE] Defaulted to guest due to error');
     window.dispatchEvent(new Event('role:ready'));
   }
 }
