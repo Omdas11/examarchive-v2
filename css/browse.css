@@ -66,7 +66,7 @@
 }
 
 .toggle-btn.active {
-  background: var(--red);
+  background: var(--accent);
   color: #fff;
   border-color: var(--accent);
   font-weight: 600;
@@ -103,7 +103,7 @@
 #searchInput:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 /* Sort Trigger Pill */
@@ -312,7 +312,7 @@
 
 .sort-option.active .radio {
   border-color: var(--accent);
-  background: var(--red);
+  background: var(--accent);
 }
 
 /* Cancel */

@@ -783,7 +783,7 @@ function attachEventListeners() {
   if (nightModeToggle) {
     nightModeToggle.addEventListener("change", (e) => {
       const isEnabled = e.target.checked;
-      localStorage.setItem("night", isEnabled ? "on" : "off");
+      localStorage.setItem("night-mode", isEnabled.toString());
       
       if (isEnabled) {
         document.body.setAttribute("data-night", "on");
@@ -802,10 +802,17 @@ function attachEventListeners() {
     });
     
     // Apply saved preference
-    const savedNight = localStorage.getItem("night") || "off";
-    if (savedNight === "on") {
+    const savedNightMode = localStorage.getItem("night-mode") === "true";
+    if (savedNightMode) {
       nightModeToggle.checked = true;
       document.body.setAttribute("data-night", "on");
+    }
+    
+    // Initialize dependent controls disabled state
+    const nightStrengthRange = document.getElementById("night-strength");
+    if (nightStrengthRange) {
+      nightStrengthRange.disabled = !savedNightMode;
+      nightStrengthRange.parentElement.parentElement.style.opacity = savedNightMode ? '1' : '0.5';
     }
   }
   
