@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Admin Dashboard · ExamArchive</title>
+  
+  <!-- Global styles -->
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/profile-panel.css">
+  <link rel="stylesheet" href="../css/avatar-popup.css">
+  <link rel="stylesheet" href="../css/avatar.css">
+  
+  <!-- Page-specific -->
+  <link rel="stylesheet" href="dashboard.css">
+  
+  <!-- Accessibility and SEO -->
+  <meta name="description" content="Admin moderation dashboard for ExamArchive" />
+  <meta name="theme-color" content="#d32f2f" />
+  <meta name="robots" content="noindex, nofollow" />
+</head>
+<body>
+
+  <!-- Skip to content link for accessibility -->
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <!-- Header -->
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="dashboard-page container" id="main-content">
+    
+    <!-- Loading State -->
+    <div id="loading-state" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading dashboard...</p>
+    </div>
+
+    <!-- Access Denied -->
+    <div id="access-denied" class="access-denied" style="display: none;">
+      <svg class="icon" style="width: 48px; height: 48px; margin: 0 auto 1rem; stroke: var(--text-muted);" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <h2>Access Denied</h2>
+      <p class="text-muted">
+        You don't have permission to access the admin dashboard.
+      </p>
+      <a href="../index.html" class="btn btn-red">Go Home</a>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div id="dashboard-content" style="display: none;">
+      
+      <!-- Header -->
+      <section class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <p class="text-muted">Review and manage submissions</p>
+      </section>
+
+      <!-- Stats -->
+      <section class="dashboard-stats">
+        <div class="stat-card">
+          <strong id="stat-pending">0</strong>
+          <span>Pending</span>
+        </div>
+        <div class="stat-card">
+          <strong id="stat-approved">0</strong>
+          <span>Approved</span>
+        </div>
+        <div class="stat-card">
+          <strong id="stat-published">0</strong>
+          <span>Published</span>
+        </div>
+        <div class="stat-card">
+          <strong id="stat-rejected">0</strong>
+          <span>Rejected</span>
+        </div>
+      </section>
+
+      <!-- Tabs -->
+      <section class="dashboard-tabs">
+        <button class="tab-btn active" data-tab="pending">
+          Pending <span class="badge" id="badge-pending">0</span>
+        </button>
+        <button class="tab-btn" data-tab="approved">
+          Approved <span class="badge" id="badge-approved">0</span>
+        </button>
+        <button class="tab-btn" data-tab="all">
+          All Submissions
+        </button>
+      </section>
+
+      <!-- Submissions List -->
+      <section class="submissions-container">
+        <div id="submissions-list" class="submissions-list">
+          <!-- Submissions will be rendered here -->
+        </div>
+        
+        <div id="empty-state" class="empty-state" style="display: none;">
+          <p class="text-muted">No submissions found</p>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <div id="footer"></div>
+
+  <!-- Global portals -->
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Review Modal -->
+  <div id="review-modal" class="modal" style="display: none;">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Review Submission</h2>
+        <button class="modal-close" data-close-modal aria-label="Close">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div id="modal-submission-info"></div>
+        
+        <div class="form-group">
+          <label for="review-notes">Review Notes (optional)</label>
+          <textarea 
+            id="review-notes" 
+            rows="4" 
+            placeholder="Add notes about this submission..."
+          ></textarea>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-outline" data-close-modal>Cancel</button>
+        <button class="btn btn-danger" id="reject-btn">Reject</button>
+        <button class="btn btn-success" id="approve-btn">Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- Supabase SDK (must load before ES modules) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  
+  <!-- ES Modules -->
+  <script type="module" src="../js/common.js"></script>
+  <script type="module" src="../js/profile-panel.js"></script>
+  <script type="module" src="../js/avatar-popup.js"></script>
+  <script type="module" src="dashboard.js"></script>
+  
+  <!-- Regular scripts -->
+  <script src="../js/theme.js"></script>
+
+</body>
+</html>

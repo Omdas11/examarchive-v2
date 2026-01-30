@@ -2,28 +2,23 @@
 // ===============================
 // PROFILE PANEL CONTROLLER
 // Dynamic Rendering Based on Auth State
-// + DYNAMIC BADGES
+// + DYNAMIC BADGES (Phase 8)
 // ===============================
 
 import { supabase } from "./supabase.js";
 import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
+import { getUserProfile, getRoleBadge, isAdmin } from "./roles.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
 }
 
 /* ===============================
-   Badge Configuration & Logic
+   Badge Configuration & Logic (Phase 8)
    =============================== */
 
-// Admin email allowlist (temporary, extendable)
-const ADMIN_EMAILS = [
-  "admin@examarchive.com",
-  "omdaschoudhary2018@gmail.com"
-];
-
 /**
- * Compute badges for a user dynamically
+ * Compute badges for a user dynamically using Phase 8 roles
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects
  */
@@ -31,38 +26,43 @@ async function computeBadges(user) {
   if (!user) return [];
   
   const badges = [];
-  const email = user.email;
   
-  // Admin Badge - check email allowlist
-  if (ADMIN_EMAILS.includes(email)) {
+  // Get user profile with role
+  const profile = await getUserProfile();
+  
+  if (!profile) {
+    return badges;
+  }
+  
+  // Get role badge from roles system
+  const roleBadge = getRoleBadge(profile.role);
+  
+  if (roleBadge) {
+    // Map role badge to display format
+    const badgeIcons = {
+      'Admin': '👑',
+      'Moderator': '🛡️',
+      'Contributor': '📝'
+    };
+    
     badges.push({
-      type: "admin",
-      label: "Admin",
-      icon: "👑",
-      color: "#d32f2f"
+      type: profile.role,
+      label: roleBadge.name,
+      icon: badgeIcons[roleBadge.name] || '✓',
+      color: roleBadge.color || '#1976d2'
     });
   }
   
-  // Contributor Badge - check if user has uploaded papers
-  // TODO: Replace with actual database query when backend is ready
-  const hasUploadedPapers = await checkUserContributions(user.id);
-  if (hasUploadedPapers) {
+  // Check if user has uploaded papers (contributor activity)
+  const hasUploads = await checkUserContributions(user.id);
+  if (hasUploads && profile.role !== 'admin' && profile.role !== 'reviewer') {
     badges.push({
-      type: "contributor",
-      label: "Contributor",
-      icon: "📝",
-      color: "#1976d2"
+      type: "active-contributor",
+      label: "Active",
+      icon: "⭐",
+      color: "#f57c00"
     });
   }
-  
-  // Gold Badge - reserved for future use
-  // Uncomment when criteria is defined
-  // badges.push({
-  //   type: "gold",
-  //   label: "Gold",
-  //   icon: "⭐",
-  //   color: "#f57c00"
-  // });
   
   return badges;
 }
@@ -73,17 +73,24 @@ async function computeBadges(user) {
  * @returns {boolean} True if user has uploaded papers
  */
 async function checkUserContributions(userId) {
-  // TODO: Replace with actual Supabase query
-  // For now, return false as placeholder
-  // Example:
-  // const { data, error } = await supabase
-  //   .from('papers')
-  //   .select('id')
-  //   .eq('uploaded_by', userId)
-  //   .limit(1);
-  // return data && data.length > 0;
-  
-  return false;
+  try {
+    const { data, error } = await supabase
+      .from('submissions')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('status', 'published')
+      .limit(1);
+    
+    if (error) {
+      console.error('Error checking contributions:', error);
+      return false;
+    }
+    
+    return data && data.length > 0;
+  } catch (err) {
+    console.error('Error in checkUserContributions:', err);
+    return false;
+  }
 }
 
 /**
@@ -274,8 +281,17 @@ async function renderProfilePanel() {
     // Show stats
     if (statsSection) statsSection.style.display = "grid";
 
+    // Check if user is admin
+    const userIsAdmin = await isAdmin();
+
     // Dynamically create logged-in actions
     actionsSection.innerHTML = `
+      ${userIsAdmin ? `
+        <a href="admin/dashboard.html" class="btn btn-red">
+          Admin Dashboard
+        </a>
+      ` : ''}
+      
       <a href="settings.html" class="btn btn-outline">
         Manage Account
       </a>
