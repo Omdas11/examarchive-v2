@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   
   if (!isAuthenticated) {
-    console.log("🔒 Upload page requires authentication");
+    console.log("🔒 Upload page access denied - user not authenticated");
     // UI is already updated by requireAuth
   } else {
     console.log("✅ User authenticated, upload page ready");

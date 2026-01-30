@@ -5,9 +5,10 @@
 // ===============================
 
 // ---------- LOAD SAVED STATE ----------
-const savedTheme = localStorage.getItem("theme") || localStorage.getItem("theme-mode") || "light";
-const savedNight = localStorage.getItem("night") || localStorage.getItem("night-mode") || "off";
-const savedStrength = localStorage.getItem("nightStrength") || localStorage.getItem("night-strength") || "50";
+// Prefer new standardized keys, fall back to legacy keys
+const savedTheme = localStorage.getItem("theme-mode") || localStorage.getItem("theme") || "light";
+const savedNight = localStorage.getItem("night-mode") || localStorage.getItem("night") || "false";
+const savedStrength = localStorage.getItem("night-strength") || localStorage.getItem("nightStrength") || "50";
 
 // ---------- APPLY STATE ----------
 // Theme is already applied by common.js early init
@@ -50,9 +51,10 @@ document.addEventListener("click", (e) => {
   if (themeBtn) {
     const theme = themeBtn.dataset.theme;
     document.body.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-    // Also update theme-mode for consistency
+    // Use standardized key (theme-mode) for consistency with common.js
     localStorage.setItem("theme-mode", theme);
+    // Keep legacy key for backwards compatibility
+    localStorage.setItem("theme", theme);
     syncThemeUI(theme);
   }
 
@@ -62,13 +64,17 @@ document.addEventListener("click", (e) => {
 
     if (isOn) {
       document.body.removeAttribute("data-night");
-      localStorage.setItem("night", "off");
+      // Use standardized key (night-mode) with boolean string
       localStorage.setItem("night-mode", "false");
+      // Keep legacy key for backwards compatibility
+      localStorage.setItem("night", "off");
       syncNightUI(false);
     } else {
       document.body.setAttribute("data-night", "on");
-      localStorage.setItem("night", "on");
+      // Use standardized key (night-mode) with boolean string
       localStorage.setItem("night-mode", "true");
+      // Keep legacy key for backwards compatibility
+      localStorage.setItem("night", "on");
       syncNightUI(true);
     }
   }
@@ -84,8 +90,10 @@ document.addEventListener("input", (e) => {
       value / 100
     );
 
-    localStorage.setItem("nightStrength", value);
+    // Use standardized key (night-strength)
     localStorage.setItem("night-strength", value);
+    // Keep legacy key for backwards compatibility
+    localStorage.setItem("nightStrength", value);
   }
 });
 

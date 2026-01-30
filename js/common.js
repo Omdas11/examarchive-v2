@@ -9,6 +9,13 @@ import { supabase } from "./supabase.js";
 /* ===============================
    🔑 AUTH GUARD FUNCTION
    =============================== */
+/**
+ * Checks if user is authenticated and optionally displays auth required UI
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.redirectToLogin - Whether to trigger login modal (default: false)
+ * @param {boolean} options.showMessage - Whether to show auth required message (default: true)
+ * @returns {Promise<boolean>} - Returns true if authenticated, false otherwise
+ */
 export async function requireAuth(options = {}) {
   const { redirectToLogin = false, showMessage = true } = options;
   
@@ -23,7 +30,7 @@ export async function requireAuth(options = {}) {
       const mainContent = document.querySelector("main");
       if (mainContent) {
         const authRequiredHTML = `
-          <div class="auth-required">
+          <div class="auth-required" id="auth-required-container">
             <svg class="icon" style="width: 48px; height: 48px; margin: 0 auto 1rem; stroke: var(--text-muted);" viewBox="0 0 24 24">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -32,16 +39,21 @@ export async function requireAuth(options = {}) {
             <p class="auth-required-text">
               You need to be signed in to upload papers.
             </p>
-            <button class="btn btn-red" onclick="document.getElementById('avatarTrigger')?.click()">
+            <button class="btn btn-red" id="auth-required-signin-btn">
               Sign in
             </button>
           </div>
         `;
         mainContent.innerHTML = authRequiredHTML;
-        mainContent.style.display = "flex";
-        mainContent.style.alignItems = "center";
-        mainContent.style.justifyContent = "center";
-        mainContent.style.minHeight = "calc(100vh - 200px)";
+        mainContent.classList.add("auth-required-container");
+        
+        // Attach event listener (CSP-safe)
+        const signInBtn = document.getElementById("auth-required-signin-btn");
+        if (signInBtn) {
+          signInBtn.addEventListener("click", () => {
+            document.getElementById("avatarTrigger")?.click();
+          });
+        }
       }
     }
     
@@ -85,11 +97,11 @@ export async function requireAuth(options = {}) {
   }
   
   // Apply night mode
-  const night = localStorage.getItem("night") || localStorage.getItem("night-mode");
+  const night = localStorage.getItem("night-mode") || localStorage.getItem("night") || "false";
   if (night === "on" || night === "true") {
     document.body.setAttribute("data-night", "on");
-    const nightStrength = localStorage.getItem("nightStrength") || localStorage.getItem("night-strength") || "50";
-    document.body.style.setProperty("--night-filter-strength", nightStrength / 100);
+    const nightStrength = localStorage.getItem("night-strength") || localStorage.getItem("nightStrength") || "50";
+    document.body.style.setProperty("--night-filter-strength", Number(nightStrength) / 100);
   }
   
   // Apply saved accent color
