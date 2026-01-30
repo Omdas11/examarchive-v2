@@ -189,6 +189,103 @@
 }
 
 /* ================================
+   Theme Preset Grid
+   ================================ */
+
+.theme-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.theme-preset-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.theme-preset-card:hover {
+  border-color: var(--text-muted);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-preset-card.active {
+  border-color: var(--accent);
+  border-width: 3px;
+  background: var(--accent-soft);
+}
+
+.preset-preview {
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Theme preset preview colors */
+.preset-preview[data-preset="red-classic"] {
+  background: linear-gradient(135deg, #ffffff 0%, #fdeaea 100%);
+}
+
+.preset-preview[data-preset="blue-slate"] {
+  background: linear-gradient(135deg, #e3f2fd 0%, #1976d2 100%);
+}
+
+.preset-preview[data-preset="green-mint"] {
+  background: linear-gradient(135deg, #e8f5e9 0%, #388e3c 100%);
+}
+
+.preset-preview[data-preset="purple-nebula"] {
+  background: linear-gradient(135deg, #f3e5f5 0%, #7b1fa2 100%);
+}
+
+.preset-preview[data-preset="amber-warm"] {
+  background: linear-gradient(135deg, #fff3e0 0%, #f57c00 100%);
+}
+
+.preset-preview[data-preset="mono-gray"] {
+  background: linear-gradient(135deg, #f5f5f5 0%, #424242 100%);
+}
+
+.preset-preview[data-preset="glass-light"] {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.5) 100%);
+  backdrop-filter: blur(10px);
+}
+
+.preset-preview[data-preset="glass-dark"] {
+  background: linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(0,0,0,0.7) 100%);
+  backdrop-filter: blur(10px);
+}
+
+.preset-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.preset-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.preset-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ================================
    Theme Options (Pills) - Legacy Support
    ================================ */
 
