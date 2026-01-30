@@ -107,7 +107,6 @@ ExamArchive is a community-driven archive of university question papers with mod
   - settings-legacy.txt
   - avatar-tokens.txt
   - pages.txt
-  - APPWRITE_SETUP.md (outdated)
 - [x] Created comprehensive documentation
   - theme-system.md
   - settings.md
