@@ -134,9 +134,18 @@
   border: none;
   background: transparent;
   cursor: pointer;
+  color: currentColor;
 
   display: grid;
   place-items: center;
+  
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.theme-btn .icon,
+.night-btn .icon {
+  stroke: currentColor;
+  fill: none;
 }
 
 /* Mobile: Reduce button size but maintain tap targets */
@@ -155,12 +164,13 @@
 }
 
 .theme-btn.active {
-  background: rgba(0,0,0,0.06);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .night-btn.active {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 /* ---------- Pill ---------- */
