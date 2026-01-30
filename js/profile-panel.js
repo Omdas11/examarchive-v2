@@ -7,7 +7,6 @@
 
 import { supabase } from "./supabase.js";
 import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
-import { getUserProfile, getRoleBadge, isAdmin } from "./roles.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -75,7 +74,7 @@ async function computeBadges(user) {
   }
   
   // Check if user has uploaded papers (contributor activity)
-  if (user && roleStatus !== 'admin' && roleStatus !== 'reviewer') {
+  if (roleStatus !== 'admin' && roleStatus !== 'reviewer') {
     const hasUploads = await checkUserContributions(user.id);
     if (hasUploads) {
       badges.push({
@@ -97,7 +96,14 @@ async function computeBadges(user) {
  */
 function waitForRoleReady() {
   return new Promise((resolve) => {
-    if (window.__APP_ROLE__ && window.__APP_ROLE__.ready) {
+    // Safety check: ensure window.__APP_ROLE__ exists
+    if (!window.__APP_ROLE__) {
+      console.warn('[BADGE] window.__APP_ROLE__ not initialized, waiting for role:ready event');
+      window.addEventListener('role:ready', resolve, { once: true });
+      return;
+    }
+    
+    if (window.__APP_ROLE__.ready) {
       resolve();
     } else {
       window.addEventListener('role:ready', resolve, { once: true });

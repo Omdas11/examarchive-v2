@@ -299,6 +299,15 @@ export async function initializeGlobalRoleState() {
  */
 export function waitForRole() {
   return new Promise((resolve) => {
+    // Safety check: ensure window.__APP_ROLE__ exists
+    if (!window.__APP_ROLE__) {
+      console.warn('[ROLE] window.__APP_ROLE__ not initialized, waiting for role:ready event');
+      window.addEventListener('role:ready', () => {
+        resolve(window.__APP_ROLE__);
+      }, { once: true });
+      return;
+    }
+    
     if (window.__APP_ROLE__.ready) {
       resolve(window.__APP_ROLE__);
     } else {

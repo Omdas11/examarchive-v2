@@ -171,24 +171,12 @@ function debugBox(text) {
 
   if (data?.session) {
     debugBox("✅ Active Supabase session found");
-    
-    // Fetch and cache user profile/role immediately
-    try {
-      const profile = await getUserProfile(false); // Force fresh fetch
-      if (profile) {
-        debugBox(`✅ Profile loaded: role=${profile.role}`);
-      } else {
-        debugBox("ℹ️ No profile found for user");
-      }
-    } catch (err) {
-      debugBox("⚠️ Error loading profile: " + err.message);
-    }
   } else {
     debugBox("ℹ️ No active session");
     clearRoleCache(); // Clear any stale cache
   }
 
-  // Initialize global role state
+  // Initialize global role state (handles profile fetch internally)
   try {
     await initializeGlobalRoleState();
     debugBox("✅ Global role state initialized");
@@ -383,23 +371,12 @@ supabase.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
     clearRoleCache();
     
-    // Fetch new profile and update global role state
-    if (event === 'SIGNED_IN') {
-      getUserProfile(false).then(profile => {
-        if (profile) {
-          debugBox(`✅ Profile loaded after ${event}: role=${profile.role}`);
-        }
-        // Re-initialize global role state
-        return initializeGlobalRoleState();
-      }).catch(err => {
-        debugBox(`⚠️ Error loading profile after ${event}: ${err.message}`);
-      });
-    } else if (event === 'SIGNED_OUT') {
-      // Re-initialize global role state to guest
-      initializeGlobalRoleState().catch(err => {
-        debugBox(`⚠️ Error updating role state after ${event}: ${err.message}`);
-      });
-    }
+    // Re-initialize global role state
+    initializeGlobalRoleState().then(() => {
+      debugBox(`✅ Global role state updated after ${event}`);
+    }).catch(err => {
+      debugBox(`⚠️ Error updating role state after ${event}: ${err.message}`);
+    });
   }
   
   syncAuthToUI("auth.change");
