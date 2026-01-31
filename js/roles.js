@@ -49,6 +49,30 @@ export const ROLES = {
 };
 
 /**
+ * Normalize role name to lowercase canonical form
+ * Ensures case-insensitive role handling (admin, Admin, ADMIN → admin)
+ * @param {string|null|undefined} role - Role string to normalize
+ * @returns {string} Normalized role ('admin' | 'reviewer' | 'user' | 'guest')
+ */
+export function normalizeRole(role) {
+  if (!role || typeof role !== 'string') {
+    return 'guest';
+  }
+  
+  const normalized = role.toLowerCase().trim();
+  
+  // Validate against known roles using Set for O(1) lookup
+  const VALID_ROLES = new Set(['admin', 'reviewer', 'user', 'guest']);
+  if (VALID_ROLES.has(normalized)) {
+    return normalized;
+  }
+  
+  // Default to guest for unknown roles
+  console.warn('[ROLE] Unknown role:', role, '- defaulting to guest');
+  return 'guest';
+}
+
+/**
  * Clear role cache (useful after auth state changes)
  */
 export function clearRoleCache() {
@@ -100,6 +124,11 @@ export async function getUserProfile(useCache = true) {
       return null;
     }
 
+    // Normalize role before caching (case-insensitive handling)
+    if (profile && profile.role) {
+      profile.role = normalizeRole(profile.role);
+    }
+    
     // Cache the result
     roleCache = profile;
     roleCacheTimestamp = now;
@@ -111,34 +140,6 @@ export async function getUserProfile(useCache = true) {
     clearRoleCache(); // Clear cache on exception
     return null;
   }
-}
-
-/**
- * Get user's role
- * @param {boolean} useCache - Whether to use cached data (default: true)
- * @returns {Promise<string>} Role name (guest, user, reviewer, admin)
- */
-export async function getUserRole(useCache = true) {
-  const profile = await getUserProfile(useCache);
-  const role = profile?.role || 'guest';
-  console.log('[ROLE] getUserRole returning:', role);
-  return role;
-}
-
-/**
- * Get role badge information
- * @param {string} roleName - Role name
- * @returns {Object|null} Badge info with name and color
- */
-export function getRoleBadge(roleName) {
-  const role = ROLES[roleName];
-  if (!role || !role.badge) {
-    return null;
-  }
-  return {
-    name: role.badge,
-    color: role.color
-  };
 }
 
 /**
@@ -193,59 +194,25 @@ export function getBadgeColor(role) {
 }
 
 /**
- * Get current user's role and badge information
- * @param {boolean} useCache - Whether to use cached data (default: true)
- * @returns {Promise<Object>} Object with role and badge properties
- */
-export async function getCurrentUserRole(useCache = true) {
-  const profile = await getUserProfile(useCache);
-  
-  if (!profile) {
-    console.log('[ROLE] getCurrentUserRole: No profile, returning guest');
-    return { role: 'guest', badge: null };
-  }
-  
-  const roleBadge = getRoleBadge(profile.role);
-  const result = {
-    role: profile.role,
-    badge: roleBadge ? roleBadge.name : null
-  };
-  
-  console.log('[ROLE] getCurrentUserRole returning:', result);
-  return result;
-}
-
-/**
  * Check if user has a specific permission
+ * Uses window.__APP_ROLE__ as single source of truth
  * @param {string} permission - Permission to check
- * @param {boolean} useCache - Whether to use cached data (default: true)
- * @returns {Promise<boolean>}
+ * @returns {boolean}
  */
-export async function hasPermission(permission, useCache = true) {
-  const role = await getUserRole(useCache);
+export function hasPermission(permission) {
+  // Use global role state - single source of truth
+  const role = window.__APP_ROLE__?.status || 'guest';
   const roleConfig = ROLES[role];
   return roleConfig?.permissions.includes(permission) || false;
 }
 
 /**
- * Check if user has admin role
- * @param {boolean} useCache - Whether to use cached data (default: true)
- * @returns {Promise<boolean>}
- */
-export async function isAdmin(useCache = true) {
-  const role = await getUserRole(useCache);
-  const result = role === 'admin';
-  console.log('[ADMIN]', result, '(role:', role + ')');
-  return result;
-}
-
-/**
  * Check if user has reviewer or admin role
- * @param {boolean} useCache - Whether to use cached data (default: true)
- * @returns {Promise<boolean>}
+ * Uses window.__APP_ROLE__ as single source of truth
+ * @returns {boolean}
  */
-export async function isReviewer(useCache = true) {
-  const role = await getUserRole(useCache);
+export function isReviewer() {
+  const role = window.__APP_ROLE__?.status || 'guest';
   return role === 'reviewer' || role === 'admin';
 }
 
@@ -314,15 +281,17 @@ export async function initializeGlobalRoleState() {
       const profile = await getUserProfile(false); // Force fresh fetch
       
       if (profile && profile.role) {
-        const roleBadge = getRoleBadge(profile.role);
+        // Normalize role to ensure case-insensitive handling
+        const normalizedRole = normalizeRole(profile.role);
+        const badgeName = mapRoleToBadge(normalizedRole);
         window.__APP_ROLE__ = {
-          status: profile.role,
-          badge: roleBadge ? roleBadge.name : null,
+          status: normalizedRole,
+          badge: badgeName,
           ready: true
         };
-        console.log('[ROLE] Global state initialized:', profile.role);
-        console.log('[ROLE] resolved:', profile.role);
-        console.log('[BADGE] resolved:', roleBadge ? roleBadge.name : 'none');
+        console.log('[ROLE] Global state initialized:', normalizedRole);
+        console.log('[ROLE] resolved:', normalizedRole);
+        console.log('[BADGE] resolved:', badgeName);
       } else {
         // Logged in but no profile - treat as user
         window.__APP_ROLE__ = {
