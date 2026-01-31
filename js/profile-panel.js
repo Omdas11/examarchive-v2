@@ -1,103 +1,59 @@
 // js/profile-panel.js
 // ===============================
 // PROFILE PANEL CONTROLLER
-// Dynamic Rendering Based on Auth State
-// + DYNAMIC BADGES (Phase 8)
+// Phase 8.3: Backend-First Badge System
 // ===============================
 
 import { supabase } from "./supabase.js";
 import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
-import { mapRoleToBadge, getBadgeIcon, getBadgeColor } from "./roles.js";
+import { getUserBadge, getBadgeIcon, getBadgeColor } from "./roles.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
 }
 
 /* ===============================
-   Badge Configuration & Logic (Phase 8)
+   Badge Configuration & Logic (Phase 8.3)
    =============================== */
 
 /**
- * Compute badges for a user dynamically using Phase 8 roles
- * CRITICAL: This function MUST NOT be called before role:ready event
+ * Compute badges for a user using backend-verified roles
+ * Badge Slot 1: Primary role badge (VISITOR/USER/ADMIN/REVIEWER)
+ * Badge Slot 2: Empty (future use)
+ * Badge Slot 3: Empty (future use)
+ * 
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects
  */
 async function computeBadges(user) {
   const badges = [];
   
-  // CRITICAL: Wait for role to be ready before computing badges
-  await waitForRoleReady();
+  console.log('[BADGE] Computing badges from backend...');
   
-  console.log('[BADGE] Computing badges, global role state:', window.__APP_ROLE__);
+  // Get badge from backend (SINGLE SOURCE OF TRUTH)
+  const badgeInfo = await getUserBadge();
   
-  // Use global role state - SINGLE SOURCE OF TRUTH
-  const roleStatus = window.__APP_ROLE__.status;
-  const roleBadgeName = window.__APP_ROLE__.badge;
+  console.log('[BADGE] Backend badge info:', badgeInfo);
   
-  if (!user) {
-    // Guest user - always show Guest badge
-    if (roleStatus === 'guest') {
-      badges.push({
-        type: 'guest',
-        label: mapRoleToBadge('guest'), // Use centralized mapper
-        icon: getBadgeIcon('Guest'), // Use centralized icon
-        color: getBadgeColor('guest') // Use centralized color
-      });
-    }
-    console.log('[BADGE] rendered: Guest (profile-panel)');
-    return badges;
-  }
+  // Slot 1: Primary role badge
+  badges.push({
+    type: badgeInfo.role,
+    label: badgeInfo.badge,
+    icon: badgeInfo.icon,
+    color: badgeInfo.color
+  });
   
-  // Logged in user - show role badge using centralized mapping
-  if (roleBadgeName) {
-    badges.push({
-      type: roleStatus,
-      label: roleBadgeName, // Already mapped by roles.js
-      icon: getBadgeIcon(roleBadgeName), // Use centralized icon
-      color: getBadgeColor(roleStatus) // Use centralized color
-    });
-    
-    console.log(`[BADGE] rendered: ${roleBadgeName} (profile-panel)`);
-  }
+  console.log(`[BADGE] rendered: ${badgeInfo.badge} (profile-panel, backend-verified)`);
   
-  // Check if user has uploaded papers (contributor activity)
-  // Only show for non-admin/non-reviewer users
-  if (roleStatus !== 'admin' && roleStatus !== 'reviewer') {
-    const hasUploads = await checkUserContributions(user.id);
-    if (hasUploads) {
-      badges.push({
-        type: "active-contributor",
-        label: "Active",
-        icon: "⭐",
-        color: "#f57c00"
-      });
-    }
-  }
+  // Slot 2: Empty (future use)
+  // Could be used for achievements, activity level, etc.
+  
+  // Slot 3: Empty (future use)
+  // Could be used for certifications, special roles, etc.
   
   console.log('[BADGE] Final badges array:', badges);
   return badges;
 }
-
-/**
- * Wait for role to be ready
- * @returns {Promise<void>}
- */
-function waitForRoleReady() {
-  return new Promise((resolve) => {
-    // Safety check: ensure window.__APP_ROLE__ exists
-    if (!window.__APP_ROLE__) {
-      console.warn('[BADGE] window.__APP_ROLE__ not initialized, waiting for role:ready event');
-      window.addEventListener('role:ready', resolve, { once: true });
-      return;
-    }
-    
-    if (window.__APP_ROLE__.ready) {
-      resolve();
-    } else {
-      window.addEventListener('role:ready', resolve, { once: true });
-    }
-  });
 }
 
 /**

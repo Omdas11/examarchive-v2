@@ -1,5 +1,6 @@
 /* ================================
    ExamArchive – Footer Styles
+   Phase 8.3: Redesigned Footer
    ================================ */
 
 .site-footer {
@@ -15,25 +16,6 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-}
-
-/* ---------- Brand ---------- */
-.footer-brand {
-  margin-bottom: 0.5rem;
-}
-
-.footer-logo {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 0.5rem;
-}
-
-.footer-tagline {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin: 0;
 }
 
 /* ---------- Sections ---------- */
@@ -62,11 +44,78 @@
   color: var(--accent);
 }
 
+/* ---------- Brand Logos Section ---------- */
+.footer-logos {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer-logos h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.logo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.logo-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.7;
+}
+
+.logo-link:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+/* Logo specific colors (preserve original brand colors) */
+.logo-link:nth-child(1) .brand-logo {
+  color: #333; /* GitHub - dark */
+}
+
+.logo-link:nth-child(2) .brand-logo {
+  color: #10a37f; /* ChatGPT - teal green */
+}
+
+.logo-link:nth-child(3) .brand-logo {
+  color: #4285F4; /* Google Gemini - blue */
+}
+
+.logo-link:nth-child(4) .brand-logo {
+  color: #3ECF8E; /* Supabase - green */
+}
+
+.logo-link:nth-child(5) .brand-logo,
+.logo-link:nth-child(6) .brand-logo {
+  color: var(--accent); /* University logos - accent (red) */
+}
+
 /* ---------- Meta ---------- */
 .footer-meta {
   margin-top: 1rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border);
+  text-align: center;
 }
 
 .footer-meta p {
@@ -75,19 +124,13 @@
   margin: 0.3rem 0;
 }
 
-.footer-note {
-  font-size: 0.75rem !important;
-  color: var(--text-muted);
-  opacity: 0.8;
-}
-
 /* ---------- Tablet ---------- */
 @media (min-width: 640px) {
   .footer-inner {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .footer-brand {
+  .footer-logos {
     grid-column: 1 / -1;
   }
 
@@ -103,12 +146,13 @@
   }
 
   .footer-inner {
-    grid-template-columns: 2fr repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 2.5rem;
   }
 
-  .footer-brand {
-    grid-column: 1 / 2;
+  .footer-logos {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
   }
 
   .footer-meta {
@@ -116,10 +160,27 @@
     margin-top: 1.5rem;
     padding-top: 2rem;
   }
+  
+  .logo-grid {
+    gap: 2rem;
+  }
+  
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 /* ---------- Dark Theme ---------- */
 body[data-theme="dark"] .site-footer,
 body[data-theme="amoled"] .site-footer {
   background: var(--surface);
+}
+
+body[data-theme="dark"] .logo-link:nth-child(1) .brand-logo {
+  color: #fff; /* GitHub - white in dark mode */
+}
+
+body[data-theme="amoled"] .logo-link:nth-child(1) .brand-logo {
+  color: #fff; /* GitHub - white in AMOLED mode */
 }
