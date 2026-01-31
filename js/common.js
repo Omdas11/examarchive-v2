@@ -191,7 +191,8 @@ function debugBox(text) {
   }
   
   // 🔥 Clean OAuth ?code= query parameter after session is established
-  if (window.location.search.includes("code=")) {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("code")) {
     history.replaceState({}, document.title, window.location.pathname);
     debugBox("🧹 OAuth code parameter cleaned from URL");
   }

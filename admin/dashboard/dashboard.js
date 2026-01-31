@@ -1,4 +1,4 @@
-// admin/dashboard.js
+// admin/dashboard/dashboard.js
 // ============================================
 // ADMIN DASHBOARD - Phase 8
 // ============================================
