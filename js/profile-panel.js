@@ -333,7 +333,7 @@ async function renderProfilePanel() {
     // Dynamically create logged-in actions with admin dashboard link if admin
     actionsSection.innerHTML = `
       ${userIsAdmin ? `
-        <a href="admin/dashboard.html" class="btn btn-red">
+        <a href="/admin/dashboard/" class="btn btn-red">
           Admin Dashboard
         </a>
       ` : `

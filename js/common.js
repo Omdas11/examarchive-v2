@@ -184,10 +184,16 @@ function debugBox(text) {
     debugBox("⚠️ Error initializing global role state: " + err.message);
   }
 
-  // 🔥 Always clean OAuth hash (PREVENT LOOP)
+  // 🔥 Always clean OAuth hash and query params (PREVENT LOOP)
   if (window.location.hash.includes("access_token")) {
     history.replaceState({}, document.title, window.location.pathname);
     debugBox("🧹 OAuth hash cleaned from URL");
+  }
+  
+  // 🔥 Clean OAuth ?code= query parameter after session is established
+  if (window.location.search.includes("code=")) {
+    history.replaceState({}, document.title, window.location.pathname);
+    debugBox("🧹 OAuth code parameter cleaned from URL");
   }
 })();
 
