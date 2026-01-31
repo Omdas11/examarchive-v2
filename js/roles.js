@@ -61,8 +61,9 @@ export function normalizeRole(role) {
   
   const normalized = role.toLowerCase().trim();
   
-  // Validate against known roles
-  if (normalized === 'admin' || normalized === 'reviewer' || normalized === 'user' || normalized === 'guest') {
+  // Validate against known roles using Set for O(1) lookup
+  const VALID_ROLES = new Set(['admin', 'reviewer', 'user', 'guest']);
+  if (VALID_ROLES.has(normalized)) {
     return normalized;
   }
   
