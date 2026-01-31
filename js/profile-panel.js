@@ -336,11 +336,11 @@ async function renderProfilePanel() {
         <a href="admin/dashboard.html" class="btn btn-red">
           Admin Dashboard
         </a>
-      ` : ''}
-      
-      <a href="settings.html" class="btn btn-outline">
-        Manage Account
-      </a>
+      ` : `
+        <a href="settings.html" class="btn btn-outline">
+          Manage Account
+        </a>
+      `}
 
       <button id="profileSwitchAccountBtn" class="btn btn-outline">
         Switch Account
