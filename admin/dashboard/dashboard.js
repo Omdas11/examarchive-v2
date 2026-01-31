@@ -1,14 +1,14 @@
 // admin/dashboard/dashboard.js
 // ============================================
-// ADMIN DASHBOARD - Phase 8
+// ADMIN DASHBOARD - Phase 8.3 (Backend-First)
 // ============================================
 
 import { supabase } from "../../js/supabase.js";
-import { waitForRole } from "../../js/roles.js";
+import { isCurrentUserAdmin } from "../../js/admin-auth.js";
 import { moveFile, copyFile, deleteFile, getPublicUrl, BUCKETS } from "../../js/supabase-client.js";
 import { formatFileSize, formatDate } from "../../js/upload-handler.js";
 
-console.log("🎛️ dashboard.js loaded");
+console.log("🎛️ dashboard.js loaded (Phase 8.3 - Backend-First)");
 
 let currentTab = 'pending';
 let currentSubmission = null;
@@ -23,27 +23,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   const dashboardContent = document.getElementById('dashboard-content');
 
   try {
-    // CRITICAL: Wait for role to be ready before checking access
-    console.log('[ADMIN-DASHBOARD] Waiting for role:ready event...');
-    const roleState = await waitForRole();
-    console.log('[ADMIN-DASHBOARD] Role state received:', roleState);
-    console.log('[ROLE] resolved:', roleState.status);
+    // CRITICAL: Backend-only verification
+    // NO reliance on frontend role state or role:ready events
+    console.log('[ADMIN-DASHBOARD] Calling backend is_admin() function...');
+    const hasAdminAccess = await isCurrentUserAdmin();
+    console.log('[ADMIN-DASHBOARD] Backend admin check result:', hasAdminAccess);
     
     // Hide loading state
     loadingState.style.display = 'none';
     
-    // Check if user has admin role - ONLY use global role state
-    const hasAdminAccess = roleState.status === 'admin';
-    console.log('[ADMIN-DASHBOARD] Admin access check:', hasAdminAccess ? 'GRANTED' : 'DENIED');
-    
     if (!hasAdminAccess) {
       accessDenied.style.display = 'flex';
-      console.log("🔒 Admin dashboard access denied - user role is:", roleState.status);
+      console.log("🔒 Admin dashboard access denied - backend verification failed");
       return;
     }
 
-    console.log("✅ Admin access granted");
-    console.log('[ADMIN] dashboard access granted');
+    console.log("✅ Admin access granted by backend");
+    console.log('[ADMIN] dashboard access granted (backend-verified)');
     dashboardContent.style.display = 'block';
 
     // Initialize dashboard
