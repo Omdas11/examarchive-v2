@@ -901,6 +901,80 @@ Each user has a trust score (0-100) based on:
 **Medium Trust (50-79)**: Standard review process  
 **Low Trust (0-49)**: Enhanced scrutiny, manual review
 
+### Role System Technical Implementation (Phase 8)
+
+> **CRITICAL CONTRACT**: `window.__APP_ROLE__` is the **permanent, single source of truth** for role state in the UI.
+
+#### Global Role State Contract
+
+**Structure**:
+```javascript
+window.__APP_ROLE__ = {
+  status: 'admin' | 'reviewer' | 'user' | 'guest',  // Normalized role
+  badge: 'Admin' | 'Moderator' | 'Contributor' | 'Guest',  // Display name
+  ready: boolean  // TRUE when role has been resolved
+}
+```
+
+**Initialization Flow**:
+1. App loads → `initializeGlobalRoleState()` called
+2. Fetches profile from Supabase (if authenticated)
+3. Normalizes role (case-insensitive: ADMIN → admin)
+4. Sets `window.__APP_ROLE__` with normalized values
+5. Dispatches `role:ready` event
+6. UI components render role-dependent features
+
+#### Mandatory Rules for UI Components
+
+**RULE 1: Single Source of Truth**
+- ✅ **USE**: `window.__APP_ROLE__.status` for role checks
+- ❌ **BAN**: Direct Supabase role reads in UI components
+- ❌ **BAN**: Deprecated functions: `getCurrentUserRole()`, `getUserRole()`, `isAdmin()`, `getRoleBadge()`
+
+**RULE 2: Role Normalization**
+- All roles MUST be case-normalized before use
+- `normalizeRole(role)` converts: ADMIN/Admin/admin → 'admin'
+- Handles null/undefined → defaults to 'guest'
+
+**RULE 3: UI Gating**
+- UI components MUST wait for `role:ready` event
+- Use `await waitForRole()` before rendering role-dependent UI
+- ❌ **NO default/fallback badges** (e.g., "Contributor" before role loads)
+
+**RULE 4: No Premature Rendering**
+```javascript
+// ❌ WRONG - Renders before role is ready
+function renderPanel() {
+  const isAdmin = window.__APP_ROLE__.status === 'admin';
+  // May render with wrong role if called too early
+}
+
+// ✅ CORRECT - Waits for role
+async function renderPanel() {
+  await waitForRole();  // MANDATORY GATE
+  const isAdmin = window.__APP_ROLE__.status === 'admin';
+  // Now safe to render
+}
+```
+
+#### Centralized Badge Mapping
+
+**Single Source Functions** (in `js/roles.js`):
+- `mapRoleToBadge(role)` - Convert role to badge name
+- `getBadgeIcon(badgeName)` - Get badge emoji
+- `getBadgeColor(role)` - Get badge color
+
+❌ **NEVER hardcode badge names or colors in UI components**
+
+#### Role Change Events
+
+Role state updates automatically on:
+- Sign in / Sign out
+- Account switch
+- Profile role change (requires page refresh)
+
+UI components listen to `role:ready` to react to changes.
+
 ---
 
 ## AI Safety & Model-Agnostic Design
