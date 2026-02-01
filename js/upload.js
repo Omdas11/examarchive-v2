@@ -1,5 +1,6 @@
 // ===============================
 // Upload Page - Auth Guard & Upload Handler
+// Phase 9.1: Upload Type Selector
 // ===============================
 
 import { requireAuth } from "./common.js";
@@ -8,6 +9,7 @@ import { handlePaperUpload, getUserSubmissions, formatFileSize, formatDate } fro
 console.log("📤 upload.js loaded");
 
 let selectedFile = null;
+let selectedUploadType = 'question-paper';
 
 // Check auth when page loads
 document.addEventListener("DOMContentLoaded", async () => {
@@ -21,10 +23,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     // UI is already updated by requireAuth
   } else {
     console.log("✅ User authenticated, upload page ready");
+    initializeUploadTypeSelector();
     initializeUploadForm();
     loadUserSubmissions();
   }
 });
+
+/**
+ * Initialize upload type selector
+ */
+function initializeUploadTypeSelector() {
+  const typeOptions = document.querySelectorAll('.type-option');
+  
+  typeOptions.forEach(option => {
+    option.addEventListener('click', (e) => {
+      const input = option.querySelector('input[type="radio"]');
+      
+      // Don't allow selecting disabled options
+      if (option.classList.contains('disabled') || input.disabled) {
+        e.preventDefault();
+        showMessage('This upload type is coming in a future phase', 'info');
+        return;
+      }
+      
+      // Update active state
+      typeOptions.forEach(opt => opt.classList.remove('active'));
+      option.classList.add('active');
+      
+      // Update selected type
+      selectedUploadType = input.value;
+      console.log('Selected upload type:', selectedUploadType);
+    });
+  });
+}
 
 /**
  * Initialize upload form

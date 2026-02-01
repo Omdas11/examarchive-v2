@@ -34,11 +34,49 @@
 
     <!-- ================= HEADER ================= -->
     <section class="upload-intro">
-      <h1>Upload Question Paper</h1>
+      <h1>Upload to ExamArchive</h1>
       <p class="text-muted">
-        Help fellow students by uploading a clean, readable PDF of a university
-        question paper.
+        Help fellow students by uploading question papers, repeated questions, or study resources.
       </p>
+    </section>
+
+    <!-- ================= UPLOAD TYPE SELECTOR ================= -->
+    <section class="upload-type-selector card">
+      <h2>Select Upload Type</h2>
+      <div class="type-options">
+        <label class="type-option active" data-type="question-paper">
+          <input type="radio" name="upload-type" value="question-paper" checked />
+          <div class="type-content">
+            <div class="type-icon">📄</div>
+            <div class="type-info">
+              <strong>Question Paper</strong>
+              <small>Upload previous year question papers (PDF)</small>
+            </div>
+          </div>
+        </label>
+        
+        <label class="type-option disabled" data-type="repeated-questions">
+          <input type="radio" name="upload-type" value="repeated-questions" disabled />
+          <div class="type-content">
+            <div class="type-icon">🔁</div>
+            <div class="type-info">
+              <strong>Repeated Questions</strong>
+              <small>Coming in next phase</small>
+            </div>
+          </div>
+        </label>
+        
+        <label class="type-option disabled" data-type="notes-resources">
+          <input type="radio" name="upload-type" value="notes-resources" disabled />
+          <div class="type-content">
+            <div class="type-icon">📚</div>
+            <div class="type-info">
+              <strong>Notes / Resources</strong>
+              <small>Coming in future phase</small>
+            </div>
+          </div>
+        </label>
+      </div>
     </section>
 
     <!-- ================= UPLOAD CARD ================= -->
