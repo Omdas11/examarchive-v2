@@ -1,10 +1,12 @@
 // js/upload-handler.js
 // ============================================
 // UPLOAD HANDLER - Supabase Storage Integration
+// Phase 9.2: Enhanced with debug logging and session verification
 // ============================================
 
 import { supabase } from "./supabase.js";
 import { uploadFile, BUCKETS } from "./supabase-client.js";
+import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
 
 /**
  * Handle file upload to temp storage with submission tracking
@@ -18,20 +20,34 @@ import { uploadFile, BUCKETS } from "./supabase-client.js";
  */
 export async function handlePaperUpload(file, metadata, onProgress) {
   try {
+    logInfo(DebugModule.UPLOAD, 'Starting paper upload', { filename: file?.name });
+
     // Validate file
     if (!file || file.type !== 'application/pdf') {
+      logError(DebugModule.UPLOAD, 'Invalid file type - only PDF allowed', { type: file?.type });
       throw new Error('Only PDF files are allowed');
     }
 
     if (file.size > 50 * 1024 * 1024) {
+      logError(DebugModule.UPLOAD, 'File size exceeds limit', { size: file.size });
       throw new Error('File size must be less than 50MB');
     }
 
-    // Get current user
-    const { data: { session } } = await supabase.auth.getSession();
+    // CRITICAL: Wait for session to be ready before uploading
+    logInfo(DebugModule.UPLOAD, 'Verifying authenticated session...');
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      logError(DebugModule.UPLOAD, 'Session error', { error: sessionError.message });
+      throw new Error('Session verification failed. Please try signing in again.');
+    }
+
     if (!session) {
+      logError(DebugModule.UPLOAD, 'No active session found. Upload blocked.');
       throw new Error('You must be signed in to upload');
     }
+
+    logInfo(DebugModule.UPLOAD, 'Session verified. User authenticated.', { userId: session.user.id });
 
     const userId = session.user.id;
     const timestamp = Date.now();
@@ -40,7 +56,8 @@ export async function handlePaperUpload(file, metadata, onProgress) {
     // Generate storage path: {userId}/{timestamp}-{filename}
     const storagePath = `${userId}/${timestamp}-${sanitizedFilename}`;
 
-    // Upload to temp bucket
+    // Upload to temp bucket using authenticated client
+    logInfo(DebugModule.UPLOAD, 'Uploading file to storage...', { bucket: BUCKETS.TEMP, path: storagePath });
     const { data: uploadData, error: uploadError } = await uploadFile(
       file,
       {
@@ -51,10 +68,14 @@ export async function handlePaperUpload(file, metadata, onProgress) {
     );
 
     if (uploadError) {
+      logError(DebugModule.STORAGE, 'Storage upload failed', { error: uploadError.message });
       throw uploadError;
     }
 
+    logInfo(DebugModule.UPLOAD, 'File uploaded successfully to storage');
+
     // Create submission record
+    logInfo(DebugModule.UPLOAD, 'Creating submission record in database...');
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
       .insert({
@@ -72,13 +93,18 @@ export async function handlePaperUpload(file, metadata, onProgress) {
       .single();
 
     if (submissionError) {
+      logError(DebugModule.UPLOAD, 'Database submission record creation failed', { error: submissionError.message });
+      
       // Try to clean up uploaded file
+      logWarn(DebugModule.UPLOAD, 'Attempting to clean up uploaded file...');
       await supabase.storage
         .from(BUCKETS.TEMP)
         .remove([storagePath]);
       
       throw submissionError;
     }
+
+    logInfo(DebugModule.UPLOAD, 'Upload completed successfully', { submissionId: submission.id });
 
     return {
       success: true,
@@ -88,15 +114,18 @@ export async function handlePaperUpload(file, metadata, onProgress) {
     };
 
   } catch (error) {
+    logError(DebugModule.UPLOAD, 'Upload failed', { error: error.message });
     console.error('Upload error:', error);
     
     // Provide user-friendly error messages
     let userMessage = 'Upload failed. Please try again.';
     
-    if (error.message?.includes('JWT')) {
+    if (error.message?.includes('JWT') || error.message?.includes('jwt')) {
       userMessage = 'Your session has expired. Please sign in again.';
-    } else if (error.message?.includes('RLS') || error.message?.includes('policy')) {
-      userMessage = 'You do not have permission to upload. Please contact support.';
+      logError(DebugModule.AUTH, 'JWT token expired or invalid');
+    } else if (error.message?.includes('RLS') || error.message?.includes('policy') || error.message?.includes('permission')) {
+      userMessage = 'Permission denied. Please ensure you are signed in and try again.';
+      logError(DebugModule.STORAGE, 'RLS policy violation - user may not be authenticated or lacks permission');
     } else if (error.message?.includes('storage')) {
       userMessage = 'File storage error. Please try again or contact support.';
     } else if (error.message?.includes('network') || error.message?.includes('fetch')) {

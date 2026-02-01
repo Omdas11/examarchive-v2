@@ -1,6 +1,6 @@
 // ===============================
 // Settings Page Controller
-// Modular settings without auth logic
+// Phase 9.2: Added debug panel controls
 // ===============================
 
 console.log("⚙️ settings.js loaded");
@@ -8,6 +8,8 @@ console.log("⚙️ settings.js loaded");
 // Import shared auth utilities (no auth logic in settings)
 import { handleLogout } from "./avatar-utils.js";
 import { supabase } from "./supabase.js";
+import { getUserRoleBackend } from "./admin-auth.js";
+import { debugLogger, toggleDebugPanel } from "./debug/panel.js";
 
 // ===============================
 // Settings Configuration
@@ -186,6 +188,34 @@ const settingsConfig = [
     ]
   },
   {
+    id: "debug-section",
+    title: "Debug Panel (Admin Only)",
+    description: "Diagnostic tools for administrators and reviewers",
+    requiresAdmin: true,
+    settings: [
+      {
+        id: "debug-panel-enabled",
+        type: "toggle",
+        label: "Enable Debug Panel",
+        description: "Show debug panel with system diagnostics"
+      },
+      {
+        id: "clear-debug-logs",
+        type: "button",
+        label: "Clear Debug Logs",
+        buttonText: "Clear Logs",
+        buttonClass: "btn-outline"
+      },
+      {
+        id: "reset-demo-data",
+        type: "button",
+        label: "Reset Upload Demo Data",
+        buttonText: "Reset Demo Data",
+        buttonClass: "btn-outline-red"
+      }
+    ]
+  },
+  {
     id: "account-section",
     title: "Account",
     description: "Manage your account",
@@ -220,10 +250,22 @@ async function renderSettings() {
 
   const { data } = await supabase.auth.getSession();
   const user = data?.session?.user;
+  
+  // Check if user is admin/reviewer
+  let isAdmin = false;
+  if (user) {
+    const roleInfo = await getUserRoleBackend(user.id);
+    isAdmin = roleInfo && (roleInfo.name === 'admin' || roleInfo.name === 'reviewer');
+  }
 
   container.innerHTML = "";
 
   settingsConfig.forEach(section => {
+    // Skip admin-only sections if user is not admin
+    if (section.requiresAdmin && !isAdmin) {
+      return;
+    }
+    
     const sectionEl = createSettingsSection(section, user);
     container.appendChild(sectionEl);
   });
@@ -874,6 +916,83 @@ function attachEventListeners() {
     if (localStorage.getItem("reduced-motion") === "true") {
       document.body.classList.add("reduced-motion");
     }
+  }
+  
+  // ========== DEBUG PANEL (ADMIN ONLY) ==========
+  // Debug panel toggle
+  const debugPanelToggle = document.getElementById("debug-panel-enabled");
+  if (debugPanelToggle) {
+    debugPanelToggle.addEventListener("change", (e) => {
+      const isEnabled = e.target.checked;
+      
+      if (isEnabled) {
+        debugLogger.enablePanel();
+        toggleDebugPanel(); // Show panel
+      } else {
+        debugLogger.disablePanel();
+        toggleDebugPanel(); // Hide panel
+      }
+      
+      console.log(`🐛 Debug panel ${isEnabled ? "enabled" : "disabled"}`);
+    });
+    
+    // Apply saved preference
+    if (localStorage.getItem("debug-panel-enabled") === "true") {
+      debugPanelToggle.checked = true;
+    }
+  }
+  
+  // Clear debug logs button
+  const clearDebugBtn = document.getElementById("clear-debug-logs");
+  if (clearDebugBtn) {
+    clearDebugBtn.addEventListener("click", () => {
+      debugLogger.clear();
+      console.log("🗑️ Debug logs cleared");
+      
+      // Show feedback
+      clearDebugBtn.textContent = "Cleared!";
+      setTimeout(() => {
+        clearDebugBtn.textContent = "Clear Logs";
+      }, 1500);
+    });
+  }
+  
+  // Reset demo data button
+  const resetDemoBtn = document.getElementById("reset-demo-data");
+  if (resetDemoBtn) {
+    resetDemoBtn.addEventListener("click", async () => {
+      if (!confirm("Are you sure you want to reset all demo upload data? This will delete all pending/approved/rejected submissions.")) {
+        return;
+      }
+      
+      try {
+        resetDemoBtn.disabled = true;
+        resetDemoBtn.textContent = "Resetting...";
+        
+        // Delete all submissions (admin only - protected by RLS)
+        const { error } = await supabase
+          .from('submissions')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+        
+        if (error) {
+          throw error;
+        }
+        
+        console.log("✅ Demo data reset successful");
+        resetDemoBtn.textContent = "Reset Complete!";
+        
+        setTimeout(() => {
+          resetDemoBtn.disabled = false;
+          resetDemoBtn.textContent = "Reset Demo Data";
+        }, 2000);
+      } catch (err) {
+        console.error("❌ Error resetting demo data:", err);
+        alert("Failed to reset demo data: " + err.message);
+        resetDemoBtn.disabled = false;
+        resetDemoBtn.textContent = "Reset Demo Data";
+      }
+    });
   }
   
   // Sign out button (uses shared auth helper)
