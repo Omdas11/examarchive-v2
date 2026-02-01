@@ -460,28 +460,49 @@ async function renderSettings() {
 
 ### Fallback UI Patterns
 
-**Sign-In Required**:
+**Sign-In Required** (Secure Implementation):
 ```javascript
 function renderSignedOutMessage(container) {
-  container.innerHTML = `
-    <div style="text-align: center; padding: 3rem;">
-      <h2>Sign In Required</h2>
-      <p>Please sign in to access this page.</p>
-      <a href="/login.html" class="btn">Sign In</a>
-    </div>
-  `;
+  const card = document.createElement('div');
+  card.style.cssText = 'text-align: center; padding: 3rem;';
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Sign In Required';
+
+  const message = document.createElement('p');
+  message.textContent = 'Please sign in to access this page.';
+
+  const signInLink = document.createElement('a');
+  signInLink.href = '/login.html';
+  signInLink.className = 'btn';
+  signInLink.textContent = 'Sign In';
+
+  card.appendChild(heading);
+  card.appendChild(message);
+  card.appendChild(signInLink);
+
+  container.innerHTML = '';
+  container.appendChild(card);
 }
 ```
 
-**Access Denied**:
+**Access Denied** (Secure Implementation):
 ```javascript
 function renderAccessDenied(container) {
-  container.innerHTML = `
-    <div style="text-align: center; padding: 3rem;">
-      <h2>Access Denied</h2>
-      <p>You do not have permission to view this page.</p>
-    </div>
-  `;
+  const card = document.createElement('div');
+  card.style.cssText = 'text-align: center; padding: 3rem;';
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Access Denied';
+
+  const message = document.createElement('p');
+  message.textContent = 'You do not have permission to view this page.';
+
+  card.appendChild(heading);
+  card.appendChild(message);
+
+  container.innerHTML = '';
+  container.appendChild(card);
 }
 ```
 
