@@ -321,36 +321,70 @@ async function renderSettings() {
  * Render message for signed-out users
  */
 function renderSignedOutMessage(container) {
-  container.innerHTML = `
-    <div class="settings-card" style="text-align: center; padding: 3rem 2rem;">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-      <h2 style="margin-bottom: 1rem;">Sign In Required</h2>
-      <p class="text-muted" style="margin-bottom: 2rem;">
-        Please sign in to access the settings page.
-      </p>
-      <a href="/login.html" class="btn btn-red">
-        Sign In
-      </a>
-    </div>
-  `;
+  const card = document.createElement('div');
+  card.className = 'settings-card';
+  card.style.cssText = 'text-align: center; padding: 3rem 2rem;';
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
+  icon.textContent = '🔒';
+
+  const heading = document.createElement('h2');
+  heading.style.marginBottom = '1rem';
+  heading.textContent = 'Sign In Required';
+
+  const message = document.createElement('p');
+  message.className = 'text-muted';
+  message.style.marginBottom = '2rem';
+  message.textContent = 'Please sign in to access the settings page.';
+
+  const signInLink = document.createElement('a');
+  signInLink.href = '/login.html';
+  signInLink.className = 'btn btn-red';
+  signInLink.textContent = 'Sign In';
+
+  card.appendChild(icon);
+  card.appendChild(heading);
+  card.appendChild(message);
+  card.appendChild(signInLink);
+
+  container.innerHTML = '';
+  container.appendChild(card);
 }
 
 /**
  * Render message for users without permission
  */
 function renderAccessDenied(container) {
-  container.innerHTML = `
-    <div class="settings-card" style="text-align: center; padding: 3rem 2rem;">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">⛔</div>
-      <h2 style="margin-bottom: 1rem;">Access Denied</h2>
-      <p class="text-muted" style="margin-bottom: 1.5rem;">
-        You do not have permission to view this page.
-      </p>
-      <p class="text-muted" style="font-size: 0.9rem;">
-        This page is only accessible to administrators and reviewers.
-      </p>
-    </div>
-  `;
+  const card = document.createElement('div');
+  card.className = 'settings-card';
+  card.style.cssText = 'text-align: center; padding: 3rem 2rem;';
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
+  icon.textContent = '⛔';
+
+  const heading = document.createElement('h2');
+  heading.style.marginBottom = '1rem';
+  heading.textContent = 'Access Denied';
+
+  const message1 = document.createElement('p');
+  message1.className = 'text-muted';
+  message1.style.marginBottom = '1.5rem';
+  message1.textContent = 'You do not have permission to view this page.';
+
+  const message2 = document.createElement('p');
+  message2.className = 'text-muted';
+  message2.style.fontSize = '0.9rem';
+  message2.textContent = 'This page is only accessible to administrators and reviewers.';
+
+  card.appendChild(icon);
+  card.appendChild(heading);
+  card.appendChild(message1);
+  card.appendChild(message2);
+
+  container.innerHTML = '';
+  container.appendChild(card);
 }
 
 /**
