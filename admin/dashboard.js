@@ -108,9 +108,20 @@ async function loadSubmissions() {
       `)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-
-    allSubmissions = data || [];
+    if (error) {
+      // Check if it's a real error or just RLS/permissions issue
+      console.error('Error loading submissions:', error);
+      
+      // Only show error popup if it's not a permissions/RLS issue
+      if (error.code !== 'PGRST116' && !error.message?.includes('RLS')) {
+        showMessage('Failed to load submissions: ' + error.message, 'error');
+      }
+      
+      // Set empty array and continue rendering graceful empty state
+      allSubmissions = [];
+    } else {
+      allSubmissions = data || [];
+    }
     
     // Update stats
     updateStats();
@@ -119,8 +130,11 @@ async function loadSubmissions() {
     renderSubmissions();
     
   } catch (error) {
-    console.error('Error loading submissions:', error);
-    showMessage('Failed to load submissions', 'error');
+    console.error('Unexpected error loading submissions:', error);
+    // Only show message for unexpected errors
+    allSubmissions = [];
+    updateStats();
+    renderSubmissions();
   }
 }
 

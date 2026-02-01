@@ -1,6 +1,6 @@
 /* ================================
    ExamArchive – Footer Styles
-   Phase 8.3: Redesigned Footer
+   Phase 9.1: Redesigned Footer (3-column + Logo Rows)
    ================================ */
 
 .site-footer {
@@ -16,6 +16,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 /* ---------- Sections ---------- */
@@ -44,19 +45,26 @@
   color: var(--accent);
 }
 
-/* ---------- Brand Logos Section ---------- */
-.footer-logos {
+/* ---------- Logo Sections ---------- */
+.footer-logos-section {
+  max-width: var(--max-width);
+  margin: 0 auto;
   text-align: center;
-  padding-top: 1rem;
+  padding: 1.5rem 1rem 0.5rem;
   border-top: 1px solid var(--border);
 }
 
-.footer-logos h4 {
+.footer-logos-section h4 {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text);
   margin: 0 0 1rem 0;
   text-align: center;
+}
+
+.university-logos-section {
+  border-top: none;
+  padding-top: 0.5rem;
 }
 
 .logo-grid {
@@ -73,7 +81,7 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.2s ease, opacity 0.2s ease;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .logo-link:hover {
@@ -81,39 +89,37 @@
   opacity: 1;
 }
 
+/* Platform Logos (64x64) */
 .brand-logo {
-  width: 32px;
-  height: 32px;
-  color: var(--text-muted);
-  transition: color 0.2s ease;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: grayscale(20%);
+  transition: filter 0.2s ease;
 }
 
-/* Logo specific colors (preserve original brand colors) */
-.logo-link:nth-child(1) .brand-logo {
-  color: #333; /* GitHub - dark */
+.logo-link:hover .brand-logo {
+  filter: grayscale(0%);
 }
 
-.logo-link:nth-child(2) .brand-logo {
-  color: #10a37f; /* ChatGPT - teal green */
+/* University Logos (smaller, 48x48) */
+.brand-logo-small {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: grayscale(30%);
+  transition: filter 0.2s ease;
 }
 
-.logo-link:nth-child(3) .brand-logo {
-  color: #4285F4; /* Google Gemini - blue */
-}
-
-.logo-link:nth-child(4) .brand-logo {
-  color: #3ECF8E; /* Supabase - green */
-}
-
-.logo-link:nth-child(5) .brand-logo,
-.logo-link:nth-child(6) .brand-logo {
-  color: var(--accent); /* University logos - accent (red) */
+.logo-link:hover .brand-logo-small {
+  filter: grayscale(0%);
 }
 
 /* ---------- Meta ---------- */
 .footer-meta {
-  margin-top: 1rem;
-  padding-top: 1.5rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.5rem 1rem 0;
   border-top: 1px solid var(--border);
   text-align: center;
 }
@@ -130,44 +136,38 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .footer-logos {
-    grid-column: 1 / -1;
-  }
-
-  .footer-meta {
-    grid-column: 1 / -1;
+  .logo-grid {
+    gap: 2rem;
   }
 }
 
-/* ---------- Desktop ---------- */
+/* ---------- Desktop (3-column) ---------- */
 @media (min-width: 1024px) {
   .site-footer {
     padding: 3rem 1rem 2rem;
   }
 
   .footer-inner {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 2.5rem;
   }
 
-  .footer-logos {
-    grid-column: 1 / -1;
-    margin-top: 1rem;
+  .footer-logos-section {
+    padding: 2rem 1rem 0.5rem;
   }
 
-  .footer-meta {
-    grid-column: 1 / -1;
-    margin-top: 1.5rem;
-    padding-top: 2rem;
-  }
-  
   .logo-grid {
-    gap: 2rem;
+    gap: 2.5rem;
   }
   
   .brand-logo {
-    width: 36px;
-    height: 36px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .brand-logo-small {
+    width: 40px;
+    height: 40px;
   }
 }
 
@@ -177,10 +177,22 @@ body[data-theme="amoled"] .site-footer {
   background: var(--surface);
 }
 
-body[data-theme="dark"] .logo-link:nth-child(1) .brand-logo {
-  color: #fff; /* GitHub - white in dark mode */
+body[data-theme="dark"] .brand-logo,
+body[data-theme="dark"] .brand-logo-small {
+  filter: brightness(0.9) grayscale(20%);
 }
 
-body[data-theme="amoled"] .logo-link:nth-child(1) .brand-logo {
-  color: #fff; /* GitHub - white in AMOLED mode */
+body[data-theme="dark"] .logo-link:hover .brand-logo,
+body[data-theme="dark"] .logo-link:hover .brand-logo-small {
+  filter: brightness(1.1) grayscale(0%);
+}
+
+body[data-theme="amoled"] .brand-logo,
+body[data-theme="amoled"] .brand-logo-small {
+  filter: brightness(0.85) grayscale(30%);
+}
+
+body[data-theme="amoled"] .logo-link:hover .brand-logo,
+body[data-theme="amoled"] .logo-link:hover .brand-logo-small {
+  filter: brightness(1.1) grayscale(0%);
 }
