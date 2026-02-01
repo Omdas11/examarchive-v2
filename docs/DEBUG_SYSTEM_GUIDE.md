@@ -485,18 +485,33 @@ function renderAccessDenied(container) {
 }
 ```
 
-**Generic Error**:
+**Generic Error** (Secure Implementation):
 ```javascript
 function renderErrorMessage(container, title, message) {
-  container.innerHTML = `
-    <div style="text-align: center; padding: 3rem;">
-      <h2>${title}</h2>
-      <p>${message}</p>
-      <button onclick="location.reload()">Refresh Page</button>
-    </div>
-  `;
+  // Create elements safely to prevent XSS
+  const card = document.createElement('div');
+  card.style.cssText = 'text-align: center; padding: 3rem;';
+
+  const heading = document.createElement('h2');
+  heading.textContent = title; // Use textContent, not innerHTML
+
+  const messageP = document.createElement('p');
+  messageP.textContent = message; // Use textContent, not innerHTML
+
+  const refreshBtn = document.createElement('button');
+  refreshBtn.textContent = 'Refresh Page';
+  refreshBtn.addEventListener('click', () => location.reload()); // No inline handlers
+
+  card.appendChild(heading);
+  card.appendChild(messageP);
+  card.appendChild(refreshBtn);
+
+  container.innerHTML = '';
+  container.appendChild(card);
 }
 ```
+
+**⚠️ Security Note**: Never use `innerHTML` with user-provided or dynamic content. Always use `textContent` or `createElement` for safe DOM manipulation.
 
 ### Verification Checklist
 
