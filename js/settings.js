@@ -10,6 +10,7 @@ import { handleLogout } from "./avatar-utils.js";
 import { supabase } from "./supabase.js";
 import { getUserRoleBackend } from "./admin-auth.js";
 import { debugLogger, toggleDebugPanel } from "./debug/panel.js";
+import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
 
 // ===============================
 // Settings Configuration
@@ -245,18 +246,53 @@ async function renderSettings() {
   const container = document.getElementById("settings-container");
   if (!container) {
     console.error("❌ Settings container not found");
+    logError(DebugModule.SYSTEM, 'Settings container element not found in DOM');
     return;
   }
 
-  const { data } = await supabase.auth.getSession();
-  const user = data?.session?.user;
+  logInfo(DebugModule.SETTINGS, 'Starting settings page render, checking session...');
+
+  // CRITICAL: Wait for session to be ready before rendering
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
   
-  // Check if user is admin/reviewer
-  let isAdmin = false;
-  if (user) {
-    const roleInfo = await getUserRoleBackend(user.id);
-    isAdmin = roleInfo && (roleInfo.name === 'admin' || roleInfo.name === 'reviewer');
+  if (sessionError) {
+    logError(DebugModule.AUTH, 'Session error during settings load', { error: sessionError.message });
+    renderErrorMessage(container, 'Session Error', 'There was an error checking your session. Please try refreshing the page.');
+    return;
   }
+
+  // Check if user is signed in
+  if (!session) {
+    logWarn(DebugModule.SETTINGS, 'Settings hidden: no active session');
+    renderSignedOutMessage(container);
+    return;
+  }
+
+  logInfo(DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
+
+  const user = session.user;
+  
+  // Backend role verification - MANDATORY before rendering settings
+  const roleInfo = await getUserRoleBackend(user.id);
+  
+  if (!roleInfo) {
+    logError(DebugModule.ROLE, 'Failed to retrieve user role from backend');
+    renderErrorMessage(container, 'Error Loading Settings', 'Unable to verify your permissions. Please try refreshing the page.');
+    return;
+  }
+
+  logInfo(DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
+
+  // Check if user has appropriate role (admin or reviewer can see settings)
+  const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
+  
+  if (!isAdmin) {
+    logWarn(DebugModule.SETTINGS, 'Settings hidden: role check failed', { role: roleInfo.name });
+    renderAccessDenied(container);
+    return;
+  }
+
+  logInfo(DebugModule.SETTINGS, 'Rendering settings UI for authorized user');
 
   container.innerHTML = "";
 
@@ -273,7 +309,66 @@ async function renderSettings() {
   // Attach event listeners
   attachEventListeners();
 
+  logInfo(DebugModule.SETTINGS, 'Settings UI rendered successfully');
   console.log("✅ Settings rendered");
+}
+
+// ===============================
+// Fallback UI Messages
+// ===============================
+
+/**
+ * Render message for signed-out users
+ */
+function renderSignedOutMessage(container) {
+  container.innerHTML = `
+    <div class="settings-card" style="text-align: center; padding: 3rem 2rem;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+      <h2 style="margin-bottom: 1rem;">Sign In Required</h2>
+      <p class="text-muted" style="margin-bottom: 2rem;">
+        Please sign in to access the settings page.
+      </p>
+      <a href="/login.html" class="btn btn-red">
+        Sign In
+      </a>
+    </div>
+  `;
+}
+
+/**
+ * Render message for users without permission
+ */
+function renderAccessDenied(container) {
+  container.innerHTML = `
+    <div class="settings-card" style="text-align: center; padding: 3rem 2rem;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">⛔</div>
+      <h2 style="margin-bottom: 1rem;">Access Denied</h2>
+      <p class="text-muted" style="margin-bottom: 1.5rem;">
+        You do not have permission to view this page.
+      </p>
+      <p class="text-muted" style="font-size: 0.9rem;">
+        This page is only accessible to administrators and reviewers.
+      </p>
+    </div>
+  `;
+}
+
+/**
+ * Render generic error message
+ */
+function renderErrorMessage(container, title, message) {
+  container.innerHTML = `
+    <div class="settings-card" style="text-align: center; padding: 3rem 2rem;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+      <h2 style="margin-bottom: 1rem;">${title}</h2>
+      <p class="text-muted" style="margin-bottom: 2rem;">
+        ${message}
+      </p>
+      <button onclick="location.reload()" class="btn btn-outline">
+        Refresh Page
+      </button>
+    </div>
+  `;
 }
 
 // ===============================

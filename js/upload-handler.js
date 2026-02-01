@@ -43,7 +43,7 @@ export async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     if (!session) {
-      logError(DebugModule.UPLOAD, 'No active session found. Upload blocked.');
+      logWarn(DebugModule.UPLOAD, 'No active session found. Upload blocked.');
       throw new Error('You must be signed in to upload');
     }
 

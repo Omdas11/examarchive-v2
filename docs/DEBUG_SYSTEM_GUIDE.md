@@ -388,7 +388,124 @@ Use the module that best describes where the code runs:
 - **DebugModule.STORAGE** - Storage operations
 - **DebugModule.ADMIN** - Admin-specific features
 - **DebugModule.ROLE** - Role management
+- **DebugModule.SETTINGS** - Settings page operations
 - **DebugModule.SYSTEM** - General system operations
+
+---
+
+## 🚫 Silent Failure Prevention
+
+**Phase 9.2.1 — Eliminating Silent Exits**
+
+### The Problem
+
+Silent failures occur when code exits early without providing user feedback or logging diagnostic information. This makes debugging extremely difficult and creates a poor user experience.
+
+**Example of Silent Failure** (BAD):
+```javascript
+async function renderSettings() {
+  const { data } = await supabase.auth.getSession();
+  const user = data?.session?.user;
+  
+  if (!user) {
+    return; // ❌ SILENT EXIT - No feedback to user or logs
+  }
+  
+  // Render settings...
+}
+```
+
+### The Solution
+
+Every early return must:
+1. **Log structured debug entry** using the debug logger
+2. **Render fallback UI** to inform the user what went wrong
+
+**Example of Proper Failure Handling** (GOOD):
+```javascript
+async function renderSettings() {
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  
+  if (sessionError) {
+    logError(DebugModule.SETTINGS, 'Session error during settings load', { error: sessionError.message });
+    renderErrorMessage(container, 'Session Error', 'Please try refreshing the page.');
+    return; // ✅ User sees message, admin sees log
+  }
+  
+  if (!session) {
+    logWarn(DebugModule.SETTINGS, 'Settings hidden: no active session');
+    renderSignedOutMessage(container);
+    return; // ✅ User sees sign-in prompt, admin sees log
+  }
+  
+  // Render settings...
+}
+```
+
+### Rules for All Code
+
+1. **Never return without logging** - Use `logInfo`, `logWarn`, or `logError`
+2. **Never exit without UI feedback** - Show message, fallback UI, or error state
+3. **Log before rendering** - Debug entry should come first
+4. **Use descriptive messages** - Make logs human-readable
+
+### Debug Levels for Early Returns
+
+| Situation | Level | Example |
+|-----------|-------|---------|
+| User not signed in | `logWarn` | "Settings hidden: no active session" |
+| Permission denied | `logWarn` | "Settings hidden: role check failed" |
+| System error | `logError` | "Session error during settings load" |
+| Expected flow | `logInfo` | "Session verified, continuing render" |
+
+### Fallback UI Patterns
+
+**Sign-In Required**:
+```javascript
+function renderSignedOutMessage(container) {
+  container.innerHTML = `
+    <div style="text-align: center; padding: 3rem;">
+      <h2>Sign In Required</h2>
+      <p>Please sign in to access this page.</p>
+      <a href="/login.html" class="btn">Sign In</a>
+    </div>
+  `;
+}
+```
+
+**Access Denied**:
+```javascript
+function renderAccessDenied(container) {
+  container.innerHTML = `
+    <div style="text-align: center; padding: 3rem;">
+      <h2>Access Denied</h2>
+      <p>You do not have permission to view this page.</p>
+    </div>
+  `;
+}
+```
+
+**Generic Error**:
+```javascript
+function renderErrorMessage(container, title, message) {
+  container.innerHTML = `
+    <div style="text-align: center; padding: 3rem;">
+      <h2>${title}</h2>
+      <p>${message}</p>
+      <button onclick="location.reload()">Refresh Page</button>
+    </div>
+  `;
+}
+```
+
+### Verification Checklist
+
+Before submitting code, verify:
+- [ ] No `return` statements without logging
+- [ ] All error paths show user-friendly messages
+- [ ] Debug logs are human-readable
+- [ ] Appropriate severity level used
+- [ ] No raw SQL or RLS messages in UI
 
 ---
 

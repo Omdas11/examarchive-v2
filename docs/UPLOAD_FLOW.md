@@ -68,6 +68,12 @@ This document provides a step-by-step explanation of the upload process, common 
 │ ⚠️ CRITICAL CHECKPOINT:                                      │
 │    If session invalid → STOP, show error                     │
 │    If session valid → Continue to upload                     │
+│                                                              │
+│ 📝 NOTE (Phase 9.2.1):                                       │
+│    Session verification is MANDATORY before storage calls.   │
+│    This prevents anonymous uploads and "no permission"       │
+│    false negatives. Always await getSession() and verify     │
+│    session exists before calling storage APIs.               │
 └────────────────────────┬─────────────────────────────────────┘
                          │
                          ▼
