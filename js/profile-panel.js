@@ -7,6 +7,7 @@
 import { supabase } from "./supabase.js";
 import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
 import { getUserBadge, getBadgeIcon, getBadgeColor } from "./roles.js";
+import { isCurrentUserAdmin } from "./admin-auth.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -53,7 +54,6 @@ async function computeBadges(user) {
   
   console.log('[BADGE] Final badges array:', badges);
   return badges;
-}
 }
 
 /**
@@ -122,7 +122,6 @@ function initializeProfilePanel() {
 
   const panel = document.querySelector(".profile-panel");
   const backdrop = document.querySelector(".profile-panel-backdrop");
-  const closeBtn = document.querySelector(".profile-panel-close");
   const switchAccountModal = document.getElementById("switch-account-modal");
 
   if (!panel) {
@@ -134,13 +133,15 @@ function initializeProfilePanel() {
 
   function openPanel() {
     panel.classList.add("open");
-    // CRITICAL: Always refresh profile when opening to ensure latest role state
+    panel.setAttribute("aria-hidden", "false");
+    // CRITICAL: Always refresh profile when opening to ensure latest auth state
     renderProfilePanel();
     debug("🟢 profile panel opened");
   }
 
   function closePanel() {
     panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
     debug("🔴 profile panel closed");
   }
 
@@ -170,8 +171,15 @@ function initializeProfilePanel() {
     debug("🔴 switch account modal closed");
   }
 
+  // Close panel on backdrop click
   backdrop?.addEventListener("click", closePanel);
-  closeBtn?.addEventListener("click", closePanel);
+
+  // Close panel on ESC key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && panel.classList.contains("open")) {
+      closePanel();
+    }
+  });
 
   // Close on any [data-close-profile] element
   document.addEventListener("click", (e) => {
@@ -183,6 +191,13 @@ function initializeProfilePanel() {
   // Close switch account modal
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-switch]")) {
+      closeSwitchAccountModal();
+    }
+  });
+
+  // Close switch account modal on ESC key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && switchAccountModal?.classList.contains("open")) {
       closeSwitchAccountModal();
     }
   });
@@ -222,23 +237,16 @@ function initializeProfilePanel() {
   clickHandlerAttached = true;
   debug("✅ profile panel handlers attached");
 
-  // CRITICAL: Only render profile after role is ready
-  // Do NOT render immediately on initialization
-  if (window.__APP_ROLE__ && window.__APP_ROLE__.ready) {
-    renderProfilePanel();
-  } else {
-    debug("⏳ Waiting for role:ready before initial profile render");
-  }
+  // Render profile panel immediately with current session
+  renderProfilePanel();
 }
 
 /* ===============================
    Render profile panel with dynamic elements
-   CRITICAL: This must wait for role:ready before rendering role-dependent UI
+   Uses supabase.auth.getSession() as SINGLE SOURCE OF TRUTH
    =============================== */
 async function renderProfilePanel() {
-  // CRITICAL: Wait for role to be ready before rendering any role-dependent UI
-  await waitForRoleReady();
-  
+  // Get current session directly - SINGLE SOURCE OF TRUTH
   const { data } = await supabase.auth.getSession();
   const session = data?.session;
   const user = session?.user;
@@ -273,7 +281,7 @@ async function renderProfilePanel() {
     // Update avatar using shared utility
     updateAvatarElement(avatarEl, user);
 
-    // Compute and render badges dynamically (already waits for role:ready internally)
+    // Compute and render badges dynamically
     const badges = await computeBadges(user);
     console.log('[PROFILE-PANEL] Badges computed:', badges);
     renderBadges(badges);
@@ -281,8 +289,8 @@ async function renderProfilePanel() {
     // Show stats
     if (statsSection) statsSection.style.display = "grid";
 
-    // Check if user is admin - use ONLY global role state
-    const userIsAdmin = window.__APP_ROLE__.status === 'admin';
+    // Check if user is admin - use BACKEND VERIFICATION ONLY
+    const userIsAdmin = await isCurrentUserAdmin();
     console.log('[PROFILE-PANEL] User is admin:', userIsAdmin);
     console.log('[ADMIN] dashboard access', userIsAdmin ? 'granted' : 'denied');
 
@@ -316,7 +324,7 @@ async function renderProfilePanel() {
     // Update avatar for guest
     updateAvatarElement(avatarEl, null);
 
-    // Show guest badge (already waits for role:ready internally)
+    // Show guest badge
     const guestBadges = await computeBadges(null);
     console.log('[PROFILE-PANEL] Guest badges computed:', guestBadges);
     renderBadges(guestBadges);
@@ -362,17 +370,5 @@ document.addEventListener("profile-panel:loaded", () => {
    =============================== */
 supabase.auth.onAuthStateChange(() => {
   debug("🔔 Auth state changed, re-rendering profile panel");
-  renderProfilePanel();
-});
-
-/* ===============================
-   Listen for role:ready event
-   CRITICAL: This ensures UI updates when role state becomes available
-   =============================== */
-window.addEventListener('role:ready', () => {
-  debug("🔔 Role ready event received, re-rendering profile panel");
-  const roleState = window.__APP_ROLE__;
-  console.log('[ROLE] resolved:', roleState.status);
-  console.log('[BADGE] should render:', roleState.badge);
   renderProfilePanel();
 });

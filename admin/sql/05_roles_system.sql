@@ -222,7 +222,10 @@ comment on column profiles.badge is 'DISPLAY ONLY: Badge text for UI, computed f
 -- ============================================
 
 create or replace function handle_new_user_role()
-returns trigger as $$
+returns trigger 
+security definer
+set search_path = public
+as $$
 declare
   user_role_id uuid;
 begin
@@ -233,12 +236,12 @@ begin
   if user_role_id is not null then
     insert into user_roles (user_id, role_id)
     values (new.id, user_role_id)
-    on conflict (user_id, role_id) do nothing;
+    on conflict (user_id, role_id) do nothing; -- Prevent errors if already exists
   end if;
   
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql;
 
 -- Drop old trigger if exists
 drop trigger if exists on_auth_user_created_role on auth.users;

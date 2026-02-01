@@ -40,8 +40,12 @@ with check (
 );
 
 -- Function to automatically create profile on user signup
+-- UPDATED: Uses SECURITY DEFINER and handles conflicts gracefully
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger 
+security definer
+set search_path = public
+as $$
 begin
   insert into public.profiles (id, email, role, badge)
   values (
@@ -49,10 +53,11 @@ begin
     new.email,
     'user', -- default role
     'Contributor' -- default badge
-  );
+  )
+  on conflict (id) do nothing; -- Prevent errors if already exists
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql;
 
 -- Trigger to create profile on signup
 drop trigger if exists on_auth_user_created on auth.users;

@@ -5,7 +5,6 @@
 // ============================================
 
 import { supabase } from "./supabase.js";
-import { getUserProfile, clearRoleCache, initializeGlobalRoleState } from "./roles.js";
 
 /* ===============================
    🔑 AUTH GUARD FUNCTION
@@ -173,15 +172,6 @@ function debugBox(text) {
     debugBox("✅ Active Supabase session found");
   } else {
     debugBox("ℹ️ No active session");
-    clearRoleCache(); // Clear any stale cache
-  }
-
-  // Initialize global role state (handles profile fetch internally)
-  try {
-    await initializeGlobalRoleState();
-    debugBox("✅ Global role state initialized");
-  } catch (err) {
-    debugBox("⚠️ Error initializing global role state: " + err.message);
   }
 
   // 🔥 Always clean OAuth hash and query params (PREVENT LOOP)
@@ -202,7 +192,10 @@ function debugBox(text) {
    Load partial helper
    =============================== */
 function loadPartial(id, file, callback) {
-  fetch(file)
+  // Make path root-relative if it's not already
+  const path = file.startsWith('/') ? file : `/${file}`;
+  
+  fetch(path)
     .then(res => res.text())
     .then(html => {
       const container = document.getElementById(id);
@@ -213,13 +206,13 @@ function loadPartial(id, file, callback) {
       container.innerHTML = html;
       callback && callback();
     })
-    .catch(() => debugBox("❌ Failed to load " + file));
+    .catch(() => debugBox("❌ Failed to load " + path));
 }
 
 /* ===============================
    Header
    =============================== */
-loadPartial("header", "partials/header.html", () => {
+loadPartial("header", "/partials/header.html", () => {
   highlightActiveNav();
   document.dispatchEvent(new CustomEvent("header:loaded"));
   debugBox("✅ Header loaded");
@@ -228,19 +221,19 @@ loadPartial("header", "partials/header.html", () => {
 /* ===============================
    Footer
    =============================== */
-loadPartial("footer", "partials/footer.html");
+loadPartial("footer", "/partials/footer.html");
 
 /* ===============================
    Avatar popup
    =============================== */
-loadPartial("avatar-portal", "partials/avatar-popup.html", () => {
+loadPartial("avatar-portal", "/partials/avatar-popup.html", () => {
   document.dispatchEvent(new CustomEvent("avatar:loaded"));
 });
 
 /* ===============================
    Profile panel
    =============================== */
-loadPartial("profile-panel-portal", "partials/profile-panel.html", () => {
+loadPartial("profile-panel-portal", "/partials/profile-panel.html", () => {
   document.dispatchEvent(new CustomEvent("profile-panel:loaded"));
 });
 
@@ -289,7 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("avatar:loaded", () => {
   if (document.getElementById("avatar-script")) return;
   const s = document.createElement("script");
-  s.src = "js/avatar.js";
+  s.src = "/js/avatar.js";
   s.defer = true;
   s.id = "avatar-script";
   document.body.appendChild(s);
@@ -373,18 +366,5 @@ document.addEventListener("header:loaded", () => {
    =============================== */
 supabase.auth.onAuthStateChange((event) => {
   debugBox("🔔 AUTH EVENT: " + event);
-  
-  // Clear role cache on auth changes (except token refresh)
-  if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
-    clearRoleCache();
-    
-    // Re-initialize global role state
-    initializeGlobalRoleState().then(() => {
-      debugBox(`✅ Global role state updated after ${event}`);
-    }).catch(err => {
-      debugBox(`⚠️ Error updating role state after ${event}: ${err.message}`);
-    });
-  }
-  
   syncAuthToUI("auth.change");
 });
