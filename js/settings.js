@@ -357,18 +357,36 @@ function renderAccessDenied(container) {
  * Render generic error message
  */
 function renderErrorMessage(container, title, message) {
-  container.innerHTML = `
-    <div class="settings-card" style="text-align: center; padding: 3rem 2rem;">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-      <h2 style="margin-bottom: 1rem;">${title}</h2>
-      <p class="text-muted" style="margin-bottom: 2rem;">
-        ${message}
-      </p>
-      <button onclick="location.reload()" class="btn btn-outline">
-        Refresh Page
-      </button>
-    </div>
-  `;
+  // Create elements safely to prevent XSS
+  const card = document.createElement('div');
+  card.className = 'settings-card';
+  card.style.cssText = 'text-align: center; padding: 3rem 2rem;';
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
+  icon.textContent = '⚠️';
+
+  const heading = document.createElement('h2');
+  heading.style.marginBottom = '1rem';
+  heading.textContent = title;
+
+  const messageP = document.createElement('p');
+  messageP.className = 'text-muted';
+  messageP.style.marginBottom = '2rem';
+  messageP.textContent = message;
+
+  const refreshBtn = document.createElement('button');
+  refreshBtn.className = 'btn btn-outline';
+  refreshBtn.textContent = 'Refresh Page';
+  refreshBtn.addEventListener('click', () => location.reload());
+
+  card.appendChild(icon);
+  card.appendChild(heading);
+  card.appendChild(messageP);
+  card.appendChild(refreshBtn);
+
+  container.innerHTML = '';
+  container.appendChild(card);
 }
 
 // ===============================
