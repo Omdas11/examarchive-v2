@@ -89,10 +89,30 @@ export async function handlePaperUpload(file, metadata, onProgress) {
 
   } catch (error) {
     console.error('Upload error:', error);
+    
+    // Provide user-friendly error messages
+    let userMessage = 'Upload failed. Please try again.';
+    
+    if (error.message?.includes('JWT')) {
+      userMessage = 'Your session has expired. Please sign in again.';
+    } else if (error.message?.includes('RLS') || error.message?.includes('policy')) {
+      userMessage = 'You do not have permission to upload. Please contact support.';
+    } else if (error.message?.includes('storage')) {
+      userMessage = 'File storage error. Please try again or contact support.';
+    } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+      userMessage = 'Network error. Please check your connection and try again.';
+    } else if (error.message) {
+      // Use the error message if it's already user-friendly
+      const friendlyErrors = ['PDF', 'size', 'signed in', 'allowed'];
+      if (friendlyErrors.some(term => error.message.includes(term))) {
+        userMessage = error.message;
+      }
+    }
+    
     return {
       success: false,
       submissionId: null,
-      message: error.message || 'Upload failed',
+      message: userMessage,
       error
     };
   }

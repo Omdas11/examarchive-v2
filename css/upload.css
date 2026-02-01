@@ -1,6 +1,7 @@
 /* ================================
    Upload Page – ExamArchive
    Mobile-first, backend-ready
+   Phase 9.1: Upload Type Selector
    ================================ */
 
 /* ---------- Page Wrapper ---------- */
@@ -18,6 +19,83 @@
 
 .upload-intro p {
   font-size: 0.9rem;
+}
+
+/* ---------- Upload Type Selector ---------- */
+.upload-type-selector {
+  margin-top: 1.5rem;
+}
+
+.upload-type-selector h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.type-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.type-option {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  padding: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: all 0.2s ease;
+}
+
+.type-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.type-option:not(.disabled):hover {
+  border-color: var(--red);
+  background: rgba(211,47,47,0.04);
+}
+
+.type-option.active {
+  border-color: var(--red);
+  background: rgba(211,47,47,0.08);
+  box-shadow: 0 2px 8px rgba(211,47,47,0.15);
+}
+
+.type-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-soft);
+}
+
+.type-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.type-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.type-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.type-info strong {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.type-info small {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 /* ---------- Upload Card ---------- */
@@ -132,6 +210,23 @@
 
   .upload-intro h1 {
     font-size: 1.6rem;
+  }
+
+  .type-options {
+    flex-direction: row;
+  }
+
+  .type-option {
+    flex: 1;
+  }
+
+  .type-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .type-icon {
+    font-size: 2.5rem;
   }
 }
 

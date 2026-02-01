@@ -21,14 +21,12 @@ create table if not exists roles (
 insert into roles (name, level, description) values
   ('visitor', 0, 'Guest user without account'),
   ('user', 10, 'Logged-in user with basic permissions'),
+  ('ai_reviewer', 40, 'AI-assisted review role for automated quality checks'),
   ('reviewer', 50, 'Can review and moderate submissions'),
+  ('moderator', 60, 'Community moderator with content management powers'),
+  ('curator', 70, 'Content curator for organizing and improving archives'),
   ('admin', 100, 'Full administrative access')
 on conflict (name) do nothing;
-
--- Future roles (Phase 7+) - documented but not yet used
--- ('moderator', 60, 'Community moderator')
--- ('ai_reviewer', 40, 'AI-assisted review role')
--- ('curator', 70, 'Content curator')
 
 -- ============================================
 -- 2. USER_ROLES TABLE (NEW)
