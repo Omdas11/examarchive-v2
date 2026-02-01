@@ -1,12 +1,14 @@
 // admin/dashboard.js
 // ============================================
-// ADMIN DASHBOARD - Phase 8
+// ADMIN DASHBOARD - Phase 9.2
+// Updated to use proper role verification
 // ============================================
 
 import { supabase } from "../js/supabase.js";
-import { waitForRole } from "../js/roles.js";
+import { getUserRoleBackend } from "../js/admin-auth.js";
 import { moveFile, copyFile, deleteFile, getPublicUrl, BUCKETS } from "../js/supabase-client.js";
 import { formatFileSize, formatDate } from "../js/upload-handler.js";
+import { logInfo, logError, DebugModule } from "../js/debug/logger.js";
 
 console.log("🎛️ dashboard.js loaded");
 
@@ -16,39 +18,48 @@ let allSubmissions = [];
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log('[ADMIN-DASHBOARD] DOMContentLoaded - Checking admin access...');
+  logInfo(DebugModule.ADMIN, 'DOMContentLoaded - Checking admin access...');
   
   const loadingState = document.getElementById('loading-state');
   const accessDenied = document.getElementById('access-denied');
   const dashboardContent = document.getElementById('dashboard-content');
 
   try {
-    // CRITICAL: Wait for role to be ready before checking access
-    console.log('[ADMIN-DASHBOARD] Waiting for role:ready event...');
-    const roleState = await waitForRole();
-    console.log('[ADMIN-DASHBOARD] Role state received:', roleState);
-    console.log('[ROLE] resolved:', roleState.status);
+    // CRITICAL: Get session and verify role
+    logInfo(DebugModule.ADMIN, 'Getting authenticated session...');
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      logError(DebugModule.AUTH, 'No active session - access denied');
+      loadingState.style.display = 'none';
+      accessDenied.style.display = 'flex';
+      return;
+    }
+
+    logInfo(DebugModule.ADMIN, 'Session verified, checking role...');
+    const roleInfo = await getUserRoleBackend(session.user.id);
+    logInfo(DebugModule.ADMIN, 'Role check result', { role: roleInfo?.name, level: roleInfo?.level });
     
     // Hide loading state
     loadingState.style.display = 'none';
     
-    // Check if user has admin role - ONLY use global role state
-    const hasAdminAccess = roleState.status === 'admin';
-    console.log('[ADMIN-DASHBOARD] Admin access check:', hasAdminAccess ? 'GRANTED' : 'DENIED');
+    // Check if user has admin or reviewer role
+    const hasAdminAccess = roleInfo && (roleInfo.name === 'admin' || roleInfo.name === 'reviewer');
+    logInfo(DebugModule.ADMIN, `Admin access check: ${hasAdminAccess ? 'GRANTED' : 'DENIED'}`);
     
     if (!hasAdminAccess) {
       accessDenied.style.display = 'flex';
-      console.log("🔒 Admin dashboard access denied - user role is:", roleState.status);
+      logError(DebugModule.ADMIN, 'Access denied - insufficient permissions', { role: roleInfo?.name });
       return;
     }
 
-    console.log("✅ Admin access granted");
-    console.log('[ADMIN] dashboard access granted');
+    logInfo(DebugModule.ADMIN, 'Admin access granted - initializing dashboard');
     dashboardContent.style.display = 'block';
 
     // Initialize dashboard
     initializeDashboard();
   } catch (err) {
+    logError(DebugModule.ADMIN, 'Error checking admin access', { error: err.message });
     console.error('[ADMIN-DASHBOARD] Error checking access:', err);
     loadingState.style.display = 'none';
     accessDenied.style.display = 'flex';

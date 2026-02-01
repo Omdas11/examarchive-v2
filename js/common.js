@@ -1,10 +1,11 @@
 // js/common.js
 // ============================================
 // GLOBAL BOOTSTRAP (Theme + Partials + Auth Hook)
-// SUPABASE – MOBILE DEBUG VERSION (STABLE)
+// Phase 9.2: Integrated with new debug system
 // ============================================
 
 import { supabase } from "./supabase.js";
+import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
 
 /* ===============================
    🔑 AUTH GUARD FUNCTION
@@ -23,7 +24,7 @@ export async function requireAuth(options = {}) {
   const isAuthenticated = !!data?.session;
   
   if (!isAuthenticated) {
-    debugBox("🔒 Auth required - user not logged in");
+    logWarn(DebugModule.AUTH, 'Auth required - user not logged in');
     
     if (showMessage) {
       // Show auth required UI
@@ -68,7 +69,7 @@ export async function requireAuth(options = {}) {
     return false;
   }
   
-  debugBox("✅ Auth check passed");
+  logInfo(DebugModule.AUTH, 'Auth check passed - user authenticated');
   return true;
 }
 
@@ -138,53 +139,29 @@ export async function requireAuth(options = {}) {
   }
 })();
 
-/* ===============================
-   Mobile debug helper (VISIBLE)
-   =============================== */
-function debugBox(text) {
-  let box = document.getElementById("debug-box");
-  if (!box) {
-    box = document.createElement("div");
-    box.id = "debug-box";
-    box.style.position = "fixed";
-    box.style.bottom = "10px";
-    box.style.left = "10px";
-    box.style.zIndex = "999999";
-    box.style.background = "#000";
-    box.style.color = "#0f0";
-    box.style.padding = "8px";
-    box.style.fontSize = "12px";
-    box.style.fontFamily = "monospace";
-    box.style.maxWidth = "90vw";
-    document.body.appendChild(box);
-  }
-  box.textContent = text;
-  console.log(text);
-}
-
 /* ==================================================
-   🔑 SUPABASE SESSION CHECK (NO TOKEN PARSING)
+   🔑 SUPABASE SESSION CHECK
    ================================================== */
 (async function checkSessionOnce() {
   const { data } = await supabase.auth.getSession();
 
   if (data?.session) {
-    debugBox("✅ Active Supabase session found");
+    logInfo(DebugModule.AUTH, 'Active Supabase session found', { userId: data.session.user.id });
   } else {
-    debugBox("ℹ️ No active session");
+    logInfo(DebugModule.AUTH, 'No active session');
   }
 
   // 🔥 Always clean OAuth hash and query params (PREVENT LOOP)
   if (window.location.hash.includes("access_token")) {
     history.replaceState({}, document.title, window.location.pathname);
-    debugBox("🧹 OAuth hash cleaned from URL");
+    logInfo(DebugModule.AUTH, 'OAuth hash cleaned from URL');
   }
   
   // 🔥 Clean OAuth ?code= query parameter after session is established
   const params = new URLSearchParams(window.location.search);
   if (params.has("code")) {
     history.replaceState({}, document.title, window.location.pathname);
-    debugBox("🧹 OAuth code parameter cleaned from URL");
+    logInfo(DebugModule.AUTH, 'OAuth code parameter cleaned from URL');
   }
 })();
 
@@ -200,13 +177,13 @@ function loadPartial(id, file, callback) {
     .then(html => {
       const container = document.getElementById(id);
       if (!container) {
-        debugBox("❌ Missing container: #" + id);
+        logError(DebugModule.SYSTEM, `Missing container: #${id}`);
         return;
       }
       container.innerHTML = html;
       callback && callback();
     })
-    .catch(() => debugBox("❌ Failed to load " + path));
+    .catch(() => logError(DebugModule.SYSTEM, `Failed to load ${path}`));
 }
 
 /* ===============================
@@ -215,7 +192,7 @@ function loadPartial(id, file, callback) {
 loadPartial("header", "/partials/header.html", () => {
   highlightActiveNav();
   document.dispatchEvent(new CustomEvent("header:loaded"));
-  debugBox("✅ Header loaded");
+  logInfo(DebugModule.SYSTEM, 'Header loaded');
 });
 
 /* ===============================
@@ -296,10 +273,10 @@ async function syncAuthToUI(stage) {
   const session = data?.session || null;
   const user = session?.user || null;
 
-  debugBox(
-    "🔎 " + stage +
-    " | auth=" + (user ? "USER" : "NULL")
-  );
+  logInfo(DebugModule.AUTH, `UI sync triggered: ${stage}`, { 
+    authenticated: !!user,
+    userId: user?.id 
+  });
 
   const avatarMini = document.querySelector(".avatar-mini");
   if (avatarMini && user) {
@@ -365,6 +342,30 @@ document.addEventListener("header:loaded", () => {
    Supabase auth listener
    =============================== */
 supabase.auth.onAuthStateChange((event) => {
-  debugBox("🔔 AUTH EVENT: " + event);
+  logInfo(DebugModule.AUTH, `Auth event: ${event}`);
   syncAuthToUI("auth.change");
 });
+
+/* ===============================
+   Initialize debug panel on load
+   =============================== */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Dynamically import debug panel for admin/reviewer only
+    try {
+      const { debugPanel } = await import('./debug/panel.js');
+    } catch (err) {
+      // Debug panel not available, continue without it
+      console.log('Debug panel not loaded:', err.message);
+    }
+  });
+} else {
+  // If DOM already loaded, initialize immediately
+  (async () => {
+    try {
+      const { debugPanel } = await import('./debug/panel.js');
+    } catch (err) {
+      console.log('Debug panel not loaded:', err.message);
+    }
+  })();
+}
