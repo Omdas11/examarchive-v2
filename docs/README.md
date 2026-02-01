@@ -1,10 +1,10 @@
 # ExamArchive Documentation
 
-**Last Updated:** Phase 8.3 Completion (February 2026)
+**Last Updated:** Phase 9.1 Completion (February 2026)
 
 ## Current Documentation Structure
 
-This directory contains **ONLY** forward-looking documentation for Phases 9-12. All legacy Phase 1-8 documentation has been intentionally removed to maintain clarity and focus on future development.
+This directory contains forward-looking documentation for Phases 9-12. All legacy Phase 1-8 documentation has been intentionally removed to maintain clarity and focus on future development.
 
 ### Core Documents
 
@@ -12,45 +12,74 @@ This directory contains **ONLY** forward-looking documentation for Phases 9-12. 
    - Single source of truth for system design
    - Defines long-term goals and technical direction
 
-2. **PHASE9_RQ_SYSTEM.md** - Review Queue System
-   - Moderation workflow improvements
-   - Queue-based submission management
+2. **PHASE9.1_COMPLETION.md** - Stabilization & Upload Demo ✅ COMPLETE
+   - System stabilization fixes
+   - Upload type selector
+   - Footer redesign
+   - Legal pages
 
-3. **PHASE10_SYLLABUS_SYSTEM.md** - Syllabus Integration
+3. **PHASE9_RQ_SYSTEM.md** - Repeated Questions System (Phase 9.2)
+   - Question extraction from papers
+   - Repeated question tracking
+
+4. **PHASE10_SYLLABUS_SYSTEM.md** - Syllabus Integration
    - Structured curriculum mapping
    - Paper-to-topic relationships
 
-4. **PHASE11_NOTES_SYSTEM.md** - Notes & Annotations
+5. **PHASE11_NOTES_SYSTEM.md** - Notes & Annotations
    - User-contributed study materials
    - Collaborative learning features
 
-5. **PHASE12_AI_AUTOMATION.md** - AI-Powered Automation
+6. **PHASE12_AI_AUTOMATION.md** - AI-Powered Automation
    - Intelligent paper classification
    - Automated quality checks
    - Smart recommendations
 
-## Phase 8.3 Completion Summary
+## Phase 9.1 Completion Summary
 
-**What was fixed:**
-- ✅ Auth state desync resolved (using `supabase.auth.getSession()` as single source)
-- ✅ Profile panel no longer shows "Guest" for logged-in users
-- ✅ Profile modal always closable (ESC, backdrop, close button)
-- ✅ Admin Dashboard button appears in profile menu for admins only
-- ✅ Admin dashboard loads without 404 overlays (fixed root-relative paths)
-- ✅ New user signup failure resolved (trigger conflicts fixed with SECURITY DEFINER)
-- ✅ Badge system simplified (DISPLAY ONLY, backend-verified)
+**Status:** ✅ COMPLETE (February 2026)
 
-**Backend Authority:**
+### Major Achievements
+
+**1. Admin Dashboard Fixes**
+- ✅ Fixed "Failed to load submissions" false errors
+- ✅ Fixed hamburger navigation 404 redirects (root-relative paths)
+- ✅ Added admin-only delete functionality for submissions
+
+**2. Upload Page Enhancements**
+- ✅ Upload type selector (Question Paper, RQ, Notes)
+- ✅ User-friendly error messages (no SQL errors exposed)
+- ✅ Mobile-responsive design
+
+**3. Footer Redesign**
+- ✅ 3-column layout (Resources, Institutions, Help & Support)
+- ✅ Platform logos row (GitHub, Google, Gemini, Supabase, ChatGPT)
+- ✅ University logos row
+- ✅ All links functional
+
+**4. Legal Compliance**
+- ✅ Terms & Conditions page (`/terms.html`)
+- ✅ Privacy Policy page (`/privacy.html`)
+- ✅ Footer links to legal pages
+
+**5. Roles System Extension**
+- ✅ Added `moderator` role (level 60)
+- ✅ Added `curator` role (level 70)
+- ✅ Added `ai_reviewer` role (level 40)
+- ✅ Backend schema updated
+
+### Backend Authority (Maintained)
+
 - Role system is backend-first (roles table + user_roles table)
 - Frontend NEVER guesses or caches auth/role state
 - All admin checks use `is_current_user_admin()` RPC
-- Badge information comes from `getUserBadge()` backend call
+- Badge information comes from backend queries
 
-**No Global State:**
-- Removed `window.__APP_ROLE__` dependency
-- Removed `waitForRoleReady()` function
-- Removed `initializeGlobalRoleState()` and `clearRoleCache()`
+### No Global State (Maintained)
+
+- No `window.__APP_ROLE__` dependency
 - Each component fetches fresh session/role data when needed
+- Session-based truth via `supabase.auth.getSession()`
 
 ## Development Guidelines
 
@@ -58,14 +87,15 @@ This directory contains **ONLY** forward-looking documentation for Phases 9-12. 
 2. **Backend is Authority** - Frontend displays what backend tells it
 3. **Session-Based Truth** - Use `supabase.auth.getSession()` for all auth checks
 4. **Role Verification** - Use RPCs (`is_current_user_admin()`, `getUserBadge()`) for roles
-5. **Clean Documentation** - Update only these Phase 9-12 docs as features are built
+5. **Clean Documentation** - Update these Phase 9-12 docs as features are built
 
 ## Next Steps
 
 Development should proceed in order:
-1. Phase 9: Review Queue System
-2. Phase 10: Syllabus System
-3. Phase 11: Notes System
-4. Phase 12: AI Automation
+1. ✅ **Phase 9.1:** Stabilization & Upload Demo - COMPLETE
+2. 🔜 **Phase 9.2:** Repeated Questions System
+3. 🔜 **Phase 10:** Syllabus System
+4. 🔜 **Phase 11:** Notes System
+5. 🔜 **Phase 12:** AI Automation
 
 Each phase should reference ARCHITECTURE_MASTER_PLAN.md for design alignment.

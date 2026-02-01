@@ -263,11 +263,21 @@ function renderSubmissionCard(submission) {
           <button class="btn btn-success" data-action="approve" data-id="${submission.id}">
             Approve & Publish
           </button>
+          <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: #f44336;">
+            Delete
+          </button>
         ` : submission.status === 'approved' ? `
           <button class="btn btn-view" data-action="publish" data-id="${submission.id}">
             Publish Now
           </button>
-        ` : ''}
+          <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: #f44336;">
+            Delete
+          </button>
+        ` : `
+          <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: #f44336;">
+            Delete
+          </button>
+        `}
       </div>
     </div>
   `;
@@ -295,6 +305,8 @@ function attachSubmissionListeners() {
         showRejectModal(submission);
       } else if (action === 'publish') {
         await publishSubmission(submission);
+      } else if (action === 'delete') {
+        await deleteSubmission(submission);
       }
     });
   });
@@ -530,6 +542,48 @@ async function publishSubmission(submission) {
   } catch (error) {
     console.error('Error publishing submission:', error);
     showMessage('Failed to publish submission: ' + error.message, 'error');
+  }
+}
+
+/**
+ * Delete submission (admin only)
+ */
+async function deleteSubmission(submission) {
+  // Confirm deletion
+  if (!confirm(`Are you sure you want to delete this submission?\n\n${submission.paper_code} - ${submission.exam_year}\n\nThis action cannot be undone.`)) {
+    return;
+  }
+
+  try {
+    showMessage('Deleting submission...', 'info');
+
+    // Delete file from storage based on status
+    if (submission.temp_path) {
+      await deleteFile(BUCKETS.TEMP, submission.temp_path);
+    }
+    if (submission.approved_path) {
+      await deleteFile(BUCKETS.APPROVED, submission.approved_path);
+    }
+    if (submission.public_path) {
+      await deleteFile(BUCKETS.PUBLIC, submission.public_path);
+    }
+
+    // Delete submission record from database
+    const { error: deleteError } = await supabase
+      .from('submissions')
+      .delete()
+      .eq('id', submission.id);
+
+    if (deleteError) throw deleteError;
+
+    showMessage('Submission deleted successfully', 'success');
+    
+    // Reload submissions
+    await loadSubmissions();
+
+  } catch (error) {
+    console.error('Error deleting submission:', error);
+    showMessage('Failed to delete submission: ' + error.message, 'error');
   }
 }
 
