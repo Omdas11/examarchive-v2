@@ -1,16 +1,10 @@
 // ===============================
 // Settings Page Controller
 // Phase 9.2: Added debug panel controls
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // ===============================
 
 console.log("⚙️ settings.js loaded");
-
-// Import shared auth utilities (no auth logic in settings)
-import { handleLogout } from "./avatar-utils.js";
-import { supabase } from "./supabase.js";
-import { getUserRoleBackend } from "./admin-auth.js";
-import { debugLogger, toggleDebugPanel } from "./debug/panel.js";
-import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
 
 // ===============================
 // Settings Configuration
@@ -246,53 +240,53 @@ async function renderSettings() {
   const container = document.getElementById("settings-container");
   if (!container) {
     console.error("❌ Settings container not found");
-    logError(DebugModule.SYSTEM, 'Settings container element not found in DOM');
+    window.Debug.logError(window.Debug.DebugModule.SYSTEM, 'Settings container element not found in DOM');
     return;
   }
 
-  logInfo(DebugModule.SETTINGS, 'Starting settings page render, checking session...');
+  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Starting settings page render, checking session...');
 
   // CRITICAL: Wait for session to be ready before rendering
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  const { data: { session }, error: sessionError } = await window.__supabase__.auth.getSession();
   
   if (sessionError) {
-    logError(DebugModule.AUTH, 'Session error during settings load', { error: sessionError.message });
+    window.Debug.logError(window.Debug.DebugModule.AUTH, 'Session error during settings load', { error: sessionError.message });
     renderErrorMessage(container, 'Session Error', 'There was an error checking your session. Please try refreshing the page.');
     return;
   }
 
   // Check if user is signed in
   if (!session) {
-    logWarn(DebugModule.SETTINGS, 'Settings hidden: no active session');
+    window.Debug.logWarn(window.Debug.DebugModule.SETTINGS, 'Settings hidden: no active session');
     renderSignedOutMessage(container);
     return;
   }
 
-  logInfo(DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
+  window.Debug.logInfo(window.Debug.DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
 
   const user = session.user;
   
   // Backend role verification - MANDATORY before rendering settings
-  const roleInfo = await getUserRoleBackend(user.id);
+  const roleInfo = await window.AdminAuth.getUserRoleBackend(user.id);
   
   if (!roleInfo) {
-    logError(DebugModule.ROLE, 'Failed to retrieve user role from backend');
+    window.Debug.logError(window.Debug.DebugModule.ROLE, 'Failed to retrieve user role from backend');
     renderErrorMessage(container, 'Error Loading Settings', 'Unable to verify your permissions. Please try refreshing the page.');
     return;
   }
 
-  logInfo(DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
+  window.Debug.logInfo(window.Debug.DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
 
   // Check if user has appropriate role (admin or reviewer can see settings)
   const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
   
   if (!isAdmin) {
-    logWarn(DebugModule.SETTINGS, 'Settings hidden: role check failed', { role: roleInfo.name });
+    window.Debug.logWarn(window.Debug.DebugModule.SETTINGS, 'Settings hidden: role check failed', { role: roleInfo.name });
     renderAccessDenied(container);
     return;
   }
 
-  logInfo(DebugModule.SETTINGS, 'Rendering settings UI for authorized user');
+  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authorized user');
 
   container.innerHTML = "";
 
@@ -309,7 +303,7 @@ async function renderSettings() {
   // Attach event listeners
   attachEventListeners();
 
-  logInfo(DebugModule.SETTINGS, 'Settings UI rendered successfully');
+  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Settings UI rendered successfully');
   console.log("✅ Settings rendered");
 }
 
@@ -1073,11 +1067,11 @@ function attachEventListeners() {
       const isEnabled = e.target.checked;
       
       if (isEnabled) {
-        debugLogger.enablePanel();
-        toggleDebugPanel(); // Show panel
+        window.Debug.debugLogger.enablePanel();
+        window.Debug.togglePanel(); // Show panel
       } else {
-        debugLogger.disablePanel();
-        toggleDebugPanel(); // Hide panel
+        window.Debug.debugLogger.disablePanel();
+        window.Debug.togglePanel(); // Hide panel
       }
       
       console.log(`🐛 Debug panel ${isEnabled ? "enabled" : "disabled"}`);
@@ -1093,7 +1087,7 @@ function attachEventListeners() {
   const clearDebugBtn = document.getElementById("clear-debug-logs");
   if (clearDebugBtn) {
     clearDebugBtn.addEventListener("click", () => {
-      debugLogger.clear();
+      window.Debug.debugLogger.clear();
       console.log("🗑️ Debug logs cleared");
       
       // Show feedback
@@ -1117,7 +1111,7 @@ function attachEventListeners() {
         resetDemoBtn.textContent = "Resetting...";
         
         // Delete all submissions (admin only - protected by RLS)
-        const { error } = await supabase
+        const { error } = await window.__supabase__
           .from('submissions')
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
@@ -1147,7 +1141,7 @@ function attachEventListeners() {
   if (signOutBtn) {
     signOutBtn.addEventListener("click", async () => {
       console.log("🚪 Sign out clicked");
-      await handleLogout();
+      await window.AvatarUtils.handleLogout();
     });
   }
 }
@@ -1161,7 +1155,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Re-render on auth state change
-supabase.auth.onAuthStateChange(() => {
+window.__supabase__.auth.onAuthStateChange(() => {
   console.log("🔔 Auth state changed, re-rendering settings");
   renderSettings();
 });

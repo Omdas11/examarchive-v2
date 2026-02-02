@@ -1,11 +1,9 @@
 /**
  * ExamArchive v2 — Paper Page
+ * Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
  * FINAL (Year-resolved, schema-correct, UX-polished + PDF downloads)
  * + AUTH PROTECTED: RQ and Notes require login
  */
-
-// Import Supabase for auth checks
-import { supabase } from "./supabase.js";
 
 // Use relative path to work with custom domain
 const PAPERS_URL = "data/papers.json";
@@ -95,7 +93,7 @@ async function renderRepeatedQuestions(data) {
   container.innerHTML = "";
 
   // Check authentication
-  const { data: sessionData } = await supabase.auth.getSession();
+  const { data: sessionData } = await window.__supabase__.auth.getSession();
   const session = sessionData?.session;
 
   if (!session) {
@@ -208,7 +206,7 @@ async function setupSyllabusDownloads(paperCode) {
       e.stopPropagation();
 
       // Check authentication
-      const { data: sessionData } = await supabase.auth.getSession();
+      const { data: sessionData } = await window.__supabase__.auth.getSession();
       const session = sessionData?.session;
 
       if (!session) {
@@ -317,7 +315,7 @@ async function protectNotesSection() {
   if (!notesSection) return;
 
   // Check authentication
-  const { data: sessionData } = await supabase.auth.getSession();
+  const { data: sessionData } = await window.__supabase__.auth.getSession();
   const session = sessionData?.session;
 
   if (!session) {
