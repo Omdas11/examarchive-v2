@@ -1,17 +1,32 @@
-import { supabase } from "./supabase.js";
+// js/auth.js
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// Simple auth check - mainly for legacy/debug purposes
 
 console.log("🔐 auth.js loaded");
 
 async function checkAuth() {
-  const { data } = await supabase.auth.getSession();
+  await new Promise((resolve) => {
+    if (window.__AUTH_READY__) {
+      resolve();
+      return;
+    }
+    const checkInterval = setInterval(() => {
+      if (window.__AUTH_READY__) {
+        clearInterval(checkInterval);
+        resolve();
+      }
+    }, 50);
+  });
 
-  if (!data.session) {
-    alert("ℹ️ No active session");
+  const session = window.__SESSION__;
+
+  if (!session) {
+    console.log("ℹ️ No active session");
     return;
   }
 
-  const user = data.session.user;
-  alert("✅ Logged in as: " + user.email);
+  const user = session.user;
+  console.log("✅ Logged in as: " + user.email);
 
   // expose user globally
   window.currentUser = user;
@@ -23,9 +38,10 @@ async function checkAuth() {
 checkAuth();
 
 // listen for auth changes
-supabase.auth.onAuthStateChange((_event, session) => {
+window.addEventListener('auth-state-changed', (e) => {
+  const session = e.detail.session;
   if (session) {
-    alert("🔄 Session updated");
+    console.log("🔄 Session updated");
     window.location.reload();
   }
 });

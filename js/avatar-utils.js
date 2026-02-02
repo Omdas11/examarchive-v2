@@ -1,14 +1,13 @@
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // js/avatar-utils.js
 // ===============================
 // SHARED AVATAR UTILITIES
 // ===============================
 
-import { supabase } from "./supabase.js";
-
 /**
  * Generate a color from a string (for letter avatars)
  */
-export function stringToColor(str) {
+function stringToColor(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -20,7 +19,7 @@ export function stringToColor(str) {
 /**
  * Validate and sanitize avatar URL
  */
-export function sanitizeAvatarUrl(url) {
+function sanitizeAvatarUrl(url) {
   if (!url) return null;
   
   try {
@@ -38,7 +37,7 @@ export function sanitizeAvatarUrl(url) {
 /**
  * Update avatar element with user data
  */
-export function updateAvatarElement(avatarEl, user) {
+function updateAvatarElement(avatarEl, user) {
   if (!avatarEl) return;
 
   const fullName = user?.user_metadata?.full_name;
@@ -71,7 +70,8 @@ export function updateAvatarElement(avatarEl, user) {
 /**
  * Shared logout handler
  */
-export async function handleLogout() {
+async function handleLogout() {
+  const supabase = window.__supabase__;
   console.log("[avatar-utils] 🚪 Signing out...");
   await supabase.auth.signOut();
   location.reload();
@@ -80,7 +80,8 @@ export async function handleLogout() {
 /**
  * Shared sign-in handler
  */
-export async function handleSignIn() {
+async function handleSignIn() {
+  const supabase = window.__supabase__;
   console.log("[avatar-utils] 🔐 Signing in with Google...");
   
   const { error } = await supabase.auth.signInWithOAuth({
@@ -98,7 +99,8 @@ export async function handleSignIn() {
 /**
  * Shared switch account handler
  */
-export async function handleSwitchAccount() {
+async function handleSwitchAccount() {
+  const supabase = window.__supabase__;
   console.log("[avatar-utils] 🔄 Switching account...");
   
   // Sign out first to ensure user can select different account
@@ -107,3 +109,13 @@ export async function handleSwitchAccount() {
   // Then trigger OAuth flow
   await handleSignIn();
 }
+
+// Expose to window for global access
+window.AvatarUtils = {
+  stringToColor,
+  sanitizeAvatarUrl,
+  updateAvatarElement,
+  handleLogout,
+  handleSignIn,
+  handleSwitchAccount
+};

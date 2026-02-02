@@ -1,11 +1,9 @@
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // js/avatar-popup.js
 // ===============================
 // AVATAR POPUP CONTROLLER
 // Dynamic Rendering Based on Auth State
 // ===============================
-
-import { supabase } from "./supabase.js";
-import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
 
 function debug(msg) {
   console.log("[avatar-popup]", msg);
@@ -64,6 +62,12 @@ function initializeAvatarPopup() {
    Render avatar popup with dynamic elements
    =============================== */
 async function renderAvatarPopup() {
+  const supabase = window.__supabase__;
+  const updateAvatarElement = window.AvatarUtils.updateAvatarElement;
+  const handleLogout = window.AvatarUtils.handleLogout;
+  const handleSwitchAccount = window.AvatarUtils.handleSwitchAccount;
+  const handleSignIn = window.AvatarUtils.handleSignIn;
+  
   const { data } = await supabase.auth.getSession();
   const session = data?.session;
   const user = session?.user;
@@ -199,8 +203,10 @@ document.addEventListener("header:loaded", () => {
 /* ===============================
    Listen for auth changes
    =============================== */
-supabase.auth.onAuthStateChange(() => {
-  debug("🔔 Auth state changed, re-rendering avatar popup");
-  renderAvatarPopup();
-});
-
+(function() {
+  const supabase = window.__supabase__;
+  supabase.auth.onAuthStateChange(() => {
+    debug("🔔 Auth state changed, re-rendering avatar popup");
+    renderAvatarPopup();
+  });
+})();

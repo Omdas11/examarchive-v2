@@ -1,10 +1,9 @@
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // js/admin-auth.js
 // ============================================
 // ADMIN AUTHENTICATION - Backend Verification
 // Phase 8.3: Admin System Redesign
 // ============================================
-
-import { supabase } from "./supabase.js";
 
 /**
  * Backend-verified admin check using is_admin() function
@@ -14,7 +13,8 @@ import { supabase } from "./supabase.js";
  * @param {string} userId - User ID to check (optional, defaults to current user)
  * @returns {Promise<boolean>} True if user is admin
  */
-export async function isAdminBackend(userId = null) {
+async function isAdminBackend(userId = null) {
+  const supabase = window.__supabase__;
   try {
     // Get current session if no userId provided
     if (!userId) {
@@ -50,7 +50,8 @@ export async function isAdminBackend(userId = null) {
  * Check if current user is admin (convenience wrapper)
  * @returns {Promise<boolean>}
  */
-export async function isCurrentUserAdmin() {
+async function isCurrentUserAdmin() {
+  const supabase = window.__supabase__;
   try {
     const { data, error } = await supabase.rpc('is_current_user_admin');
     
@@ -71,7 +72,8 @@ export async function isCurrentUserAdmin() {
  * @param {string} userId - User ID (optional)
  * @returns {Promise<Object>} Role info {name, level} or null
  */
-export async function getUserRoleBackend(userId = null) {
+async function getUserRoleBackend(userId = null) {
+  const supabase = window.__supabase__;
   try {
     // Get current session if no userId provided
     if (!userId) {
@@ -117,7 +119,8 @@ export async function getUserRoleBackend(userId = null) {
  * @param {string} roleName - Role name to assign
  * @returns {Promise<Object>} Result object {success, error?, role?, level?}
  */
-export async function assignRole(targetUserId, roleName) {
+async function assignRole(targetUserId, roleName) {
+  const supabase = window.__supabase__;
   try {
     const { data, error } = await supabase.rpc('assign_role', {
       target_user_id: targetUserId,
@@ -141,3 +144,11 @@ export async function assignRole(targetUserId, roleName) {
     };
   }
 }
+
+// Expose to window for global access
+window.AdminAuth = {
+  isAdminBackend,
+  isCurrentUserAdmin,
+  getUserRoleBackend,
+  assignRole
+};

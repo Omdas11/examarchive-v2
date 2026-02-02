@@ -1,15 +1,14 @@
 // js/supabase-client.js
 // ============================================
 // ENHANCED SUPABASE CLIENT
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // Includes storage helpers for Phase 8
 // ============================================
-
-import { supabase } from "./supabase.js";
 
 /**
  * Storage bucket names
  */
-export const BUCKETS = {
+const BUCKETS = {
   TEMP: 'uploads-temp',
   APPROVED: 'uploads-approved',
   PUBLIC: 'uploads-public'
@@ -24,7 +23,9 @@ export const BUCKETS = {
  * @param {Function} options.onProgress - Progress callback (percent)
  * @returns {Promise<Object>} Upload result with path and error
  */
-export async function uploadFile(file, { bucket, path, onProgress }) {
+async function uploadFile(file, { bucket, path, onProgress }) {
+  const supabase = window.__supabase__;
+  
   try {
     // For small files (< 6MB), use regular upload
     if (file.size < 6 * 1024 * 1024) {
@@ -67,7 +68,8 @@ export async function uploadFile(file, { bucket, path, onProgress }) {
  * @param {string} path - File path
  * @returns {string} Public URL
  */
-export function getPublicUrl(path) {
+function getPublicUrl(path) {
+  const supabase = window.__supabase__;
   const { data } = supabase.storage
     .from(BUCKETS.PUBLIC)
     .getPublicUrl(path);
@@ -82,7 +84,8 @@ export function getPublicUrl(path) {
  * @param {number} expiresIn - Expiration time in seconds (default: 3600)
  * @returns {Promise<string|null>} Signed URL or null
  */
-export async function getSignedUrl(bucket, path, expiresIn = 3600) {
+async function getSignedUrl(bucket, path, expiresIn = 3600) {
+  const supabase = window.__supabase__;
   try {
     const { data, error } = await supabase.storage
       .from(bucket)
@@ -104,7 +107,7 @@ export async function getSignedUrl(bucket, path, expiresIn = 3600) {
  * @param {string} toPath - Destination path
  * @returns {Promise<boolean>} Success status
  */
-export async function moveFile(fromBucket, fromPath, toBucket, toPath) {
+async function moveFile(fromBucket, fromPath, toBucket, toPath) {
   try {
     // Download from source
     const { data: fileData, error: downloadError } = await supabase.storage
@@ -146,7 +149,7 @@ export async function moveFile(fromBucket, fromPath, toBucket, toPath) {
  * @param {string} path - File path
  * @returns {Promise<boolean>} Success status
  */
-export async function deleteFile(bucket, path) {
+async function deleteFile(bucket, path) {
   try {
     const { error } = await supabase.storage
       .from(bucket)
@@ -168,7 +171,7 @@ export async function deleteFile(bucket, path) {
  * @param {string} toPath - Destination path
  * @returns {Promise<boolean>} Success status
  */
-export async function copyFile(fromBucket, fromPath, toBucket, toPath) {
+async function copyFile(fromBucket, fromPath, toBucket, toPath) {
   try {
     // Download from source
     const { data: fileData, error: downloadError } = await supabase.storage
@@ -194,4 +197,14 @@ export async function copyFile(fromBucket, fromPath, toBucket, toPath) {
   }
 }
 
-export { supabase };
+
+// Expose to window for other scripts
+window.SupabaseClient = {
+  BUCKETS,
+  uploadFile,
+  getPublicUrl,
+  getSignedUrl,
+  moveFile,
+  deleteFile,
+  copyFile
+};

@@ -115,12 +115,14 @@
   <!-- ⚡ BOOTSTRAP (MUST BE FIRST) -->
   <script src="js/bootstrap.js"></script>
   
-  <!-- Supabase SDK (must load before ES modules) -->
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
   
-  <!-- ES Modules -->
-  <script type="module" src="js/common.js"></script>
-  <script type="module" src="js/login-modal.js"></script>
+  <!-- ⚡ SINGLE MODULE ENTRY (Phase 9.2.3) -->
+  <script type="module" src="js/app.module.js"></script>
+  
+  <!-- Classic Scripts (NO type="module") -->
+  <script src="js/common.js"></script>
 
   <!-- Login logic -->
   <script>
