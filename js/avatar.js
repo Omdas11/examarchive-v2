@@ -47,3 +47,37 @@ window.Avatar = {
       this.showGuest(loginBtn, avatarBtn, avatarMini);
     }
   },
+
+  showUser: function(user, loginBtn, avatarBtn, avatarMini) {
+    // Toggle visibility
+    if (loginBtn) loginBtn.setAttribute("hidden", "true");
+    if (avatarBtn) avatarBtn.removeAttribute("hidden");
+
+    // Show initial
+    const name = user.user_metadata?.name || user.email || "U";
+    if (avatarMini) {
+      avatarMini.textContent = name.charAt(0).toUpperCase();
+    }
+
+    // Optional: color
+    if (window.applyAvatarColors) {
+      window.applyAvatarColors(name);
+    }
+  },
+
+  showGuest: function(loginBtn, avatarBtn, avatarMini) {
+    if (avatarBtn) avatarBtn.setAttribute("hidden", "true");
+    if (loginBtn) loginBtn.removeAttribute("hidden");
+
+    if (avatarMini) {
+      avatarMini.textContent = "?";
+    }
+  }
+};
+
+// Auto-initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => window.Avatar.init());
+} else {
+  window.Avatar.init();
+}
