@@ -10,6 +10,7 @@ import { handleLogout } from "./avatar-utils.js";
 import { supabase } from "./supabase.js";
 import { getUserRoleBackend } from "./admin-auth.js";
 import { debugLogger, toggleDebugPanel } from "./debug/panel.js";
+import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
 
 // ===============================
 // Settings Configuration
@@ -245,18 +246,53 @@ async function renderSettings() {
   const container = document.getElementById("settings-container");
   if (!container) {
     console.error("❌ Settings container not found");
+    logError(DebugModule.SYSTEM, 'Settings container element not found in DOM');
     return;
   }
 
-  const { data } = await supabase.auth.getSession();
-  const user = data?.session?.user;
+  logInfo(DebugModule.SETTINGS, 'Starting settings page render, checking session...');
+
+  // CRITICAL: Wait for session to be ready before rendering
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
   
-  // Check if user is admin/reviewer
-  let isAdmin = false;
-  if (user) {
-    const roleInfo = await getUserRoleBackend(user.id);
-    isAdmin = roleInfo && (roleInfo.name === 'admin' || roleInfo.name === 'reviewer');
+  if (sessionError) {
+    logError(DebugModule.AUTH, 'Session error during settings load', { error: sessionError.message });
+    renderErrorMessage(container, 'Session Error', 'There was an error checking your session. Please try refreshing the page.');
+    return;
   }
+
+  // Check if user is signed in
+  if (!session) {
+    logWarn(DebugModule.SETTINGS, 'Settings hidden: no active session');
+    renderSignedOutMessage(container);
+    return;
+  }
+
+  logInfo(DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
+
+  const user = session.user;
+  
+  // Backend role verification - MANDATORY before rendering settings
+  const roleInfo = await getUserRoleBackend(user.id);
+  
+  if (!roleInfo) {
+    logError(DebugModule.ROLE, 'Failed to retrieve user role from backend');
+    renderErrorMessage(container, 'Error Loading Settings', 'Unable to verify your permissions. Please try refreshing the page.');
+    return;
+  }
+
+  logInfo(DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
+
+  // Check if user has appropriate role (admin or reviewer can see settings)
+  const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
+  
+  if (!isAdmin) {
+    logWarn(DebugModule.SETTINGS, 'Settings hidden: role check failed', { role: roleInfo.name });
+    renderAccessDenied(container);
+    return;
+  }
+
+  logInfo(DebugModule.SETTINGS, 'Rendering settings UI for authorized user');
 
   container.innerHTML = "";
 
@@ -273,7 +309,118 @@ async function renderSettings() {
   // Attach event listeners
   attachEventListeners();
 
+  logInfo(DebugModule.SETTINGS, 'Settings UI rendered successfully');
   console.log("✅ Settings rendered");
+}
+
+// ===============================
+// Fallback UI Messages
+// ===============================
+
+/**
+ * Render message for signed-out users
+ */
+function renderSignedOutMessage(container) {
+  const card = document.createElement('div');
+  card.className = 'settings-card';
+  card.style.cssText = 'text-align: center; padding: 3rem 2rem;';
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
+  icon.textContent = '🔒';
+
+  const heading = document.createElement('h2');
+  heading.style.marginBottom = '1rem';
+  heading.textContent = 'Sign In Required';
+
+  const message = document.createElement('p');
+  message.className = 'text-muted';
+  message.style.marginBottom = '2rem';
+  message.textContent = 'Please sign in to access the settings page.';
+
+  const signInLink = document.createElement('a');
+  signInLink.href = '/login.html';
+  signInLink.className = 'btn btn-red';
+  signInLink.textContent = 'Sign In';
+
+  card.appendChild(icon);
+  card.appendChild(heading);
+  card.appendChild(message);
+  card.appendChild(signInLink);
+
+  container.innerHTML = '';
+  container.appendChild(card);
+}
+
+/**
+ * Render message for users without permission
+ */
+function renderAccessDenied(container) {
+  const card = document.createElement('div');
+  card.className = 'settings-card';
+  card.style.cssText = 'text-align: center; padding: 3rem 2rem;';
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
+  icon.textContent = '⛔';
+
+  const heading = document.createElement('h2');
+  heading.style.marginBottom = '1rem';
+  heading.textContent = 'Access Denied';
+
+  const message1 = document.createElement('p');
+  message1.className = 'text-muted';
+  message1.style.marginBottom = '1.5rem';
+  message1.textContent = 'You do not have permission to view this page.';
+
+  const message2 = document.createElement('p');
+  message2.className = 'text-muted';
+  message2.style.fontSize = '0.9rem';
+  message2.textContent = 'This page is only accessible to administrators and reviewers.';
+
+  card.appendChild(icon);
+  card.appendChild(heading);
+  card.appendChild(message1);
+  card.appendChild(message2);
+
+  container.innerHTML = '';
+  container.appendChild(card);
+}
+
+/**
+ * Render generic error message
+ */
+function renderErrorMessage(container, title, message) {
+  // Create elements safely to prevent XSS
+  const card = document.createElement('div');
+  card.className = 'settings-card';
+  card.style.cssText = 'text-align: center; padding: 3rem 2rem;';
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
+  icon.textContent = '⚠️';
+
+  const heading = document.createElement('h2');
+  heading.style.marginBottom = '1rem';
+  heading.textContent = title;
+
+  const messageP = document.createElement('p');
+  messageP.className = 'text-muted';
+  messageP.style.marginBottom = '2rem';
+  messageP.textContent = message;
+
+  const refreshBtn = document.createElement('button');
+  refreshBtn.className = 'btn btn-outline';
+  refreshBtn.textContent = 'Refresh Page';
+  refreshBtn.addEventListener('click', () => location.reload());
+
+  card.appendChild(icon);
+  card.appendChild(heading);
+  card.appendChild(messageP);
+  card.appendChild(refreshBtn);
+
+  container.innerHTML = '';
+  container.appendChild(card);
 }
 
 // ===============================

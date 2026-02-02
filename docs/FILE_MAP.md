@@ -284,12 +284,34 @@ export async function isCurrentUserAdmin() {
 **Edit Safety**:
 - ✅ Safe to add new settings
 - ✅ Safe to reorganize settings
+- ⚠️ **CAREFUL**: Session and role verification must complete before render
 - ⚠️ Test localStorage interactions
+- ❌ DO NOT remove session/role checks
+
+**Critical Section** (Phase 9.2.1):
+```javascript
+// CRITICAL: Always await session AND role before rendering
+const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+if (!session) {
+  logWarn(DebugModule.SETTINGS, 'Settings hidden: no active session');
+  renderSignedOutMessage(container);
+  return;
+}
+
+const roleInfo = await getUserRoleBackend(session.user.id);
+if (!roleInfo || !['admin', 'reviewer'].includes(roleInfo.name)) {
+  logWarn(DebugModule.SETTINGS, 'Settings hidden: role check failed');
+  renderAccessDenied(container);
+  return;
+}
+```
 
 **Common Tasks**:
 - Add new theme: ✅ Safe
 - Add new toggle: ✅ Safe
 - Modify existing setting behavior: ⚠️ Test thoroughly
+- Change auth flow: ❌ Security risk
 
 ---
 
@@ -477,9 +499,9 @@ if (!hasAdminAccess) {
 | `js/supabase.js` | ❌ Critical | ONE client only |
 | `js/common.js` | ⚠️ Careful | Global auth logic |
 | `js/upload-handler.js` | ⚠️ Careful | Session verification critical |
+| `js/settings.js` | ⚠️ Careful | Session/role verification critical (Phase 9.2.1) |
 | `js/admin-auth.js` | ❌ Critical | Security functions |
 | `admin/sql/*.sql` | ❌ Critical | RLS policies |
-| `js/settings.js` | ✅ Safe | Add settings freely |
 | `js/debug/` | ✅ Safe | Debug system |
 | `css/` | ✅ Safe | Just test changes |
 | `docs/` | ✅ Safe | Documentation |
@@ -491,8 +513,9 @@ if (!hasAdminAccess) {
 
 ### Task: Add new setting
 **Files**: `js/settings.js`
-**Safety**: ✅ Safe
+**Safety**: ✅ Safe (for UI), ⚠️ Careful (for auth logic)
 **Steps**: Add to `settingsConfig` array, add handler in `attachEventListeners()`
+**Note**: DO NOT modify session/role verification logic
 
 ### Task: Change upload validation
 **Files**: `js/upload-handler.js`

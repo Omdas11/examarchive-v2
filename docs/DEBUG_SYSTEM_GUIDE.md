@@ -388,7 +388,160 @@ Use the module that best describes where the code runs:
 - **DebugModule.STORAGE** - Storage operations
 - **DebugModule.ADMIN** - Admin-specific features
 - **DebugModule.ROLE** - Role management
+- **DebugModule.SETTINGS** - Settings page operations
 - **DebugModule.SYSTEM** - General system operations
+
+---
+
+## 🚫 Silent Failure Prevention
+
+**Phase 9.2.1 — Eliminating Silent Exits**
+
+### The Problem
+
+Silent failures occur when code exits early without providing user feedback or logging diagnostic information. This makes debugging extremely difficult and creates a poor user experience.
+
+**Example of Silent Failure** (BAD):
+```javascript
+async function renderSettings() {
+  const { data } = await supabase.auth.getSession();
+  const user = data?.session?.user;
+  
+  if (!user) {
+    return; // ❌ SILENT EXIT - No feedback to user or logs
+  }
+  
+  // Render settings...
+}
+```
+
+### The Solution
+
+Every early return must:
+1. **Log structured debug entry** using the debug logger
+2. **Render fallback UI** to inform the user what went wrong
+
+**Example of Proper Failure Handling** (GOOD):
+```javascript
+async function renderSettings() {
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  
+  if (sessionError) {
+    logError(DebugModule.SETTINGS, 'Session error during settings load', { error: sessionError.message });
+    renderErrorMessage(container, 'Session Error', 'Please try refreshing the page.');
+    return; // ✅ User sees message, admin sees log
+  }
+  
+  if (!session) {
+    logWarn(DebugModule.SETTINGS, 'Settings hidden: no active session');
+    renderSignedOutMessage(container);
+    return; // ✅ User sees sign-in prompt, admin sees log
+  }
+  
+  // Render settings...
+}
+```
+
+### Rules for All Code
+
+1. **Never return without logging** - Use `logInfo`, `logWarn`, or `logError`
+2. **Never exit without UI feedback** - Show message, fallback UI, or error state
+3. **Log before rendering** - Debug entry should come first
+4. **Use descriptive messages** - Make logs human-readable
+
+### Debug Levels for Early Returns
+
+| Situation | Level | Example |
+|-----------|-------|---------|
+| User not signed in | `logWarn` | "Settings hidden: no active session" |
+| Permission denied | `logWarn` | "Settings hidden: role check failed" |
+| System error | `logError` | "Session error during settings load" |
+| Expected flow | `logInfo` | "Session verified, continuing render" |
+
+### Fallback UI Patterns
+
+**Sign-In Required** (Secure Implementation):
+```javascript
+function renderSignedOutMessage(container) {
+  const card = document.createElement('div');
+  card.style.cssText = 'text-align: center; padding: 3rem;';
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Sign In Required';
+
+  const message = document.createElement('p');
+  message.textContent = 'Please sign in to access this page.';
+
+  const signInLink = document.createElement('a');
+  signInLink.href = '/login.html';
+  signInLink.className = 'btn';
+  signInLink.textContent = 'Sign In';
+
+  card.appendChild(heading);
+  card.appendChild(message);
+  card.appendChild(signInLink);
+
+  container.innerHTML = '';
+  container.appendChild(card);
+}
+```
+
+**Access Denied** (Secure Implementation):
+```javascript
+function renderAccessDenied(container) {
+  const card = document.createElement('div');
+  card.style.cssText = 'text-align: center; padding: 3rem;';
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Access Denied';
+
+  const message = document.createElement('p');
+  message.textContent = 'You do not have permission to view this page.';
+
+  card.appendChild(heading);
+  card.appendChild(message);
+
+  container.innerHTML = '';
+  container.appendChild(card);
+}
+```
+
+**Generic Error** (Secure Implementation):
+```javascript
+function renderErrorMessage(container, title, message) {
+  // Create elements safely to prevent XSS
+  const card = document.createElement('div');
+  card.style.cssText = 'text-align: center; padding: 3rem;';
+
+  const heading = document.createElement('h2');
+  heading.textContent = title; // Use textContent, not innerHTML
+
+  const messageP = document.createElement('p');
+  messageP.textContent = message; // Use textContent, not innerHTML
+
+  const refreshBtn = document.createElement('button');
+  refreshBtn.textContent = 'Refresh Page';
+  refreshBtn.addEventListener('click', () => location.reload()); // No inline handlers
+
+  card.appendChild(heading);
+  card.appendChild(messageP);
+  card.appendChild(refreshBtn);
+
+  container.innerHTML = '';
+  container.appendChild(card);
+}
+```
+
+**⚠️ Security Note**: Never use `innerHTML` with user-provided or dynamic content. Always use `textContent` or `createElement` for safe DOM manipulation.
+
+### Verification Checklist
+
+Before submitting code, verify:
+- [ ] No `return` statements without logging
+- [ ] All error paths show user-friendly messages
+- [ ] Debug logs are human-readable
+- [ ] Appropriate severity level used
+- [ ] No raw SQL or RLS messages in UI
 
 ---
 

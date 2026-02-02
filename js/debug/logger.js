@@ -25,6 +25,7 @@ export const DebugModule = {
   ADMIN: 'admin',
   STORAGE: 'storage',
   ROLE: 'role',
+  SETTINGS: 'settings',
   SYSTEM: 'system'
 };
 
