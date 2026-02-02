@@ -1,6 +1,7 @@
 // js/supabase.js
 // ============================================
-// SUPABASE CLIENT – STATIC + MOBILE SAFE
+// SUPABASE CLIENT – Phase 9.2.3 (ES Module for use in modules/)
+// This file is ONLY imported by ES modules in js/modules/
 // ============================================
 
 const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
@@ -24,3 +25,6 @@ export const supabase = window.supabase.createClient(
     }
   }
 );
+
+// Also expose globally for classic scripts
+window.__supabase__ = supabase;

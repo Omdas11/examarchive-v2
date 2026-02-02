@@ -1,8 +1,7 @@
 // js/common.js
 // ============================================
 // GLOBAL BOOTSTRAP (Theme + Partials + Auth Hook)
-// Phase 9.2: Integrated with new debug system
-// Phase 9.2.2: Added bootstrap check
+// Phase 9.2.3: Converted to Classic JS (NO IMPORTS)
 // ============================================
 
 // 🧨 HARD STOP IF BOOTSTRAP NOT LOADED
@@ -13,8 +12,67 @@ if (!window.__APP_BOOTED__) {
 
 console.log('[COMMON] common.js started');
 
-import { supabase } from "./supabase.js";
-import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
+// Wait for auth module to initialize
+function waitForAuth() {
+  return new Promise((resolve) => {
+    if (window.__AUTH_READY__) {
+      resolve();
+      return;
+    }
+    
+    const checkInterval = setInterval(() => {
+      if (window.__AUTH_READY__) {
+        clearInterval(checkInterval);
+        resolve();
+      }
+    }, 50);
+    
+    // Timeout after 5 seconds
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      console.warn('[COMMON] Auth initialization timeout');
+      resolve();
+    }, 5000);
+  });
+}
+
+// Helper to get supabase client
+function getSupabase() {
+  if (!window.__supabase__) {
+    console.error('[COMMON] Supabase client not available');
+    return null;
+  }
+  return window.__supabase__;
+}
+
+// Helper for debug logging
+function logInfo(module, message, data) {
+  if (window.Debug && window.Debug.logInfo) {
+    window.Debug.logInfo(module, message, data);
+  }
+}
+
+function logWarn(module, message, data) {
+  if (window.Debug && window.Debug.logWarn) {
+    window.Debug.logWarn(module, message, data);
+  }
+}
+
+function logError(module, message, data) {
+  if (window.Debug && window.Debug.logError) {
+    window.Debug.logError(module, message, data);
+  }
+}
+
+const DebugModule = {
+  AUTH: 'auth',
+  UPLOAD: 'upload',
+  ADMIN: 'admin',
+  STORAGE: 'storage',
+  ROLE: 'role',
+  SETTINGS: 'settings',
+  SYSTEM: 'system'
+};
 
 /* ===============================
    🔑 AUTH GUARD FUNCTION
@@ -26,11 +84,11 @@ import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
  * @param {boolean} options.showMessage - Whether to show auth required message (default: true)
  * @returns {Promise<boolean>} - Returns true if authenticated, false otherwise
  */
-export async function requireAuth(options = {}) {
+async function requireAuth(options = {}) {
   const { redirectToLogin = false, showMessage = true } = options;
   
-  const { data } = await supabase.auth.getSession();
-  const isAuthenticated = !!data?.session;
+  // Check global session
+  const isAuthenticated = !!window.__SESSION__;
   
   if (!isAuthenticated) {
     logWarn(DebugModule.AUTH, 'Auth required - user not logged in');
@@ -81,6 +139,9 @@ export async function requireAuth(options = {}) {
   logInfo(DebugModule.AUTH, 'Auth check passed - user authenticated');
   return true;
 }
+
+// Expose to window for other scripts
+window.requireAuth = requireAuth;
 
 /* ===============================
    Apply saved theme early (GLOBAL)
@@ -152,27 +213,24 @@ export async function requireAuth(options = {}) {
    🔑 SUPABASE SESSION CHECK
    ================================================== */
 (async function checkSessionOnce() {
-  const { data, error } = await supabase.auth.getSession();
+  await waitForAuth();
+  
+  const session = window.__SESSION__;
+  const user = session?.user || null;
 
-  // 🔥 FORCE SESSION VISIBILITY (Phase 9.2.2)
-  console.log('[AUTH] session =', data?.session);
-  console.log('[AUTH] session user =', data?.session?.user);
-  console.log('[AUTH] session error =', error);
+  // 🔥 FORCE SESSION VISIBILITY (Phase 9.2.3)
+  console.log('[COMMON] session =', session);
+  console.log('[COMMON] session user =', user);
 
-  if (!data?.session) {
-    alert('NO SESSION DETECTED — AUTH BROKEN');
-    logWarn(DebugModule.AUTH, 'NO SESSION DETECTED - user not authenticated');
-  } else {
-    console.log('[AUTH] Session verified:', {
-      userId: data.session.user.id,
-      email: data.session.user.email
-    });
-  }
-
-  if (data?.session) {
-    logInfo(DebugModule.AUTH, 'Active Supabase session found', { userId: data.session.user.id });
-  } else {
+  if (!session) {
+    console.log('[COMMON] No session detected (user not logged in)');
     logInfo(DebugModule.AUTH, 'No active session');
+  } else {
+    console.log('[COMMON] Session verified:', {
+      userId: user.id,
+      email: user.email
+    });
+    logInfo(DebugModule.AUTH, 'Active session found', { userId: user.id });
   }
 
   // 🔥 Always clean OAuth hash and query params (PREVENT LOOP)
@@ -293,8 +351,9 @@ document.addEventListener("avatar:loaded", () => {
    🔥 AUTH → UI SYNC (SESSION-BASED)
    =============================== */
 async function syncAuthToUI(stage) {
-  const { data } = await supabase.auth.getSession();
-  const session = data?.session || null;
+  await waitForAuth();
+  
+  const session = window.__SESSION__;
   const user = session?.user || null;
 
   logInfo(DebugModule.AUTH, `UI sync triggered: ${stage}`, { 
@@ -363,33 +422,10 @@ document.addEventListener("header:loaded", () => {
 });
 
 /* ===============================
-   Supabase auth listener
+   Auth state change listener
    =============================== */
-supabase.auth.onAuthStateChange((event) => {
+window.addEventListener('auth-state-changed', (e) => {
+  const event = e.detail.event;
   logInfo(DebugModule.AUTH, `Auth event: ${event}`);
   syncAuthToUI("auth.change");
 });
-
-/* ===============================
-   Initialize debug panel on load
-   =============================== */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', async () => {
-    // Dynamically import debug panel for admin/reviewer only
-    try {
-      const { debugPanel } = await import('./debug/panel.js');
-    } catch (err) {
-      // Debug panel not available, continue without it
-      console.log('Debug panel not loaded:', err.message);
-    }
-  });
-} else {
-  // If DOM already loaded, initialize immediately
-  (async () => {
-    try {
-      const { debugPanel } = await import('./debug/panel.js');
-    } catch (err) {
-      console.log('Debug panel not loaded:', err.message);
-    }
-  })();
-}
