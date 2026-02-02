@@ -29,7 +29,7 @@ async function uploadFile(file, { bucket, path, onProgress }) {
   try {
     // For small files (< 6MB), use regular upload
     if (file.size < 6 * 1024 * 1024) {
-      const { data, error } = await window.__supabase__.storage
+      const { data, error } = await supabase.storage
         .from(bucket)
         .upload(path, file, {
           cacheControl: '3600',
@@ -45,7 +45,7 @@ async function uploadFile(file, { bucket, path, onProgress }) {
     // For larger files, use resumable upload
     // Note: Resumable uploads require additional setup
     // For now, we'll use regular upload with progress tracking
-    const { data, error } = await window.__supabase__.storage
+    const { data, error } = await supabase.storage
       .from(bucket)
       .upload(path, file, {
         cacheControl: '3600',
@@ -69,7 +69,8 @@ async function uploadFile(file, { bucket, path, onProgress }) {
  * @returns {string} Public URL
  */
 function getPublicUrl(path) {
-  const { data } = window.__supabase__.storage
+  const supabase = window.__supabase__;
+  const { data } = supabase.storage
     .from(BUCKETS.PUBLIC)
     .getPublicUrl(path);
   
@@ -84,8 +85,9 @@ function getPublicUrl(path) {
  * @returns {Promise<string|null>} Signed URL or null
  */
 async function getSignedUrl(bucket, path, expiresIn = 3600) {
+  const supabase = window.__supabase__;
   try {
-    const { data, error } = await window.__supabase__.storage
+    const { data, error } = await supabase.storage
       .from(bucket)
       .createSignedUrl(path, expiresIn);
 
@@ -108,14 +110,14 @@ async function getSignedUrl(bucket, path, expiresIn = 3600) {
 async function moveFile(fromBucket, fromPath, toBucket, toPath) {
   try {
     // Download from source
-    const { data: fileData, error: downloadError } = await window.__supabase__.storage
+    const { data: fileData, error: downloadError } = await supabase.storage
       .from(fromBucket)
       .download(fromPath);
 
     if (downloadError) throw downloadError;
 
     // Upload to destination
-    const { error: uploadError } = await window.__supabase__.storage
+    const { error: uploadError } = await supabase.storage
       .from(toBucket)
       .upload(toPath, fileData, {
         cacheControl: '3600',
@@ -125,7 +127,7 @@ async function moveFile(fromBucket, fromPath, toBucket, toPath) {
     if (uploadError) throw uploadError;
 
     // Delete from source
-    const { error: deleteError } = await window.__supabase__.storage
+    const { error: deleteError } = await supabase.storage
       .from(fromBucket)
       .remove([fromPath]);
 
@@ -149,7 +151,7 @@ async function moveFile(fromBucket, fromPath, toBucket, toPath) {
  */
 async function deleteFile(bucket, path) {
   try {
-    const { error } = await window.__supabase__.storage
+    const { error } = await supabase.storage
       .from(bucket)
       .remove([path]);
 
@@ -172,14 +174,14 @@ async function deleteFile(bucket, path) {
 async function copyFile(fromBucket, fromPath, toBucket, toPath) {
   try {
     // Download from source
-    const { data: fileData, error: downloadError } = await window.__supabase__.storage
+    const { data: fileData, error: downloadError } = await supabase.storage
       .from(fromBucket)
       .download(fromPath);
 
     if (downloadError) throw downloadError;
 
     // Upload to destination
-    const { error: uploadError } = await window.__supabase__.storage
+    const { error: uploadError } = await supabase.storage
       .from(toBucket)
       .upload(toPath, fileData, {
         cacheControl: '3600',

@@ -20,14 +20,8 @@ window.Avatar = {
     // Logout handler
     document.addEventListener("click", async (e) => {
       if (e.target.closest("[data-logout]")) {
-        if (window.__SESSION__) {
-          // Use supabase directly
-          if (window.supabase && window.supabase.createClient) {
-            const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
-            const SUPABASE_ANON_KEY = "sb_publishable_nwdMKnjcV_o-WSe_VMs9CQ_xpaMeGAT";
-            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            await client.auth.signOut();
-          }
+        if (window.__supabase__) {
+          await window.__supabase__.auth.signOut();
           window.__SESSION__ = null;
         }
         location.reload();
@@ -53,37 +47,3 @@ window.Avatar = {
       this.showGuest(loginBtn, avatarBtn, avatarMini);
     }
   },
-
-  showUser: function(user, loginBtn, avatarBtn, avatarMini) {
-    // Toggle visibility
-    if (loginBtn) loginBtn.setAttribute("hidden", "true");
-    if (avatarBtn) avatarBtn.removeAttribute("hidden");
-
-    // Show initial
-    const name = user.user_metadata?.name || user.email || "U";
-    if (avatarMini) {
-      avatarMini.textContent = name.charAt(0).toUpperCase();
-    }
-
-    // Optional: color
-    if (window.applyAvatarColors) {
-      window.applyAvatarColors(name);
-    }
-  },
-
-  showGuest: function(loginBtn, avatarBtn, avatarMini) {
-    if (avatarBtn) avatarBtn.setAttribute("hidden", "true");
-    if (loginBtn) loginBtn.removeAttribute("hidden");
-
-    if (avatarMini) {
-      avatarMini.textContent = "?";
-    }
-  }
-};
-
-// Auto-initialize
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => window.Avatar.init());
-} else {
-  window.Avatar.init();
-}
