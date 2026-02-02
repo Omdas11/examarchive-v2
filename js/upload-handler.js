@@ -42,7 +42,9 @@ export async function handlePaperUpload(file, metadata, onProgress) {
       throw new Error('Session verification failed. Please try signing in again.');
     }
 
+    // 🧨 HARD FAIL IF NO SESSION (Phase 9.2.2)
     if (!session) {
+      alert('UPLOAD BLOCKED: session missing');
       logWarn(DebugModule.UPLOAD, 'No active session found. Upload blocked.');
       throw new Error('You must be signed in to upload');
     }

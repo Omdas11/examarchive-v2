@@ -2,7 +2,16 @@
 // ============================================
 // GLOBAL BOOTSTRAP (Theme + Partials + Auth Hook)
 // Phase 9.2: Integrated with new debug system
+// Phase 9.2.2: Added bootstrap check
 // ============================================
+
+// 🧨 HARD STOP IF BOOTSTRAP NOT LOADED
+if (!window.__APP_BOOTED__) {
+  alert('BOOTSTRAP FAILED: common.js blocked');
+  throw new Error('Bootstrap not loaded');
+}
+
+console.log('[COMMON] common.js started');
 
 import { supabase } from "./supabase.js";
 import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
@@ -143,7 +152,22 @@ export async function requireAuth(options = {}) {
    🔑 SUPABASE SESSION CHECK
    ================================================== */
 (async function checkSessionOnce() {
-  const { data } = await supabase.auth.getSession();
+  const { data, error } = await supabase.auth.getSession();
+
+  // 🔥 FORCE SESSION VISIBILITY (Phase 9.2.2)
+  console.log('[AUTH] session =', data?.session);
+  console.log('[AUTH] session user =', data?.session?.user);
+  console.log('[AUTH] session error =', error);
+
+  if (!data?.session) {
+    alert('NO SESSION DETECTED — AUTH BROKEN');
+    logWarn(DebugModule.AUTH, 'NO SESSION DETECTED - user not authenticated');
+  } else {
+    console.log('[AUTH] Session verified:', {
+      userId: data.session.user.id,
+      email: data.session.user.email
+    });
+  }
 
   if (data?.session) {
     logInfo(DebugModule.AUTH, 'Active Supabase session found', { userId: data.session.user.id });

@@ -2,9 +2,10 @@
 // ============================================
 // DEBUG PANEL UI - Phase 9.2
 // Mobile-friendly debug panel for admin/reviewer
+// Phase 9.2.2: Added force enable support
 // ============================================
 
-import { debugLogger, DebugLevel, DebugModule } from './logger.js';
+import { debugLogger, DebugLevel, DebugModule, DEBUG_FORCE_ENABLE } from './logger.js';
 
 class DebugPanel {
   constructor() {
@@ -24,6 +25,24 @@ class DebugPanel {
    * Initialize debug panel
    */
   init() {
+    // 🧨 BYPASS CHECK IF FORCE ENABLED (Phase 9.2.2)
+    if (DEBUG_FORCE_ENABLE) {
+      console.log('[DEBUG-PANEL] Force enabled - initializing');
+      
+      // Create panel HTML
+      this.createPanel();
+
+      // Attach event listeners
+      this.attachListeners();
+
+      // Subscribe to log updates
+      debugLogger.addListener((entry) => this.onLogUpdate(entry));
+
+      // Always show panel when force enabled
+      this.show();
+      return;
+    }
+
     if (!debugLogger.isEnabled()) {
       return;
     }
