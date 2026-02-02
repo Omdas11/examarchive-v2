@@ -2,10 +2,14 @@
 // ============================================
 // DEBUG LOGGER - Phase 9.2
 // Human-readable diagnostic system for admin/reviewer
+// Phase 9.2.2: Added DEBUG_FORCE_ENABLE flag
 // ============================================
 
 import { getUserRoleBackend } from "../admin-auth.js";
 import { supabase } from "../supabase.js";
+
+// 🧨 TEMPORARY DEBUG FORCE ENABLE (Phase 9.2.2)
+export const DEBUG_FORCE_ENABLE = true;
 
 /**
  * Debug severity levels
@@ -55,6 +59,14 @@ class DebugLogger {
    * Check if current user has debug access
    */
   async _checkDebugAccess() {
+    // 🧨 FORCE ENABLE FOR DEBUGGING (Phase 9.2.2)
+    if (DEBUG_FORCE_ENABLE) {
+      this.enabled = true;
+      this.panelVisible = localStorage.getItem('debug-panel-enabled') !== 'false';
+      console.log('[DEBUG-LOGGER] Force enabled for debugging');
+      return;
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
