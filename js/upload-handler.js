@@ -1,12 +1,9 @@
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // js/upload-handler.js
 // ============================================
 // UPLOAD HANDLER - Supabase Storage Integration
 // Phase 9.2: Enhanced with debug logging and session verification
 // ============================================
-
-import { supabase } from "./supabase.js";
-import { uploadFile, BUCKETS } from "./supabase-client.js";
-import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
 
 /**
  * Handle file upload to temp storage with submission tracking
@@ -18,7 +15,15 @@ import { logInfo, logWarn, logError, DebugModule } from "./debug/logger.js";
  * @param {Function} onProgress - Progress callback (percent)
  * @returns {Promise<Object>} Result with submissionId and error
  */
-export async function handlePaperUpload(file, metadata, onProgress) {
+async function handlePaperUpload(file, metadata, onProgress) {
+  const supabase = window.__supabase__;
+  const uploadFile = window.SupabaseClient.uploadFile;
+  const BUCKETS = window.SupabaseClient.BUCKETS;
+  const logInfo = window.Debug.logInfo;
+  const logWarn = window.Debug.logWarn;
+  const logError = window.Debug.logError;
+  const DebugModule = window.Debug.DebugModule;
+  
   try {
     logInfo(DebugModule.UPLOAD, 'Starting paper upload', { filename: file?.name });
 
@@ -154,7 +159,8 @@ export async function handlePaperUpload(file, metadata, onProgress) {
  * @param {string} status - Filter by status (optional)
  * @returns {Promise<Array>} List of submissions
  */
-export async function getUserSubmissions(status = null) {
+async function getUserSubmissions(status = null) {
+  const supabase = window.__supabase__;
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -189,7 +195,8 @@ export async function getUserSubmissions(status = null) {
  * Get all pending submissions (admin/reviewer only)
  * @returns {Promise<Array>} List of pending submissions
  */
-export async function getPendingSubmissions() {
+async function getPendingSubmissions() {
+  const supabase = window.__supabase__;
   try {
     const { data, error } = await supabase
       .from('submissions')
@@ -217,7 +224,8 @@ export async function getPendingSubmissions() {
  * @param {string} submissionId - Submission ID
  * @returns {Promise<Object|null>} Submission data
  */
-export async function getSubmission(submissionId) {
+async function getSubmission(submissionId) {
+  const supabase = window.__supabase__;
   try {
     const { data, error } = await supabase
       .from('submissions')
@@ -258,7 +266,7 @@ function sanitizeFilename(filename) {
  * @param {number} bytes - Size in bytes
  * @returns {string} Formatted size
  */
-export function formatFileSize(bytes) {
+function formatFileSize(bytes) {
   if (bytes === 0) return '0 B';
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
@@ -271,7 +279,7 @@ export function formatFileSize(bytes) {
  * @param {string} timestamp - ISO timestamp
  * @returns {string} Formatted date
  */
-export function formatDate(timestamp) {
+function formatDate(timestamp) {
   const date = new Date(timestamp);
   const now = new Date();
   const diff = now - date;
@@ -306,3 +314,13 @@ export function formatDate(timestamp) {
     day: 'numeric'
   });
 }
+
+// Expose to window for global access
+window.UploadHandler = {
+  handlePaperUpload,
+  getUserSubmissions,
+  getPendingSubmissions,
+  getSubmission,
+  formatFileSize,
+  formatDate
+};

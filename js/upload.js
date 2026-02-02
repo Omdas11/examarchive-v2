@@ -1,10 +1,8 @@
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // ===============================
 // Upload Page - Auth Guard & Upload Handler
 // Phase 9.1: Upload Type Selector
 // ===============================
-
-import { requireAuth } from "./common.js";
-import { handlePaperUpload, getUserSubmissions, formatFileSize, formatDate } from "./upload-handler.js";
 
 console.log("📤 upload.js loaded");
 
@@ -13,6 +11,7 @@ let selectedUploadType = 'question-paper';
 
 // Check auth when page loads
 document.addEventListener("DOMContentLoaded", async () => {
+  const requireAuth = window.requireAuth;
   const isAuthenticated = await requireAuth({
     showMessage: true,
     redirectToLogin: false
@@ -61,6 +60,8 @@ function initializeUploadTypeSelector() {
  * Initialize upload form
  */
 function initializeUploadForm() {
+  const handlePaperUpload = window.UploadHandler.handlePaperUpload;
+  
   const fileInput = document.querySelector('input[type="file"]');
   const fileLabel = document.querySelector('.file-drop');
   const fileUI = document.querySelector('.file-ui');
@@ -177,6 +178,7 @@ function initializeUploadForm() {
  * Update file UI with selected file info
  */
 function updateFileUI(file, fileUI) {
+  const formatFileSize = window.UploadHandler.formatFileSize;
   const size = formatFileSize(file.size);
   fileUI.innerHTML = `
     <strong>✓ ${file.name}</strong>
@@ -243,6 +245,7 @@ function showMessage(message, type = 'info') {
  * Load and display user's submissions
  */
 async function loadUserSubmissions() {
+  const getUserSubmissions = window.UploadHandler.getUserSubmissions;
   const submissions = await getUserSubmissions();
   
   if (submissions.length === 0) {
@@ -274,6 +277,9 @@ async function loadUserSubmissions() {
  * Render a single submission
  */
 function renderSubmission(submission) {
+  const formatFileSize = window.UploadHandler.formatFileSize;
+  const formatDate = window.UploadHandler.formatDate;
+  
   const statusColors = {
     pending: '#FFA726',
     approved: '#4CAF50',

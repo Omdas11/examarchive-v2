@@ -1,12 +1,10 @@
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // js/roles.js
 // ============================================
 // ROLE & BADGE SYSTEM - Phase 8.3 (Backend-First)
 // Badges are DISPLAY ONLY
 // Backend is the ONLY authority
 // ============================================
-
-import { supabase } from "./supabase.js";
-import { getUserRoleBackend } from "./admin-auth.js";
 
 /**
  * Badge slot definitions (3 slots)
@@ -20,7 +18,7 @@ import { getUserRoleBackend } from "./admin-auth.js";
  * @param {string} role - Role name from backend
  * @returns {string} Badge display name
  */
-export function mapRoleToBadge(role) {
+function mapRoleToBadge(role) {
   switch (role) {
     case 'admin':
       return 'Admin';
@@ -40,7 +38,7 @@ export function mapRoleToBadge(role) {
  * @param {string} badgeName - Badge name
  * @returns {string} Badge icon emoji
  */
-export function getBadgeIcon(badgeName) {
+function getBadgeIcon(badgeName) {
   const icons = {
     'Admin': '👑',
     'Moderator': '🛡️',
@@ -55,7 +53,7 @@ export function getBadgeIcon(badgeName) {
  * @param {string} role - Role name
  * @returns {string} Badge color
  */
-export function getBadgeColor(role) {
+function getBadgeColor(role) {
   const colors = {
     'admin': '#f44336',
     'reviewer': '#2196F3',
@@ -70,7 +68,10 @@ export function getBadgeColor(role) {
  * This is the ONLY way to get badge info - no frontend inference
  * @returns {Promise<Object>} Badge info {role, badge, icon, color}
  */
-export async function getUserBadge() {
+async function getUserBadge() {
+  const supabase = window.__supabase__;
+  const getUserRoleBackend = window.AdminAuth.getUserRoleBackend;
+  
   try {
     const { data: { session } } = await supabase.auth.getSession();
     
@@ -126,7 +127,7 @@ export async function getUserBadge() {
 /**
  * @deprecated Use getUserBadge() instead
  */
-export function normalizeRole(role) {
+function normalizeRole(role) {
   console.warn('[ROLE] normalizeRole() is deprecated, use getUserBadge() instead');
   if (!role || typeof role !== 'string') {
     return 'visitor';
@@ -139,14 +140,15 @@ export function normalizeRole(role) {
 /**
  * @deprecated Backend is now the source of truth
  */
-export function clearRoleCache() {
+function clearRoleCache() {
   console.warn('[ROLE] clearRoleCache() is deprecated in Phase 8.3');
 }
 
 /**
  * @deprecated Use getUserRoleBackend() from admin-auth.js instead
  */
-export async function getUserProfile(useCache = true) {
+async function getUserProfile(useCache = true) {
+  const supabase = window.__supabase__;
   console.warn('[ROLE] getUserProfile() is deprecated, use getUserRoleBackend() instead');
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -168,7 +170,7 @@ export async function getUserProfile(useCache = true) {
 /**
  * @deprecated Global role state removed in Phase 8.3
  */
-export async function initializeGlobalRoleState() {
+function initializeGlobalRoleState() {
   console.warn('[ROLE] initializeGlobalRoleState() is deprecated in Phase 8.3');
   // No-op for backward compatibility
 }
@@ -176,7 +178,7 @@ export async function initializeGlobalRoleState() {
 /**
  * @deprecated No longer needed - backend verification only
  */
-export function waitForRole() {
+function waitForRole() {
   console.warn('[ROLE] waitForRole() is deprecated in Phase 8.3');
   return Promise.resolve({
     status: 'unknown',
@@ -184,3 +186,16 @@ export function waitForRole() {
     ready: true
   });
 }
+
+// Expose to window for global access
+window.Roles = {
+  mapRoleToBadge,
+  getBadgeIcon,
+  getBadgeColor,
+  getUserBadge,
+  normalizeRole,
+  clearRoleCache,
+  getUserProfile,
+  initializeGlobalRoleState,
+  waitForRole
+};

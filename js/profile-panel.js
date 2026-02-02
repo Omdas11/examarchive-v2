@@ -1,13 +1,9 @@
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // js/profile-panel.js
 // ===============================
 // PROFILE PANEL CONTROLLER
 // Phase 8.3: Backend-First Badge System
 // ===============================
-
-import { supabase } from "./supabase.js";
-import { updateAvatarElement, handleLogout, handleSwitchAccount, handleSignIn } from "./avatar-utils.js";
-import { getUserBadge, getBadgeIcon, getBadgeColor } from "./roles.js";
-import { isCurrentUserAdmin } from "./admin-auth.js";
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
@@ -27,6 +23,7 @@ function debug(msg) {
  * @returns {Array} Array of badge objects
  */
 async function computeBadges(user) {
+  const getUserBadge = window.Roles.getUserBadge;
   const badges = [];
   
   console.log('[BADGE] Computing badges from backend...');
@@ -62,6 +59,7 @@ async function computeBadges(user) {
  * @returns {boolean} True if user has uploaded papers
  */
 async function checkUserContributions(userId) {
+  const supabase = window.__supabase__;
   try {
     const { data, error } = await supabase
       .from('submissions')
@@ -115,6 +113,11 @@ let clickHandlerAttached = false;
    Initialize profile panel
    =============================== */
 function initializeProfilePanel() {
+  const supabase = window.__supabase__;
+  const handleLogout = window.AvatarUtils.handleLogout;
+  const handleSwitchAccount = window.AvatarUtils.handleSwitchAccount;
+  const handleSignIn = window.AvatarUtils.handleSignIn;
+  
   // Only run once both are ready
   if (!headerLoaded || !profilePanelLoaded || clickHandlerAttached) {
     return;
@@ -246,6 +249,10 @@ function initializeProfilePanel() {
    Uses supabase.auth.getSession() as SINGLE SOURCE OF TRUTH
    =============================== */
 async function renderProfilePanel() {
+  const supabase = window.__supabase__;
+  const updateAvatarElement = window.AvatarUtils.updateAvatarElement;
+  const isCurrentUserAdmin = window.AdminAuth.isCurrentUserAdmin;
+  
   // Get current session directly - SINGLE SOURCE OF TRUTH
   const { data } = await supabase.auth.getSession();
   const session = data?.session;
@@ -368,7 +375,10 @@ document.addEventListener("profile-panel:loaded", () => {
 /* ===============================
    Listen for auth changes
    =============================== */
-supabase.auth.onAuthStateChange(() => {
-  debug("🔔 Auth state changed, re-rendering profile panel");
-  renderProfilePanel();
-});
+(function() {
+  const supabase = window.__supabase__;
+  supabase.auth.onAuthStateChange(() => {
+    debug("🔔 Auth state changed, re-rendering profile panel");
+    renderProfilePanel();
+  });
+})();
