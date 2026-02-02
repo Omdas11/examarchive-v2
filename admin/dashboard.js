@@ -2,13 +2,8 @@
 // ============================================
 // ADMIN DASHBOARD - Phase 9.2
 // Updated to use proper role verification
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // ============================================
-
-import { supabase } from "../js/supabase.js";
-import { getUserRoleBackend } from "../js/admin-auth.js";
-import { moveFile, copyFile, deleteFile, getPublicUrl, BUCKETS } from "../js/supabase-client.js";
-import { formatFileSize, formatDate } from "../js/upload-handler.js";
-import { logInfo, logError, DebugModule } from "../js/debug/logger.js";
 
 console.log("🎛️ dashboard.js loaded");
 
@@ -18,7 +13,7 @@ let allSubmissions = [];
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
-  logInfo(DebugModule.ADMIN, 'DOMContentLoaded - Checking admin access...');
+  console.log('[ADMIN-DASHBOARD] DOMContentLoaded - Checking admin access...');
   
   const loadingState = document.getElementById('loading-state');
   const accessDenied = document.getElementById('access-denied');
@@ -26,41 +21,40 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     // CRITICAL: Get session and verify role
-    logInfo(DebugModule.ADMIN, 'Getting authenticated session...');
-    const { data: { session } } = await supabase.auth.getSession();
+    console.log('[ADMIN-DASHBOARD] Getting authenticated session...');
+    const { data: { session } } = await window.__supabase__.auth.getSession();
     
     if (!session) {
-      logError(DebugModule.AUTH, 'No active session - access denied');
+      console.error('[ADMIN-DASHBOARD] No active session - access denied');
       loadingState.style.display = 'none';
       accessDenied.style.display = 'flex';
       return;
     }
 
-    logInfo(DebugModule.ADMIN, 'Session verified, checking role...');
-    const roleInfo = await getUserRoleBackend(session.user.id);
-    logInfo(DebugModule.ADMIN, 'Role check result', { role: roleInfo?.name, level: roleInfo?.level });
+    console.log('[ADMIN-DASHBOARD] Session verified, checking role...');
+    const roleInfo = await window.AdminAuth.getUserRoleBackend(session.user.id);
+    console.log('[ADMIN-DASHBOARD] Role check result:', { role: roleInfo?.name, level: roleInfo?.level });
     
     // Hide loading state
     loadingState.style.display = 'none';
     
     // Check if user has admin or reviewer role
     const hasAdminAccess = roleInfo && (roleInfo.name === 'admin' || roleInfo.name === 'reviewer');
-    logInfo(DebugModule.ADMIN, `Admin access check: ${hasAdminAccess ? 'GRANTED' : 'DENIED'}`);
+    console.log(`[ADMIN-DASHBOARD] Admin access check: ${hasAdminAccess ? 'GRANTED' : 'DENIED'}`);
     
     if (!hasAdminAccess) {
       accessDenied.style.display = 'flex';
-      logError(DebugModule.ADMIN, 'Access denied - insufficient permissions', { role: roleInfo?.name });
+      console.error('[ADMIN-DASHBOARD] Access denied - insufficient permissions:', { role: roleInfo?.name });
       return;
     }
 
-    logInfo(DebugModule.ADMIN, 'Admin access granted - initializing dashboard');
+    console.log('[ADMIN-DASHBOARD] Admin access granted - initializing dashboard');
     dashboardContent.style.display = 'block';
 
     // Initialize dashboard
     initializeDashboard();
   } catch (err) {
-    logError(DebugModule.ADMIN, 'Error checking admin access', { error: err.message });
-    console.error('[ADMIN-DASHBOARD] Error checking access:', err);
+    console.error('[ADMIN-DASHBOARD] Error checking admin access:', err);
     loadingState.style.display = 'none';
     accessDenied.style.display = 'flex';
   }
@@ -111,7 +105,7 @@ function setupTabs() {
  */
 async function loadSubmissions() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await window.__supabase__
       .from('submissions')
       .select(`
         *,
@@ -226,7 +220,7 @@ function renderSubmissionCard(submission) {
             <strong>File:</strong> ${submission.original_filename}
           </div>
           <div class="meta-row">
-            ${formatDate(submission.created_at)}
+            ${window.UploadHandler.formatDate(submission.created_at)}
           </div>
         </div>
         <span class="status-badge ${statusClass}">
@@ -237,7 +231,7 @@ function renderSubmissionCard(submission) {
       <div class="submission-details">
         <div class="detail-item">
           <strong>File Size</strong>
-          <span>${formatFileSize(submission.file_size)}</span>
+          <span>${window.UploadHandler.formatFileSize(submission.file_size)}</span>
         </div>
         <div class="detail-item">
           <strong>Paper Name</strong>
@@ -246,7 +240,7 @@ function renderSubmissionCard(submission) {
         ${submission.reviewed_at ? `
         <div class="detail-item">
           <strong>Reviewed</strong>
-          <span>${formatDate(submission.reviewed_at)}</span>
+          <span>${window.UploadHandler.formatDate(submission.reviewed_at)}</span>
         </div>
         ` : ''}
         ${submission.public_url ? `
@@ -374,10 +368,10 @@ function showReviewModal(submission) {
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
       <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.exam_year}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission.original_filename} (${formatFileSize(submission.file_size)})
+        <strong>File:</strong> ${submission.original_filename} (${window.UploadHandler.formatFileSize(submission.file_size)})
       </p>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>Submitted:</strong> ${formatDate(submission.created_at)}
+        <strong>Submitted:</strong> ${window.UploadHandler.formatDate(submission.created_at)}
       </p>
     </div>
   `;
@@ -420,7 +414,7 @@ async function approveSubmission(submission, notes = '') {
   try {
     showMessage('Processing approval...', 'info');
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await window.__supabase__.auth.getSession();
     const reviewerId = session.user.id;
 
     // Move file from temp to approved to public
@@ -428,10 +422,10 @@ async function approveSubmission(submission, notes = '') {
     const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
     const publicPath = `papers/${filename}`;
 
-    const moved = await moveFile(
-      BUCKETS.TEMP,
+    const moved = await window.SupabaseClient.moveFile(
+      window.SupabaseClient.BUCKETS.TEMP,
       submission.temp_path,
-      BUCKETS.PUBLIC,
+      window.SupabaseClient.BUCKETS.PUBLIC,
       publicPath
     );
 
@@ -440,10 +434,10 @@ async function approveSubmission(submission, notes = '') {
     }
 
     // Get public URL
-    const publicUrl = getPublicUrl(publicPath);
+    const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await supabase
+    const { error: updateError } = await window.__supabase__
       .from('submissions')
       .update({
         status: 'published',
@@ -476,14 +470,14 @@ async function rejectSubmission(submission, notes = '') {
   try {
     showMessage('Processing rejection...', 'info');
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await window.__supabase__.auth.getSession();
     const reviewerId = session.user.id;
 
     // Delete file from temp storage
-    await deleteFile(BUCKETS.TEMP, submission.temp_path);
+    await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
 
     // Update submission
-    const { error: updateError } = await supabase
+    const { error: updateError } = await window.__supabase__
       .from('submissions')
       .update({
         status: 'rejected',
@@ -518,10 +512,10 @@ async function publishSubmission(submission) {
     const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
     const publicPath = `papers/${filename}`;
 
-    const moved = await moveFile(
-      BUCKETS.APPROVED,
+    const moved = await window.SupabaseClient.moveFile(
+      window.SupabaseClient.BUCKETS.APPROVED,
       submission.approved_path,
-      BUCKETS.PUBLIC,
+      window.SupabaseClient.BUCKETS.PUBLIC,
       publicPath
     );
 
@@ -530,10 +524,10 @@ async function publishSubmission(submission) {
     }
 
     // Get public URL
-    const publicUrl = getPublicUrl(publicPath);
+    const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await supabase
+    const { error: updateError } = await window.__supabase__
       .from('submissions')
       .update({
         status: 'published',
@@ -570,17 +564,17 @@ async function deleteSubmission(submission) {
 
     // Delete file from storage based on status
     if (submission.temp_path) {
-      await deleteFile(BUCKETS.TEMP, submission.temp_path);
+      await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
     }
     if (submission.approved_path) {
-      await deleteFile(BUCKETS.APPROVED, submission.approved_path);
+      await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.APPROVED, submission.approved_path);
     }
     if (submission.public_path) {
-      await deleteFile(BUCKETS.PUBLIC, submission.public_path);
+      await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.PUBLIC, submission.public_path);
     }
 
     // Delete submission record from database
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await window.__supabase__
       .from('submissions')
       .delete()
       .eq('id', submission.id);
@@ -602,7 +596,7 @@ async function deleteSubmission(submission) {
  * Setup real-time subscriptions for live updates
  */
 function setupRealtimeSubscriptions() {
-  const channel = supabase
+  const channel = window.__supabase__
     .channel('submissions-changes')
     .on(
       'postgres_changes',

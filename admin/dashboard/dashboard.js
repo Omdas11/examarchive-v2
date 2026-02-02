@@ -1,12 +1,8 @@
 // admin/dashboard/dashboard.js
 // ============================================
 // ADMIN DASHBOARD - Phase 8.3 (Backend-First)
+// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // ============================================
-
-import { supabase } from "../../js/supabase.js";
-import { isCurrentUserAdmin } from "../../js/admin-auth.js";
-import { moveFile, copyFile, deleteFile, getPublicUrl, BUCKETS } from "../../js/supabase-client.js";
-import { formatFileSize, formatDate } from "../../js/upload-handler.js";
 
 console.log("🎛️ dashboard.js loaded (Phase 8.3 - Backend-First)");
 
@@ -26,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // CRITICAL: Backend-only verification
     // NO reliance on frontend role state or role:ready events
     console.log('[ADMIN-DASHBOARD] Calling backend is_admin() function...');
-    const hasAdminAccess = await isCurrentUserAdmin();
+    const hasAdminAccess = await window.AdminAuth.isCurrentUserAdmin();
     console.log('[ADMIN-DASHBOARD] Backend admin check result:', hasAdminAccess);
     
     // Hide loading state
@@ -96,7 +92,7 @@ function setupTabs() {
  */
 async function loadSubmissions() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await window.__supabase__
       .from('submissions')
       .select(`
         *,
@@ -197,7 +193,7 @@ function renderSubmissionCard(submission) {
             <strong>File:</strong> ${submission.original_filename}
           </div>
           <div class="meta-row">
-            ${formatDate(submission.created_at)}
+            ${window.UploadHandler.formatDate(submission.created_at)}
           </div>
         </div>
         <span class="status-badge ${statusClass}">
@@ -208,7 +204,7 @@ function renderSubmissionCard(submission) {
       <div class="submission-details">
         <div class="detail-item">
           <strong>File Size</strong>
-          <span>${formatFileSize(submission.file_size)}</span>
+          <span>${window.UploadHandler.formatFileSize(submission.file_size)}</span>
         </div>
         <div class="detail-item">
           <strong>Paper Name</strong>
@@ -217,7 +213,7 @@ function renderSubmissionCard(submission) {
         ${submission.reviewed_at ? `
         <div class="detail-item">
           <strong>Reviewed</strong>
-          <span>${formatDate(submission.reviewed_at)}</span>
+          <span>${window.UploadHandler.formatDate(submission.reviewed_at)}</span>
         </div>
         ` : ''}
         ${submission.public_url ? `
@@ -333,10 +329,10 @@ function showReviewModal(submission) {
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
       <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.exam_year}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission.original_filename} (${formatFileSize(submission.file_size)})
+        <strong>File:</strong> ${submission.original_filename} (${window.UploadHandler.formatFileSize(submission.file_size)})
       </p>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>Submitted:</strong> ${formatDate(submission.created_at)}
+        <strong>Submitted:</strong> ${window.UploadHandler.formatDate(submission.created_at)}
       </p>
     </div>
   `;
@@ -379,7 +375,7 @@ async function approveSubmission(submission, notes = '') {
   try {
     showMessage('Processing approval...', 'info');
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await window.__supabase__.auth.getSession();
     const reviewerId = session.user.id;
 
     // Move file from temp to approved to public
@@ -387,10 +383,10 @@ async function approveSubmission(submission, notes = '') {
     const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
     const publicPath = `papers/${filename}`;
 
-    const moved = await moveFile(
-      BUCKETS.TEMP,
+    const moved = await window.SupabaseClient.moveFile(
+      window.SupabaseClient.BUCKETS.TEMP,
       submission.temp_path,
-      BUCKETS.PUBLIC,
+      window.SupabaseClient.BUCKETS.PUBLIC,
       publicPath
     );
 
@@ -399,10 +395,10 @@ async function approveSubmission(submission, notes = '') {
     }
 
     // Get public URL
-    const publicUrl = getPublicUrl(publicPath);
+    const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await supabase
+    const { error: updateError } = await window.__supabase__
       .from('submissions')
       .update({
         status: 'published',
@@ -435,14 +431,14 @@ async function rejectSubmission(submission, notes = '') {
   try {
     showMessage('Processing rejection...', 'info');
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await window.__supabase__.auth.getSession();
     const reviewerId = session.user.id;
 
     // Delete file from temp storage
-    await deleteFile(BUCKETS.TEMP, submission.temp_path);
+    await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
 
     // Update submission
-    const { error: updateError } = await supabase
+    const { error: updateError } = await window.__supabase__
       .from('submissions')
       .update({
         status: 'rejected',
@@ -477,10 +473,10 @@ async function publishSubmission(submission) {
     const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
     const publicPath = `papers/${filename}`;
 
-    const moved = await moveFile(
-      BUCKETS.APPROVED,
+    const moved = await window.SupabaseClient.moveFile(
+      window.SupabaseClient.BUCKETS.APPROVED,
       submission.approved_path,
-      BUCKETS.PUBLIC,
+      window.SupabaseClient.BUCKETS.PUBLIC,
       publicPath
     );
 
@@ -489,10 +485,10 @@ async function publishSubmission(submission) {
     }
 
     // Get public URL
-    const publicUrl = getPublicUrl(publicPath);
+    const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await supabase
+    const { error: updateError } = await window.__supabase__
       .from('submissions')
       .update({
         status: 'published',
@@ -519,7 +515,7 @@ async function publishSubmission(submission) {
  * Setup real-time subscriptions for live updates
  */
 function setupRealtimeSubscriptions() {
-  const channel = supabase
+  const channel = window.__supabase__
     .channel('submissions-changes')
     .on(
       'postgres_changes',
