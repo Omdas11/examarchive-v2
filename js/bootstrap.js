@@ -1,27 +1,33 @@
 // js/bootstrap.js
 // ============================================
-// EMERGENCY BOOTSTRAP - Phase 9.2.2
+// SINGLE GLOBAL BOOTSTRAP - Phase 9.2.4
 // Must load FIRST before any other scripts
 // ============================================
 
-console.log('[BOOT] bootstrap.js loaded');
+(function () {
+  if (window.__APP_BOOTED__) return;
+  window.__APP_BOOTED__ = true;
 
-// Set global bootstrap flag
-window.__APP_BOOTED__ = true;
+  console.log('[BOOT] Initializing app');
 
-// Global error handler - makes JS failures VISIBLE
-window.addEventListener('error', (e) => {
-  const errorMsg = `JS ERROR: ${e.message}\nFile: ${e.filename}\nLine: ${e.lineno}`;
-  alert(errorMsg);
-  console.error('[BOOT] JavaScript Error:', e);
-});
+  window.App = {
+    ready: false,
+    supabase: null,
+    session: null
+  };
 
-// Global promise rejection handler - catches async failures
-window.addEventListener('unhandledrejection', (e) => {
-  const errorMsg = `PROMISE ERROR: ${e.reason}`;
-  alert(errorMsg);
-  console.error('[BOOT] Unhandled Promise Rejection:', e);
-});
+  // Global error handler - makes JS failures VISIBLE
+  window.addEventListener('error', (e) => {
+    const errorMsg = `JS ERROR: ${e.message}\nFile: ${e.filename}\nLine: ${e.lineno}`;
+    console.error('[BOOT] JavaScript Error:', e);
+  });
 
-console.log('[BOOT] Global error handlers installed');
-console.log('[BOOT] Bootstrap complete - app ready to load');
+  // Global promise rejection handler - catches async failures
+  window.addEventListener('unhandledrejection', (e) => {
+    const errorMsg = `PROMISE ERROR: ${e.reason}`;
+    console.error('[BOOT] Unhandled Promise Rejection:', e);
+  });
+
+  console.log('[BOOT] Global error handlers installed');
+  console.log('[BOOT] Bootstrap complete - app ready to load');
+})();

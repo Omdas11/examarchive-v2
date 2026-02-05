@@ -246,15 +246,9 @@ async function renderSettings() {
 
   window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Starting settings page render, checking session...');
 
-  // CRITICAL: Wait for session to be ready before rendering
-  const { data: { session }, error: sessionError } = await window.__supabase__.auth.getSession();
+  // Use session from window.App (single source of truth)
+  const session = window.App.session;
   
-  if (sessionError) {
-    window.Debug.logError(window.Debug.DebugModule.AUTH, 'Session error during settings load', { error: sessionError.message });
-    renderErrorMessage(container, 'Session Error', 'There was an error checking your session. Please try refreshing the page.');
-    return;
-  }
-
   // Check if user is signed in
   if (!session) {
     window.Debug.logWarn(window.Debug.DebugModule.SETTINGS, 'Settings hidden: no active session');
@@ -1147,17 +1141,48 @@ function attachEventListeners() {
 }
 
 // ===============================
+// Login Required Message
+// ===============================
+
+function showLoginRequiredMessage() {
+  const container = document.getElementById("settings-container");
+  if (container) {
+    renderSignedOutMessage(container);
+  }
+}
+
+// ===============================
 // Initialize
 // ===============================
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("app:ready", () => {
+  console.log("[settings] app:ready event received, initializing settings");
+  
+  // Check if user is logged in
+  if (!window.App.session) {
+    showLoginRequiredMessage();
+    return;
+  }
+  
   renderSettings();
 });
 
 // Re-render on auth state change
-window.__supabase__.auth.onAuthStateChange(() => {
-  console.log("🔔 Auth state changed, re-rendering settings");
-  renderSettings();
+document.addEventListener('app:ready', () => {
+  const supabase = window.App.supabase;
+  if (!supabase) return;
+
+  supabase.auth.onAuthStateChange(() => {
+    console.log("🔔 Auth state changed, re-rendering settings");
+    
+    // Check if user is logged in
+    if (!window.App.session) {
+      showLoginRequiredMessage();
+      return;
+    }
+    
+    renderSettings();
+  });
 });
 
 // ===============================

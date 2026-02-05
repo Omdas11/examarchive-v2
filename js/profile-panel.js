@@ -105,6 +105,12 @@ function renderBadges(badges) {
 /* ===============================
    State tracking for both events
    =============================== */
+if (window.__PROFILE_PANEL_INIT__) {
+  console.warn('[profile-panel] Already initialized, skipping');
+} else {
+  window.__PROFILE_PANEL_INIT__ = true;
+}
+
 let headerLoaded = false;
 let profilePanelLoaded = false;
 let clickHandlerAttached = false;
@@ -375,10 +381,12 @@ document.addEventListener("profile-panel:loaded", () => {
 /* ===============================
    Listen for auth changes
    =============================== */
-(function() {
-  const supabase = window.__supabase__;
+document.addEventListener('app:ready', () => {
+  const supabase = window.App.supabase;
+  if (!supabase) return;
+
   supabase.auth.onAuthStateChange(() => {
     debug("🔔 Auth state changed, re-rendering profile panel");
     renderProfilePanel();
   });
-})();
+});

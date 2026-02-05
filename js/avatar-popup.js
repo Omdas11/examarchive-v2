@@ -9,6 +9,12 @@ function debug(msg) {
   console.log("[avatar-popup]", msg);
 }
 
+if (window.__AVATAR_POPUP_INIT__) {
+  console.warn('[avatar-popup] Already initialized, skipping');
+} else {
+  window.__AVATAR_POPUP_INIT__ = true;
+}
+
 let avatarPopupLoaded = false;
 let headerLoaded = false;
 
@@ -203,10 +209,12 @@ document.addEventListener("header:loaded", () => {
 /* ===============================
    Listen for auth changes
    =============================== */
-(function() {
-  const supabase = window.__supabase__;
+document.addEventListener('app:ready', () => {
+  const supabase = window.App.supabase;
+  if (!supabase) return;
+
   supabase.auth.onAuthStateChange(() => {
     debug("🔔 Auth state changed, re-rendering avatar popup");
     renderAvatarPopup();
   });
-})();
+});

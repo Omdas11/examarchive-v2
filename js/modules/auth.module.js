@@ -1,45 +1,39 @@
 // js/modules/auth.module.js
 // ============================================
-// AUTH MODULE - Phase 9.2.3
-// Handles authentication initialization and session management
-// This is the ONLY place that uses ES module imports for auth
+// AUTH MODULE - Phase 9.2.4
+// Handles authentication state management
+// Does NOT call getSession() - that's done in supabase.js
 // ============================================
 
 import { supabase } from "../supabase.js";
 
 /**
- * Initialize authentication
- * This MUST be called first before any other module
+ * Initialize authentication listeners
+ * This MUST be called after supabase.js initializes
  */
 export async function initAuth() {
-  console.log('[AUTH-MODULE] Initializing authentication...');
+  console.log('[AUTH-MODULE] Setting up auth state listener...');
   
   try {
-    const { data, error } = await supabase.auth.getSession();
-    
-    if (error) {
-      console.error('[AUTH-MODULE] Error getting session:', error);
-      window.__SESSION__ = null;
+    // Wait for app:ready event to ensure session is initialized
+    document.addEventListener('app:ready', () => {
+      console.log('[AUTH-MODULE] App ready, session available');
+      
+      // Store session globally for backward compatibility
+      window.__SESSION__ = window.App.session;
       window.__AUTH_READY__ = true;
-      return;
-    }
-    
-    if (!data.session) {
-      console.log('[AUTH-MODULE] No active session');
-      window.__SESSION__ = null;
-      window.__AUTH_READY__ = true;
-      return;
-    }
-    
-    // Store session globally
-    window.__SESSION__ = data.session;
-    window.__AUTH_READY__ = true;
-    
-    console.log('[AUTH-MODULE] Session restored:', data.session.user.email);
+      
+      if (window.App.session) {
+        console.log('[AUTH-MODULE] Session active:', window.App.session.user.email);
+      } else {
+        console.log('[AUTH-MODULE] No active session');
+      }
+    });
     
     // Set up auth state listener
     supabase.auth.onAuthStateChange((event, session) => {
       console.log('[AUTH-MODULE] Auth state changed:', event);
+      window.App.session = session;
       window.__SESSION__ = session;
       
       // Trigger custom event for other parts of the app
@@ -59,14 +53,14 @@ export async function initAuth() {
  * Get current session (safe accessor)
  */
 export function getSession() {
-  return window.__SESSION__;
+  return window.App?.session || window.__SESSION__;
 }
 
 /**
  * Check if user is authenticated
  */
 export function isAuthenticated() {
-  return !!window.__SESSION__;
+  return !!(window.App?.session || window.__SESSION__);
 }
 
 /**
@@ -75,5 +69,6 @@ export function isAuthenticated() {
 export async function logout() {
   console.log('[AUTH-MODULE] Logging out...');
   await supabase.auth.signOut();
+  window.App.session = null;
   window.__SESSION__ = null;
 }
