@@ -1,8 +1,43 @@
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// Phase 9.2.8 - Fixed timing issues with ES modules
 // js/avatar-utils.js
 // ===============================
 // SHARED AVATAR UTILITIES
 // ===============================
+
+/**
+ * Wait for Supabase client to be initialized
+ * @param {number} timeout - Max time to wait in ms (default 5000)
+ * @returns {Promise<Object|null>} Supabase client or null on timeout
+ */
+async function waitForSupabaseAvatar(timeout = 5000) {
+  if (window.__supabase__) {
+    return window.__supabase__;
+  }
+
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    const readyHandler = () => {
+      if (window.__supabase__) {
+        resolve(window.__supabase__);
+      }
+    };
+    document.addEventListener('app:ready', readyHandler, { once: true });
+    
+    const interval = setInterval(() => {
+      if (window.__supabase__) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        resolve(window.__supabase__);
+      } else if (Date.now() - startTime > timeout) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        console.warn('[AVATAR-UTILS] Timeout waiting for Supabase client');
+        resolve(null);
+      }
+    }, 50);
+  });
+}
 
 /**
  * Generate a color from a string (for letter avatars)
@@ -71,8 +106,12 @@ function updateAvatarElement(avatarEl, user) {
  * Shared logout handler
  */
 async function handleLogout() {
-  const supabase = window.__supabase__;
   console.log("[avatar-utils] 🚪 Signing out...");
+  const supabase = await waitForSupabaseAvatar();
+  if (!supabase) {
+    console.error("[avatar-utils] ❌ Cannot sign out - Supabase not ready");
+    return;
+  }
   await supabase.auth.signOut();
   location.reload();
 }
@@ -81,8 +120,13 @@ async function handleLogout() {
  * Shared sign-in handler
  */
 async function handleSignIn() {
-  const supabase = window.__supabase__;
   console.log("[avatar-utils] 🔐 Signing in with Google...");
+  const supabase = await waitForSupabaseAvatar();
+  if (!supabase) {
+    console.error("[avatar-utils] ❌ Cannot sign in - Supabase not ready");
+    alert("Please wait for the page to fully load and try again.");
+    return;
+  }
   
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -100,8 +144,12 @@ async function handleSignIn() {
  * Shared switch account handler
  */
 async function handleSwitchAccount() {
-  const supabase = window.__supabase__;
   console.log("[avatar-utils] 🔄 Switching account...");
+  const supabase = await waitForSupabaseAvatar();
+  if (!supabase) {
+    console.error("[avatar-utils] ❌ Cannot switch account - Supabase not ready");
+    return;
+  }
   
   // Sign out first to ensure user can select different account
   await supabase.auth.signOut();

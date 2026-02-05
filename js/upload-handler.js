@@ -1,9 +1,76 @@
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// Phase 9.2.8 - Fixed timing issues with ES modules
 // js/upload-handler.js
 // ============================================
 // UPLOAD HANDLER - Supabase Storage Integration
-// Phase 9.2: Enhanced with debug logging and session verification
+// Phase 9.2.8: Fixed debug logging to handle missing Debug object
 // ============================================
+
+// Safe debug logging helpers that work before Debug module loads
+function safeLogInfo(module, message, data) {
+  if (window.Debug && window.Debug.logInfo) {
+    window.Debug.logInfo(module, message, data);
+  } else {
+    console.log(`[${module.toUpperCase()}] ${message}`, data || '');
+  }
+}
+
+function safeLogWarn(module, message, data) {
+  if (window.Debug && window.Debug.logWarn) {
+    window.Debug.logWarn(module, message, data);
+  } else {
+    console.warn(`[${module.toUpperCase()}] ${message}`, data || '');
+  }
+}
+
+function safeLogError(module, message, data) {
+  if (window.Debug && window.Debug.logError) {
+    window.Debug.logError(module, message, data);
+  } else {
+    console.error(`[${module.toUpperCase()}] ${message}`, data || '');
+  }
+}
+
+// Module constants
+const UploadDebugModule = {
+  UPLOAD: 'upload',
+  STORAGE: 'storage',
+  AUTH: 'auth'
+};
+
+/**
+ * Wait for Supabase client to be initialized
+ * @param {number} timeout - Max time to wait in ms (default 10000)
+ * @returns {Promise<Object|null>} Supabase client or null on timeout
+ */
+async function waitForSupabaseClient(timeout = 10000) {
+  if (window.__supabase__) {
+    return window.__supabase__;
+  }
+
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    const readyHandler = () => {
+      if (window.__supabase__) {
+        resolve(window.__supabase__);
+      }
+    };
+    document.addEventListener('app:ready', readyHandler, { once: true });
+    
+    const interval = setInterval(() => {
+      if (window.__supabase__) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        resolve(window.__supabase__);
+      } else if (Date.now() - startTime > timeout) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        console.error('[UPLOAD-HANDLER] Timeout waiting for Supabase client');
+        resolve(null);
+      }
+    }, 50);
+  });
+}
 
 /**
  * Handle file upload to temp storage with submission tracking
@@ -16,45 +83,44 @@
  * @returns {Promise<Object>} Result with submissionId and error
  */
 async function handlePaperUpload(file, metadata, onProgress) {
-  const supabase = window.__supabase__;
-  const uploadFile = window.SupabaseClient.uploadFile;
-  const BUCKETS = window.SupabaseClient.BUCKETS;
-  const logInfo = window.Debug.logInfo;
-  const logWarn = window.Debug.logWarn;
-  const logError = window.Debug.logError;
-  const DebugModule = window.Debug.DebugModule;
-  
   try {
-    logInfo(DebugModule.UPLOAD, 'Starting paper upload', { filename: file?.name });
+    safeLogInfo(UploadDebugModule.UPLOAD, 'Starting paper upload', { filename: file?.name });
 
     // Validate file
     if (!file || file.type !== 'application/pdf') {
-      logError(DebugModule.UPLOAD, 'Invalid file type - only PDF allowed', { type: file?.type });
+      safeLogError(UploadDebugModule.UPLOAD, 'Invalid file type - only PDF allowed', { type: file?.type });
       throw new Error('Only PDF files are allowed');
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      logError(DebugModule.UPLOAD, 'File size exceeds limit', { size: file.size });
+      safeLogError(UploadDebugModule.UPLOAD, 'File size exceeds limit', { size: file.size });
       throw new Error('File size must be less than 50MB');
     }
 
+    // CRITICAL: Wait for Supabase to be ready
+    safeLogInfo(UploadDebugModule.UPLOAD, 'Waiting for Supabase client...');
+    const supabase = await waitForSupabaseClient();
+    
+    if (!supabase) {
+      throw new Error('Failed to initialize upload service. Please refresh and try again.');
+    }
+
     // CRITICAL: Wait for session to be ready before uploading
-    logInfo(DebugModule.UPLOAD, 'Verifying authenticated session...');
+    safeLogInfo(UploadDebugModule.UPLOAD, 'Verifying authenticated session...');
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
     if (sessionError) {
-      logError(DebugModule.UPLOAD, 'Session error', { error: sessionError.message });
+      safeLogError(UploadDebugModule.UPLOAD, 'Session error', { error: sessionError.message });
       throw new Error('Session verification failed. Please try signing in again.');
     }
 
-    // 🧨 HARD FAIL IF NO SESSION (Phase 9.2.2)
+    // 🧨 HARD FAIL IF NO SESSION
     if (!session) {
-      alert('UPLOAD BLOCKED: session missing');
-      logWarn(DebugModule.UPLOAD, 'No active session found. Upload blocked.');
+      safeLogWarn(UploadDebugModule.UPLOAD, 'No active session found. Upload blocked.');
       throw new Error('You must be signed in to upload');
     }
 
-    logInfo(DebugModule.UPLOAD, 'Session verified. User authenticated.', { userId: session.user.id });
+    safeLogInfo(UploadDebugModule.UPLOAD, 'Session verified. User authenticated.', { userId: session.user.id });
 
     const userId = session.user.id;
     const timestamp = Date.now();
@@ -63,26 +129,46 @@ async function handlePaperUpload(file, metadata, onProgress) {
     // Generate storage path: {userId}/{timestamp}-{filename}
     const storagePath = `${userId}/${timestamp}-${sanitizedFilename}`;
 
+    // Get bucket name from SupabaseClient if available, or use default
+    const TEMP_BUCKET = window.SupabaseClient?.BUCKETS?.TEMP || 'uploads-temp';
+
     // Upload to temp bucket using authenticated client
-    logInfo(DebugModule.UPLOAD, 'Uploading file to storage...', { bucket: BUCKETS.TEMP, path: storagePath });
-    const { data: uploadData, error: uploadError } = await uploadFile(
-      file,
-      {
-        bucket: BUCKETS.TEMP,
+    safeLogInfo(UploadDebugModule.UPLOAD, 'Uploading file to storage...', { bucket: TEMP_BUCKET, path: storagePath });
+    
+    // Use SupabaseClient.uploadFile if available, otherwise direct upload
+    let uploadResult;
+    if (window.SupabaseClient?.uploadFile) {
+      uploadResult = await window.SupabaseClient.uploadFile(file, {
+        bucket: TEMP_BUCKET,
         path: storagePath,
         onProgress
+      });
+    } else {
+      // Fallback to direct upload
+      const { data, error } = await supabase.storage
+        .from(TEMP_BUCKET)
+        .upload(storagePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (error) {
+        uploadResult = { data: null, error };
+      } else {
+        uploadResult = { data, error: null };
+        if (onProgress) onProgress(100);
       }
-    );
-
-    if (uploadError) {
-      logError(DebugModule.STORAGE, 'Storage upload failed', { error: uploadError.message });
-      throw uploadError;
     }
 
-    logInfo(DebugModule.UPLOAD, 'File uploaded successfully to storage');
+    if (uploadResult.error) {
+      safeLogError(UploadDebugModule.STORAGE, 'Storage upload failed', { error: uploadResult.error.message });
+      throw uploadResult.error;
+    }
+
+    safeLogInfo(UploadDebugModule.UPLOAD, 'File uploaded successfully to storage');
 
     // Create submission record
-    logInfo(DebugModule.UPLOAD, 'Creating submission record in database...');
+    safeLogInfo(UploadDebugModule.UPLOAD, 'Creating submission record in database...');
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
       .insert({
@@ -100,18 +186,18 @@ async function handlePaperUpload(file, metadata, onProgress) {
       .single();
 
     if (submissionError) {
-      logError(DebugModule.UPLOAD, 'Database submission record creation failed', { error: submissionError.message });
+      safeLogError(UploadDebugModule.UPLOAD, 'Database submission record creation failed', { error: submissionError.message });
       
       // Try to clean up uploaded file
-      logWarn(DebugModule.UPLOAD, 'Attempting to clean up uploaded file...');
+      safeLogWarn(UploadDebugModule.UPLOAD, 'Attempting to clean up uploaded file...');
       await supabase.storage
-        .from(BUCKETS.TEMP)
+        .from(TEMP_BUCKET)
         .remove([storagePath]);
       
       throw submissionError;
     }
 
-    logInfo(DebugModule.UPLOAD, 'Upload completed successfully', { submissionId: submission.id });
+    safeLogInfo(UploadDebugModule.UPLOAD, 'Upload completed successfully', { submissionId: submission.id });
 
     return {
       success: true,
@@ -121,7 +207,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     };
 
   } catch (error) {
-    logError(DebugModule.UPLOAD, 'Upload failed', { error: error.message });
+    safeLogError(UploadDebugModule.UPLOAD, 'Upload failed', { error: error.message });
     console.error('Upload error:', error);
     
     // Provide user-friendly error messages
@@ -129,17 +215,17 @@ async function handlePaperUpload(file, metadata, onProgress) {
     
     if (error.message?.includes('JWT') || error.message?.includes('jwt')) {
       userMessage = 'Your session has expired. Please sign in again.';
-      logError(DebugModule.AUTH, 'JWT token expired or invalid');
+      safeLogError(UploadDebugModule.AUTH, 'JWT token expired or invalid');
     } else if (error.message?.includes('RLS') || error.message?.includes('policy') || error.message?.includes('permission')) {
       userMessage = 'Permission denied. Please ensure you are signed in and try again.';
-      logError(DebugModule.STORAGE, 'RLS policy violation - user may not be authenticated or lacks permission');
+      safeLogError(UploadDebugModule.STORAGE, 'RLS policy violation - user may not be authenticated or lacks permission');
     } else if (error.message?.includes('storage')) {
       userMessage = 'File storage error. Please try again or contact support.';
     } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
       userMessage = 'Network error. Please check your connection and try again.';
     } else if (error.message) {
       // Use the error message if it's already user-friendly
-      const friendlyErrors = ['PDF', 'size', 'signed in', 'allowed'];
+      const friendlyErrors = ['PDF', 'size', 'signed in', 'allowed', 'refresh'];
       if (friendlyErrors.some(term => error.message.includes(term))) {
         userMessage = error.message;
       }
@@ -160,8 +246,14 @@ async function handlePaperUpload(file, metadata, onProgress) {
  * @returns {Promise<Array>} List of submissions
  */
 async function getUserSubmissions(status = null) {
-  const supabase = window.__supabase__;
   try {
+    // Wait for Supabase to be ready
+    const supabase = await waitForSupabaseClient();
+    if (!supabase) {
+      console.warn('[UPLOAD-HANDLER] Supabase not ready for getUserSubmissions');
+      return [];
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       return [];
@@ -196,8 +288,14 @@ async function getUserSubmissions(status = null) {
  * @returns {Promise<Array>} List of pending submissions
  */
 async function getPendingSubmissions() {
-  const supabase = window.__supabase__;
   try {
+    // Wait for Supabase to be ready
+    const supabase = await waitForSupabaseClient();
+    if (!supabase) {
+      console.warn('[UPLOAD-HANDLER] Supabase not ready for getPendingSubmissions');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('submissions')
       .select(`
@@ -225,8 +323,14 @@ async function getPendingSubmissions() {
  * @returns {Promise<Object|null>} Submission data
  */
 async function getSubmission(submissionId) {
-  const supabase = window.__supabase__;
   try {
+    // Wait for Supabase to be ready
+    const supabase = await waitForSupabaseClient();
+    if (!supabase) {
+      console.warn('[UPLOAD-HANDLER] Supabase not ready for getSubmission');
+      return null;
+    }
+
     const { data, error } = await supabase
       .from('submissions')
       .select(`
