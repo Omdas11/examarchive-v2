@@ -1,47 +1,106 @@
 // js/auth.js
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
-// Simple auth check - mainly for legacy/debug purposes
+// ============================================
+// AUTH CONTRACT - Phase 9.2.5
+// SINGLE SOURCE OF TRUTH for authentication
+// This is the ONLY file allowed to reason about auth
+// ============================================
 
-console.log("🔐 auth.js loaded");
+console.log("🔐 auth.js loaded - Phase 9.2.5");
 
-async function checkAuth() {
-  await new Promise((resolve) => {
-    if (window.__AUTH_READY__) {
-      resolve();
-      return;
-    }
-    const checkInterval = setInterval(() => {
-      if (window.__AUTH_READY__) {
-        clearInterval(checkInterval);
-        resolve();
-      }
-    }, 50);
-  });
-
-  const session = window.__SESSION__;
-
-  if (!session) {
-    console.log("ℹ️ No active session");
-    return;
+/**
+ * Get Supabase client (helper)
+ * @returns {Object} Supabase client
+ */
+function getSupabaseClient() {
+  if (!window.__supabase__) {
+    console.error('[AUTH] Supabase client not available');
+    return null;
   }
-
-  const user = session.user;
-  console.log("✅ Logged in as: " + user.email);
-
-  // expose user globally
-  window.currentUser = user;
-
-  // update UI
-  document.body.classList.add("logged-in");
+  return window.__supabase__;
 }
 
-checkAuth();
-
-// listen for auth changes
-window.addEventListener('auth-state-changed', (e) => {
-  const session = e.detail.session;
-  if (session) {
-    console.log("🔄 Session updated");
-    window.location.reload();
+/**
+ * Require active session
+ * This is the ONLY way to check authentication
+ * @returns {Promise<Object|null>} Session object or null
+ */
+async function requireSession() {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    console.error('[AUTH] Supabase not initialized');
+    return null;
   }
-});
+
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      console.error('[AUTH] Error getting session:', error);
+      return null;
+    }
+    
+    if (!data?.session) {
+      console.log('[AUTH] No active session');
+      return null;
+    }
+    
+    console.log('[AUTH] Session verified:', data.session.user.email);
+    return data.session;
+  } catch (err) {
+    console.error('[AUTH] Exception in requireSession:', err);
+    return null;
+  }
+}
+
+/**
+ * Require role-based access
+ * Checks if user has one of the allowed roles
+ * @param {Array<string>} allowedRoles - Array of allowed role names (e.g., ['admin', 'reviewer'])
+ * @returns {Promise<Object|null>} Session object or null if not authorized
+ */
+async function requireRole(allowedRoles = []) {
+  // First check session
+  const session = await requireSession();
+  if (!session) {
+    console.log('[AUTH] No session for role check');
+    return null;
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return null;
+  }
+
+  try {
+    // Get user role from backend
+    const { data, error } = await supabase.rpc('get_user_role_name', { 
+      user_id_param: session.user.id 
+    });
+
+    if (error) {
+      console.error('[AUTH] Error getting user role:', error);
+      return null;
+    }
+
+    const userRole = data;
+    console.log('[AUTH] User role:', userRole);
+
+    // Check if user has required role
+    if (!allowedRoles.includes(userRole)) {
+      console.log('[AUTH] Access denied - role not allowed:', userRole);
+      return null;
+    }
+
+    console.log('[AUTH] Role check passed:', userRole);
+    return session;
+  } catch (err) {
+    console.error('[AUTH] Exception in requireRole:', err);
+    return null;
+  }
+}
+
+// Expose functions globally for classic scripts
+window.AuthContract = {
+  requireSession,
+  requireRole
+};
