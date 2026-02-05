@@ -1,6 +1,6 @@
 // js/modules/debug.module.js
 // ============================================
-// DEBUG MODULE - Phase 9.2.3
+// DEBUG MODULE - Phase 9.2.8
 // Combined debug logger and panel in a single ES module
 // This is the ONLY place that uses ES module imports for debug
 // ============================================
@@ -50,6 +50,13 @@ class DebugLogger {
       this.enabled = true;
       this.panelVisible = localStorage.getItem('debug-panel-enabled') !== 'false';
       console.log('[DEBUG-LOGGER] Force enabled for debugging');
+      return;
+    }
+
+    // Handle case when supabase is not available
+    if (!supabase) {
+      console.warn('[DEBUG-LOGGER] Supabase not available - debug disabled');
+      this.enabled = false;
       return;
     }
 

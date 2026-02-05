@@ -1108,8 +1108,14 @@ function attachEventListeners() {
         resetDemoBtn.disabled = true;
         resetDemoBtn.textContent = "Resetting...";
         
+        // Wait for supabase to be ready
+        const supabase = window.__supabase__;
+        if (!supabase) {
+          throw new Error('Supabase not initialized');
+        }
+        
         // Delete all submissions (admin only - protected by RLS)
-        const { error } = await window.__supabase__
+        const { error } = await supabase
           .from('submissions')
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
@@ -1168,7 +1174,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   console.log("[settings] Initializing settings page");
   
-  // Use auth contract to check session
+  // Use auth contract to check session (this waits for Supabase)
+  if (!window.AuthContract?.requireSession) {
+    console.warn("[settings] AuthContract not available yet");
+    showLoginRequiredMessage();
+    return;
+  }
+  
   const { requireSession } = window.AuthContract;
   const session = await requireSession();
   
@@ -1178,20 +1190,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderSettings();
   }
   
-  // Set up auth state change listener
-  const supabase = window.__supabase__;
-  if (supabase) {
-    supabase.auth.onAuthStateChange(async () => {
-      console.log("🔔 Auth state changed, re-rendering settings");
-      
-      // Re-check session
-      const session = await requireSession();
-      if (!session) {
-        showLoginRequiredMessage();
-      } else {
-        renderSettings();
-      }
-    });
+  // Set up auth state change listener - wait for supabase to be ready
+  const setupAuthListener = () => {
+    const supabase = window.__supabase__ || window.App?.supabase;
+    if (supabase) {
+      supabase.auth.onAuthStateChange(async () => {
+        console.log("🔔 Auth state changed, re-rendering settings");
+        
+        // Re-check session
+        const session = await requireSession();
+        if (!session) {
+          showLoginRequiredMessage();
+        } else {
+          renderSettings();
+        }
+      });
+    }
+  };
+  
+  if (window.__supabase__) {
+    setupAuthListener();
+  } else {
+    document.addEventListener('app:ready', setupAuthListener, { once: true });
   }
 });
 

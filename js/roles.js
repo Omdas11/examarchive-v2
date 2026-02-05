@@ -1,10 +1,45 @@
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// Phase 9.2.8 - Fixed timing issues with ES modules
 // js/roles.js
 // ============================================
-// ROLE & BADGE SYSTEM - Phase 8.3 (Backend-First)
+// ROLE & BADGE SYSTEM - Phase 9.2.8
 // Badges are DISPLAY ONLY
 // Backend is the ONLY authority
 // ============================================
+
+/**
+ * Wait for Supabase client to be initialized
+ * @param {number} timeout - Max time to wait in ms (default 10000)
+ * @returns {Promise<Object|null>} Supabase client or null on timeout
+ */
+async function waitForSupabaseRoles(timeout = 10000) {
+  if (window.__supabase__) {
+    return window.__supabase__;
+  }
+
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    const readyHandler = () => {
+      if (window.__supabase__) {
+        resolve(window.__supabase__);
+      }
+    };
+    document.addEventListener('app:ready', readyHandler, { once: true });
+    
+    const interval = setInterval(() => {
+      if (window.__supabase__) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        resolve(window.__supabase__);
+      } else if (Date.now() - startTime > timeout) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        console.warn('[ROLES] Timeout waiting for Supabase client');
+        resolve(null);
+      }
+    }, 50);
+  });
+}
 
 /**
  * Badge slot definitions (3 slots)
@@ -69,10 +104,32 @@ function getBadgeColor(role) {
  * @returns {Promise<Object>} Badge info {role, badge, icon, color}
  */
 async function getUserBadge() {
-  const supabase = window.__supabase__;
-  const getUserRoleBackend = window.AdminAuth.getUserRoleBackend;
-  
   try {
+    // Wait for Supabase to be ready
+    const supabase = await waitForSupabaseRoles();
+    if (!supabase) {
+      console.warn('[BADGE] Supabase not ready, returning visitor badge');
+      return {
+        role: 'visitor',
+        badge: 'Visitor',
+        icon: getBadgeIcon('Visitor'),
+        color: getBadgeColor('visitor')
+      };
+    }
+    
+    // Wait for AdminAuth to be available
+    if (!window.AdminAuth?.getUserRoleBackend) {
+      console.warn('[BADGE] AdminAuth not available, returning visitor badge');
+      return {
+        role: 'visitor',
+        badge: 'Visitor',
+        icon: getBadgeIcon('Visitor'),
+        color: getBadgeColor('visitor')
+      };
+    }
+    
+    const getUserRoleBackend = window.AdminAuth.getUserRoleBackend;
+    
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
@@ -148,9 +205,11 @@ function clearRoleCache() {
  * @deprecated Use getUserRoleBackend() from admin-auth.js instead
  */
 async function getUserProfile(useCache = true) {
-  const supabase = window.__supabase__;
   console.warn('[ROLE] getUserProfile() is deprecated, use getUserRoleBackend() instead');
   try {
+    const supabase = await waitForSupabaseRoles();
+    if (!supabase) return null;
+    
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return null;
 

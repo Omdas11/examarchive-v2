@@ -1,9 +1,44 @@
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// Phase 9.2.8 - Fixed timing issues with ES modules
 // js/admin-auth.js
 // ============================================
 // ADMIN AUTHENTICATION - Backend Verification
-// Phase 8.3: Admin System Redesign
+// Phase 9.2.8: Fixed to wait for Supabase initialization
 // ============================================
+
+/**
+ * Wait for Supabase client to be initialized
+ * @param {number} timeout - Max time to wait in ms (default 10000)
+ * @returns {Promise<Object|null>} Supabase client or null on timeout
+ */
+async function waitForSupabaseAdmin(timeout = 10000) {
+  if (window.__supabase__) {
+    return window.__supabase__;
+  }
+
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    const readyHandler = () => {
+      if (window.__supabase__) {
+        resolve(window.__supabase__);
+      }
+    };
+    document.addEventListener('app:ready', readyHandler, { once: true });
+    
+    const interval = setInterval(() => {
+      if (window.__supabase__) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        resolve(window.__supabase__);
+      } else if (Date.now() - startTime > timeout) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        console.error('[ADMIN-AUTH] Timeout waiting for Supabase client');
+        resolve(null);
+      }
+    }, 50);
+  });
+}
 
 /**
  * Backend-verified admin check using is_admin() function
@@ -14,8 +49,14 @@
  * @returns {Promise<boolean>} True if user is admin
  */
 async function isAdminBackend(userId = null) {
-  const supabase = window.__supabase__;
   try {
+    // Wait for Supabase to be ready
+    const supabase = await waitForSupabaseAdmin();
+    if (!supabase) {
+      console.error('[ADMIN-AUTH] Supabase not initialized');
+      return false;
+    }
+
     // Get current session if no userId provided
     if (!userId) {
       const { data: { session } } = await supabase.auth.getSession();
@@ -51,8 +92,14 @@ async function isAdminBackend(userId = null) {
  * @returns {Promise<boolean>}
  */
 async function isCurrentUserAdmin() {
-  const supabase = window.__supabase__;
   try {
+    // Wait for Supabase to be ready
+    const supabase = await waitForSupabaseAdmin();
+    if (!supabase) {
+      console.error('[ADMIN-AUTH] Supabase not initialized');
+      return false;
+    }
+
     const { data, error } = await supabase.rpc('is_current_user_admin');
     
     if (error) {
@@ -73,8 +120,14 @@ async function isCurrentUserAdmin() {
  * @returns {Promise<Object>} Role info {name, level} or null
  */
 async function getUserRoleBackend(userId = null) {
-  const supabase = window.__supabase__;
   try {
+    // Wait for Supabase to be ready
+    const supabase = await waitForSupabaseAdmin();
+    if (!supabase) {
+      console.error('[ADMIN-AUTH] Supabase not initialized');
+      return { name: 'visitor', level: 0 };
+    }
+
     // Get current session if no userId provided
     if (!userId) {
       const { data: { session } } = await supabase.auth.getSession();
@@ -120,8 +173,13 @@ async function getUserRoleBackend(userId = null) {
  * @returns {Promise<Object>} Result object {success, error?, role?, level?}
  */
 async function assignRole(targetUserId, roleName) {
-  const supabase = window.__supabase__;
   try {
+    // Wait for Supabase to be ready
+    const supabase = await waitForSupabaseAdmin();
+    if (!supabase) {
+      return { success: false, error: 'Supabase not initialized' };
+    }
+
     const { data, error } = await supabase.rpc('assign_role', {
       target_user_id: targetUserId,
       role_name_param: roleName

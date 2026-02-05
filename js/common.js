@@ -1,13 +1,12 @@
 // js/common.js
 // ============================================
 // GLOBAL UI HELPERS (Theme + Partials + Menu)
-// Phase 9.2.5: Removed ALL auth logic
+// Phase 9.2.8: Graceful degradation, no blocking errors
 // ============================================
 
-// 🧨 HARD STOP IF BOOTSTRAP NOT LOADED
+// ⚠️ GRACEFUL DEGRADATION: Log warning instead of throwing
 if (!window.__APP_BOOTED__) {
-  alert('BOOTSTRAP FAILED: common.js blocked');
-  throw new Error('Bootstrap not loaded');
+  console.warn('[COMMON] Bootstrap not loaded - continuing with degraded functionality');
 }
 
 console.log('[COMMON] common.js started');

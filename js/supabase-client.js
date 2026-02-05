@@ -1,7 +1,7 @@
 // js/supabase-client.js
 // ============================================
 // ENHANCED SUPABASE CLIENT
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// Phase 9.2.8 - Fixed to wait for Supabase initialization
 // Includes storage helpers for Phase 8
 // ============================================
 
@@ -15,6 +15,41 @@ const BUCKETS = {
 };
 
 /**
+ * Wait for Supabase client to be initialized
+ * @param {number} timeout - Max time to wait in ms (default 10000)
+ * @returns {Promise<Object|null>} Supabase client or null on timeout
+ */
+async function waitForSupabaseStorage(timeout = 10000) {
+  if (window.__supabase__) {
+    return window.__supabase__;
+  }
+
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    const readyHandler = () => {
+      if (window.__supabase__) {
+        resolve(window.__supabase__);
+      }
+    };
+    document.addEventListener('app:ready', readyHandler, { once: true });
+    
+    const interval = setInterval(() => {
+      if (window.__supabase__) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        resolve(window.__supabase__);
+      } else if (Date.now() - startTime > timeout) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        console.error('[STORAGE] Timeout waiting for Supabase client');
+        resolve(null);
+      }
+    }, 50);
+  });
+}
+
+/**
  * Upload file to Supabase Storage with resumable uploads
  * @param {File} file - File to upload
  * @param {Object} options - Upload options
@@ -24,9 +59,12 @@ const BUCKETS = {
  * @returns {Promise<Object>} Upload result with path and error
  */
 async function uploadFile(file, { bucket, path, onProgress }) {
-  const supabase = window.__supabase__;
-  
   try {
+    const supabase = await waitForSupabaseStorage();
+    if (!supabase) {
+      throw new Error('Supabase not initialized');
+    }
+    
     // For small files (< 6MB), use regular upload
     if (file.size < 6 * 1024 * 1024) {
       const { data, error } = await supabase.storage
@@ -66,10 +104,14 @@ async function uploadFile(file, { bucket, path, onProgress }) {
 /**
  * Get public URL for a file in public bucket
  * @param {string} path - File path
- * @returns {string} Public URL
+ * @returns {string|null} Public URL or null if Supabase not ready
  */
 function getPublicUrl(path) {
   const supabase = window.__supabase__;
+  if (!supabase) {
+    console.error('[STORAGE] Supabase not initialized for getPublicUrl');
+    return null;
+  }
   const { data } = supabase.storage
     .from(BUCKETS.PUBLIC)
     .getPublicUrl(path);
@@ -85,8 +127,12 @@ function getPublicUrl(path) {
  * @returns {Promise<string|null>} Signed URL or null
  */
 async function getSignedUrl(bucket, path, expiresIn = 3600) {
-  const supabase = window.__supabase__;
   try {
+    const supabase = await waitForSupabaseStorage();
+    if (!supabase) {
+      throw new Error('Supabase not initialized');
+    }
+    
     const { data, error } = await supabase.storage
       .from(bucket)
       .createSignedUrl(path, expiresIn);
@@ -109,6 +155,11 @@ async function getSignedUrl(bucket, path, expiresIn = 3600) {
  */
 async function moveFile(fromBucket, fromPath, toBucket, toPath) {
   try {
+    const supabase = await waitForSupabaseStorage();
+    if (!supabase) {
+      throw new Error('Supabase not initialized');
+    }
+    
     // Download from source
     const { data: fileData, error: downloadError } = await supabase.storage
       .from(fromBucket)
@@ -151,6 +202,11 @@ async function moveFile(fromBucket, fromPath, toBucket, toPath) {
  */
 async function deleteFile(bucket, path) {
   try {
+    const supabase = await waitForSupabaseStorage();
+    if (!supabase) {
+      throw new Error('Supabase not initialized');
+    }
+    
     const { error } = await supabase.storage
       .from(bucket)
       .remove([path]);
@@ -173,6 +229,11 @@ async function deleteFile(bucket, path) {
  */
 async function copyFile(fromBucket, fromPath, toBucket, toPath) {
   try {
+    const supabase = await waitForSupabaseStorage();
+    if (!supabase) {
+      throw new Error('Supabase not initialized');
+    }
+    
     // Download from source
     const { data: fileData, error: downloadError } = await supabase.storage
       .from(fromBucket)

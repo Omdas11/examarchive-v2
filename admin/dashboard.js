@@ -1,7 +1,8 @@
 // admin/dashboard.js
 // ============================================
-// ADMIN DASHBOARD - Phase 9.2.5
+// ADMIN DASHBOARD - Phase 9.2.8
 // Updated to use auth contract with requireRole
+// Fixed to wait for Supabase initialization
 // ============================================
 
 console.log("🎛️ dashboard.js loaded");
@@ -9,6 +10,18 @@ console.log("🎛️ dashboard.js loaded");
 let currentTab = 'pending';
 let currentSubmission = null;
 let allSubmissions = [];
+
+/**
+ * Get Supabase client safely
+ * After requireRole passes, Supabase should be available
+ */
+function getSupabase() {
+  const supabase = window.__supabase__ || window.App?.supabase;
+  if (!supabase) {
+    console.error('[ADMIN-DASHBOARD] Supabase not available');
+  }
+  return supabase;
+}
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
@@ -20,6 +33,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     // Use auth contract to require admin or reviewer role
+    // This waits for Supabase to be ready
+    if (!window.AuthContract?.requireRole) {
+      console.error('[ADMIN-DASHBOARD] AuthContract not available');
+      loadingState.style.display = 'none';
+      accessDenied.style.display = 'flex';
+      return;
+    }
+    
     const { requireRole } = window.AuthContract;
     const session = await requireRole(['admin', 'reviewer']);
     
@@ -89,7 +110,16 @@ function setupTabs() {
  */
 async function loadSubmissions() {
   try {
-    const { data, error } = await window.__supabase__
+    const supabase = getSupabase();
+    if (!supabase) {
+      console.error('[ADMIN-DASHBOARD] Cannot load submissions - Supabase not ready');
+      allSubmissions = [];
+      updateStats();
+      renderSubmissions();
+      return;
+    }
+    
+    const { data, error } = await supabase
       .from('submissions')
       .select(`
         *,
@@ -398,7 +428,12 @@ async function approveSubmission(submission, notes = '') {
   try {
     showMessage('Processing approval...', 'info');
 
-    const { data: { session } } = await window.__supabase__.auth.getSession();
+    const supabase = getSupabase();
+    if (!supabase) {
+      throw new Error('Supabase not available');
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
     const reviewerId = session.user.id;
 
     // Move file from temp to approved to public
@@ -421,7 +456,7 @@ async function approveSubmission(submission, notes = '') {
     const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await window.__supabase__
+    const { error: updateError } = await supabase
       .from('submissions')
       .update({
         status: 'published',
@@ -454,14 +489,19 @@ async function rejectSubmission(submission, notes = '') {
   try {
     showMessage('Processing rejection...', 'info');
 
-    const { data: { session } } = await window.__supabase__.auth.getSession();
+    const supabase = getSupabase();
+    if (!supabase) {
+      throw new Error('Supabase not available');
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
     const reviewerId = session.user.id;
 
     // Delete file from temp storage
     await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
 
     // Update submission
-    const { error: updateError } = await window.__supabase__
+    const { error: updateError } = await supabase
       .from('submissions')
       .update({
         status: 'rejected',
@@ -491,6 +531,11 @@ async function publishSubmission(submission) {
   try {
     showMessage('Publishing...', 'info');
 
+    const supabase = getSupabase();
+    if (!supabase) {
+      throw new Error('Supabase not available');
+    }
+
     // Move from approved to public
     const timestamp = Date.now();
     const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
@@ -511,7 +556,7 @@ async function publishSubmission(submission) {
     const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await window.__supabase__
+    const { error: updateError } = await supabase
       .from('submissions')
       .update({
         status: 'published',
@@ -546,6 +591,11 @@ async function deleteSubmission(submission) {
   try {
     showMessage('Deleting submission...', 'info');
 
+    const supabase = getSupabase();
+    if (!supabase) {
+      throw new Error('Supabase not available');
+    }
+
     // Delete file from storage based on status
     if (submission.temp_path) {
       await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
@@ -558,7 +608,7 @@ async function deleteSubmission(submission) {
     }
 
     // Delete submission record from database
-    const { error: deleteError } = await window.__supabase__
+    const { error: deleteError } = await supabase
       .from('submissions')
       .delete()
       .eq('id', submission.id);
@@ -580,7 +630,13 @@ async function deleteSubmission(submission) {
  * Setup real-time subscriptions for live updates
  */
 function setupRealtimeSubscriptions() {
-  const channel = window.__supabase__
+  const supabase = getSupabase();
+  if (!supabase) {
+    console.warn('[ADMIN-DASHBOARD] Cannot setup realtime - Supabase not available');
+    return;
+  }
+  
+  const channel = supabase
     .channel('submissions-changes')
     .on(
       'postgres_changes',
