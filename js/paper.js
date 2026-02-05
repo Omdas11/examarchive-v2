@@ -5,41 +5,6 @@
  * + AUTH PROTECTED: RQ and Notes require login
  */
 
-/**
- * Wait for Supabase client to be initialized
- * @param {number} timeout - Max time to wait in ms (default 5000)
- * @returns {Promise<Object|null>} Supabase client or null on timeout
- */
-async function waitForSupabasePaper(timeout = 5000) {
-  if (window.__supabase__) {
-    return window.__supabase__;
-  }
-
-  return new Promise((resolve) => {
-    const startTime = Date.now();
-    
-    const readyHandler = () => {
-      if (window.__supabase__) {
-        resolve(window.__supabase__);
-      }
-    };
-    document.addEventListener('app:ready', readyHandler, { once: true });
-    
-    const interval = setInterval(() => {
-      if (window.__supabase__) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        resolve(window.__supabase__);
-      } else if (Date.now() - startTime > timeout) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        console.warn('[paper.js] Timeout waiting for Supabase client');
-        resolve(null);
-      }
-    }, 50);
-  });
-}
-
 // Use relative path to work with custom domain
 const PAPERS_URL = "data/papers.json";
 
@@ -128,7 +93,7 @@ async function renderRepeatedQuestions(data) {
   container.innerHTML = "";
 
   // Check authentication
-  const supabase = await waitForSupabasePaper();
+  const supabase = await window.waitForSupabase();
   let session = null;
   if (supabase) {
     const { data: sessionData } = await supabase.auth.getSession();
@@ -245,7 +210,7 @@ async function setupSyllabusDownloads(paperCode) {
       e.stopPropagation();
 
       // Check authentication
-      const supabase = await waitForSupabasePaper();
+      const supabase = await window.waitForSupabase();
       let session = null;
       if (supabase) {
         const { data: sessionData } = await supabase.auth.getSession();
@@ -358,7 +323,7 @@ async function protectNotesSection() {
   if (!notesSection) return;
 
   // Check authentication
-  const supabase = await waitForSupabasePaper();
+  const supabase = await window.waitForSupabase();
   let session = null;
   if (supabase) {
     const { data: sessionData } = await supabase.auth.getSession();

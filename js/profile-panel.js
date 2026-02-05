@@ -9,41 +9,6 @@ function debug(msg) {
   console.log("[profile-panel]", msg);
 }
 
-/**
- * Wait for Supabase client to be initialized
- * @param {number} timeout - Max time to wait in ms (default 5000)
- * @returns {Promise<Object|null>} Supabase client or null on timeout
- */
-async function waitForSupabaseProfile(timeout = 5000) {
-  if (window.__supabase__) {
-    return window.__supabase__;
-  }
-
-  return new Promise((resolve) => {
-    const startTime = Date.now();
-    
-    const readyHandler = () => {
-      if (window.__supabase__) {
-        resolve(window.__supabase__);
-      }
-    };
-    document.addEventListener('app:ready', readyHandler, { once: true });
-    
-    const interval = setInterval(() => {
-      if (window.__supabase__) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        resolve(window.__supabase__);
-      } else if (Date.now() - startTime > timeout) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        console.warn('[profile-panel] Timeout waiting for Supabase client');
-        resolve(null);
-      }
-    }, 50);
-  });
-}
-
 /* ===============================
    Badge Configuration & Logic (Phase 8.3)
    =============================== */
@@ -95,7 +60,7 @@ async function computeBadges(user) {
  */
 async function checkUserContributions(userId) {
   try {
-    const supabase = await waitForSupabaseProfile();
+    const supabase = await window.waitForSupabase();
     if (!supabase) {
       console.warn('[profile-panel] Supabase not ready for checkUserContributions');
       return false;
@@ -413,19 +378,9 @@ document.addEventListener("profile-panel:loaded", () => {
 });
 
 /* ===============================
-   Listen for auth changes
+   Listen for auth changes - Use centralized event
    =============================== */
-let profilePanelAuthListenerSetup = false;
-
-document.addEventListener('app:ready', () => {
-  if (profilePanelAuthListenerSetup) return;
-  profilePanelAuthListenerSetup = true;
-  
-  const supabase = window.App.supabase;
-  if (!supabase) return;
-
-  supabase.auth.onAuthStateChange(() => {
-    debug("🔔 Auth state changed, re-rendering profile panel");
-    renderProfilePanel();
-  });
+window.addEventListener('auth-state-changed', () => {
+  debug("🔔 Auth state changed, re-rendering profile panel");
+  renderProfilePanel();
 });

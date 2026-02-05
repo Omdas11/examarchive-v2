@@ -38,41 +38,6 @@ const UploadDebugModule = {
 };
 
 /**
- * Wait for Supabase client to be initialized
- * @param {number} timeout - Max time to wait in ms (default 10000)
- * @returns {Promise<Object|null>} Supabase client or null on timeout
- */
-async function waitForSupabaseClient(timeout = 10000) {
-  if (window.__supabase__) {
-    return window.__supabase__;
-  }
-
-  return new Promise((resolve) => {
-    const startTime = Date.now();
-    
-    const readyHandler = () => {
-      if (window.__supabase__) {
-        resolve(window.__supabase__);
-      }
-    };
-    document.addEventListener('app:ready', readyHandler, { once: true });
-    
-    const interval = setInterval(() => {
-      if (window.__supabase__) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        resolve(window.__supabase__);
-      } else if (Date.now() - startTime > timeout) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        console.error('[UPLOAD-HANDLER] Timeout waiting for Supabase client');
-        resolve(null);
-      }
-    }, 50);
-  });
-}
-
-/**
  * Handle file upload to temp storage with submission tracking
  * @param {File} file - PDF file to upload
  * @param {Object} metadata - Paper metadata
@@ -99,7 +64,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     // CRITICAL: Wait for Supabase to be ready
     safeLogInfo(UploadDebugModule.UPLOAD, 'Waiting for Supabase client...');
-    const supabase = await waitForSupabaseClient();
+    const supabase = await window.waitForSupabase();
     
     if (!supabase) {
       throw new Error('Failed to initialize upload service. Please refresh and try again.');
@@ -251,7 +216,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
 async function getUserSubmissions(status = null) {
   try {
     // Wait for Supabase to be ready
-    const supabase = await waitForSupabaseClient();
+    const supabase = await window.waitForSupabase();
     if (!supabase) {
       console.warn('[UPLOAD-HANDLER] Supabase not ready for getUserSubmissions');
       return [];
@@ -293,7 +258,7 @@ async function getUserSubmissions(status = null) {
 async function getPendingSubmissions() {
   try {
     // Wait for Supabase to be ready
-    const supabase = await waitForSupabaseClient();
+    const supabase = await window.waitForSupabase();
     if (!supabase) {
       console.warn('[UPLOAD-HANDLER] Supabase not ready for getPendingSubmissions');
       return [];
@@ -328,7 +293,7 @@ async function getPendingSubmissions() {
 async function getSubmission(submissionId) {
   try {
     // Wait for Supabase to be ready
-    const supabase = await waitForSupabaseClient();
+    const supabase = await window.waitForSupabase();
     if (!supabase) {
       console.warn('[UPLOAD-HANDLER] Supabase not ready for getSubmission');
       return null;

@@ -9,21 +9,84 @@ console.log("📤 upload.js loaded");
 let selectedFile = null;
 let selectedUploadType = 'question-paper';
 
-// Check auth when page loads
-document.addEventListener("DOMContentLoaded", async () => {
-  const { requireSession } = window.AuthContract;
-  const session = await requireSession();
+// Show loading state initially
+document.addEventListener("DOMContentLoaded", () => {
+  renderLoadingState();
+});
+
+// Wait for auth:ready event before checking auth
+window.addEventListener("auth:ready", async (e) => {
+  const session = e.detail.session;
   
   if (!session) {
     console.log("🔒 Upload page access denied - user not authenticated");
     renderSignInRequired();
   } else {
     console.log("✅ User authenticated, upload page ready");
+    hideLoadingState();
     initializeUploadTypeSelector();
     initializeUploadForm();
     loadUserSubmissions();
   }
 });
+
+/**
+ * Render loading state while auth initializes
+ */
+function renderLoadingState() {
+  const mainContent = document.querySelector("main");
+  if (!mainContent) return;
+  
+  // Store original content
+  if (!window.__UPLOAD_ORIGINAL_CONTENT__) {
+    window.__UPLOAD_ORIGINAL_CONTENT__ = mainContent.innerHTML;
+  }
+  
+  mainContent.innerHTML = `
+    <div class="loading-state" style="
+      max-width: 600px;
+      margin: 4rem auto;
+      text-align: center;
+      padding: 2rem;
+    ">
+      <div style="
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 1.5rem;
+        border: 3px solid var(--border);
+        border-top-color: var(--red);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Loading...
+      </p>
+    </div>
+  `;
+  
+  // Add animation if not present
+  if (!document.getElementById('loading-animation')) {
+    const style = document.createElement('style');
+    style.id = 'loading-animation';
+    style.textContent = `
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+/**
+ * Hide loading state and restore original content
+ */
+function hideLoadingState() {
+  const mainContent = document.querySelector("main");
+  if (!mainContent || !window.__UPLOAD_ORIGINAL_CONTENT__) return;
+  
+  mainContent.innerHTML = window.__UPLOAD_ORIGINAL_CONTENT__;
+  window.__UPLOAD_ORIGINAL_CONTENT__ = null;
+}
 
 /**
  * Render sign-in required UI

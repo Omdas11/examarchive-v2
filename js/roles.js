@@ -7,41 +7,6 @@
 // ============================================
 
 /**
- * Wait for Supabase client to be initialized
- * @param {number} timeout - Max time to wait in ms (default 10000)
- * @returns {Promise<Object|null>} Supabase client or null on timeout
- */
-async function waitForSupabaseRoles(timeout = 10000) {
-  if (window.__supabase__) {
-    return window.__supabase__;
-  }
-
-  return new Promise((resolve) => {
-    const startTime = Date.now();
-    
-    const readyHandler = () => {
-      if (window.__supabase__) {
-        resolve(window.__supabase__);
-      }
-    };
-    document.addEventListener('app:ready', readyHandler, { once: true });
-    
-    const interval = setInterval(() => {
-      if (window.__supabase__) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        resolve(window.__supabase__);
-      } else if (Date.now() - startTime > timeout) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        console.warn('[ROLES] Timeout waiting for Supabase client');
-        resolve(null);
-      }
-    }, 50);
-  });
-}
-
-/**
  * Badge slot definitions (3 slots)
  * Slot 1: Primary role (VISITOR/USER/ADMIN/REVIEWER)
  * Slot 2: Empty (future use)
@@ -106,7 +71,7 @@ function getBadgeColor(role) {
 async function getUserBadge() {
   try {
     // Wait for Supabase to be ready
-    const supabase = await waitForSupabaseRoles();
+    const supabase = await window.waitForSupabase();
     if (!supabase) {
       console.warn('[BADGE] Supabase not ready, returning visitor badge');
       return {
@@ -207,7 +172,7 @@ function clearRoleCache() {
 async function getUserProfile(useCache = true) {
   console.warn('[ROLE] getUserProfile() is deprecated, use getUserRoleBackend() instead');
   try {
-    const supabase = await waitForSupabaseRoles();
+    const supabase = await window.waitForSupabase();
     if (!supabase) return null;
     
     const { data: { session } } = await supabase.auth.getSession();
