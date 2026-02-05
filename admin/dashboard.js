@@ -1,8 +1,7 @@
 // admin/dashboard.js
 // ============================================
-// ADMIN DASHBOARD - Phase 9.2
-// Updated to use proper role verification
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// ADMIN DASHBOARD - Phase 9.2.5
+// Updated to use auth contract with requireRole
 // ============================================
 
 console.log("🎛️ dashboard.js loaded");
@@ -20,31 +19,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const dashboardContent = document.getElementById('dashboard-content');
 
   try {
-    // CRITICAL: Get session and verify role
-    console.log('[ADMIN-DASHBOARD] Getting authenticated session...');
-    const { data: { session } } = await window.__supabase__.auth.getSession();
-    
-    if (!session) {
-      console.error('[ADMIN-DASHBOARD] No active session - access denied');
-      loadingState.style.display = 'none';
-      accessDenied.style.display = 'flex';
-      return;
-    }
-
-    console.log('[ADMIN-DASHBOARD] Session verified, checking role...');
-    const roleInfo = await window.AdminAuth.getUserRoleBackend(session.user.id);
-    console.log('[ADMIN-DASHBOARD] Role check result:', { role: roleInfo?.name, level: roleInfo?.level });
+    // Use auth contract to require admin or reviewer role
+    const { requireRole } = window.AuthContract;
+    const session = await requireRole(['admin', 'reviewer']);
     
     // Hide loading state
     loadingState.style.display = 'none';
     
-    // Check if user has admin or reviewer role
-    const hasAdminAccess = roleInfo && (roleInfo.name === 'admin' || roleInfo.name === 'reviewer');
-    console.log(`[ADMIN-DASHBOARD] Admin access check: ${hasAdminAccess ? 'GRANTED' : 'DENIED'}`);
-    
-    if (!hasAdminAccess) {
+    if (!session) {
+      console.error('[ADMIN-DASHBOARD] Access denied - insufficient permissions');
       accessDenied.style.display = 'flex';
-      console.error('[ADMIN-DASHBOARD] Access denied - insufficient permissions:', { role: roleInfo?.name });
       return;
     }
 

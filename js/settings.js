@@ -1,7 +1,7 @@
 // ===============================
 // Settings Page Controller
+// Phase 9.2.5: Auth Single Source of Truth
 // Phase 9.2: Added debug panel controls
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // ===============================
 
 console.log("⚙️ settings.js loaded");
@@ -1157,27 +1157,32 @@ function showLoginRequiredMessage() {
 
 let settingsInitialized = false;
 
-document.addEventListener("app:ready", () => {
+// Initialize settings when DOM is ready
+document.addEventListener("DOMContentLoaded", async () => {
   if (settingsInitialized) return;
   settingsInitialized = true;
   
-  console.log("[settings] app:ready event received, initializing settings");
+  console.log("[settings] Initializing settings page");
   
-  // Check if user is logged in
-  if (!window.App.session) {
+  // Use auth contract to check session
+  const { requireSession } = window.AuthContract;
+  const session = await requireSession();
+  
+  if (!session) {
     showLoginRequiredMessage();
   } else {
     renderSettings();
   }
   
-  // Set up auth state change listener (only once)
-  const supabase = window.App.supabase;
+  // Set up auth state change listener
+  const supabase = window.__supabase__;
   if (supabase) {
-    supabase.auth.onAuthStateChange(() => {
+    supabase.auth.onAuthStateChange(async () => {
       console.log("🔔 Auth state changed, re-rendering settings");
       
-      // Check if user is logged in
-      if (!window.App.session) {
+      // Re-check session
+      const session = await requireSession();
+      if (!session) {
         showLoginRequiredMessage();
       } else {
         renderSettings();

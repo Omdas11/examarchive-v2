@@ -1,4 +1,4 @@
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// Phase 9.2.5 - Auth Single Source of Truth
 // ===============================
 // Upload Page - Auth Guard & Upload Handler
 // Phase 9.1: Upload Type Selector
@@ -11,15 +11,12 @@ let selectedUploadType = 'question-paper';
 
 // Check auth when page loads
 document.addEventListener("DOMContentLoaded", async () => {
-  const requireAuth = window.requireAuth;
-  const isAuthenticated = await requireAuth({
-    showMessage: true,
-    redirectToLogin: false
-  });
+  const { requireSession } = window.AuthContract;
+  const session = await requireSession();
   
-  if (!isAuthenticated) {
+  if (!session) {
     console.log("🔒 Upload page access denied - user not authenticated");
-    // UI is already updated by requireAuth
+    renderSignInRequired();
   } else {
     console.log("✅ User authenticated, upload page ready");
     initializeUploadTypeSelector();
@@ -27,6 +24,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadUserSubmissions();
   }
 });
+
+/**
+ * Render sign-in required UI
+ */
+function renderSignInRequired() {
+  const mainContent = document.querySelector("main");
+  if (!mainContent) return;
+  
+  const authRequiredHTML = `
+    <div class="auth-required" style="
+      max-width: 600px;
+      margin: 4rem auto;
+      text-align: center;
+      padding: 2rem;
+    ">
+      <svg style="width: 64px; height: 64px; margin: 0 auto 1.5rem; stroke: var(--text-muted);" viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      <h2 style="color: var(--text); margin-bottom: 0.75rem;">Sign in required</h2>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">
+        You need to be signed in to upload papers.
+      </p>
+      <button class="btn btn-red" id="auth-required-signin-btn" style="
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+      ">
+        Sign in
+      </button>
+    </div>
+  `;
+  
+  mainContent.innerHTML = authRequiredHTML;
+  
+  // Attach event listener
+  const signInBtn = document.getElementById("auth-required-signin-btn");
+  if (signInBtn) {
+    signInBtn.addEventListener("click", () => {
+      document.getElementById("avatarTrigger")?.click();
+    });
+  }
+}
 
 /**
  * Initialize upload type selector
