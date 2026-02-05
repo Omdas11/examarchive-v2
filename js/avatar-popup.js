@@ -16,14 +16,14 @@ if (window.__AVATAR_POPUP_INIT__) {
 }
 
 let avatarPopupLoaded = false;
-let headerLoaded = false;
+let avatarPopupHeaderLoaded = false;
 
 /* ===============================
    Initialize avatar popup
    =============================== */
 function initializeAvatarPopup() {
   // Wait for both avatar popup and header to be ready
-  if (avatarPopupLoaded || !headerLoaded) return;
+  if (avatarPopupLoaded || !avatarPopupHeaderLoaded) return;
 
   const popup = document.getElementById("avatar-popup");
   const avatarTrigger = document.querySelector(".avatar-trigger");
@@ -202,7 +202,7 @@ document.addEventListener("avatar:loaded", () => {
    =============================== */
 document.addEventListener("header:loaded", () => {
   debug("✅ header loaded event received");
-  headerLoaded = true;
+  avatarPopupHeaderLoaded = true;
   initializeAvatarPopup();
 });
 

@@ -111,7 +111,7 @@ if (window.__PROFILE_PANEL_INIT__) {
   window.__PROFILE_PANEL_INIT__ = true;
 }
 
-let headerLoaded = false;
+let profilePanelHeaderLoaded = false;
 let profilePanelLoaded = false;
 let clickHandlerAttached = false;
 
@@ -125,7 +125,7 @@ function initializeProfilePanel() {
   const handleSignIn = window.AvatarUtils.handleSignIn;
   
   // Only run once both are ready
-  if (!headerLoaded || !profilePanelLoaded || clickHandlerAttached) {
+  if (!profilePanelHeaderLoaded || !profilePanelLoaded || clickHandlerAttached) {
     return;
   }
 
@@ -365,7 +365,7 @@ async function renderProfilePanel() {
    =============================== */
 document.addEventListener("header:loaded", () => {
   debug("✅ header loaded");
-  headerLoaded = true;
+  profilePanelHeaderLoaded = true;
   initializeProfilePanel();
 });
 
