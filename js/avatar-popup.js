@@ -68,14 +68,13 @@ function initializeAvatarPopup() {
    Render avatar popup with dynamic elements
    =============================== */
 async function renderAvatarPopup() {
-  const supabase = window.__supabase__;
   const updateAvatarElement = window.AvatarUtils.updateAvatarElement;
   const handleLogout = window.AvatarUtils.handleLogout;
   const handleSwitchAccount = window.AvatarUtils.handleSwitchAccount;
   const handleSignIn = window.AvatarUtils.handleSignIn;
   
-  const { data } = await supabase.auth.getSession();
-  const session = data?.session;
+  // Use session from window.App (single source of truth)
+  const session = window.App?.session || window.__SESSION__;
   const user = session?.user;
 
   const popup = document.getElementById("avatar-popup");
