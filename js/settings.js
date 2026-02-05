@@ -246,8 +246,9 @@ async function renderSettings() {
 
   window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Starting settings page render, checking session...');
 
-  // Use session from window.App (single source of truth)
-  const session = window.App.session;
+  // Use auth contract to get session
+  const { requireSession } = window.AuthContract;
+  const session = await requireSession();
   
   // Check if user is signed in
   if (!session) {
@@ -326,15 +327,18 @@ function renderSignedOutMessage(container) {
   message.style.marginBottom = '2rem';
   message.textContent = 'Please sign in to access the settings page.';
 
-  const signInLink = document.createElement('a');
-  signInLink.href = '/login.html';
-  signInLink.className = 'btn btn-red';
-  signInLink.textContent = 'Sign In';
+  const signInBtn = document.createElement('button');
+  signInBtn.className = 'btn btn-red';
+  signInBtn.textContent = 'Sign In';
+  signInBtn.addEventListener('click', () => {
+    // Trigger avatar popup to sign in
+    document.getElementById('avatarTrigger')?.click();
+  });
 
   card.appendChild(icon);
   card.appendChild(heading);
   card.appendChild(message);
-  card.appendChild(signInLink);
+  card.appendChild(signInBtn);
 
   container.innerHTML = '';
   container.appendChild(card);

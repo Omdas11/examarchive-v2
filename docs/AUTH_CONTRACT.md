@@ -137,24 +137,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 ```
 
-### Login Page (`login.html`)
+### Login Flow (Avatar Popup)
 
-Login page is **standalone** and does NOT depend on:
-- `common.js` auth logic
-- `window.App.session`
-- Frontend auth flags
-
-It creates its own Supabase client and checks session directly:
+Login is **NOT** a separate page - it's handled via the avatar popup which triggers Supabase OAuth:
 
 ```javascript
-const supabaseClient = window.supabase.createClient(URL, KEY);
-
-// Check if already logged in
-const { data } = await supabaseClient.auth.getSession();
-if (data?.session) {
-  window.location.replace('/');
+// Avatar popup triggers sign-in
+async function handleSignIn() {
+  const supabase = window.__supabase__;
+  
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin
+    }
+  });
 }
 ```
+
+The avatar popup is global and available on all pages. When a user clicks "Sign in", it:
+1. Opens the avatar popup (via avatar trigger button)
+2. Shows "Sign in with Google" button
+3. Triggers Supabase OAuth flow
+4. Redirects back to current page after authentication
 
 ---
 
@@ -228,11 +233,14 @@ Now:
 3. Sign in via avatar popup
 4. Settings page should load content
 
-### Test 3: Login Page No Loop
-1. Open `/login.html` (not signed in)
-2. Should see "Continue with GitHub" button
-3. If already signed in, should redirect to `/`
-4. Should NOT show infinite "Loading..." state
+### Test 3: Avatar Popup Sign In
+1. Open any page (not signed in)
+2. Click avatar trigger button in header
+3. Avatar popup should open showing "Sign in with Google"
+4. Click sign in button
+5. Complete Google OAuth
+6. Should return to same page, now authenticated
+7. Avatar popup should now show user profile with sign out option
 
 ### Test 4: Admin Access
 1. Sign in as admin user
@@ -279,7 +287,7 @@ All new features MUST:
 | **Auth Check** | `window.__SESSION__` | `await requireSession()` |
 | **Role Check** | `window.__APP_ROLE__` | `await requireRole([...])` |
 | **common.js** | Auth + UI | UI only |
-| **login.html** | Depends on Appwrite | Standalone Supabase |
+| **Login Flow** | Separate page | Avatar popup with OAuth |
 
 ---
 
