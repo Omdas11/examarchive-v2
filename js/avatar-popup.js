@@ -208,7 +208,12 @@ document.addEventListener("header:loaded", () => {
 /* ===============================
    Listen for auth changes
    =============================== */
+let avatarPopupAuthListenerSetup = false;
+
 document.addEventListener('app:ready', () => {
+  if (avatarPopupAuthListenerSetup) return;
+  avatarPopupAuthListenerSetup = true;
+  
   const supabase = window.App.supabase;
   if (!supabase) return;
 

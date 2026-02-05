@@ -376,7 +376,12 @@ document.addEventListener("profile-panel:loaded", () => {
 /* ===============================
    Listen for auth changes
    =============================== */
+let profilePanelAuthListenerSetup = false;
+
 document.addEventListener('app:ready', () => {
+  if (profilePanelAuthListenerSetup) return;
+  profilePanelAuthListenerSetup = true;
+  
   const supabase = window.App.supabase;
   if (!supabase) return;
 

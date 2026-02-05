@@ -1155,34 +1155,35 @@ function showLoginRequiredMessage() {
 // Initialize
 // ===============================
 
+let settingsInitialized = false;
+
 document.addEventListener("app:ready", () => {
+  if (settingsInitialized) return;
+  settingsInitialized = true;
+  
   console.log("[settings] app:ready event received, initializing settings");
   
   // Check if user is logged in
   if (!window.App.session) {
     showLoginRequiredMessage();
-    return;
+  } else {
+    renderSettings();
   }
   
-  renderSettings();
-});
-
-// Re-render on auth state change
-document.addEventListener('app:ready', () => {
+  // Set up auth state change listener (only once)
   const supabase = window.App.supabase;
-  if (!supabase) return;
-
-  supabase.auth.onAuthStateChange(() => {
-    console.log("🔔 Auth state changed, re-rendering settings");
-    
-    // Check if user is logged in
-    if (!window.App.session) {
-      showLoginRequiredMessage();
-      return;
-    }
-    
-    renderSettings();
-  });
+  if (supabase) {
+    supabase.auth.onAuthStateChange(() => {
+      console.log("🔔 Auth state changed, re-rendering settings");
+      
+      // Check if user is logged in
+      if (!window.App.session) {
+        showLoginRequiredMessage();
+      } else {
+        renderSettings();
+      }
+    });
+  }
 });
 
 // ===============================
