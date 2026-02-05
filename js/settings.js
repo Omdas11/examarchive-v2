@@ -1240,13 +1240,6 @@ window.addEventListener("auth-state-changed", async (e) => {
     renderSettings();
   }
 });
-  
-  if (window.__supabase__) {
-    setupAuthListener();
-  } else {
-    document.addEventListener('app:ready', setupAuthListener, { once: true });
-  }
-});
 
 // ===============================
 // Theme Preset System (GLOBAL)

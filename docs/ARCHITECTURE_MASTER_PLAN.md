@@ -1,8 +1,28 @@
 # ExamArchive v2 — Architecture Master Plan
 
-> **Version:** 2.1.0  
-> **Last Updated:** Phase 9.2.8  
+> **Version:** 2.2.0  
+> **Last Updated:** Phase 9.2 (2026-02-05)  
 > **Status:** CANONICAL — This is the single source of truth for all architecture decisions
+
+---
+
+## 📋 Phase 9.2 Summary
+
+**Phase 9.2** introduced major architectural improvements:
+
+- ✅ **Centralized Auth Controller** — Single source of truth for authentication
+- ✅ **Event-Driven Architecture** — `auth:ready` and `auth-state-changed` events
+- ✅ **Code Deduplication** — Removed 204 lines of duplicate `waitForSupabase` functions
+- ✅ **Race Condition Fixes** — Pages wait for auth initialization before checking session
+- ✅ **Comprehensive Documentation** — 4,195+ lines of system docs
+
+**Key Files Added:**
+- `js/auth-controller.js` — Central auth orchestrator
+- `js/utils/supabase-wait.js` — Shared Supabase wait utility
+- `docs/AUTH_SYSTEM.md` — Complete auth documentation
+- `docs/UPLOAD_SYSTEM.md` — Complete upload documentation
+- `docs/ADMIN_SYSTEM.md` — Complete admin documentation
+- `docs/REPO_HEALTH_CHECK.md` — Repository health analysis
 
 ---
 
@@ -118,28 +138,136 @@ async function waitForSupabase(timeout = 10000) {
 
 ---
 
-## 3. Authentication Flow
+## 3. Authentication Flow (Phase 9.2)
 
-### 3.1 How Auth Actually Works
+### 3.1 Centralized Auth Controller
 
-1. **Initial Load:** `supabase.js` calls `getSession()` and stores result in `window.App.session`
-2. **Classic Script Access:** Scripts use `window.AuthContract.requireSession()` which:
-   - Waits for Supabase to be initialized
-   - Calls `supabase.auth.getSession()`
-   - Returns session or null
+**Phase 9.2 introduced `js/auth-controller.js`** — the single source of truth for authentication:
 
-### 3.2 Auth Contract API
+```
+┌────────────────────────────────────────────────────────────┐
+│              js/auth-controller.js (Phase 9.2)              │
+│  - Initializes Supabase client                              │
+│  - Handles OAuth callbacks & URL cleanup                    │
+│  - Manages auth state (single listener)                     │
+│  - Emits auth:ready event                                   │
+│  - Emits auth-state-changed event                           │
+│  - Provides public API                                      │
+└────────────────────────────────────────────────────────────┘
+                            │
+            ┌───────────────┼───────────────┐
+            ▼               ▼               ▼
+    ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+    │   Pages     │ │  Components │ │   Utilities │
+    │ (wait for   │ │  (listen to │ │  (use API)  │
+    │ auth:ready) │ │  events)    │ │             │
+    └─────────────┘ └─────────────┘ └─────────────┘
+```
 
-`js/auth.js` exposes the ONLY way to check authentication:
+### 3.2 How Auth Works (Phase 9.2)
+
+1. **Initial Load:**
+   - `supabase.js` creates client, calls `getSession()`
+   - `auth-controller.js` initializes, handles OAuth callback
+   - Emits `auth:ready` event with session
+
+2. **Page Access:**
+   - Pages listen for `auth:ready` event
+   - Use `AuthController.requireSession()` or `requireRole()`
+   - Show loading state until auth ready
+
+3. **Auth Changes:**
+   - Single listener in `auth-controller.js`
+   - Emits `auth-state-changed` event
+   - Components update UI based on event
+
+### 3.3 Auth Controller API
+
+**Primary API** (`window.AuthController`):
 
 ```javascript
+// Wait for auth to be ready
+const session = await AuthController.waitForAuthReady();
+
+// Get current session (sync)
+const session = AuthController.getSession();
+
+// Check if authenticated
+if (AuthController.isAuthenticated()) { ... }
+
+// Require session (async)
+const session = await AuthController.requireSession();
+
+// Require role (async)
+const session = await AuthController.requireRole(['admin', 'reviewer']);
+
+// Sign in with Google
+await AuthController.signInWithGoogle();
+
+// Sign out
+await AuthController.signOut();
+```
+
+**Backward Compatibility** (`window.AuthContract`):
+
+```javascript
+// Legacy API still works
 window.AuthContract = {
-  requireSession(),    // Returns session or null (waits for Supabase)
-  requireRole(roles)   // Returns session if user has role, else null
+  requireSession: AuthController.requireSession,
+  requireRole: AuthController.requireRole
 };
 ```
 
-### 3.3 Role-Based Access
+### 3.4 Auth Events (Phase 9.2)
+
+**`auth:ready` Event** — Emitted once when auth initialized:
+
+```javascript
+window.addEventListener('auth:ready', (e) => {
+  const session = e.detail.session;
+  if (session) {
+    console.log('User:', session.user.email);
+  }
+});
+```
+
+**`auth-state-changed` Event** — Emitted on auth changes:
+
+```javascript
+window.addEventListener('auth-state-changed', (e) => {
+  console.log('Event:', e.detail.event);
+  console.log('Session:', e.detail.session);
+  updateUI(e.detail.session);
+});
+```
+
+### 3.5 OAuth Flow with Error Handling
+
+```
+User clicks "Sign in"
+       │
+       ▼
+AuthController.signInWithGoogle()
+       │
+       ▼
+Redirect to Google OAuth
+       │
+       ▼
+User approves, redirect back with ?code=...
+       │
+       ▼
+auth-controller.js detects OAuth callback
+       │
+       ├─ Success: Exchange code for session
+       │           Clean URL params
+       │           Emit auth-state-changed
+       │
+       └─ Error: Show user-friendly notification
+                 Clean URL params
+                 Log error details
+```
+
+### 3.6 Role-Based Access
 
 Admin/reviewer access is controlled by backend functions:
 
@@ -152,6 +280,8 @@ const { data } = await supabase.rpc('get_user_role_name', { user_id_param: userI
 ```
 
 **NEVER** infer roles from frontend data. Always call backend functions.
+
+**See:** [docs/AUTH_SYSTEM.md](./AUTH_SYSTEM.md) for complete authentication documentation
 
 ---
 
@@ -368,7 +498,49 @@ These rules MUST always be true:
 
 ## Version History
 
+- **Phase 9.2** (2026-02-05) - **Major Architecture Overhaul**
+  - Added centralized auth controller (`js/auth-controller.js`)
+  - Created shared Supabase wait utility (`js/utils/supabase-wait.js`)
+  - Implemented event-driven auth (`auth:ready`, `auth-state-changed`)
+  - Removed 204 lines of duplicate code
+  - Fixed race conditions in upload, settings, admin pages
+  - Added comprehensive documentation (4,195+ lines)
+  - OAuth error handling with user-friendly messages
+  - URL cleanup after OAuth callback
 - **Phase 9.2.8** - Fixed timing issues with Supabase initialization, removed blocking errors
 - **Phase 9.2.5** - Auth contract system
 - **Phase 9.2.4** - Module architecture
 - **Phase 9.2.3** - Classic JS conversion
+
+---
+
+## 11. Additional Documentation
+
+For detailed system-specific documentation, see:
+
+- **[AUTH_SYSTEM.md](./AUTH_SYSTEM.md)** — Complete authentication documentation
+  - Architecture and component hierarchy
+  - API reference with code examples
+  - Event system documentation
+  - Debugging guide for auth issues
+  - Security model and best practices
+
+- **[UPLOAD_SYSTEM.md](./UPLOAD_SYSTEM.md)** — Complete upload documentation
+  - Upload flow and state management
+  - Supabase Storage integration
+  - File validation and size limits
+  - Admin review workflow
+  - Troubleshooting upload issues
+
+- **[ADMIN_SYSTEM.md](./ADMIN_SYSTEM.md)** — Complete admin documentation
+  - Role-based access control (RBAC)
+  - Admin dashboard features
+  - Review workflow (approve/reject)
+  - Backend RPC functions
+  - Adding new admins/reviewers
+
+- **[REPO_HEALTH_CHECK.md](./REPO_HEALTH_CHECK.md)** — Repository health analysis
+  - Complete codebase audit
+  - Root cause analysis of Phase 9.2 issues
+  - Code duplication findings
+  - Recommended action plan
