@@ -1154,6 +1154,45 @@ function attachEventListeners() {
 // Login Required Message
 // ===============================
 
+function showLoadingState() {
+  const container = document.getElementById("settings-container");
+  if (!container) return;
+  
+  container.innerHTML = `
+    <div style="
+      max-width: 600px;
+      margin: 4rem auto;
+      text-align: center;
+      padding: 2rem;
+    ">
+      <div style="
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 1.5rem;
+        border: 3px solid var(--border);
+        border-top-color: var(--red);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Loading settings...
+      </p>
+    </div>
+  `;
+  
+  // Add animation if not present
+  if (!document.getElementById('settings-loading-animation')) {
+    const style = document.createElement('style');
+    style.id = 'settings-loading-animation';
+    style.textContent = `
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
 function showLoginRequiredMessage() {
   const container = document.getElementById("settings-container");
   if (container) {
@@ -1168,45 +1207,39 @@ function showLoginRequiredMessage() {
 let settingsInitialized = false;
 
 // Initialize settings when DOM is ready
-document.addEventListener("DOMContentLoaded", async () => {
+// Show loading state initially
+document.addEventListener("DOMContentLoaded", () => {
   if (settingsInitialized) return;
   settingsInitialized = true;
   
-  console.log("[settings] Initializing settings page");
+  console.log("[settings] Waiting for auth initialization...");
+  showLoadingState();
+});
+
+// Wait for auth:ready event before checking auth
+window.addEventListener("auth:ready", async (e) => {
+  const session = e.detail.session;
   
-  // Use auth contract to check session (this waits for Supabase)
-  if (!window.AuthContract?.requireSession) {
-    console.warn("[settings] AuthContract not available yet");
+  if (!session) {
+    console.log("[settings] No session, showing login required");
     showLoginRequiredMessage();
-    return;
+  } else {
+    console.log("[settings] Session found, rendering settings");
+    renderSettings();
   }
-  
-  const { requireSession } = window.AuthContract;
-  const session = await requireSession();
+});
+
+// Listen to auth state changes (single listener via event)
+window.addEventListener("auth-state-changed", async (e) => {
+  console.log("🔔 Auth state changed, re-rendering settings");
+  const session = e.detail.session;
   
   if (!session) {
     showLoginRequiredMessage();
   } else {
     renderSettings();
   }
-  
-  // Set up auth state change listener - wait for supabase to be ready
-  const setupAuthListener = () => {
-    const supabase = window.__supabase__ || window.App?.supabase;
-    if (supabase) {
-      supabase.auth.onAuthStateChange(async () => {
-        console.log("🔔 Auth state changed, re-rendering settings");
-        
-        // Re-check session
-        const session = await requireSession();
-        if (!session) {
-          showLoginRequiredMessage();
-        } else {
-          renderSettings();
-        }
-      });
-    }
-  };
+});
   
   if (window.__supabase__) {
     setupAuthListener();

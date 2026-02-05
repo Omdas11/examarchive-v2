@@ -23,33 +23,47 @@ function getSupabase() {
   return supabase;
 }
 
-// Check admin access when page loads
-document.addEventListener("DOMContentLoaded", async () => {
-  console.log('[ADMIN-DASHBOARD] DOMContentLoaded - Checking admin access...');
+// Wait for auth:ready event to check admin access
+window.addEventListener("auth:ready", async (e) => {
+  console.log('[ADMIN-DASHBOARD] auth:ready event received');
   
   const loadingState = document.getElementById('loading-state');
   const accessDenied = document.getElementById('access-denied');
   const dashboardContent = document.getElementById('dashboard-content');
 
   try {
-    // Use auth contract to require admin or reviewer role
-    // This waits for Supabase to be ready
-    if (!window.AuthContract?.requireRole) {
-      console.error('[ADMIN-DASHBOARD] AuthContract not available');
+    // Use auth controller to require admin or reviewer role
+    if (!window.AuthController?.requireRole) {
+      console.error('[ADMIN-DASHBOARD] AuthController not available');
       loadingState.style.display = 'none';
-      accessDenied.style.display = 'flex';
+      showAccessDenied('Auth system not initialized. Please refresh the page.');
       return;
     }
     
-    const { requireRole } = window.AuthContract;
+    const { requireRole } = window.AuthController;
     const session = await requireRole(['admin', 'reviewer']);
     
     // Hide loading state
     loadingState.style.display = 'none';
     
     if (!session) {
-      console.error('[ADMIN-DASHBOARD] Access denied - insufficient permissions');
-      accessDenied.style.display = 'flex';
+      // Check if user is signed in at all
+      const { getSession } = window.AuthController;
+      const userSession = getSession();
+      
+      if (!userSession) {
+        console.log('[ADMIN-DASHBOARD] User not signed in');
+        showAccessDenied(
+          'You need to sign in to access the admin dashboard.',
+          true // Show sign-in button
+        );
+      } else {
+        console.error('[ADMIN-DASHBOARD] Access denied - insufficient permissions');
+        showAccessDenied(
+          'You don\'t have admin or reviewer permissions. Contact an administrator to request access.',
+          false
+        );
+      }
       return;
     }
 
@@ -61,9 +75,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error('[ADMIN-DASHBOARD] Error checking admin access:', err);
     loadingState.style.display = 'none';
-    accessDenied.style.display = 'flex';
+    showAccessDenied('An error occurred while checking permissions. Please try again.');
   }
 });
+
+/**
+ * Show access denied message with optional sign-in button
+ */
+function showAccessDenied(message, showSignInButton = false) {
+  const accessDenied = document.getElementById('access-denied');
+  if (!accessDenied) return;
+  
+  const messageEl = accessDenied.querySelector('.text-muted');
+  if (messageEl) {
+    messageEl.textContent = message;
+  }
+  
+  // Add sign-in button if requested
+  if (showSignInButton) {
+    const existingBtn = accessDenied.querySelector('.btn-red');
+    if (existingBtn) {
+      existingBtn.remove();
+    }
+    
+    const signInBtn = document.createElement('button');
+    signInBtn.className = 'btn btn-red';
+    signInBtn.textContent = 'Sign In';
+    signInBtn.style.marginTop = '1rem';
+    signInBtn.onclick = () => {
+      // Trigger sign in via avatar popup
+      const avatarTrigger = document.getElementById('avatarTrigger');
+      if (avatarTrigger) {
+        avatarTrigger.click();
+      } else {
+        // Fallback: redirect to home
+        window.location.href = '../index.html';
+      }
+    };
+    
+    accessDenied.appendChild(signInBtn);
+  }
+  
+  accessDenied.style.display = 'flex';
+}
 
 /**
  * Initialize dashboard
