@@ -9,15 +9,21 @@ function debug(msg) {
   console.log("[avatar-popup]", msg);
 }
 
+if (window.__AVATAR_POPUP_INIT__) {
+  console.warn('[avatar-popup] Already initialized, skipping');
+} else {
+  window.__AVATAR_POPUP_INIT__ = true;
+}
+
 let avatarPopupLoaded = false;
-let headerLoaded = false;
+let avatarPopupHeaderLoaded = false;
 
 /* ===============================
    Initialize avatar popup
    =============================== */
 function initializeAvatarPopup() {
   // Wait for both avatar popup and header to be ready
-  if (avatarPopupLoaded || !headerLoaded) return;
+  if (avatarPopupLoaded || !avatarPopupHeaderLoaded) return;
 
   const popup = document.getElementById("avatar-popup");
   const avatarTrigger = document.querySelector(".avatar-trigger");
@@ -62,14 +68,13 @@ function initializeAvatarPopup() {
    Render avatar popup with dynamic elements
    =============================== */
 async function renderAvatarPopup() {
-  const supabase = window.__supabase__;
   const updateAvatarElement = window.AvatarUtils.updateAvatarElement;
   const handleLogout = window.AvatarUtils.handleLogout;
   const handleSwitchAccount = window.AvatarUtils.handleSwitchAccount;
   const handleSignIn = window.AvatarUtils.handleSignIn;
   
-  const { data } = await supabase.auth.getSession();
-  const session = data?.session;
+  // Use session from window.App (single source of truth)
+  const session = window.App?.session || window.__SESSION__;
   const user = session?.user;
 
   const popup = document.getElementById("avatar-popup");
@@ -196,17 +201,24 @@ document.addEventListener("avatar:loaded", () => {
    =============================== */
 document.addEventListener("header:loaded", () => {
   debug("✅ header loaded event received");
-  headerLoaded = true;
+  avatarPopupHeaderLoaded = true;
   initializeAvatarPopup();
 });
 
 /* ===============================
    Listen for auth changes
    =============================== */
-(function() {
-  const supabase = window.__supabase__;
+let avatarPopupAuthListenerSetup = false;
+
+document.addEventListener('app:ready', () => {
+  if (avatarPopupAuthListenerSetup) return;
+  avatarPopupAuthListenerSetup = true;
+  
+  const supabase = window.App.supabase;
+  if (!supabase) return;
+
   supabase.auth.onAuthStateChange(() => {
     debug("🔔 Auth state changed, re-rendering avatar popup");
     renderAvatarPopup();
   });
-})();
+});

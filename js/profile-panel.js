@@ -105,7 +105,13 @@ function renderBadges(badges) {
 /* ===============================
    State tracking for both events
    =============================== */
-let headerLoaded = false;
+if (window.__PROFILE_PANEL_INIT__) {
+  console.warn('[profile-panel] Already initialized, skipping');
+} else {
+  window.__PROFILE_PANEL_INIT__ = true;
+}
+
+let profilePanelHeaderLoaded = false;
 let profilePanelLoaded = false;
 let clickHandlerAttached = false;
 
@@ -119,7 +125,7 @@ function initializeProfilePanel() {
   const handleSignIn = window.AvatarUtils.handleSignIn;
   
   // Only run once both are ready
-  if (!headerLoaded || !profilePanelLoaded || clickHandlerAttached) {
+  if (!profilePanelHeaderLoaded || !profilePanelLoaded || clickHandlerAttached) {
     return;
   }
 
@@ -151,16 +157,13 @@ function initializeProfilePanel() {
   function openSwitchAccountModal() {
     if (!switchAccountModal) return;
     
-    // Update current account email
-    supabase.auth.getSession().then(({ data }) => {
-      const user = data?.session?.user;
-      const emailEl = document.getElementById("currentAccountEmail");
-      if (emailEl && user) {
-        emailEl.textContent = user.email;
-      }
-    }).catch(err => {
-      debug("❌ Error getting session for switch account: " + err.message);
-    });
+    // Update current account email using session from window.App
+    const session = window.App?.session || window.__SESSION__;
+    const user = session?.user;
+    const emailEl = document.getElementById("currentAccountEmail");
+    if (emailEl && user) {
+      emailEl.textContent = user.email;
+    }
     
     switchAccountModal.classList.add("open");
     switchAccountModal.setAttribute("aria-hidden", "false");
@@ -246,16 +249,14 @@ function initializeProfilePanel() {
 
 /* ===============================
    Render profile panel with dynamic elements
-   Uses supabase.auth.getSession() as SINGLE SOURCE OF TRUTH
+   Uses window.App.session as SINGLE SOURCE OF TRUTH
    =============================== */
 async function renderProfilePanel() {
-  const supabase = window.__supabase__;
   const updateAvatarElement = window.AvatarUtils.updateAvatarElement;
   const isCurrentUserAdmin = window.AdminAuth.isCurrentUserAdmin;
   
-  // Get current session directly - SINGLE SOURCE OF TRUTH
-  const { data } = await supabase.auth.getSession();
-  const session = data?.session;
+  // Use session from window.App (single source of truth)
+  const session = window.App?.session || window.__SESSION__;
   const user = session?.user;
 
   const nameEl = document.querySelector(".profile-panel .profile-name");
@@ -359,7 +360,7 @@ async function renderProfilePanel() {
    =============================== */
 document.addEventListener("header:loaded", () => {
   debug("✅ header loaded");
-  headerLoaded = true;
+  profilePanelHeaderLoaded = true;
   initializeProfilePanel();
 });
 
@@ -375,10 +376,17 @@ document.addEventListener("profile-panel:loaded", () => {
 /* ===============================
    Listen for auth changes
    =============================== */
-(function() {
-  const supabase = window.__supabase__;
+let profilePanelAuthListenerSetup = false;
+
+document.addEventListener('app:ready', () => {
+  if (profilePanelAuthListenerSetup) return;
+  profilePanelAuthListenerSetup = true;
+  
+  const supabase = window.App.supabase;
+  if (!supabase) return;
+
   supabase.auth.onAuthStateChange(() => {
     debug("🔔 Auth state changed, re-rendering profile panel");
     renderProfilePanel();
   });
-})();
+});
