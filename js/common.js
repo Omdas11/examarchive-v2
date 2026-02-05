@@ -195,14 +195,4 @@ document.addEventListener("DOMContentLoaded", () => {
   if (year) year.textContent = new Date().getFullYear();
 });
 
-/* ===============================
-   Lazy-load avatar.js
-   =============================== */
-document.addEventListener("avatar:loaded", () => {
-  if (document.getElementById("avatar-script")) return;
-  const s = document.createElement("script");
-  s.src = "/js/avatar.js";
-  s.defer = true;
-  s.id = "avatar-script";
-  document.body.appendChild(s);
-});
+/* Avatar functionality is handled by avatar-utils.js and avatar-popup.js */
