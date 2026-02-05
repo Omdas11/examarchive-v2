@@ -1,12 +1,47 @@
-// Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
+// Phase 9.2.8 - Fixed timing issues with ES modules
 // js/profile-panel.js
 // ===============================
 // PROFILE PANEL CONTROLLER
-// Phase 8.3: Backend-First Badge System
+// Phase 9.2.8: Fixed Supabase initialization timing
 // ===============================
 
 function debug(msg) {
   console.log("[profile-panel]", msg);
+}
+
+/**
+ * Wait for Supabase client to be initialized
+ * @param {number} timeout - Max time to wait in ms (default 5000)
+ * @returns {Promise<Object|null>} Supabase client or null on timeout
+ */
+async function waitForSupabaseProfile(timeout = 5000) {
+  if (window.__supabase__) {
+    return window.__supabase__;
+  }
+
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    const readyHandler = () => {
+      if (window.__supabase__) {
+        resolve(window.__supabase__);
+      }
+    };
+    document.addEventListener('app:ready', readyHandler, { once: true });
+    
+    const interval = setInterval(() => {
+      if (window.__supabase__) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        resolve(window.__supabase__);
+      } else if (Date.now() - startTime > timeout) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        console.warn('[profile-panel] Timeout waiting for Supabase client');
+        resolve(null);
+      }
+    }, 50);
+  });
 }
 
 /* ===============================
@@ -59,8 +94,13 @@ async function computeBadges(user) {
  * @returns {boolean} True if user has uploaded papers
  */
 async function checkUserContributions(userId) {
-  const supabase = window.__supabase__;
   try {
+    const supabase = await waitForSupabaseProfile();
+    if (!supabase) {
+      console.warn('[profile-panel] Supabase not ready for checkUserContributions');
+      return false;
+    }
+    
     const { data, error } = await supabase
       .from('submissions')
       .select('id')
@@ -119,10 +159,9 @@ let clickHandlerAttached = false;
    Initialize profile panel
    =============================== */
 function initializeProfilePanel() {
-  const supabase = window.__supabase__;
-  const handleLogout = window.AvatarUtils.handleLogout;
-  const handleSwitchAccount = window.AvatarUtils.handleSwitchAccount;
-  const handleSignIn = window.AvatarUtils.handleSignIn;
+  const handleLogout = window.AvatarUtils?.handleLogout;
+  const handleSwitchAccount = window.AvatarUtils?.handleSwitchAccount;
+  const handleSignIn = window.AvatarUtils?.handleSignIn;
   
   // Only run once both are ready
   if (!profilePanelHeaderLoaded || !profilePanelLoaded || clickHandlerAttached) {
@@ -213,7 +252,7 @@ function initializeProfilePanel() {
     // Logout button
     if (e.target.id === "profileLogoutBtn") {
       closePanel();
-      await handleLogout();
+      if (handleLogout) await handleLogout();
       return;
     }
 
@@ -227,7 +266,7 @@ function initializeProfilePanel() {
     // Sign in button (guest mode)
     if (e.target.id === "profileSignInBtn") {
       closePanel();
-      await handleSignIn();
+      if (handleSignIn) await handleSignIn();
       return;
     }
   });
@@ -236,7 +275,7 @@ function initializeProfilePanel() {
   switchAccountModal?.addEventListener("click", async (e) => {
     if (e.target.id === "confirmSwitchAccountBtn") {
       closeSwitchAccountModal();
-      await handleSwitchAccount();
+      if (handleSwitchAccount) await handleSwitchAccount();
     }
   });
 
@@ -252,8 +291,8 @@ function initializeProfilePanel() {
    Uses window.App.session as SINGLE SOURCE OF TRUTH
    =============================== */
 async function renderProfilePanel() {
-  const updateAvatarElement = window.AvatarUtils.updateAvatarElement;
-  const isCurrentUserAdmin = window.AdminAuth.isCurrentUserAdmin;
+  const updateAvatarElement = window.AvatarUtils?.updateAvatarElement;
+  const isCurrentUserAdmin = window.AdminAuth?.isCurrentUserAdmin;
   
   // Use session from window.App (single source of truth)
   const session = window.App?.session || window.__SESSION__;
@@ -287,7 +326,7 @@ async function renderProfilePanel() {
     }
 
     // Update avatar using shared utility
-    updateAvatarElement(avatarEl, user);
+    if (updateAvatarElement) updateAvatarElement(avatarEl, user);
 
     // Compute and render badges dynamically
     const badges = await computeBadges(user);
@@ -298,7 +337,7 @@ async function renderProfilePanel() {
     if (statsSection) statsSection.style.display = "grid";
 
     // Check if user is admin - use BACKEND VERIFICATION ONLY
-    const userIsAdmin = await isCurrentUserAdmin();
+    const userIsAdmin = isCurrentUserAdmin ? await isCurrentUserAdmin() : false;
     console.log('[PROFILE-PANEL] User is admin:', userIsAdmin);
     console.log('[ADMIN] dashboard access', userIsAdmin ? 'granted' : 'denied');
 
@@ -330,7 +369,7 @@ async function renderProfilePanel() {
     usernameEl.textContent = "Not signed in";
     
     // Update avatar for guest
-    updateAvatarElement(avatarEl, null);
+    if (updateAvatarElement) updateAvatarElement(avatarEl, null);
 
     // Show guest badge
     const guestBadges = await computeBadges(null);
