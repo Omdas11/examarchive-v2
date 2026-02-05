@@ -1,7 +1,7 @@
 # ExamArchive v2 — Architecture Master Plan
 
-> **Version:** 2.0.0  
-> **Last Updated:** Phase 9.2.7  
+> **Version:** 2.1.0  
+> **Last Updated:** Phase 9.2.8  
 > **Status:** CANONICAL — This is the single source of truth for all architecture decisions
 
 ---
@@ -34,8 +34,6 @@ ExamArchive v2 is a **static frontend application** backed by **Supabase** for a
 
 ### 1.3 Trust Boundaries
 
-The system operates with clear trust boundaries:
-
 1. **Frontend** — Untrusted. Never makes security decisions.
 2. **Supabase Auth** — Trusted for identity verification.
 3. **Supabase RLS** — Trusted for authorization. All permission checks happen here.
@@ -47,7 +45,19 @@ The system operates with clear trust boundaries:
 
 ## 2. Execution Model
 
-### 2.1 Page Load Sequence
+### 2.1 Script Loading Architecture
+
+ExamArchive uses a **hybrid module system**:
+
+1. **ES Modules** (`type="module"`) - Used only for `app.module.js` and its imports
+2. **Classic Scripts** - All other JavaScript files (no `type="module"`)
+
+This architecture is required because:
+- ES modules load **asynchronously** in parallel
+- Classic scripts load **synchronously** in order
+- Classic scripts need the Supabase client to be ready
+
+### 2.2 Page Load Sequence
 
 Every page follows this exact load order:
 
@@ -56,340 +66,309 @@ Every page follows this exact load order:
 2. bootstrap.js loads (MUST be first script)
    └─ Creates window.App object
    └─ Installs global error handlers
+   └─ NEVER throws errors (graceful degradation)
 3. Supabase SDK loads (CDN)
-4. app.module.js loads (type="module")
-   └─ Imports supabase.js → Creates client, dispatches app:ready
+4. app.module.js loads (type="module") - ASYNCHRONOUS
+   └─ Imports supabase.js → Creates client
    └─ Imports auth.module.js → Sets up auth listener
    └─ Imports debug.module.js → Exposes window.Debug
-5. Classic scripts load in order:
-   └─ theme.js → Applies saved theme
+   └─ Dispatches 'app:ready' event when done
+5. Classic scripts load in order - SYNCHRONOUS
    └─ common.js → Loads partials (header/footer)
+   └─ auth.js → Exposes window.AuthContract
    └─ Page-specific scripts
+6. Classic scripts WAIT for 'app:ready' or poll for window.__supabase__
 ```
 
-### 2.2 Bootstrap Flow
+### 2.3 The Timing Problem (Critical)
 
-The bootstrap phase is critical. It MUST complete before any other JavaScript executes.
+**Problem:** ES modules execute asynchronously. Classic scripts execute synchronously BUT may run before the ES module finishes initializing Supabase.
+
+**Solution (Phase 9.2.8):** All classic scripts that need Supabase must:
+1. Include a `waitForSupabase()` helper function
+2. Call it before any Supabase operation
+3. Use the `app:ready` event as a signal that Supabase is ready
 
 ```javascript
-// js/bootstrap.js — SINGLE RESPONSIBILITY
-(function () {
-  if (window.__APP_BOOTED__) return;
-  window.__APP_BOOTED__ = true;
+// Pattern used in all classic scripts
+async function waitForSupabase(timeout = 10000) {
+  if (window.__supabase__) {
+    return window.__supabase__;
+  }
   
-  window.App = {
-    ready: false,
-    supabase: null,
-    session: null
-  };
-  
-  // Global error handlers
-  window.addEventListener('error', ...);
-  window.addEventListener('unhandledrejection', ...);
-})();
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    document.addEventListener('app:ready', () => {
+      if (window.__supabase__) resolve(window.__supabase__);
+    }, { once: true });
+    
+    const interval = setInterval(() => {
+      if (window.__supabase__) {
+        clearInterval(interval);
+        resolve(window.__supabase__);
+      } else if (Date.now() - startTime > timeout) {
+        clearInterval(interval);
+        resolve(null);  // Return null, don't throw
+      }
+    }, 50);
+  });
+}
 ```
-
-**Bootstrap guarantees:**
-- `window.App` object exists
-- Error handlers are installed
-- Subsequent scripts can safely reference `window.App`
-
-### 2.3 Error Containment Strategy
-
-JavaScript errors are handled at two levels:
-
-1. **Global Level** — `bootstrap.js` catches all uncaught errors and promise rejections
-2. **Module Level** — Individual scripts use try/catch for recoverable errors
-
-**Design Principle:** A failing non-critical module (e.g., debug panel) MUST NOT block critical functionality (e.g., authentication, content display).
 
 ---
 
-## 3. Authentication Model
+## 3. Authentication Flow
 
-### 3.1 Session Lifecycle
+### 3.1 How Auth Actually Works
 
-```
-User lands on page
-        │
-        ▼
-┌───────────────────┐
-│ supabase.js loads │
-│ getSession()      │────▶ Session exists? ─▶ Store in window.App.session
-└───────────────────┘                │
-        │                            ▼ No
-        │                    Guest mode (null session)
-        ▼
-auth.module.js sets up onAuthStateChange listener
-```
+1. **Initial Load:** `supabase.js` calls `getSession()` and stores result in `window.App.session`
+2. **Classic Script Access:** Scripts use `window.AuthContract.requireSession()` which:
+   - Waits for Supabase to be initialized
+   - Calls `supabase.auth.getSession()`
+   - Returns session or null
 
-### 3.2 OAuth Flow (Google)
+### 3.2 Auth Contract API
 
-```
-1. User clicks "Sign in with Google"
-2. avatar-utils.js calls supabase.auth.signInWithOAuth()
-3. Redirect to Google consent screen
-4. Google redirects back with auth code
-5. Supabase exchanges code for session
-6. onAuthStateChange fires with new session
-7. UI updates to reflect authenticated state
-```
-
-### 3.3 Session Storage
-
-- Sessions are persisted by Supabase in `localStorage`
-- Auto-refresh is enabled (`autoRefreshToken: true`)
-- PKCE flow is used for security (`flowType: "pkce"`)
-
-### 3.4 Auth Contract
-
-The `auth.js` file provides the **single source of truth** for authentication checks:
+`js/auth.js` exposes the ONLY way to check authentication:
 
 ```javascript
 window.AuthContract = {
-  requireSession,   // Returns session or null
-  requireRole       // Checks session + role from backend
+  requireSession(),    // Returns session or null (waits for Supabase)
+  requireRole(roles)   // Returns session if user has role, else null
 };
 ```
 
-**Rules:**
-- Only `AuthContract` methods should be used to check auth
-- Backend RPC functions verify roles, not frontend logic
-- No frontend-only role caching
+### 3.3 Role-Based Access
+
+Admin/reviewer access is controlled by backend functions:
+
+```javascript
+// Check if user is admin
+const { data } = await supabase.rpc('is_admin', { user_id_param: userId });
+
+// Get user's role
+const { data } = await supabase.rpc('get_user_role_name', { user_id_param: userId });
+```
+
+**NEVER** infer roles from frontend data. Always call backend functions.
 
 ---
 
-## 4. Authorization Model
+## 4. Upload Flow
 
-### 4.1 Role Hierarchy
+### 4.1 Complete Upload Sequence
 
-| Role | Level | Capabilities |
-|------|-------|--------------|
-| admin | 100 | Full system access, user management |
-| reviewer | 50 | Review submissions, publish papers |
-| user | 10 | Upload papers, view submissions |
-| visitor | 0 | Read-only access to public content |
+1. User selects PDF file
+2. `upload.js` calls `window.UploadHandler.handlePaperUpload()`
+3. `upload-handler.js`:
+   - Waits for Supabase to be ready
+   - Validates file (PDF, <50MB)
+   - Gets session via `supabase.auth.getSession()`
+   - **Fails immediately if no session** (hard requirement)
+   - Uploads to `uploads-temp` bucket
+   - Creates record in `submissions` table
+   - Returns success/error
 
-### 4.2 Backend as Source of Truth
-
-Roles are NEVER inferred from frontend state. All role checks use backend RPC functions:
-
-```javascript
-// admin-auth.js
-window.AdminAuth = {
-  isAdminBackend,        // Calls is_admin() RPC
-  isCurrentUserAdmin,    // Calls is_current_user_admin() RPC
-  getUserRoleBackend,    // Calls get_user_role_name() RPC
-  assignRole             // Admin-only role assignment
-};
-```
-
-### 4.3 Admin vs User Access
-
-**Admin Dashboard Access:**
-```javascript
-const session = await requireRole(['admin', 'reviewer']);
-if (!session) {
-  // Show access denied
-  return;
-}
-// Proceed with admin functionality
-```
-
-**Protected Content:**
-- Repeated Questions → Requires authenticated user
-- Notes → Requires authenticated user  
-- Upload → Requires authenticated user
-- Admin Dashboard → Requires admin or reviewer role
-
----
-
-## 5. Storage Model
-
-### 5.1 Bucket Structure
+### 4.2 Storage Buckets
 
 | Bucket | Purpose | Access |
 |--------|---------|--------|
-| `uploads-temp` | Pending submissions | User (write), Reviewer (read) |
-| `uploads-approved` | Approved, unpublished | Reviewer only |
-| `uploads-public` | Published papers | Public (read) |
+| `uploads-temp` | Pending uploads | Authenticated users |
+| `uploads-approved` | Reviewed uploads | Admins only |
+| `uploads-public` | Published papers | Public read |
 
-### 5.2 Upload Flow
+### 4.3 Upload Success Criteria
 
-```
-1. User selects PDF file
-2. Frontend validates (size, type)
-3. AuthContract.requireSession() called
-4. File uploaded to uploads-temp bucket
-5. Submission record created in database
-6. Reviewer sees pending submission
-7. Reviewer approves → file moves to uploads-public
-8. Public URL generated
-```
+Upload is only successful when:
+1. ✅ Session exists (user is logged in)
+2. ✅ File is valid PDF under 50MB
+3. ✅ File uploads to storage bucket
+4. ✅ Submission record created in database
 
-### 5.3 RLS Enforcement
-
-All storage operations are protected by RLS:
-
-- Users can only upload to their own folder
-- Users can only view their own submissions
-- Reviewers can view all pending submissions
-- Public bucket is read-only for all
-
-### 5.4 Demo vs Production Behavior
-
-The system uses the same Supabase project for demo and production. The only difference is the data in the database. No code changes are required.
+If DB insert fails, the uploaded file is cleaned up.
 
 ---
 
-## 6. Debug Philosophy
+## 5. Admin Dashboard
 
-### 6.1 Core Principle
+### 5.1 Access Control
 
-**Debug functionality MUST NEVER block page execution.**
-
-A user should never see a blank page or broken functionality because the debug system failed.
-
-### 6.2 Debug Architecture
+Admin dashboard access requires:
+1. User must be authenticated
+2. User must have `admin` or `reviewer` role (verified by backend)
 
 ```javascript
-// js/modules/debug.module.js
+// dashboard.js uses auth contract
+const session = await window.AuthContract.requireRole(['admin', 'reviewer']);
+if (!session) {
+  // Show access denied UI (graceful)
+  return;
+}
+```
+
+### 5.2 Admin Operations
+
+All admin operations use backend-verified permissions:
+- **Approve:** Moves file from temp → public, updates submission status
+- **Reject:** Deletes file from temp, updates submission status
+- **Delete:** Removes file and database record
+
+---
+
+## 6. Bootstrap & Error Handling
+
+### 6.1 Bootstrap Guarantees
+
+`js/bootstrap.js` provides:
+- `window.App` object (always exists)
+- `window.__APP_BOOTED__` flag
+- Global error handlers (logs, never throws)
+
+**Critical:** Bootstrap NEVER throws errors. All failures are logged and the app continues.
+
+### 6.2 Graceful Degradation
+
+Every script follows this pattern:
+1. Check if dependencies exist
+2. If missing, log warning and continue
+3. Never throw errors that block page render
+4. Never use `alert()` to show errors to users
+
+Example:
+```javascript
+// ✅ Correct - graceful degradation
+if (!window.__APP_BOOTED__) {
+  console.warn('[COMMON] Bootstrap not loaded - continuing with degraded functionality');
+}
+
+// ❌ Wrong - blocking error
+if (!window.__APP_BOOTED__) {
+  alert('BOOTSTRAP FAILED');
+  throw new Error('Bootstrap not loaded');
+}
+```
+
+---
+
+## 7. Debug System
+
+### 7.1 How Debug Works
+
+The debug system is initialized by `debug.module.js` and exposed as `window.Debug`:
+
+```javascript
 window.Debug = {
-  logInfo,      // Log info message
-  logWarn,      // Log warning
-  logError,     // Log error
-  showPanel,    // Show debug panel
-  hidePanel,    // Hide debug panel
-  togglePanel,  // Toggle panel visibility
-  DebugModule,  // Module identifiers
-  DebugLevel    // Severity levels
+  logInfo(module, message, data),
+  logWarn(module, message, data),
+  logError(module, message, data),
+  showPanel(),
+  hidePanel(),
+  togglePanel()
 };
 ```
 
-### 6.3 Admin-Only Visibility
+### 7.2 Safe Debug Logging
 
-Debug panel visibility is controlled by:
-1. User role (admin/reviewer only)
-2. LocalStorage preference (`debug-panel-enabled`)
+Because ES modules load asynchronously, `window.Debug` may not exist when classic scripts first run. Use safe wrappers:
 
-Currently, `DEBUG_FORCE_ENABLE = true` is set for development. Set to `false` for production.
-
-### 6.4 Mobile-Safe Behavior
-
-Debug panel is:
-- Fixed to bottom-right corner
-- Responsive (max-width on mobile)
-- Collapsible to minimize screen real estate
-- Hidden by default on page load
+```javascript
+function safeLogInfo(module, message, data) {
+  if (window.Debug && window.Debug.logInfo) {
+    window.Debug.logInfo(module, message, data);
+  } else {
+    console.log(`[${module.toUpperCase()}] ${message}`, data || '');
+  }
+}
+```
 
 ---
 
-## 7. Non-Goals
+## 8. File Structure
 
-This section explicitly states what ExamArchive v2 intentionally does NOT do:
-
-### 7.1 No Server-Side Rendering
-
-ExamArchive is purely static. There is no server-side rendering, no Node.js backend, no SSR framework.
-
-### 7.2 No Complex State Management
-
-There is no Redux, no MobX, no complex state management library. State is managed through:
-- `window.App` for global state
-- Supabase subscriptions for real-time updates
-- LocalStorage for preferences
-
-### 7.3 No Build Step Required
-
-The JavaScript is plain ES5/ES6. There is no webpack, no Babel, no TypeScript compilation required. The code runs directly in the browser.
-
-### 7.4 No Offline Support
-
-There is no service worker, no offline caching strategy. The application requires an internet connection to function.
-
-### 7.5 No Multi-Tenant Support
-
-The system serves a single university/organization. There is no tenant isolation, no subdomain-based routing.
-
-### 7.6 No API Gateway
-
-All communication is directly with Supabase. There is no API gateway, no rate limiting layer, no custom middleware.
-
----
-
-## File Structure Reference
+### 8.1 JavaScript Files
 
 ```
 /js
-├── bootstrap.js         # App initialization (MUST load first)
-├── app.module.js        # ES module entry point
-├── supabase.js          # Supabase client (ES module)
-├── auth.js              # Auth contract (classic script)
-├── admin-auth.js        # Admin role verification
-├── common.js            # UI helpers (header/footer/theme)
-├── theme.js             # Theme controller
-├── roles.js             # Badge/role display utilities
-├── avatar-utils.js      # Avatar helper functions
-├── avatar-popup.js      # Avatar popup controller
-├── profile-panel.js     # Profile panel controller
-├── supabase-client.js   # Storage helper functions
-├── upload-handler.js    # Upload logic
-├── upload.js            # Upload page controller
-├── settings.js          # Settings page controller
-├── browse.js            # Browse page controller
-├── paper.js             # Paper page controller
-├── home-search.js       # Home search controller
-├── notices-calendar.js  # Notices/calendar controller
-├── about.js             # About page controller
+├── bootstrap.js        # First script - creates window.App
+├── supabase.js         # ES module - creates Supabase client
+├── app.module.js       # ES module entry point
+├── auth.js             # Auth contract (waitForSupabase)
+├── common.js           # UI helpers (theme, partials)
+├── upload.js           # Upload page controller
+├── upload-handler.js   # Upload business logic
+├── supabase-client.js  # Storage helpers
+├── admin-auth.js       # Admin verification
+├── roles.js            # Badge system
+├── avatar-utils.js     # Avatar helpers
+├── avatar-popup.js     # Avatar popup controller
+├── profile-panel.js    # Profile panel controller
+├── paper.js            # Paper page controller
+├── settings.js         # Settings page controller
+├── theme.js            # Theme application
 └── modules/
-    ├── auth.module.js   # Auth state management (ES module)
-    └── debug.module.js  # Debug system (ES module)
+    ├── auth.module.js  # ES module auth listeners
+    └── debug.module.js # ES module debug system
+```
 
-/admin
-├── dashboard.html       # Admin dashboard page
-├── dashboard.js         # Admin dashboard controller
-└── dashboard/
-    └── index.html       # Admin dashboard (alternate path)
+### 8.2 HTML Pages
 
-/docs
-└── ARCHITECTURE_MASTER_PLAN.md  # This document (canonical)
+```
+/
+├── index.html          # Home page
+├── upload.html         # Upload page (requires auth)
+├── browse.html         # Browse papers
+├── paper.html          # Single paper view
+├── settings.html       # User settings (requires auth)
+├── about.html          # About page
+├── privacy.html        # Privacy policy
+├── terms.html          # Terms of service
+└── admin/
+    └── dashboard.html  # Admin dashboard (requires admin role)
 ```
 
 ---
 
-## Quick Reference
+## 9. Key Invariants
 
-### Checking Auth State
-```javascript
-// Use AuthContract
-const session = await window.AuthContract.requireSession();
-if (!session) {
-  // User not logged in
-}
-```
+These rules MUST always be true:
 
-### Checking Admin Access
-```javascript
-// Use AuthContract with role check
-const session = await window.AuthContract.requireRole(['admin', 'reviewer']);
-if (!session) {
-  // Access denied
-}
-```
-
-### Logging Debug Messages
-```javascript
-// Use window.Debug
-window.Debug.logInfo('auth', 'User signed in', { email: user.email });
-window.Debug.logError('upload', 'Upload failed', { error: err.message });
-```
-
-### Accessing Supabase Client
-```javascript
-// Use window.__supabase__ (set by supabase.js)
-const { data, error } = await window.__supabase__.from('submissions').select('*');
-```
+1. **Bootstrap never throws** - Only logs warnings
+2. **Classic scripts wait for Supabase** - Use `waitForSupabase()` helper
+3. **Auth is server-verified** - Never trust frontend for permissions
+4. **Upload requires session** - Hard fail if not authenticated
+5. **No blocking alerts** - Use toast messages or inline UI
+6. **Graceful degradation** - App should work even if some features fail
 
 ---
 
-*This document is the single source of truth. All other documentation must derive from and reference this document.*
+## 10. Troubleshooting
+
+### 10.1 "Supabase not initialized"
+
+**Cause:** Classic script tried to use Supabase before ES module finished
+**Fix:** Use `waitForSupabase()` helper function
+
+### 10.2 "Upload blocked: session missing"
+
+**Cause:** User is not logged in
+**Fix:** Redirect to sign in or show sign-in UI
+
+### 10.3 "Access denied" on admin dashboard
+
+**Cause:** User doesn't have admin/reviewer role
+**Fix:** Check Supabase user_roles table
+
+### 10.4 Page not rendering
+
+**Cause:** JavaScript error blocking execution
+**Fix:** Check browser console for errors, ensure no `throw` in bootstrap path
+
+---
+
+## Version History
+
+- **Phase 9.2.8** - Fixed timing issues with Supabase initialization, removed blocking errors
+- **Phase 9.2.5** - Auth contract system
+- **Phase 9.2.4** - Module architecture
+- **Phase 9.2.3** - Classic JS conversion

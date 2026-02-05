@@ -25,10 +25,10 @@ if (!window.supabase) {
 }
 
 // Only create client if SDK is available
-export let supabase = null;
+let supabaseClient = null;
 
 if (window.supabase) {
-  supabase = window.supabase.createClient(
+  supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY,
     {
@@ -42,13 +42,13 @@ if (window.supabase) {
   );
 
   // Store in window.App
-  window.App.supabase = supabase;
+  window.App.supabase = supabaseClient;
 
   // Also expose globally for classic scripts (backward compatibility)
-  window.__supabase__ = supabase;
+  window.__supabase__ = supabaseClient;
 
   // Initialize session and dispatch app:ready event
-  supabase.auth.getSession().then(({ data }) => {
+  supabaseClient.auth.getSession().then(({ data }) => {
     window.App.session = data.session;
     window.App.ready = true;
 
@@ -69,3 +69,11 @@ if (window.supabase) {
     document.dispatchEvent(new Event('app:ready'));
   }, 100);
 }
+
+// Export a getter function to avoid mutable export issues
+export function getSupabaseClient() {
+  return supabaseClient;
+}
+
+// Also export as 'supabase' for backward compatibility with modules
+export const supabase = supabaseClient;

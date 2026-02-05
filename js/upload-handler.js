@@ -129,8 +129,11 @@ async function handlePaperUpload(file, metadata, onProgress) {
     // Generate storage path: {userId}/{timestamp}-{filename}
     const storagePath = `${userId}/${timestamp}-${sanitizedFilename}`;
 
-    // Get bucket name from SupabaseClient if available, or use default
-    const TEMP_BUCKET = window.SupabaseClient?.BUCKETS?.TEMP || 'uploads-temp';
+    // Get bucket name from SupabaseClient - ensure it's loaded first
+    // SupabaseClient is a synchronous script loaded before this runs
+    const TEMP_BUCKET = (window.SupabaseClient && window.SupabaseClient.BUCKETS) 
+      ? window.SupabaseClient.BUCKETS.TEMP 
+      : 'uploads-temp';  // Fallback matches BUCKETS.TEMP definition in supabase-client.js
 
     // Upload to temp bucket using authenticated client
     safeLogInfo(UploadDebugModule.UPLOAD, 'Uploading file to storage...', { bucket: TEMP_BUCKET, path: storagePath });
