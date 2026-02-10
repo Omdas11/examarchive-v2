@@ -99,12 +99,17 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     safeLogInfo(UploadDebugModule.UPLOAD, 'Session verified. User authenticated.', { userId: session.user.id });
 
+    // Validate metadata
+    if (!metadata || !metadata.paperCode || !metadata.examYear) {
+      safeLogError(UploadDebugModule.UPLOAD, 'Invalid metadata - paperCode and examYear required', { metadata });
+      throw new Error('Paper code and examination year are required');
+    }
+
     const userId = session.user.id;
-    const timestamp = Date.now();
     const sanitizedFilename = sanitizeFilename(file.name);
     
-    // Generate storage path: {userId}/{timestamp}-{filename}
-    const storagePath = `${userId}/${timestamp}-${sanitizedFilename}`;
+    // Generate storage path: {userId}/{paperCode}/{examYear}/{filename}
+    const storagePath = `${userId}/${metadata.paperCode}/${metadata.examYear}/${sanitizedFilename}`;
 
     // Get bucket name from SupabaseClient - ensure it's loaded first
     // SupabaseClient is a synchronous script loaded before this runs
@@ -143,18 +148,29 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (uploadResult.error) {
       const errMsg = uploadResult.error.message || 'Unknown storage error';
       const statusCode = uploadResult.error.statusCode || uploadResult.error.status;
-      safeLogError(UploadDebugModule.STORAGE, 'Storage upload failed', { error: errMsg, statusCode, bucket: TEMP_BUCKET, path: storagePath });
+      
+      // REQUIREMENT: Log FULL Supabase error object (direct console required per spec)
+      console.error('[UPLOAD][STORAGE ERROR]', uploadResult.error);
+      safeLogError(UploadDebugModule.STORAGE, 'Storage upload failed', { 
+        error: uploadResult.error, 
+        message: errMsg,
+        status: statusCode, 
+        bucket: TEMP_BUCKET, 
+        path: storagePath 
+      });
       
       // Provide actionable error context
       if (statusCode === 404) {
         throw new Error(`Storage bucket "${TEMP_BUCKET}" not found. Please contact the administrator.`);
       } else if (statusCode === 403 || errMsg.includes('policy') || errMsg.includes('security')) {
-        throw new Error('Storage permission denied. Your session may have expired — please sign out and sign in again.');
+        throw new Error(`Storage permission denied (${statusCode}): ${errMsg}`);
       }
       throw uploadResult.error;
     }
 
-    safeLogInfo(UploadDebugModule.UPLOAD, 'File uploaded successfully to storage');
+    // REQUIREMENT: Log upload success (direct console required per spec)
+    console.log('[UPLOAD SUCCESS]', uploadResult.data?.path || storagePath);
+    safeLogInfo(UploadDebugModule.UPLOAD, 'File uploaded successfully to storage', { path: uploadResult.data?.path || storagePath });
 
     // Create submission record
     safeLogInfo(UploadDebugModule.UPLOAD, 'Creating submission record in database...');
