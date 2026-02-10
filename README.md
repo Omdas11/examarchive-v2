@@ -10,22 +10,27 @@
 
 ## Documentation
 
-All architecture and system documentation is in the `/docs` folder.
+All documentation is in the [`/docs`](docs/README.md) folder.
 
-**Start here:** [Architecture Master Plan](docs/ARCHITECTURE_MASTER_PLAN.md)
+**Start here:** [Documentation Index](docs/README.md)
 
-### Additional Documentation
+### Key Documents
 
-- [Setup Guide](docs/SETUP.md) - Getting started for developers
-- [Developer Guide](docs/DEVELOPER_GUIDE.md) - Contributing guidelines
-- [Debugging Guide](docs/DEBUGGING.md) - Debug system usage
-- [Security Model](docs/SECURITY_MODEL.md) - Auth and authorization
+- [Phases](docs/PHASES.md) — What we're building and in what order
+- [Data Architecture](docs/DATA_ARCHITECTURE.md) — Repo structure and data flow
+- [Upload Pipeline](docs/UPLOAD_PIPELINE.md) — Upload flow and debugging
+- [Admin Approval](docs/ADMIN_APPROVAL_FLOW.md) — How content gets approved
+- [Repo Audit](docs/REPO_AUDIT.md) — Full analysis of the codebase
 
 ## Technology Stack
 
 - **Frontend:** HTML5, CSS3, Vanilla JavaScript
 - **Backend:** Supabase (Auth, Database, Storage)
 - **Hosting:** GitHub Pages
+
+## Current Phase
+
+**Phase 1 — Core Recovery.** See [PHASES.md](docs/PHASES.md) for the full roadmap.
 
 ## License
 
