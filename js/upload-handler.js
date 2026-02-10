@@ -99,6 +99,12 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     safeLogInfo(UploadDebugModule.UPLOAD, 'Session verified. User authenticated.', { userId: session.user.id });
 
+    // Validate metadata
+    if (!metadata || !metadata.paperCode || !metadata.examYear) {
+      safeLogError(UploadDebugModule.UPLOAD, 'Invalid metadata - paperCode and examYear required', { metadata });
+      throw new Error('Paper code and examination year are required');
+    }
+
     const userId = session.user.id;
     const sanitizedFilename = sanitizeFilename(file.name);
     
@@ -143,7 +149,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       const errMsg = uploadResult.error.message || 'Unknown storage error';
       const statusCode = uploadResult.error.statusCode || uploadResult.error.status;
       
-      // Log FULL Supabase error object
+      // REQUIREMENT: Log FULL Supabase error object (direct console required per spec)
       console.error('[UPLOAD][STORAGE ERROR]', uploadResult.error);
       safeLogError(UploadDebugModule.STORAGE, 'Storage upload failed', { 
         error: uploadResult.error, 
@@ -162,7 +168,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       throw uploadResult.error;
     }
 
-    // DEV-ONLY: Log upload success
+    // REQUIREMENT: Log upload success (direct console required per spec)
     console.log('[UPLOAD SUCCESS]', uploadResult.data?.path || storagePath);
     safeLogInfo(UploadDebugModule.UPLOAD, 'File uploaded successfully to storage', { path: uploadResult.data?.path || storagePath });
 
