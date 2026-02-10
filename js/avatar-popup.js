@@ -206,6 +206,43 @@ document.addEventListener("header:loaded", () => {
 });
 
 /* ===============================
+   Update header avatar-mini with user's profile image or initials
+   =============================== */
+function updateHeaderAvatar(user) {
+  const avatarMini = document.querySelector(".avatar-mini");
+  if (!avatarMini) return;
+
+  if (user) {
+    const fullName = user.user_metadata?.full_name;
+    const email = user.email;
+    const avatarUrl = user.user_metadata?.avatar_url;
+    const initial = fullName ? fullName[0].toUpperCase() : email ? email[0].toUpperCase() : "U";
+
+    const sanitizedUrl = window.AvatarUtils?.sanitizeAvatarUrl
+      ? window.AvatarUtils.sanitizeAvatarUrl(avatarUrl)
+      : avatarUrl;
+
+    if (sanitizedUrl) {
+      avatarMini.textContent = "";
+      avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
+      avatarMini.style.backgroundSize = "cover";
+      avatarMini.style.backgroundPosition = "center";
+    } else {
+      avatarMini.textContent = initial;
+      avatarMini.style.backgroundImage = "none";
+      const color = window.AvatarUtils?.stringToColor
+        ? window.AvatarUtils.stringToColor(fullName || email || "User")
+        : "var(--avatar-bg)";
+      avatarMini.style.backgroundColor = color;
+    }
+  } else {
+    avatarMini.textContent = "?";
+    avatarMini.style.backgroundImage = "none";
+    avatarMini.style.backgroundColor = "";
+  }
+}
+
+/* ===============================
    Listen for auth changes
    =============================== */
 let avatarPopupAuthListenerSetup = false;
@@ -221,4 +258,20 @@ document.addEventListener('app:ready', () => {
     debug("🔔 Auth state changed, re-rendering avatar popup");
     renderAvatarPopup();
   });
+});
+
+/* ===============================
+   Update header avatar on auth:ready
+   =============================== */
+window.addEventListener("auth:ready", (e) => {
+  const session = e.detail?.session;
+  updateHeaderAvatar(session?.user || null);
+});
+
+/* ===============================
+   Update header avatar on auth state changes
+   =============================== */
+window.addEventListener("auth-state-changed", (e) => {
+  const session = e.detail?.session;
+  updateHeaderAvatar(session?.user || null);
 });

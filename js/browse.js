@@ -185,9 +185,24 @@ function render() {
   count.textContent = `Showing ${view.length} papers`;
 
   if (!view.length) {
-    list.innerHTML = `<p class="empty">No papers found.</p>`;
+    list.innerHTML = `<p class="empty">No papers found for the selected filters.</p>`;
     return;
   }
+
+  // Show notice that these are legacy static papers, not user-uploaded approved papers
+  const notice = document.createElement("div");
+  notice.className = "browse-notice";
+  notice.style.cssText = `
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background: var(--bg-soft, #f5f5f5);
+    border: 1px solid var(--border, #e0e0e0);
+    font-size: 0.85rem;
+    color: var(--text-muted, #666);
+  `;
+  notice.textContent = "These are archived question papers. User-uploaded papers will appear here after admin approval.";
+  list.appendChild(notice);
 
   view.forEach(p => {
     const card = document.createElement("div");

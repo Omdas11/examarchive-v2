@@ -72,11 +72,23 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     // CRITICAL: Wait for session to be ready before uploading
     safeLogInfo(UploadDebugModule.UPLOAD, 'Verifying authenticated session...');
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
-    if (sessionError) {
-      safeLogError(UploadDebugModule.UPLOAD, 'Session error', { error: sessionError.message });
-      throw new Error('Session verification failed. Please try signing in again.');
+    // Refresh session to ensure token is fresh before upload
+    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+    
+    let session;
+    if (refreshError || !refreshData?.session) {
+      // Fallback to getting existing session if refresh fails
+      safeLogWarn(UploadDebugModule.UPLOAD, 'Session refresh failed, trying existing session', { error: refreshError?.message });
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        safeLogError(UploadDebugModule.UPLOAD, 'Session error', { error: sessionError.message });
+        throw new Error('Session verification failed. Please try signing in again.');
+      }
+      session = sessionData?.session;
+    } else {
+      session = refreshData.session;
+      safeLogInfo(UploadDebugModule.UPLOAD, 'Session refreshed successfully');
     }
 
     // 🧨 HARD FAIL IF NO SESSION
@@ -129,7 +141,16 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     if (uploadResult.error) {
-      safeLogError(UploadDebugModule.STORAGE, 'Storage upload failed', { error: uploadResult.error.message });
+      const errMsg = uploadResult.error.message || 'Unknown storage error';
+      const statusCode = uploadResult.error.statusCode || uploadResult.error.status;
+      safeLogError(UploadDebugModule.STORAGE, 'Storage upload failed', { error: errMsg, statusCode, bucket: TEMP_BUCKET, path: storagePath });
+      
+      // Provide actionable error context
+      if (statusCode === 404) {
+        throw new Error(`Storage bucket "${TEMP_BUCKET}" not found. Please contact the administrator.`);
+      } else if (statusCode === 403 || errMsg.includes('policy') || errMsg.includes('security')) {
+        throw new Error('Storage permission denied. Your session may have expired — please sign out and sign in again.');
+      }
       throw uploadResult.error;
     }
 
