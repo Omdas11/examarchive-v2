@@ -272,16 +272,11 @@ async function renderSettings() {
 
   window.Debug.logInfo(window.Debug.DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
 
-  // Check if user has appropriate role (admin or reviewer can see settings)
-  const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
-  
-  if (!isAdmin) {
-    window.Debug.logWarn(window.Debug.DebugModule.SETTINGS, 'Settings hidden: role check failed', { role: roleInfo.name });
-    renderAccessDenied(container);
-    return;
-  }
+  // Settings page is accessible to all authenticated users
+  // Only specific sections (requiresAdmin) are restricted
+  const isAdmin = roleInfo.name === 'admin';
 
-  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authorized user');
+  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
 
   container.innerHTML = "";
 
