@@ -149,8 +149,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
       const errMsg = uploadResult.error.message || 'Unknown storage error';
       const statusCode = uploadResult.error.statusCode || uploadResult.error.status;
       
-      // REQUIREMENT: Log FULL Supabase error object (direct console required per spec)
-      console.error('[UPLOAD][STORAGE ERROR]', uploadResult.error);
+      // REQUIREMENT: Log FULL Supabase error object with JSON.stringify for complete detail
+      console.error('UPLOAD STORAGE ERROR:', JSON.stringify(uploadResult.error, null, 2));
       safeLogError(UploadDebugModule.STORAGE, 'Storage upload failed', { 
         error: uploadResult.error, 
         message: errMsg,

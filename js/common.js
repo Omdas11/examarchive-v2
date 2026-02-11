@@ -49,7 +49,8 @@ const DebugModule = {
   document.body.setAttribute("data-theme-preset", themePreset);
   
   // Apply theme mode (light/dark/amoled)
-  const themeMode = localStorage.getItem("theme-mode") || "auto";
+  // Default to "light" for white background
+  const themeMode = localStorage.getItem("theme-mode") || "light";
   if (themeMode === "auto") {
     // Detect system preference
     const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
