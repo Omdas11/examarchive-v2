@@ -24,19 +24,17 @@ async function getCurrentUserRole() {
       return "guest";
     }
 
-    // Query user_roles table directly
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", session.user.id)
-      .single();
+    // Use backend RPC function to get role (same as AdminAuth)
+    const { data: roleName, error } = await supabase.rpc('get_user_role_name', {
+      user_id_param: session.user.id
+    });
 
-    if (error || !data) {
-      console.warn('[ROLE-UTILS] No role found in user_roles, defaulting to "user"');
+    if (error) {
+      console.warn('[ROLE-UTILS] Error getting role, defaulting to "user":', error);
       return "user";
     }
 
-    return data.role.toLowerCase();
+    return roleName ? roleName.toLowerCase() : "user";
   } catch (err) {
     console.error('[ROLE-UTILS] Error getting user role:', err);
     return "user";
