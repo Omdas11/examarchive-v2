@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Review Panel · ExamArchive</title>
+  
+  <!-- Global styles -->
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/profile-panel.css">
+  <link rel="stylesheet" href="../css/avatar-popup.css">
+  <link rel="stylesheet" href="../css/avatar.css">
+  
+  <!-- Page-specific -->
+  <link rel="stylesheet" href="dashboard.css">
+  
+  <meta name="description" content="Review panel for ExamArchive submissions" />
+  <meta name="theme-color" content="#d32f2f" />
+  <meta name="robots" content="noindex, nofollow" />
+</head>
+<body>
+
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="dashboard-page container" id="main-content">
+    
+    <!-- Loading State -->
+    <div id="loading-state" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading review panel...</p>
+    </div>
+
+    <!-- Access Denied -->
+    <div id="access-denied" class="access-denied" style="display: none;">
+      <h2>Access Denied</h2>
+      <p class="text-muted">You need reviewer access to use this panel.</p>
+      <a href="../index.html" class="btn btn-red">Go Home</a>
+    </div>
+
+    <!-- Review Content -->
+    <div id="review-content" style="display: none;">
+      
+      <section class="dashboard-header">
+        <h1>Review Panel</h1>
+        <p class="text-muted">Approve or reject pending submissions</p>
+      </section>
+
+      <!-- Pending Submissions -->
+      <section id="pending-list" class="submissions-list">
+        <!-- Rendered by JS -->
+      </section>
+
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <p class="text-muted">No pending submissions to review.</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div id="footer"></div>
+
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <script src="../js/bootstrap.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <script type="module" src="../js/app.module.js"></script>
+  <script src="../js/utils/supabase-wait.js"></script>
+  <script src="../js/auth-controller.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/avatar-utils.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/admin-auth.js"></script>
+  <script src="../js/upload-handler.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/profile-panel.js"></script>
+  <script src="../js/avatar-popup.js"></script>
+  <script src="review.js"></script>
+  <script src="../js/theme.js"></script>
+
+</body>
+</html>
