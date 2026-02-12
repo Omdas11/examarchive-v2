@@ -10,6 +10,9 @@ import { supabase } from "../supabase.js";
 // Debug force enable flag
 const DEBUG_FORCE_ENABLE = true;
 
+// Debug deduplication window (ms)
+const DEBUG_DEDUPE_WINDOW_MS = 500;
+
 // Debug levels
 const DebugLevel = {
   INFO: 'info',
@@ -76,7 +79,7 @@ class DebugLogger {
     this.panelVisible = false;
     this.lastLogMessage = null;
     this.lastLogTime = 0;
-    this.dedupeWindowMs = 500; // Ignore duplicate messages within 500ms
+    this.dedupeWindowMs = DEBUG_DEDUPE_WINDOW_MS; // Configurable deduplication window
   }
 
   async init() {
