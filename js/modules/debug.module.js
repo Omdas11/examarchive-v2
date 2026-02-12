@@ -11,7 +11,7 @@ import { supabase } from "../supabase.js";
 const DEBUG_FORCE_ENABLE = true;
 
 // Debug deduplication window (ms)
-const DEBUG_DEDUPE_WINDOW_MS = 500;
+const DEBUG_DEDUPE_WINDOW_MS = 800;
 
 // Debug levels
 const DebugLevel = {
@@ -127,7 +127,7 @@ class DebugLogger {
       return;
     }
 
-    // Deduplicate identical messages within 500ms window
+    // Deduplicate identical messages within 800ms window
     const now = Date.now();
     const messageKey = `${module}:${level}:${message}`;
     
@@ -259,6 +259,42 @@ class DebugPanel {
     this.logContainer = null;
     this.isCollapsed = true;
     this.activeTab = 'all';
+  }
+
+  /**
+   * Print auth status to debug panel
+   */
+  async printAuthStatus() {
+    try {
+      const supabase = window.supabase || (await window.waitForSupabase?.());
+      if (!supabase) {
+        this.logger.log(DebugModule.AUTH, DebugLevel.WARN, '[AUTH] No active session.');
+        return;
+      }
+
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error || !user) {
+        this.logger.log(DebugModule.AUTH, DebugLevel.WARN, '[AUTH] No active session.');
+        return;
+      }
+
+      // Get role level if available
+      let roleLevel = 'unknown';
+      try {
+        const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
+        if (roleLevelData !== null) {
+          roleLevel = roleLevelData;
+        }
+      } catch (err) {
+        console.error('[DEBUG-PANEL] Error getting role level:', err);
+      }
+
+      this.logger.log(DebugModule.AUTH, DebugLevel.INFO, `[AUTH] Session Status: Logged In\n[AUTH] User ID: ${user.id}\n[AUTH] Role Level: ${roleLevel}`);
+    } catch (err) {
+      console.error('[DEBUG-PANEL] Error printing auth status:', err);
+      this.logger.log(DebugModule.AUTH, DebugLevel.ERROR, `[AUTH] Error checking session: ${err.message}`);
+    }
   }
 
   init() {
@@ -588,6 +624,8 @@ class DebugPanel {
     this.panel.classList.add('visible');
     this.render();
     this.logger.enablePanel();
+    // Print auth status when panel is opened
+    this.printAuthStatus();
   }
 
   hide() {
@@ -648,6 +686,7 @@ export async function initDebug() {
     showPanel: () => debugPanel.show(),
     hidePanel: () => debugPanel.hide(),
     togglePanel: () => debugPanel.toggle(),
+    printAuthStatus: () => debugPanel.printAuthStatus(),
     DebugLevel: DebugLevel,
     DebugModule: DebugModule
   };
