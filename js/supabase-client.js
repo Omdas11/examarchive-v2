@@ -75,11 +75,25 @@ window.waitForSupabase = async function(timeout = 10000) {
   // If no client yet, wait for app:ready or poll
   return new Promise((resolve) => {
     const startTime = Date.now();
+    let resolved = false;
+    
+    const cleanup = () => {
+      if (interval) clearInterval(interval);
+      document.removeEventListener('app:ready', readyHandler);
+    };
+    
+    const resolveOnce = (client) => {
+      if (!resolved) {
+        resolved = true;
+        cleanup();
+        resolve(client);
+      }
+    };
     
     const readyHandler = () => {
       const client = getSupabase();
       if (client) {
-        resolve(client);
+        resolveOnce(client);
       }
     };
     document.addEventListener('app:ready', readyHandler, { once: true });
@@ -87,14 +101,10 @@ window.waitForSupabase = async function(timeout = 10000) {
     const interval = setInterval(() => {
       const client = getSupabase();
       if (client) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        resolve(client);
+        resolveOnce(client);
       } else if (Date.now() - startTime > timeout) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
         console.error('[SUPABASE-CLIENT] Timeout waiting for Supabase client');
-        resolve(null);
+        resolveOnce(null);
       }
     }, 50);
   });

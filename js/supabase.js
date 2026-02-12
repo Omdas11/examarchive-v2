@@ -16,8 +16,9 @@ if (!window.App) {
 }
 
 // Wait for getSupabase to be available
-// (supabase-client.js should load before this module)
-const supabaseClient = window.getSupabase ? window.getSupabase() : null;
+// (supabase-client.js should load before this module via HTML script order)
+const getClient = () => window.getSupabase ? window.getSupabase() : null;
+const supabaseClient = getClient();
 
 if (supabaseClient) {
   console.log('[SUPABASE] Client obtained from getSupabase()');
