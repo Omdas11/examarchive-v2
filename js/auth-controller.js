@@ -77,11 +77,10 @@ console.log('[AUTH-CONTROLLER] Loading...');
       console.log('[AUTH-CONTROLLER] Auth state changed:', event);
       currentSession = session;
       
-      // Update global session storage for backward compatibility
+      // Update window.App session for backward compatibility
       if (window.App) {
         window.App.session = session;
       }
-      window.__SESSION__ = session;
       
       // Emit custom event for UI components
       window.dispatchEvent(new CustomEvent('auth-state-changed', {
@@ -383,11 +382,10 @@ console.log('[AUTH-CONTROLLER] Loading...');
       await supabaseClient.auth.signOut();
       currentSession = null;
       
-      // Update global storage
+      // Update window.App session
       if (window.App) {
         window.App.session = null;
       }
-      window.__SESSION__ = null;
       
       console.log('[AUTH-CONTROLLER] Signed out successfully');
     } catch (err) {

@@ -1,6 +1,6 @@
 // js/modules/auth.module.js
 // ============================================
-// AUTH MODULE - Phase 9.2.8
+// AUTH MODULE — Clean Architecture
 // Handles authentication state management
 // Does NOT call getSession() - that's done in supabase.js
 // ============================================
@@ -14,22 +14,14 @@ import { supabase } from "../supabase.js";
 export async function initAuth() {
   console.log('[AUTH-MODULE] Setting up auth state listener...');
   
-  // Handle case when supabase failed to initialize
   if (!supabase) {
     console.warn('[AUTH-MODULE] Supabase not available - auth will not work');
-    window.__SESSION__ = null;
-    window.__AUTH_READY__ = true;
     return;
   }
   
   try {
-    // Wait for app:ready event to ensure session is initialized
     document.addEventListener('app:ready', () => {
       console.log('[AUTH-MODULE] App ready, session available');
-      
-      // Store session globally for backward compatibility
-      window.__SESSION__ = window.App?.session || null;
-      window.__AUTH_READY__ = true;
       
       if (window.App?.session) {
         console.log('[AUTH-MODULE] Session active:', window.App.session.user.email);
@@ -44,9 +36,7 @@ export async function initAuth() {
       if (window.App) {
         window.App.session = session;
       }
-      window.__SESSION__ = session;
       
-      // Trigger custom event for other parts of the app
       window.dispatchEvent(new CustomEvent('auth-state-changed', {
         detail: { event, session }
       }));
@@ -54,8 +44,6 @@ export async function initAuth() {
     
   } catch (err) {
     console.error('[AUTH-MODULE] Fatal error during auth init:', err);
-    window.__SESSION__ = null;
-    window.__AUTH_READY__ = true;
   }
 }
 
@@ -63,14 +51,14 @@ export async function initAuth() {
  * Get current session (safe accessor)
  */
 export function getSession() {
-  return window.App?.session || window.__SESSION__ || null;
+  return window.App?.session || null;
 }
 
 /**
  * Check if user is authenticated
  */
 export function isAuthenticated() {
-  return !!(window.App?.session || window.__SESSION__);
+  return !!window.App?.session;
 }
 
 /**
@@ -86,5 +74,4 @@ export async function logout() {
   if (window.App) {
     window.App.session = null;
   }
-  window.__SESSION__ = null;
 }

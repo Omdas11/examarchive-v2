@@ -161,8 +161,8 @@ function initializeProfilePanel() {
   function openSwitchAccountModal() {
     if (!switchAccountModal) return;
     
-    // Update current account email using session from window.App
-    const session = window.App?.session || window.__SESSION__;
+    // Update current account email using AuthController
+    const session = window.AuthController?.getSession?.() || window.App?.session;
     const user = session?.user;
     const emailEl = document.getElementById("currentAccountEmail");
     if (emailEl && user) {
@@ -259,8 +259,8 @@ async function renderProfilePanel() {
   const updateAvatarElement = window.AvatarUtils?.updateAvatarElement;
   const isCurrentUserAdmin = window.AdminAuth?.isCurrentUserAdmin;
   
-  // Use session from window.App (single source of truth)
-  const session = window.App?.session || window.__SESSION__;
+  // Use AuthController as single source of truth
+  const session = window.AuthController?.getSession?.() || window.App?.session;
   const user = session?.user;
 
   const nameEl = document.querySelector(".profile-panel .profile-name");
