@@ -1,7 +1,6 @@
-// Phase 9.2.5 - Auth Single Source of Truth
 // ===============================
 // Upload Page - Auth Guard & Upload Handler
-// Phase 9.1: Upload Type Selector
+// Phase 1.0: Clean Architecture Reset
 // ===============================
 
 console.log("📤 upload.js loaded");
@@ -9,124 +8,91 @@ console.log("📤 upload.js loaded");
 let selectedFile = null;
 let selectedUploadType = 'question-paper';
 
-// Show loading state initially
-document.addEventListener("DOMContentLoaded", () => {
-  renderLoadingState();
-});
-
 // Wait for auth:ready event before checking auth
 window.addEventListener("auth:ready", async (e) => {
   const session = e.detail.session;
   
   if (!session) {
-    console.log("🔒 Upload page access denied - user not authenticated");
-    renderSignInRequired();
+    console.log("🔒 User not authenticated — upload form disabled");
+    disableUploadForm();
   } else {
     console.log("✅ User authenticated, upload page ready");
-    hideLoadingState();
+    enableUploadForm();
     initializeUploadTypeSelector();
     initializeUploadForm();
     loadUserSubmissions();
   }
 });
 
-/**
- * Render loading state while auth initializes
- */
-function renderLoadingState() {
-  const mainContent = document.querySelector("main");
-  if (!mainContent) return;
-  
-  // Store original content
-  if (!window.__UPLOAD_ORIGINAL_CONTENT__) {
-    window.__UPLOAD_ORIGINAL_CONTENT__ = mainContent.innerHTML;
+// Listen for auth changes (e.g. user signs in via popup)
+window.addEventListener("auth-state-changed", (e) => {
+  const session = e.detail.session;
+  if (session) {
+    console.log("✅ Auth changed — enabling upload form");
+    enableUploadForm();
+    initializeUploadTypeSelector();
+    initializeUploadForm();
+    loadUserSubmissions();
+  } else {
+    disableUploadForm();
   }
+});
+
+/**
+ * Disable the upload form for unauthenticated users.
+ * Shows the form but disables inputs; upload button triggers sign-in popup.
+ */
+function disableUploadForm() {
+  // Disable all form inputs
+  document.querySelectorAll('.upload-card input, .upload-card select').forEach(el => {
+    el.disabled = true;
+  });
   
-  mainContent.innerHTML = `
-    <div class="loading-state" style="
-      max-width: 600px;
-      margin: 4rem auto;
-      text-align: center;
-      padding: 2rem;
-    ">
-      <div style="
-        width: 48px;
-        height: 48px;
-        margin: 0 auto 1.5rem;
-        border: 3px solid var(--border);
-        border-top-color: var(--red);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      "></div>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">
-        Loading...
-      </p>
-    </div>
-  `;
+  // Disable type selector inputs
+  document.querySelectorAll('.upload-type-selector input').forEach(el => {
+    el.disabled = true;
+  });
   
-  // Add animation if not present
-  if (!document.getElementById('loading-animation')) {
-    const style = document.createElement('style');
-    style.id = 'loading-animation';
-    style.textContent = `
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
+  // Replace upload button behavior
+  const uploadButton = document.querySelector('.upload-submit .btn-red');
+  if (uploadButton) {
+    uploadButton.textContent = 'Sign in to Upload';
+    uploadButton.addEventListener('click', handleSignInClick);
   }
 }
 
 /**
- * Hide loading state and restore original content
+ * Enable the upload form for authenticated users.
  */
-function hideLoadingState() {
-  const mainContent = document.querySelector("main");
-  if (!mainContent || !window.__UPLOAD_ORIGINAL_CONTENT__) return;
+function enableUploadForm() {
+  // Enable all form inputs
+  document.querySelectorAll('.upload-card input').forEach(el => {
+    el.disabled = false;
+  });
   
-  mainContent.innerHTML = window.__UPLOAD_ORIGINAL_CONTENT__;
-  window.__UPLOAD_ORIGINAL_CONTENT__ = null;
+  // Enable type selector inputs (except Notes/Resources which is always disabled)
+  document.querySelectorAll('.upload-type-selector input').forEach(el => {
+    if (el.value !== 'notes-resources') {
+      el.disabled = false;
+    }
+  });
+  
+  // Restore upload button
+  const uploadButton = document.querySelector('.upload-submit .btn-red');
+  if (uploadButton) {
+    uploadButton.textContent = 'Upload Paper';
+    uploadButton.removeEventListener('click', handleSignInClick);
+  }
 }
 
 /**
- * Render sign-in required UI
+ * Handle sign-in click — trigger profile sign-in popup (no redirect)
  */
-function renderSignInRequired() {
-  const mainContent = document.querySelector("main");
-  if (!mainContent) return;
-  
-  const authRequiredHTML = `
-    <div class="auth-required" style="
-      max-width: 600px;
-      margin: 4rem auto;
-      text-align: center;
-      padding: 2rem;
-    ">
-      <svg style="width: 64px; height: 64px; margin: 0 auto 1.5rem; stroke: var(--text-muted);" viewBox="0 0 24 24" fill="none" stroke-width="2">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-      </svg>
-      <h2 style="color: var(--text); margin-bottom: 0.75rem;">Sign in required</h2>
-      <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">
-        You need to be signed in to upload papers.
-      </p>
-      <button class="btn btn-red" id="auth-required-signin-btn" style="
-        padding: 0.75rem 1.5rem;
-        font-size: 0.95rem;
-      ">
-        Sign in
-      </button>
-    </div>
-  `;
-  
-  mainContent.innerHTML = authRequiredHTML;
-  
-  // Attach event listener
-  const signInBtn = document.getElementById("auth-required-signin-btn");
-  if (signInBtn) {
-    signInBtn.addEventListener("click", () => {
-      document.getElementById("avatarTrigger")?.click();
-    });
+function handleSignInClick(e) {
+  e.preventDefault();
+  const avatarTrigger = document.getElementById("avatarTrigger");
+  if (avatarTrigger) {
+    avatarTrigger.click();
   }
 }
 
@@ -239,38 +205,44 @@ function initializeUploadForm() {
     uploadButton.disabled = true;
     uploadButton.textContent = 'Uploading...';
 
-    // Upload file
-    const result = await handlePaperUpload(
-      selectedFile,
-      {
-        paperCode,
-        examYear
-      },
-      (progress) => {
-        uploadButton.textContent = `Uploading ${progress}%`;
-      }
-    );
+    try {
+      // Upload file — pass uploadType for demo handling
+      const result = await handlePaperUpload(
+        selectedFile,
+        {
+          paperCode,
+          examYear,
+          uploadType: selectedUploadType
+        },
+        (progress) => {
+          uploadButton.textContent = `Uploading ${progress}%`;
+        }
+      );
 
-    // Handle result
-    if (result.success) {
-      showMessage(result.message, 'success');
-      
-      // Reset form
-      paperCodeInput.value = '';
-      examYearInput.value = '';
-      fileInput.value = '';
-      selectedFile = null;
-      resetFileUI(fileUI);
-      
-      // Reload submissions
-      setTimeout(() => {
-        loadUserSubmissions();
-      }, 500);
-    } else {
-      showMessage(result.message, 'error');
+      // Handle result
+      if (result.success) {
+        showMessage(result.message, 'success');
+        
+        // Reset form
+        paperCodeInput.value = '';
+        examYearInput.value = '';
+        fileInput.value = '';
+        selectedFile = null;
+        resetFileUI(fileUI);
+        
+        // Reload submissions
+        setTimeout(() => {
+          loadUserSubmissions();
+        }, 500);
+      } else {
+        showMessage(result.message, 'error');
+      }
+    } catch (err) {
+      console.error('[UPLOAD] Unexpected error:', err);
+      showMessage('Upload failed. Please try again.', 'error');
     }
 
-    // Re-enable button
+    // Always re-enable button
     uploadButton.disabled = false;
     uploadButton.textContent = 'Upload Paper';
   });
@@ -379,21 +351,18 @@ async function loadUserSubmissions() {
  * Render a single submission
  */
 function renderSubmission(submission) {
-  const formatFileSize = window.UploadHandler.formatFileSize;
   const formatDate = window.UploadHandler.formatDate;
   
   const statusColors = {
     pending: '#FFA726',
     approved: '#4CAF50',
-    rejected: '#f44336',
-    published: '#2196F3'
+    rejected: '#f44336'
   };
 
   const statusText = {
     pending: '⏳ Pending Review',
     approved: '✓ Approved',
-    rejected: '✗ Rejected',
-    published: '🌐 Published'
+    rejected: '✗ Rejected'
   };
 
   return `
@@ -415,24 +384,16 @@ function renderSubmission(submission) {
           font-size: 0.75rem;
           padding: 0.25rem 0.5rem;
           border-radius: 4px;
-          background: ${statusColors[submission.status]}22;
-          color: ${statusColors[submission.status]};
+          background: ${statusColors[submission.status] || '#9E9E9E'}22;
+          color: ${statusColors[submission.status] || '#9E9E9E'};
           font-weight: 500;
         ">
-          ${statusText[submission.status]}
+          ${statusText[submission.status] || submission.status}
         </span>
-      </div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);">
-        ${submission.original_filename} · ${formatFileSize(submission.file_size)}
       </div>
       <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
         ${formatDate(submission.created_at)}
       </div>
-      ${submission.review_notes ? `
-        <div style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.5rem; background: var(--surface); border-radius: 4px;">
-          <strong>Review notes:</strong> ${submission.review_notes}
-        </div>
-      ` : ''}
     </div>
   `;
 }
