@@ -38,8 +38,8 @@ console.log('[AUTH-CONTROLLER] Loading...');
   async function init() {
     console.log('[AUTH-CONTROLLER] Initializing...');
 
-    // Wait for Supabase to be available
-    supabaseClient = await window.waitForSupabase();
+    // Get Supabase client using singleton
+    supabaseClient = window.getSupabase ? window.getSupabase() : null;
     
     if (!supabaseClient) {
       console.error('[AUTH-CONTROLLER] Supabase client not available');
@@ -411,16 +411,16 @@ console.log('[AUTH-CONTROLLER] Loading...');
   };
 
   // Initialize when script loads
-  // Wait for Supabase wait utility to be available
-  if (window.waitForSupabase) {
+  // Wait for getSupabase to be available (should be loaded before this script)
+  if (window.getSupabase) {
     init();
   } else {
-    // Wait for the utility to load
+    // Wait for DOMContentLoaded to ensure all scripts are loaded
     document.addEventListener('DOMContentLoaded', () => {
-      if (window.waitForSupabase) {
+      if (window.getSupabase) {
         init();
       } else {
-        console.error('[AUTH-CONTROLLER] waitForSupabase utility not available');
+        console.error('[AUTH-CONTROLLER] getSupabase not available');
       }
     });
   }

@@ -1,235 +1,103 @@
 // js/supabase-client.js
 // ============================================
-// ENHANCED SUPABASE CLIENT
-// Phase 9.2.8 - Fixed to wait for Supabase initialization
-// Includes storage helpers for Phase 8
+// SUPABASE CLIENT SINGLETON - Phase 1.4
+// SINGLE SOURCE OF TRUTH for Supabase client instance
+// Guarantees client is created once and safely accessed
 // ============================================
 
-/**
- * Storage bucket names
- */
-const BUCKETS = {
-  TEMP: 'uploads-temp',
-  APPROVED: 'uploads-approved'
-};
+const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_nwdMKnjcV_o-WSe_VMs9CQ_xpaMeGAT";
+
+let supabaseInstance = null;
 
 /**
- * Upload file to Supabase Storage with resumable uploads
- * @param {File} file - File to upload
- * @param {Object} options - Upload options
- * @param {string} options.bucket - Bucket name
- * @param {string} options.path - File path in bucket
- * @param {Function} options.onProgress - Progress callback (percent)
- * @returns {Promise<Object>} Upload result with path and error
+ * Get or create Supabase client instance
+ * This is the ONLY way to access the Supabase client
+ * Ensures client is created once and safely reused
+ * 
+ * @returns {Object|null} Supabase client or null if SDK not loaded
  */
-async function uploadFile(file, { bucket, path, onProgress }) {
-  try {
-    const supabase = await window.waitForSupabase();
-    if (!supabase) {
-      throw new Error('Supabase not initialized');
-    }
-    
-    // For small files (< 6MB), use regular upload
-    if (file.size < 6 * 1024 * 1024) {
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(path, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (error) throw error;
-      
-      if (onProgress) onProgress(100);
-      return { data, error: null };
-    }
-
-    // For larger files, use resumable upload
-    // Note: Resumable uploads require additional setup
-    // For now, we'll use regular upload with progress tracking
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(path, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (error) throw error;
-    
-    if (onProgress) onProgress(100);
-    return { data, error: null };
-
-  } catch (error) {
-    console.error('Upload error:', error);
-    return { data: null, error };
+function getSupabase() {
+  // If instance already exists, return it
+  if (supabaseInstance) {
+    return supabaseInstance;
   }
-}
 
-/**
- * Get public URL for a file in approved bucket
- * @param {string} path - File path
- * @returns {string|null} Public URL or null if Supabase not ready
- */
-function getPublicUrl(path) {
-  const supabase = window.__supabase__;
-  if (!supabase) {
-    console.error('[STORAGE] Supabase not initialized for getPublicUrl');
+  // Check if Supabase SDK is loaded
+  if (!window.supabase || !window.supabase.createClient) {
+    console.error('[SUPABASE-CLIENT] Supabase SDK not loaded. Include CDN script first.');
     return null;
   }
-  const { data } = supabase.storage
-    .from(BUCKETS.APPROVED)
-    .getPublicUrl(path);
-  
-  return data.publicUrl;
-}
 
-/**
- * Get signed URL for a file in private bucket
- * @param {string} bucket - Bucket name
- * @param {string} path - File path
- * @param {number} expiresIn - Expiration time in seconds (default: 3600)
- * @returns {Promise<string|null>} Signed URL or null
- */
-async function getSignedUrl(bucket, path, expiresIn = 3600) {
+  // Create client instance
   try {
-    const supabase = await window.waitForSupabase();
-    if (!supabase) {
-      throw new Error('Supabase not initialized');
-    }
-    
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .createSignedUrl(path, expiresIn);
+    supabaseInstance = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          flowType: "pkce"
+        }
+      }
+    );
 
-    if (error) throw error;
-    return data.signedUrl;
+    console.log('[SUPABASE-CLIENT] Client instance created');
+
+    // Store in window.App for backward compatibility
+    if (window.App) {
+      window.App.supabase = supabaseInstance;
+    }
+
+    // Also expose globally for classic scripts (backward compatibility)
+    window.__supabase__ = supabaseInstance;
+
+    return supabaseInstance;
   } catch (error) {
-    console.error('Error getting signed URL:', error);
+    console.error('[SUPABASE-CLIENT] Error creating client:', error);
     return null;
   }
 }
 
-/**
- * Move file between buckets
- * @param {string} fromBucket - Source bucket
- * @param {string} fromPath - Source path
- * @param {string} toBucket - Destination bucket
- * @param {string} toPath - Destination path
- * @returns {Promise<boolean>} Success status
- */
-async function moveFile(fromBucket, fromPath, toBucket, toPath) {
-  try {
-    const supabase = await window.waitForSupabase();
-    if (!supabase) {
-      throw new Error('Supabase not initialized');
-    }
-    
-    // Download from source
-    const { data: fileData, error: downloadError } = await supabase.storage
-      .from(fromBucket)
-      .download(fromPath);
+// Expose getSupabase globally
+window.getSupabase = getSupabase;
 
-    if (downloadError) throw downloadError;
-
-    // Upload to destination
-    const { error: uploadError } = await supabase.storage
-      .from(toBucket)
-      .upload(toPath, fileData, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (uploadError) throw uploadError;
-
-    // Delete from source
-    const { error: deleteError } = await supabase.storage
-      .from(fromBucket)
-      .remove([fromPath]);
-
-    if (deleteError) {
-      console.error('Error deleting source file:', deleteError);
-      // Don't throw - file was copied successfully
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Error moving file:', error);
-    return false;
+// For backward compatibility, also create a waitForSupabase that uses getSupabase
+window.waitForSupabase = async function(timeout = 10000) {
+  // Try to get client immediately
+  const client = getSupabase();
+  if (client) {
+    return Promise.resolve(client);
   }
-}
 
-/**
- * Delete file from storage
- * @param {string} bucket - Bucket name
- * @param {string} path - File path
- * @returns {Promise<boolean>} Success status
- */
-async function deleteFile(bucket, path) {
-  try {
-    const supabase = await window.waitForSupabase();
-    if (!supabase) {
-      throw new Error('Supabase not initialized');
-    }
+  // If no client yet, wait for app:ready or poll
+  return new Promise((resolve) => {
+    const startTime = Date.now();
     
-    const { error } = await supabase.storage
-      .from(bucket)
-      .remove([path]);
-
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error('Error deleting file:', error);
-    return false;
-  }
-}
-
-/**
- * Copy file within or between buckets
- * @param {string} fromBucket - Source bucket
- * @param {string} fromPath - Source path
- * @param {string} toBucket - Destination bucket
- * @param {string} toPath - Destination path
- * @returns {Promise<boolean>} Success status
- */
-async function copyFile(fromBucket, fromPath, toBucket, toPath) {
-  try {
-    const supabase = await window.waitForSupabase();
-    if (!supabase) {
-      throw new Error('Supabase not initialized');
-    }
+    const readyHandler = () => {
+      const client = getSupabase();
+      if (client) {
+        resolve(client);
+      }
+    };
+    document.addEventListener('app:ready', readyHandler, { once: true });
     
-    // Download from source
-    const { data: fileData, error: downloadError } = await supabase.storage
-      .from(fromBucket)
-      .download(fromPath);
-
-    if (downloadError) throw downloadError;
-
-    // Upload to destination
-    const { error: uploadError } = await supabase.storage
-      .from(toBucket)
-      .upload(toPath, fileData, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (uploadError) throw uploadError;
-
-    return true;
-  } catch (error) {
-    console.error('Error copying file:', error);
-    return false;
-  }
-}
-
-
-// Expose to window for other scripts
-window.SupabaseClient = {
-  BUCKETS,
-  uploadFile,
-  getPublicUrl,
-  getSignedUrl,
-  moveFile,
-  deleteFile,
-  copyFile
+    const interval = setInterval(() => {
+      const client = getSupabase();
+      if (client) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        resolve(client);
+      } else if (Date.now() - startTime > timeout) {
+        clearInterval(interval);
+        document.removeEventListener('app:ready', readyHandler);
+        console.error('[SUPABASE-CLIENT] Timeout waiting for Supabase client');
+        resolve(null);
+      }
+    }, 50);
+  });
 };
+
+console.log('[SUPABASE-CLIENT] Singleton module loaded');

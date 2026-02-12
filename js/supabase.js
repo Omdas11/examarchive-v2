@@ -1,8 +1,8 @@
 // js/supabase.js
 // ============================================
-// SUPABASE CLIENT – Phase 9.2.8 (ES Module for use in modules/)
+// SUPABASE CLIENT – Phase 1.4 (ES Module for use in modules/)
 // This file is ONLY imported by ES modules in js/modules/
-// Initializes Supabase ONCE and dispatches app:ready event
+// Uses getSupabase() singleton and dispatches app:ready event
 // ============================================
 
 // Graceful degradation if Bootstrap is missing
@@ -15,37 +15,12 @@ if (!window.App) {
   };
 }
 
-const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_nwdMKnjcV_o-WSe_VMs9CQ_xpaMeGAT";
+// Wait for getSupabase to be available
+// (supabase-client.js should load before this module)
+const supabaseClient = window.getSupabase ? window.getSupabase() : null;
 
-// Load Supabase UMD safely
-if (!window.supabase) {
-  console.error("Supabase SDK not loaded. Make sure to include the CDN script before this module.");
-  // Don't throw - just log and continue, the app will degrade gracefully
-}
-
-// Only create client if SDK is available
-let supabaseClient = null;
-
-if (window.supabase) {
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        flowType: "pkce"
-      }
-    }
-  );
-
-  // Store in window.App
-  window.App.supabase = supabaseClient;
-
-  // Also expose globally for classic scripts (backward compatibility)
-  window.__supabase__ = supabaseClient;
+if (supabaseClient) {
+  console.log('[SUPABASE] Client obtained from getSupabase()');
 
   // Initialize session and dispatch app:ready event
   supabaseClient.auth.getSession().then(({ data }) => {
@@ -64,15 +39,15 @@ if (window.supabase) {
   // Dispatch app:ready even if Supabase failed to load
   // This allows the UI to render without blocking
   setTimeout(() => {
-    console.warn('[SUPABASE] SDK not available, dispatching app:ready anyway');
+    console.warn('[SUPABASE] Client not available, dispatching app:ready anyway');
     window.App.ready = true;
     document.dispatchEvent(new Event('app:ready'));
   }, 100);
 }
 
-// Export a getter function to avoid mutable export issues
+// Export a getter function that uses getSupabase
 export function getSupabaseClient() {
-  return supabaseClient;
+  return window.getSupabase ? window.getSupabase() : null;
 }
 
 // Also export as 'supabase' for backward compatibility with modules
