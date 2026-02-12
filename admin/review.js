@@ -127,7 +127,7 @@ async function approveSubmission(submissionId) {
     if (downloadErr) throw new Error('Failed to download temp file: ' + downloadErr.message);
 
     // Upload to approved bucket
-    const approvedPath = `approved/${submission.paper_code}/${submission.exam_year}/${Date.now()}.pdf`;
+    const approvedPath = `approved/${submission.paper_code}/${submission.exam_year}/${submission.id}.pdf`;
     const { error: uploadErr } = await supabase.storage
       .from('uploads-approved')
       .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });

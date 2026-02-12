@@ -84,7 +84,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (onProgress) onProgress(100);
     console.log('[UPLOAD SUCCESS]', uploadData?.path || storagePath);
 
-    // Create submission record
+    // Create submission record (always starts as pending, demo gets updated after approval)
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
       .insert({
@@ -92,7 +92,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
         paper_code: metadata.paperCode,
         exam_year: metadata.examYear,
         temp_path: storagePath,
-        status: isDemo ? 'approved' : 'pending'
+        status: 'pending'
       })
       .select()
       .single();
@@ -106,7 +106,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     // Demo paper: immediately insert into approved_papers
     if (isDemo) {
-      const approvedPath = `demo/${metadata.paperCode}/${metadata.examYear}/${sanitizedFilename}`;
+      const approvedPath = `demo/${metadata.paperCode}/${metadata.examYear}/${submission.id}.pdf`;
 
       // Copy file to approved bucket
       const { data: tempFile, error: downloadErr } = await supabase.storage
@@ -114,9 +114,13 @@ async function handlePaperUpload(file, metadata, onProgress) {
         .download(storagePath);
 
       if (!downloadErr && tempFile) {
-        await supabase.storage
+        const { error: approvedUploadErr } = await supabase.storage
           .from('uploads-approved')
           .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
+
+        if (approvedUploadErr) {
+          console.error('[UPLOAD] Failed to copy demo to approved bucket:', approvedUploadErr);
+        }
       }
 
       // Insert approved_papers row
@@ -129,6 +133,12 @@ async function handlePaperUpload(file, metadata, onProgress) {
           uploaded_by: userId,
           is_demo: true
         });
+
+      // Now update submission status to approved
+      await supabase
+        .from('submissions')
+        .update({ status: 'approved' })
+        .eq('id', submission.id);
 
       return {
         success: true,

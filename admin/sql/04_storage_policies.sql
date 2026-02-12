@@ -1,6 +1,8 @@
 -- ============================================
 -- STORAGE BUCKET POLICIES
 -- Two-bucket system: uploads-temp, uploads-approved
+-- NOTE: Run 05_roles_system.sql before this file
+--       (get_current_user_role_level() must exist)
 -- ============================================
 
 -- ==========================================

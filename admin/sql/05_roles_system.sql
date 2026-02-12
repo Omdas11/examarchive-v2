@@ -18,13 +18,13 @@
 
 create table if not exists roles (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users on delete cascade,
+  user_id uuid unique references auth.users on delete cascade,
   level integer not null default 0,
   created_at timestamptz default now()
 );
 
--- Each user has at most one role row
-create unique index if not exists roles_user_id_idx on roles (user_id);
+-- Index for fast lookups
+create index if not exists roles_user_id_idx on roles (user_id);
 
 -- Enable RLS
 alter table roles enable row level security;
