@@ -1,5 +1,74 @@
 # Timeline Log
 
+## Phase 2 — Auth + RLS Stabilization (Full Singleton Enforcement)
+
+**Date:** February 2026
+
+### Problem
+
+Despite Phase 1.3 fixes, potential race conditions and inconsistent client access patterns remained:
+- Some files still referenced `window.__supabase__` directly
+- `debug.module.js` used `window.supabase` (SDK) instead of client singleton
+- Inconsistent error classification in debug panel
+- No visual distinction between error types (AUTH vs RLS vs STORAGE vs CLIENT)
+
+### Solution
+
+**Universal Singleton Enforcement:**
+- **ALL** files now use `getSupabase()` from `js/supabase-client.js`
+- Eliminated all direct `window.__supabase__` access (kept only for backward compat)
+- Updated `debug.module.js`, `avatar-utils.js`, `supabase-wait.js` to use singleton
+- `window.__supabase__` is DEPRECATED — only set by singleton for old code compatibility
+
+**Debug Panel Error Classification:**
+- Added `classifyErrorCategory()` to detect error types from message content
+- Added `autoPrefixMessage()` to auto-label errors: [AUTH], [RLS], [STORAGE], [CLIENT]
+- Color-coded borders for visual distinction:
+  - **[AUTH]** — Blue border (#2196F3)
+  - **[RLS]** — Red border (#f44336)
+  - **[STORAGE]** — Orange border (#FF9800)
+  - **[CLIENT]** — Purple border (#9C27B0)
+- Errors auto-classified based on keywords: "jwt", "policy", "storage", "not initialized"
+
+**Upload Handler RLS Detection:**
+- Both demo and regular submission insert errors check for RLS violations
+- Explicit `[RLS]` prefix logged when policy violation detected
+- Human-readable error surfaced to user
+
+**Script Loading Order Verification:**
+- Confirmed ALL HTML files follow correct order:
+  1. Supabase SDK CDN
+  2. `js/supabase-client.js` (singleton)
+  3. `js/app.module.js` (initialization)
+  4. Other scripts
+- No duplicate client creation found
+- Storage helpers correctly use `getSupabase()` throughout
+
+**Documentation Updates:**
+- README.md updated with Phase 2 client singleton pattern
+- Clear guidance: "Never use `window.supabase.createClient()` directly"
+- Debug panel color coding documented
+
+### Files Changed
+
+- `js/supabase-client.js` — Updated comments to mark `window.__supabase__` as DEPRECATED
+- `js/modules/debug.module.js` — Use `getSupabaseClient()` import, added error classification
+- `js/avatar-utils.js` — Updated to use `getSupabase()` instead of `window.__supabase__`
+- `js/utils/supabase-wait.js` — Updated to use `getSupabase()` instead of `window.__supabase__`
+- `js/upload-handler.js` — Added explicit RLS error detection in both insert paths
+- `README.md` — Added Phase 2 client singleton pattern section
+- `docs/TIMELINE_LOG.md` — Added Phase 2 entry
+
+### Result
+
+- **Zero** files create clients outside the singleton
+- **Zero** files directly access `window.__supabase__` (except for backward compat write)
+- **100%** consistent use of `getSupabase()` pattern
+- Debug panel provides clear, color-coded error diagnosis
+- Upload errors properly classified as [AUTH], [RLS], or [STORAGE]
+
+---
+
 ## Phase 1.3 — Auth & RLS Stabilization
 
 **Date:** February 2026
