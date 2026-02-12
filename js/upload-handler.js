@@ -79,8 +79,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
     const isDemo = metadata.uploadType === 'demo-paper';
 
     // Upload to temp bucket
-    debugLog('info', 'Uploading file to storage...', { bucket: TEMP_BUCKET, path: storagePath });
-    console.log('[UPLOAD] Uploading to storage...', { bucket: TEMP_BUCKET, path: storagePath });
+    debugLog('info', '📤 Storage Upload Starting', { bucket: TEMP_BUCKET, path: storagePath });
+    console.log('[UPLOAD][STORAGE] Starting upload to storage...', { bucket: TEMP_BUCKET, path: storagePath });
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(TEMP_BUCKET)
@@ -104,8 +104,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     if (onProgress) onProgress(100);
-    debugLog('info', 'File uploaded successfully', { path: uploadData?.path || storagePath });
-    console.log('[UPLOAD SUCCESS]', uploadData?.path || storagePath);
+    debugLog('info', '✅ Storage Upload Complete', { path: uploadData?.path || storagePath });
+    console.log('[UPLOAD][STORAGE SUCCESS] File uploaded to storage:', uploadData?.path || storagePath);
 
     // Demo paper: upload directly to approved bucket, status = approved
     if (isDemo) {
@@ -128,6 +128,14 @@ async function handlePaperUpload(file, metadata, onProgress) {
       }
 
       // Create submission record with approved status
+      debugLog('info', '📝 Submission Insert Starting (Demo Paper)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
+      console.log('[UPLOAD][SUBMISSION] Inserting submission record (demo paper)...', { 
+        user_id: userId, 
+        paper_code: metadata.paperCode, 
+        exam_year: metadata.examYear,
+        status: 'approved'
+      });
+      
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
         .insert({
@@ -142,11 +150,14 @@ async function handlePaperUpload(file, metadata, onProgress) {
         .single();
 
       if (submissionError) {
-        debugLog('error', 'Submission record failed for demo paper', submissionError);
-        console.error('[UPLOAD] Submission record failed', submissionError);
+        debugLog('error', '❌ Submission Insert Failed (Demo Paper)', submissionError);
+        console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
         await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
         throw submissionError;
       }
+
+      debugLog('info', '✅ Submission Insert Complete (Demo Paper)', { submissionId: submission.id });
+      console.log('[UPLOAD][SUBMISSION SUCCESS] Submission record created:', { submissionId: submission.id });
 
       debugLog('info', 'Demo paper uploaded and approved — visible in Browse');
       return {
@@ -158,6 +169,14 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     // Normal paper: create submission with pending status
+    debugLog('info', '📝 Submission Insert Starting (Pending Review)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
+    console.log('[UPLOAD][SUBMISSION] Inserting submission record (pending review)...', { 
+      user_id: userId, 
+      paper_code: metadata.paperCode, 
+      exam_year: metadata.examYear,
+      status: 'pending'
+    });
+    
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
       .insert({
@@ -172,12 +191,15 @@ async function handlePaperUpload(file, metadata, onProgress) {
       .single();
 
     if (submissionError) {
-      debugLog('error', 'Submission record failed', submissionError);
-      console.error('[UPLOAD] Submission record failed', submissionError);
+      debugLog('error', '❌ Submission Insert Failed (Pending Review)', submissionError);
+      console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
       // Clean up uploaded file
       await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
       throw submissionError;
     }
+
+    debugLog('info', '✅ Submission Insert Complete (Pending Review)', { submissionId: submission.id });
+    console.log('[UPLOAD][SUBMISSION SUCCESS] Submission record created:', { submissionId: submission.id });
 
     debugLog('info', 'Upload successful — pending review');
     return {

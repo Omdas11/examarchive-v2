@@ -36,15 +36,25 @@ function friendlyMessage(module, level, message) {
   if (message.includes('\nReason:') || message.includes('\nCheck:')) {
     return message;
   }
+  
+  // Add clear separation markers for storage vs submission
+  if (message.includes('[STORAGE]') || message.includes('📤 Storage')) {
+    return `[STORAGE] ${message}`;
+  }
+  if (message.includes('[SUBMISSION]') || message.includes('📝 Submission')) {
+    return `[SUBMISSION] ${message}`;
+  }
+  
   // Storage errors
   if (module === 'storage' && level === 'error') {
     if (message.includes('permission') || message.includes('denied')) {
-      return `Storage Access Denied\nReason: Permission denied in storage bucket.\nCheck: Is the user authenticated?`;
+      return `[STORAGE] Storage Access Denied\nReason: Permission denied in storage bucket.\nCheck: Is the user authenticated?`;
     }
     if (message.includes('not found')) {
-      return `Storage Bucket Not Found\nReason: The requested bucket does not exist.\nCheck: Contact the administrator.`;
+      return `[STORAGE] Storage Bucket Not Found\nReason: The requested bucket does not exist.\nCheck: Contact the administrator.`;
     }
   }
+  
   // Auth errors
   if (module === 'auth' && level === 'error') {
     if (message.includes('JWT') || message.includes('expired')) {
@@ -64,6 +74,9 @@ class DebugLogger {
     this.enabled = false;
     this.listeners = [];
     this.panelVisible = false;
+    this.lastLogMessage = null;
+    this.lastLogTime = 0;
+    this.dedupeWindowMs = 500; // Ignore duplicate messages within 500ms
   }
 
   async init() {
@@ -110,6 +123,18 @@ class DebugLogger {
     if (!this.enabled && !this._isSystemMessage(module, level)) {
       return;
     }
+
+    // Deduplicate identical messages within 500ms window
+    const now = Date.now();
+    const messageKey = `${module}:${level}:${message}`;
+    
+    if (this.lastLogMessage === messageKey && (now - this.lastLogTime) < this.dedupeWindowMs) {
+      // Ignore duplicate message
+      return;
+    }
+    
+    this.lastLogMessage = messageKey;
+    this.lastLogTime = now;
 
     const entry = {
       timestamp: new Date().toISOString(),
