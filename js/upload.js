@@ -7,35 +7,52 @@ console.log("📤 upload.js loaded");
 
 let selectedFile = null;
 let selectedUploadType = 'question-paper';
+let isUploading = false; // UPLOAD LOCK - prevents multiple uploads
+let uploadFormInitialized = false; // Prevents multiple initializations
 
-// Wait for auth:ready event before checking auth
-window.addEventListener("auth:ready", async (e) => {
-  const session = e.detail.session;
+// Wrap everything in DOMContentLoaded to ensure page is ready
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('[UPLOAD] DOMContentLoaded - page ready');
   
-  if (!session) {
-    console.log("🔒 User not authenticated — upload form disabled");
-    disableUploadForm();
-  } else {
-    console.log("✅ User authenticated, upload page ready");
-    enableUploadForm();
-    initializeUploadTypeSelector();
-    initializeUploadForm();
-    loadUserSubmissions();
-  }
-});
+  // Wait for auth:ready event before checking auth
+  window.addEventListener("auth:ready", async (e) => {
+    console.log('[UPLOAD] auth:ready event received - initializing upload page');
+    const session = e.detail.session;
+    
+    if (!session) {
+      console.log("🔒 User not authenticated — upload form disabled");
+      disableUploadForm();
+    } else {
+      console.log("✅ User authenticated, upload page ready");
+      enableUploadForm();
+      initializeUploadTypeSelector();
+      // Only initialize form once
+      if (!uploadFormInitialized) {
+        initializeUploadForm();
+        uploadFormInitialized = true;
+      }
+      loadUserSubmissions();
+    }
+  });
 
-// Listen for auth changes (e.g. user signs in via popup)
-window.addEventListener("auth-state-changed", (e) => {
-  const session = e.detail.session;
-  if (session) {
-    console.log("✅ Auth changed — enabling upload form");
-    enableUploadForm();
-    initializeUploadTypeSelector();
-    initializeUploadForm();
-    loadUserSubmissions();
-  } else {
-    disableUploadForm();
-  }
+  // Listen for auth changes (e.g. user signs in via popup)
+  window.addEventListener("auth-state-changed", (e) => {
+    console.log('[UPLOAD] auth-state-changed event received');
+    const session = e.detail.session;
+    if (session) {
+      console.log("✅ Auth changed — enabling upload form");
+      enableUploadForm();
+      initializeUploadTypeSelector();
+      // Only initialize form once
+      if (!uploadFormInitialized) {
+        initializeUploadForm();
+        uploadFormInitialized = true;
+      }
+      loadUserSubmissions();
+    } else {
+      disableUploadForm();
+    }
+  });
 });
 
 /**
@@ -179,6 +196,15 @@ function initializeUploadForm() {
   uploadButton.addEventListener('click', async (e) => {
     e.preventDefault();
     
+    console.log('[UPLOAD] Upload button clicked - checking upload lock');
+    
+    // UPLOAD LOCK - prevent multiple uploads
+    if (isUploading) {
+      console.warn('[UPLOAD] Upload already in progress - ignoring click');
+      showMessage('Upload already in progress', 'info');
+      return;
+    }
+    
     const paperCode = paperCodeInput.value.trim();
     const examYear = parseInt(examYearInput.value);
 
@@ -201,12 +227,17 @@ function initializeUploadForm() {
       return;
     }
 
+    // Set upload lock
+    isUploading = true;
+    console.log('[UPLOAD] Upload lock acquired - starting upload');
+    
     // Disable button and show progress
     uploadButton.disabled = true;
     uploadButton.textContent = 'Uploading...';
 
     try {
       // Upload file — pass uploadType for demo handling
+      console.log('[UPLOAD] Calling handlePaperUpload...', { paperCode, examYear, uploadType: selectedUploadType });
       const result = await handlePaperUpload(
         selectedFile,
         {
@@ -221,6 +252,7 @@ function initializeUploadForm() {
 
       // Handle result
       if (result.success) {
+        console.log('[UPLOAD] Upload successful - submission ID:', result.submissionId);
         showMessage(result.message, 'success');
         
         // Reset form
@@ -235,6 +267,7 @@ function initializeUploadForm() {
           loadUserSubmissions();
         }, 500);
       } else {
+        console.error('[UPLOAD] Upload failed:', result.message);
         showMessage(result.message, 'error');
       }
     } catch (err) {
@@ -242,9 +275,11 @@ function initializeUploadForm() {
       showMessage('Upload failed. Please try again.', 'error');
     }
 
-    // Always re-enable button
+    // Always re-enable button and release lock
     uploadButton.disabled = false;
     uploadButton.textContent = 'Upload Paper';
+    isUploading = false;
+    console.log('[UPLOAD] Upload lock released');
   });
 }
 

@@ -9,6 +9,7 @@ create table if not exists submissions (
   paper_code text,
   exam_year int,
   temp_path text,
+  approved_path text,
   status text default 'pending',
   created_at timestamptz default now()
 );
@@ -35,3 +36,9 @@ with check (auth.uid() = user_id);
 create policy "reviewers see all submissions"
 on submissions for select
 using (get_current_user_role_level() >= 50);
+
+-- Admins and reviewers can update submissions (only status and approved_path fields)
+create policy "reviewers update submissions"
+on submissions for update
+using (get_current_user_role_level() >= 50)
+with check (get_current_user_role_level() >= 50);
