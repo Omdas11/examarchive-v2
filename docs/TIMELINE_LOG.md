@@ -1,5 +1,71 @@
 # Timeline Log
 
+## Phase 1.3 — Auth & RLS Stabilization
+
+**Date:** February 2026
+
+### Problem
+
+Frontend sometimes inserted NULL `user_id`, triggering RLS policy violation:
+> new row violates row-level security policy
+
+- Upload handler used session/cache that could be stale
+- Upload could execute before auth was ready
+- Debug panel didn't show auth state
+- Error messages were generic ("permission denied")
+
+### Solution
+
+**Auth Lock — Hard Require User:**
+- Replaced session-based auth with fresh `getUser()` call before insert
+- Block upload if `authError` or `!user`
+- Log user ID explicitly before any database operation
+
+**Prevent Upload Before Auth Ready:**
+- Added `authReady` flag set by `auth:ready` event
+- Upload button blocked until auth initialization completes
+- Clear warning message if upload attempted too early
+
+**Debug Panel Auth Status:**
+- Added `printAuthStatus()` method
+- Shows: Session Status, User ID, Role Level
+- Called on page load, debug panel open, and upload start
+
+**Human-Readable RLS Errors:**
+- Detect `row-level security` or `policy` in error message
+- Show: "Upload blocked by permission policy. Please re-login."
+- Removed generic "permission denied" toast
+
+**Visual Auth Indicator:**
+- Added status badge to header (🟢 Logged In / 🔴 Not Logged In)
+- Mobile-friendly: dot only on small screens
+- Auto-updates on auth state changes
+
+**Debug Deduplication:**
+- Increased window from 500ms to 800ms
+
+### Files Changed
+
+- `js/upload-handler.js` — Auth lock, RLS error handling
+- `js/upload.js` — Auth ready check, printAuthStatus call
+- `js/modules/debug.module.js` — Deduplication window, printAuthStatus method
+- `js/common.js` — Auth indicator update logic
+- `partials/header.html` — Auth status badge
+- `css/header.css` — Auth indicator styles
+
+### Architecture After Phase 1.3
+
+```
+Auth Guard:      authReady flag + getUser() call before insert
+RLS Policy:      WITH CHECK (auth.uid() = user_id)
+Error Display:   Exact RLS message, no generic "permission denied"
+Debug Panel:     Shows user ID + role level + session status
+Header Badge:    🟢 Logged In / 🔴 Not Logged In
+Deduplication:   800ms window (up from 500ms)
+```
+
+---
+
 ## Phase 1 — Stabilization Complete
 
 **Date:** February 2026
