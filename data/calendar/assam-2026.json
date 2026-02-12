@@ -1,0 +1,38 @@
+{
+  "year": 2026,
+  "categories": {
+    "gazetted": [
+      { "date": "2026-01-26", "title": "Republic Day" },
+      { "date": "2026-03-25", "title": "Holi" },
+      { "date": "2026-04-14", "title": "Bohag Bihu / Ambedkar Jayanti" },
+      { "date": "2026-04-15", "title": "Bohag Bihu (Rongali Bihu)" },
+      { "date": "2026-05-01", "title": "May Day" },
+      { "date": "2026-08-15", "title": "Independence Day" },
+      { "date": "2026-10-02", "title": "Gandhi Jayanti" },
+      { "date": "2026-10-20", "title": "Durga Puja (Maha Ashtami)" },
+      { "date": "2026-10-21", "title": "Durga Puja (Maha Navami)" },
+      { "date": "2026-10-22", "title": "Durga Puja (Vijaya Dashami)" },
+      { "date": "2026-11-13", "title": "Diwali (Deepavali)" },
+      { "date": "2026-12-25", "title": "Christmas" }
+    ],
+    "restricted": [
+      { "date": "2026-01-14", "title": "Magh Bihu (Bhogali Bihu)" },
+      { "date": "2026-01-23", "title": "Netaji Subhas Chandra Bose Jayanti" },
+      { "date": "2026-02-26", "title": "Maha Shivaratri" },
+      { "date": "2026-03-31", "title": "Id-ul-Fitr (Eid)" },
+      { "date": "2026-06-07", "title": "Id-ul-Zuha (Bakrid)" },
+      { "date": "2026-07-06", "title": "Muharram" },
+      { "date": "2026-09-04", "title": "Milad-un-Nabi" },
+      { "date": "2026-11-02", "title": "Kati Bihu" }
+    ],
+    "other": [
+      { "date": "2026-02-01", "title": "Spring Semester Registration Begins" },
+      { "date": "2026-03-15", "title": "Mid-Semester Examinations" },
+      { "date": "2026-04-30", "title": "Last Day of Classes" },
+      { "date": "2026-05-10", "title": "Final Examinations Begin" },
+      { "date": "2026-07-01", "title": "Autumn Semester Begins" },
+      { "date": "2026-09-15", "title": "Mid-Semester Examinations" },
+      { "date": "2026-11-30", "title": "Final Examinations Begin" }
+    ]
+  }
+}
