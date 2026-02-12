@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Wait for auth:ready event before checking auth
   window.addEventListener("auth:ready", async (e) => {
-    console.trace('[UPLOAD] auth:ready event received - initializing upload page');
+    console.log('[UPLOAD] auth:ready event received - initializing upload page');
     const session = e.detail.session;
     
     if (!session) {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Listen for auth changes (e.g. user signs in via popup)
   window.addEventListener("auth-state-changed", (e) => {
-    console.trace('[UPLOAD] auth-state-changed event received');
+    console.log('[UPLOAD] auth-state-changed event received');
     const session = e.detail.session;
     if (session) {
       console.log("✅ Auth changed — enabling upload form");
@@ -196,7 +196,7 @@ function initializeUploadForm() {
   uploadButton.addEventListener('click', async (e) => {
     e.preventDefault();
     
-    console.trace('[UPLOAD] Upload button clicked - checking upload lock');
+    console.log('[UPLOAD] Upload button clicked - checking upload lock');
     
     // UPLOAD LOCK - prevent multiple uploads
     if (isUploading) {

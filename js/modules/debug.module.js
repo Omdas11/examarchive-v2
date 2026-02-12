@@ -37,11 +37,11 @@ function friendlyMessage(module, level, message) {
     return message;
   }
   
-  // Add clear separation markers for storage vs submission
-  if (message.includes('[STORAGE]') || message.includes('📤 Storage')) {
+  // Add clear separation markers for storage vs submission (avoid double-prefix)
+  if (!message.startsWith('[STORAGE]') && (message.includes('[STORAGE]') || message.includes('📤 Storage'))) {
     return `[STORAGE] ${message}`;
   }
-  if (message.includes('[SUBMISSION]') || message.includes('📝 Submission')) {
+  if (!message.startsWith('[SUBMISSION]') && (message.includes('[SUBMISSION]') || message.includes('📝 Submission'))) {
     return `[SUBMISSION] ${message}`;
   }
   
