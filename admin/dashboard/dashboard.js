@@ -92,7 +92,10 @@ function setupTabs() {
  */
 async function loadSubmissions() {
   try {
-    const { data, error } = await window.getSupabase ? window.getSupabase() : null
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+    
+    const { data, error } = await supabase
       .from('submissions')
       .select(`
         *,
@@ -375,7 +378,10 @@ async function approveSubmission(submission, notes = '') {
   try {
     showMessage('Processing approval...', 'info');
 
-    const { data: { session } } = await window.getSupabase ? window.getSupabase() : null.auth.getSession();
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    const { data: { session } } = await supabase.auth.getSession();
     const reviewerId = session.user.id;
 
     // Move file from temp to approved to public
@@ -398,7 +404,7 @@ async function approveSubmission(submission, notes = '') {
     const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await window.getSupabase ? window.getSupabase() : null
+    const { error: updateError } = await supabase
       .from('submissions')
       .update({
         status: 'published',
@@ -431,14 +437,17 @@ async function rejectSubmission(submission, notes = '') {
   try {
     showMessage('Processing rejection...', 'info');
 
-    const { data: { session } } = await window.getSupabase ? window.getSupabase() : null.auth.getSession();
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    const { data: { session } } = await supabase.auth.getSession();
     const reviewerId = session.user.id;
 
     // Delete file from temp storage
     await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
 
     // Update submission
-    const { error: updateError } = await window.getSupabase ? window.getSupabase() : null
+    const { error: updateError } = await supabase
       .from('submissions')
       .update({
         status: 'rejected',
@@ -468,6 +477,9 @@ async function publishSubmission(submission) {
   try {
     showMessage('Publishing...', 'info');
 
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
     // Move from approved to public
     const timestamp = Date.now();
     const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
@@ -488,7 +500,7 @@ async function publishSubmission(submission) {
     const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await window.getSupabase ? window.getSupabase() : null
+    const { error: updateError } = await supabase
       .from('submissions')
       .update({
         status: 'published',
@@ -515,7 +527,13 @@ async function publishSubmission(submission) {
  * Setup real-time subscriptions for live updates
  */
 function setupRealtimeSubscriptions() {
-  const channel = window.getSupabase ? window.getSupabase() : null
+  const supabase = window.getSupabase ? window.getSupabase() : null;
+  if (!supabase) {
+    console.warn('Supabase not initialized - realtime disabled');
+    return;
+  }
+
+  const channel = supabase
     .channel('submissions-changes')
     .on(
       'postgres_changes',
