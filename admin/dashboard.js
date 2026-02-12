@@ -16,7 +16,7 @@ let allSubmissions = [];
  * After requireRole passes, Supabase should be available
  */
 function getSupabase() {
-  const supabase = window.__supabase__ || window.App?.supabase;
+  const supabase = window.getSupabase ? window.getSupabase() : (window.App?.supabase || null);
   if (!supabase) {
     console.error('[ADMIN-DASHBOARD] Supabase not available');
   }

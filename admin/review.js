@@ -43,7 +43,7 @@ window.addEventListener('auth:ready', async (e) => {
  * Load pending submissions
  */
 async function loadPendingSubmissions() {
-  const supabase = window.__supabase__;
+  const supabase = window.getSupabase ? window.getSupabase() : null;
   if (!supabase) return;
 
   const { data, error } = await supabase
@@ -110,7 +110,7 @@ function renderPendingList() {
  * Moves file from uploads-temp → uploads-approved, creates approved_papers row
  */
 async function approveSubmission(submissionId) {
-  const supabase = window.__supabase__;
+  const supabase = window.getSupabase ? window.getSupabase() : null;
   if (!supabase) return;
 
   const submission = pendingSubmissions.find(s => s.id === submissionId);
@@ -172,7 +172,7 @@ async function approveSubmission(submissionId) {
  * Deletes temp file and marks as rejected
  */
 async function rejectSubmission(submissionId) {
-  const supabase = window.__supabase__;
+  const supabase = window.getSupabase ? window.getSupabase() : null;
   if (!supabase) return;
 
   const submission = pendingSubmissions.find(s => s.id === submissionId);

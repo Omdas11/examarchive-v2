@@ -1103,8 +1103,8 @@ function attachEventListeners() {
         resetDemoBtn.disabled = true;
         resetDemoBtn.textContent = "Resetting...";
         
-        // Wait for supabase to be ready
-        const supabase = window.__supabase__;
+        // Get supabase client
+        const supabase = window.getSupabase ? window.getSupabase() : null;
         if (!supabase) {
           throw new Error('Supabase not initialized');
         }

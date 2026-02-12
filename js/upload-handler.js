@@ -48,8 +48,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
       throw new Error('File size must be less than 50MB');
     }
 
-    // Wait for Supabase
-    const supabase = await window.waitForSupabase();
+    // Get Supabase client
+    const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) {
       debugLog('error', 'Upload service unavailable. Please refresh the page.');
       throw new Error('Failed to initialize upload service. Please refresh and try again.');
@@ -254,7 +254,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
  */
 async function getUserSubmissions(status = null) {
   try {
-    const supabase = await window.waitForSupabase();
+    const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) return [];
 
     const { data: { session } } = await supabase.auth.getSession();
@@ -289,7 +289,7 @@ async function getUserSubmissions(status = null) {
  */
 async function getPendingSubmissions() {
   try {
-    const supabase = await window.waitForSupabase();
+    const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) return [];
 
     const { data, error } = await supabase
