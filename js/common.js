@@ -133,9 +133,45 @@ function loadPartial(id, file, callback) {
    =============================== */
 loadPartial("header", "/partials/header.html", () => {
   highlightActiveNav();
+  initAuthStatusIndicator();
   document.dispatchEvent(new CustomEvent("header:loaded"));
   logInfo(DebugModule.SYSTEM, 'Header loaded');
 });
+
+/* ===============================
+   Auth Status Indicator
+   =============================== */
+function initAuthStatusIndicator() {
+  // Wait for auth:ready to set initial state
+  window.addEventListener('auth:ready', (e) => {
+    updateAuthStatusIndicator(e.detail.session);
+  });
+
+  // Listen for auth state changes
+  window.addEventListener('auth-state-changed', (e) => {
+    updateAuthStatusIndicator(e.detail.session);
+  });
+}
+
+function updateAuthStatusIndicator(session) {
+  const indicator = document.getElementById('authStatusIndicator');
+  if (!indicator) return;
+
+  const dot = indicator.querySelector('.auth-status-dot');
+  const text = indicator.querySelector('.auth-status-text');
+  
+  if (session) {
+    indicator.classList.remove('logged-out');
+    indicator.classList.add('logged-in');
+    indicator.title = 'Logged In';
+    if (text) text.textContent = 'Logged In';
+  } else {
+    indicator.classList.remove('logged-in');
+    indicator.classList.add('logged-out');
+    indicator.title = 'Not Logged In';
+    if (text) text.textContent = 'Not Logged In';
+  }
+}
 
 /* ===============================
    Footer

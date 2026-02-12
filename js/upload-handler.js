@@ -29,6 +29,11 @@ async function handlePaperUpload(file, metadata, onProgress) {
   try {
     debugLog('info', 'Starting paper upload', { filename: file?.name });
     console.log('[UPLOAD] Starting paper upload', { filename: file?.name });
+    
+    // Print auth status on upload start
+    if (window.Debug && window.Debug.printAuthStatus) {
+      window.Debug.printAuthStatus();
+    }
 
     // Validate file
     if (!file || file.type !== 'application/pdf') {
@@ -50,28 +55,24 @@ async function handlePaperUpload(file, metadata, onProgress) {
       throw new Error('Failed to initialize upload service. Please refresh and try again.');
     }
 
-    // Refresh session to ensure token is fresh
-    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-
-    let session;
-    if (refreshError || !refreshData?.session) {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !sessionData?.session) {
-        debugLog('error', 'You must be signed in to upload');
-        throw new Error('You must be signed in to upload');
-      }
-      session = sessionData.session;
-    } else {
-      session = refreshData.session;
+    // AUTH LOCK - HARD REQUIRE USER BEFORE INSERT
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      debugLog('error', '[AUTH] User not authenticated. Blocking upload.');
+      console.error('[UPLOAD][AUTH] User not authenticated:', authError);
+      throw new Error('Please sign in before uploading.');
     }
+
+    const userId = user.id;
+    debugLog('info', `[AUTH] Active user: ${userId}`);
+    console.log('[UPLOAD][AUTH] Active user:', userId);
 
     // Validate metadata
     if (!metadata || !metadata.paperCode || !metadata.examYear) {
       debugLog('error', 'Paper code and examination year are required');
       throw new Error('Paper code and examination year are required');
     }
-
-    const userId = session.user.id;
     const sanitizedFilename = sanitizeFilename(file.name);
     const timestamp = Date.now();
     const storagePath = `${userId}/${timestamp}-${sanitizedFilename}`;
@@ -211,17 +212,27 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
   } catch (error) {
     console.error('[UPLOAD] Upload failed:', error);
-    debugLog('error', 'Upload Failed\nReason: ' + (error.message || 'Unknown error'), error);
+    
+    // Human-readable RLS error handling
+    if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
+      debugLog('error', '[RLS] Insert blocked. user_id mismatch or policy violation.');
+      return {
+        success: false,
+        submissionId: null,
+        message: 'Upload blocked by permission policy. Please re-login.',
+        error
+      };
+    }
+    
+    debugLog('error', `[UPLOAD] ${error.message || 'Unknown error'}`, error);
 
     let userMessage = 'Upload failed. Please try again.';
     if (error.message?.includes('JWT') || error.message?.includes('jwt')) {
       userMessage = 'Your session has expired. Please sign in again.';
-    } else if (error.message?.includes('policy') || error.message?.includes('permission')) {
-      userMessage = 'Permission denied. Please ensure you are signed in and try again.';
     } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
       userMessage = 'Network error. Please check your connection and try again.';
     } else if (error.message) {
-      const friendlyErrors = ['PDF', 'size', 'signed in', 'allowed', 'refresh', 'bucket'];
+      const friendlyErrors = ['PDF', 'size', 'signed in', 'allowed', 'refresh', 'bucket', 'authenticated'];
       if (friendlyErrors.some(term => error.message.includes(term))) {
         userMessage = error.message;
       }

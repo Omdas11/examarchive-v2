@@ -9,6 +9,7 @@ let selectedFile = null;
 let selectedUploadType = 'question-paper';
 let isUploading = false; // UPLOAD LOCK - prevents multiple uploads
 let uploadFormInitialized = false; // Prevents multiple initializations
+let authReady = false; // AUTH READY FLAG - prevents upload before auth initialized
 
 // Wrap everything in DOMContentLoaded to ensure page is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,7 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Wait for auth:ready event before checking auth
   window.addEventListener("auth:ready", async (e) => {
     console.log('[UPLOAD] auth:ready event received - initializing upload page');
+    authReady = true;
     const session = e.detail.session;
+    
+    if (window.Debug) {
+      window.Debug.logInfo('auth', '[AUTH] Auth ready event received.');
+      // Print auth status on page load
+      window.Debug.printAuthStatus();
+    }
     
     if (!session) {
       console.log("🔒 User not authenticated — upload form disabled");
@@ -196,7 +204,17 @@ function initializeUploadForm() {
   uploadButton.addEventListener('click', async (e) => {
     e.preventDefault();
     
-    console.log('[UPLOAD] Upload button clicked - checking upload lock');
+    console.log('[UPLOAD] Upload button clicked - checking auth ready');
+    
+    // AUTH READY CHECK - prevent upload before auth ready
+    if (!authReady) {
+      console.warn('[UPLOAD] Upload attempted before auth ready - blocking');
+      if (window.Debug) {
+        window.Debug.logWarn('auth', '[AUTH] Upload attempted before auth ready.');
+      }
+      showMessage('Authentication still loading. Please wait.', 'info');
+      return;
+    }
     
     // UPLOAD LOCK - prevent multiple uploads
     if (isUploading) {
