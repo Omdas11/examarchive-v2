@@ -1,5 +1,7 @@
 # Calendar System
 
+> Phase 1 — Month/Week View with Local Timezone
+
 ## Data Format
 
 Calendar data lives in `data/calendar/assam-2026.json`:
@@ -9,44 +11,54 @@ Calendar data lives in `data/calendar/assam-2026.json`:
   "year": 2026,
   "categories": {
     "gazetted": [
-      { "date": "2026-01-26", "name": "Republic Day" }
+      { "date": "2026-01-26", "title": "Republic Day" }
     ],
     "restricted": [
-      { "date": "2026-03-14", "name": "Holi" }
+      { "date": "2026-02-26", "title": "Maha Shivaratri" }
     ],
     "other": [
-      { "date": "2026-04-15", "name": "Bohag Bihu" }
+      { "date": "2026-02-01", "title": "Spring Semester Registration Begins" }
     ]
   }
 }
 ```
 
-## Home Page Calendar
+## Views
 
-- Month-view grid rendered on `index.html`
-- Each day cell shows colored dots for holidays in that day
-- Dot colors correspond to categories:
-  - **Gazetted** — one color
-  - **Restricted** — another color
-  - **Other** — third color
+### Month View (Default)
 
-## Interactions
+- 7-column grid with day headers
+- Colored dots indicate events by category
+- Click a day to see event details
+- Category colors: Gazetted (red), Restricted (blue), Academic (green)
 
-- **Category toggle:** Filter which categories are visible using toggle buttons
-- **Click day:** Opens a detail view showing event names for that day
+### Week View
 
-## Admin Page
+- Horizontal scrollable layout (7 columns)
+- Each day shows full event cards
+- Swipe-friendly on mobile
 
-**Page:** `/admin/calendar.html`
+Toggle between views using the Month/Week buttons below the navigation.
 
-Features:
+## Date Parsing
 
-- **PDF upload stub** — Placeholder for future PDF-to-JSON extraction
-- **URL paste stub** — Placeholder for future URL-based import
-- **JSON editor** — Direct edit of the calendar JSON data
+Dates are parsed using `parseLocalDate()` to avoid UTC timezone shift:
+
+```js
+function parseLocalDate(dateStr) {
+  const parts = dateStr.split('-');
+  return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+}
+```
+
+This ensures "2026-01-26" always renders as January 26 regardless of timezone.
+
+## Category Filters
+
+Toggle buttons filter which categories are visible: All, Gazetted, Restricted, Academic.
 
 ## Adding New Calendars
 
 1. Create a new JSON file in `data/calendar/` (e.g., `assam-2027.json`)
-2. Follow the same schema: `year`, `categories` with arrays of `{ date, name }`
-3. Update the frontend to reference the new file
+2. Follow the schema: `year`, `categories` with arrays of `{ date, title }`
+3. Update `js/notices-calendar.js` fetch URL to reference the new file

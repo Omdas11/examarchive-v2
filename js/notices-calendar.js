@@ -1,7 +1,7 @@
 /**
  * ExamArchive v2 — Notices & Calendar
  * Phase 1.0: Clean Architecture Reset
- * Month-view calendar with Assam 2026 holidays
+ * Month/Week-view calendar with Assam 2026 holidays
  */
 
 /* ================= NOTICES ================= */
@@ -52,6 +52,17 @@ let calendarData = null;
 let calendarMonth = new Date().getMonth(); // 0-indexed
 let calendarYear = 2026;
 let calendarFilter = 'all';
+let calendarView = 'month'; // 'month' or 'week'
+let calendarWeekStart = null; // Date object for current week start
+
+/**
+ * Parse date string as local date (avoiding timezone shift)
+ * Input: "2026-01-26" → local Date for Jan 26 2026
+ */
+function parseLocalDate(dateStr) {
+  const parts = dateStr.split('-');
+  return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+}
 
 async function loadCalendar() {
   const grid = document.getElementById('calendarGrid');
@@ -72,8 +83,9 @@ async function loadCalendar() {
       calendarMonth = 0;
     }
     
-    renderCalendarMonth();
+    renderCalendar();
     setupCalendarNav();
+    setupViewToggle();
     
   } catch (error) {
     console.error('Error loading calendar:', error);
@@ -94,18 +106,61 @@ function getEventsForMonth(month) {
     if (calendarFilter !== 'all' && calendarFilter !== category) continue;
     
     for (const item of items) {
-      const d = new Date(item.date);
+      const d = parseLocalDate(item.date);
       if (d.getMonth() === month && d.getFullYear() === calendarYear) {
         events.push({
           ...item,
           category,
-          day: d.getDate()
+          day: d.getDate(),
+          dayOfWeek: d.getDay()
         });
       }
     }
   }
   
   return events;
+}
+
+/**
+ * Get all events for a specific week
+ */
+function getEventsForWeek(weekStart) {
+  if (!calendarData || !calendarData.categories) return [];
+  
+  const events = [];
+  const cats = calendarData.categories;
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  
+  for (const [category, items] of Object.entries(cats)) {
+    if (calendarFilter !== 'all' && calendarFilter !== category) continue;
+    
+    for (const item of items) {
+      const d = parseLocalDate(item.date);
+      if (d >= weekStart && d < weekEnd) {
+        events.push({
+          ...item,
+          category,
+          day: d.getDate(),
+          dayOfWeek: d.getDay(),
+          dateObj: d
+        });
+      }
+    }
+  }
+  
+  return events;
+}
+
+/**
+ * Render calendar based on current view mode
+ */
+function renderCalendar() {
+  if (calendarView === 'week') {
+    renderCalendarWeek();
+  } else {
+    renderCalendarMonth();
+  }
 }
 
 /**
@@ -137,17 +192,17 @@ function renderCalendarMonth() {
     other: '#388E3C'
   };
   
-  let html = '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center;">';
+  let html = '<div class="cal-grid">';
   
   // Day headers
   const dayHeaders = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   dayHeaders.forEach(d => {
-    html += `<div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); padding: 0.5rem 0;">${d}</div>`;
+    html += `<div class="cal-header">${d}</div>`;
   });
   
   // Empty cells before first day
   for (let i = 0; i < firstDay; i++) {
-    html += '<div></div>';
+    html += '<div class="cal-empty"></div>';
   }
   
   // Day cells
@@ -155,36 +210,90 @@ function renderCalendarMonth() {
     const hasEvents = eventsByDay[day];
     const isToday = isCurrentMonth && today.getDate() === day;
     
-    let cellStyle = `
-      padding: 0.35rem;
-      border-radius: 6px;
-      cursor: ${hasEvents ? 'pointer' : 'default'};
-      position: relative;
-      min-height: 36px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-    `;
-    
-    if (isToday) {
-      cellStyle += 'background: var(--red, #d32f2f); color: white; font-weight: 700;';
-    } else if (hasEvents) {
-      cellStyle += 'background: var(--bg-soft, #f5f5f5); font-weight: 600;';
-    }
+    let cls = 'cal-day';
+    if (isToday) cls += ' cal-today';
+    if (hasEvents) cls += ' cal-has-event';
     
     let dots = '';
     if (hasEvents) {
-      dots = '<div style="display: flex; gap: 2px; margin-top: 2px;">';
+      dots = '<div class="cal-dots">';
       const cats = [...new Set(hasEvents.map(e => e.category))];
       cats.forEach(c => {
-        dots += `<span style="width: 5px; height: 5px; border-radius: 50%; background: ${categoryColors[c] || '#999'};"></span>`;
+        dots += `<span class="cal-dot" style="background:${categoryColors[c] || '#999'}"></span>`;
       });
       dots += '</div>';
     }
     
-    html += `<div style="${cellStyle}" onclick="showDayEvents(${day})" data-day="${day}">${day}${dots}</div>`;
+    html += `<div class="${cls}" onclick="showDayEvents(${day})" data-day="${day}">${day}${dots}</div>`;
+  }
+  
+  html += '</div>';
+  grid.innerHTML = html;
+}
+
+/**
+ * Render the week-view calendar
+ */
+function renderCalendarWeek() {
+  const grid = document.getElementById('calendarGrid');
+  const label = document.getElementById('calMonthLabel');
+  if (!grid) return;
+  
+  // Initialize week start if not set
+  if (!calendarWeekStart) {
+    const now = new Date();
+    calendarWeekStart = new Date(now);
+    calendarWeekStart.setDate(now.getDate() - now.getDay()); // Start on Sunday
+    calendarWeekStart.setHours(0, 0, 0, 0);
+  }
+  
+  const weekEnd = new Date(calendarWeekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if (label) {
+    const startLabel = `${monthNames[calendarWeekStart.getMonth()]} ${calendarWeekStart.getDate()}`;
+    const endLabel = `${monthNames[weekEnd.getMonth()]} ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
+    label.textContent = `${startLabel} – ${endLabel}`;
+  }
+  
+  const events = getEventsForWeek(calendarWeekStart);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const categoryColors = {
+    gazetted: '#d32f2f',
+    restricted: '#1976D2',
+    other: '#388E3C'
+  };
+  const categoryLabels = { gazetted: 'Gazetted Holiday', restricted: 'Restricted Holiday', other: 'Academic' };
+  
+  const dayHeaders = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  
+  let html = '<div class="cal-week-view">';
+  
+  for (let i = 0; i < 7; i++) {
+    const dayDate = new Date(calendarWeekStart);
+    dayDate.setDate(calendarWeekStart.getDate() + i);
+    const isToday = dayDate.getTime() === today.getTime();
+    const dayEvents = events.filter(e => e.dayOfWeek === i);
+    
+    let cls = 'cal-week-day';
+    if (isToday) cls += ' cal-week-today';
+    
+    html += `<div class="${cls}">`;
+    html += `<div class="cal-week-label">${dayHeaders[i]} <span class="cal-week-num">${dayDate.getDate()}</span></div>`;
+    
+    if (dayEvents.length > 0) {
+      dayEvents.forEach(e => {
+        html += `<div class="cal-week-event" style="border-left-color:${categoryColors[e.category] || '#999'}">
+          <strong>${e.title}</strong>
+          <small>${categoryLabels[e.category] || e.category}</small>
+        </div>`;
+      });
+    }
+    
+    html += '</div>';
   }
   
   html += '</div>';
@@ -226,7 +335,7 @@ function showDayEvents(day) {
 }
 
 /**
- * Setup month navigation
+ * Setup month/week navigation
  */
 function setupCalendarNav() {
   const prev = document.getElementById('calPrev');
@@ -234,19 +343,65 @@ function setupCalendarNav() {
   
   if (prev) {
     prev.addEventListener('click', () => {
-      calendarMonth--;
-      if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
-      renderCalendarMonth();
+      if (calendarView === 'week') {
+        calendarWeekStart.setDate(calendarWeekStart.getDate() - 7);
+      } else {
+        calendarMonth--;
+        if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+      }
+      renderCalendar();
     });
   }
   
   if (next) {
     next.addEventListener('click', () => {
-      calendarMonth++;
-      if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
-      renderCalendarMonth();
+      if (calendarView === 'week') {
+        calendarWeekStart.setDate(calendarWeekStart.getDate() + 7);
+      } else {
+        calendarMonth++;
+        if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+      }
+      renderCalendar();
     });
   }
+}
+
+/**
+ * Setup Month/Week view toggle
+ */
+function setupViewToggle() {
+  const nav = document.querySelector('.calendar-month-nav');
+  if (!nav) return;
+  
+  // Don't add if already exists
+  if (document.getElementById('calViewToggle')) return;
+  
+  const toggleContainer = document.createElement('div');
+  toggleContainer.id = 'calViewToggle';
+  toggleContainer.className = 'cal-view-toggle';
+  toggleContainer.innerHTML = `
+    <button class="cal-view-btn active" data-view="month">Month</button>
+    <button class="cal-view-btn" data-view="week">Week</button>
+  `;
+  
+  nav.insertAdjacentElement('afterend', toggleContainer);
+  
+  toggleContainer.querySelectorAll('.cal-view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleContainer.querySelectorAll('.cal-view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      calendarView = btn.dataset.view;
+      
+      if (calendarView === 'week' && !calendarWeekStart) {
+        const now = new Date();
+        calendarWeekStart = new Date(now);
+        calendarWeekStart.setDate(now.getDate() - now.getDay());
+        calendarWeekStart.setHours(0, 0, 0, 0);
+      }
+      
+      renderCalendar();
+    });
+  });
 }
 
 /**
@@ -259,7 +414,7 @@ function filterCalendar(category, btn) {
   document.querySelectorAll('.calendar-controls .toggle-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   
-  renderCalendarMonth();
+  renderCalendar();
   
   // Hide event detail when filter changes
   const detail = document.getElementById('calendarEventDetail');
@@ -268,7 +423,7 @@ function filterCalendar(category, btn) {
 
 /* ================= UTILITIES ================= */
 function formatNoticeDate(dateStr) {
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 

@@ -1,17 +1,18 @@
 # Review Flow
 
+> Phase 1 — Upload → Review → Approval Pipeline
+
 ## Standard Flow
 
 ```
 User uploads file
-  → File saved to uploads-temp
-  → Row inserted in submissions (status=pending)
+  → File saved to uploads-temp/{user_id}/{timestamp}-{filename}
+  → Row inserted in submissions (status=pending, temp_path set, approved_path null)
   → Appears in reviewer panel (/admin/review.html)
 
 Reviewer approves
-  → File moved: uploads-temp → uploads-approved
-  → Row inserted in approved_papers
-  → submissions.status = 'approved'
+  → File copied: uploads-temp → uploads-approved
+  → submissions.status = 'approved', approved_path set
 
 Reviewer rejects
   → File deleted from uploads-temp
@@ -24,9 +25,10 @@ Reviewer rejects
 |---|---|
 | `id` | Primary key |
 | `user_id` | Uploader |
-| `file_path` | Path in storage bucket |
 | `paper_code` | Course/paper code |
 | `exam_year` | Year of exam |
+| `temp_path` | Path in uploads-temp bucket |
+| `approved_path` | Path in uploads-approved bucket (null until approved) |
 | `status` | `pending`, `approved`, or `rejected` |
 | `created_at` | Upload timestamp |
 
@@ -34,10 +36,10 @@ Reviewer rejects
 
 In demo mode, the review step is skipped:
 
-1. File uploads directly to `uploads-approved`
-2. Row inserted in `approved_papers` immediately
-3. `submissions.status` set to `approved` on creation
-4. No reviewer action needed
+1. File uploaded to `uploads-temp`
+2. Copy to `uploads-approved/demo/{paperCode}/{examYear}/{timestamp}-{filename}`
+3. Submission inserted with `status = 'approved'` and `approved_path` set
+4. Appears immediately in Browse page
 
 ## Reviewer UI
 
@@ -45,16 +47,3 @@ In demo mode, the review step is skipped:
 - Lists all submissions with `status = 'pending'`
 - Each entry shows file details and approve/reject buttons
 - Requires role level ≥ 50
-
-## Approved Papers Table
-
-| Column | Purpose |
-|---|---|
-| `id` | Primary key |
-| `submission_id` | Links to submissions table |
-| `file_url` | Public URL in uploads-approved |
-| `paper_code` | Course/paper code |
-| `exam_year` | Year of exam |
-| `created_at` | Approval timestamp |
-
-Papers in this table are visible on `browse.html` and `paper.html`.
