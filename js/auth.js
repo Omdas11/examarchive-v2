@@ -9,41 +9,19 @@ console.log("🔐 auth.js loaded - Phase 9.2.8");
 
 /**
  * Wait for Supabase client to be initialized
+ * This now delegates to the global waitForSupabase from supabase-client.js
  * @param {number} timeout - Max time to wait in ms (default 10000)
  * @returns {Promise<Object|null>} Supabase client or null on timeout
  */
 async function waitForSupabase(timeout = 10000) {
-  // If already available, return immediately
-  if (window.__supabase__) {
-    return window.__supabase__;
+  // Use the global waitForSupabase from supabase-client.js
+  if (window.waitForSupabase) {
+    return await window.waitForSupabase(timeout);
   }
-
-  // Wait for app:ready event or check periodically
-  return new Promise((resolve) => {
-    const startTime = Date.now();
-    
-    // Set up app:ready listener
-    const readyHandler = () => {
-      if (window.__supabase__) {
-        resolve(window.__supabase__);
-      }
-    };
-    document.addEventListener('app:ready', readyHandler, { once: true });
-    
-    // Also poll in case event was already fired
-    const interval = setInterval(() => {
-      if (window.__supabase__) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        resolve(window.__supabase__);
-      } else if (Date.now() - startTime > timeout) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        console.error('[AUTH] Timeout waiting for Supabase client');
-        resolve(null);
-      }
-    }, 50);
-  });
+  
+  // Fallback: try to get client directly
+  const client = window.getSupabase ? window.getSupabase() : null;
+  return client || null;
 }
 
 /**
@@ -51,11 +29,12 @@ async function waitForSupabase(timeout = 10000) {
  * @returns {Object} Supabase client
  */
 function getSupabaseClient() {
-  if (!window.__supabase__) {
+  const client = window.getSupabase ? window.getSupabase() : null;
+  if (!client) {
     console.warn('[AUTH] Supabase client not yet available');
     return null;
   }
-  return window.__supabase__;
+  return client;
 }
 
 /**
@@ -108,8 +87,8 @@ async function requireRole(allowedRoles = []) {
     return null;
   }
 
-  // Get supabase client directly (should be ready after requireSession)
-  const supabase = window.__supabase__;
+  // Get supabase client
+  const supabase = window.getSupabase ? window.getSupabase() : null;
   if (!supabase) {
     console.error('[AUTH] Supabase not available for role check');
     return null;

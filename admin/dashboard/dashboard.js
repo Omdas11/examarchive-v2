@@ -92,7 +92,7 @@ function setupTabs() {
  */
 async function loadSubmissions() {
   try {
-    const { data, error } = await window.__supabase__
+    const { data, error } = await window.getSupabase ? window.getSupabase() : null
       .from('submissions')
       .select(`
         *,
@@ -375,7 +375,7 @@ async function approveSubmission(submission, notes = '') {
   try {
     showMessage('Processing approval...', 'info');
 
-    const { data: { session } } = await window.__supabase__.auth.getSession();
+    const { data: { session } } = await window.getSupabase ? window.getSupabase() : null.auth.getSession();
     const reviewerId = session.user.id;
 
     // Move file from temp to approved to public
@@ -398,7 +398,7 @@ async function approveSubmission(submission, notes = '') {
     const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await window.__supabase__
+    const { error: updateError } = await window.getSupabase ? window.getSupabase() : null
       .from('submissions')
       .update({
         status: 'published',
@@ -431,14 +431,14 @@ async function rejectSubmission(submission, notes = '') {
   try {
     showMessage('Processing rejection...', 'info');
 
-    const { data: { session } } = await window.__supabase__.auth.getSession();
+    const { data: { session } } = await window.getSupabase ? window.getSupabase() : null.auth.getSession();
     const reviewerId = session.user.id;
 
     // Delete file from temp storage
     await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
 
     // Update submission
-    const { error: updateError } = await window.__supabase__
+    const { error: updateError } = await window.getSupabase ? window.getSupabase() : null
       .from('submissions')
       .update({
         status: 'rejected',
@@ -488,7 +488,7 @@ async function publishSubmission(submission) {
     const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
 
     // Update submission
-    const { error: updateError } = await window.__supabase__
+    const { error: updateError } = await window.getSupabase ? window.getSupabase() : null
       .from('submissions')
       .update({
         status: 'published',
@@ -515,7 +515,7 @@ async function publishSubmission(submission) {
  * Setup real-time subscriptions for live updates
  */
 function setupRealtimeSubscriptions() {
-  const channel = window.__supabase__
+  const channel = window.getSupabase ? window.getSupabase() : null
     .channel('submissions-changes')
     .on(
       'postgres_changes',

@@ -7,37 +7,19 @@
 
 /**
  * Wait for Supabase client to be initialized
+ * This now delegates to the global waitForSupabase from supabase-client.js
  * @param {number} timeout - Max time to wait in ms (default 10000)
  * @returns {Promise<Object|null>} Supabase client or null on timeout
  */
 async function waitForSupabaseAdmin(timeout = 10000) {
-  if (window.__supabase__) {
-    return window.__supabase__;
+  // Use the global waitForSupabase from supabase-client.js
+  if (window.waitForSupabase) {
+    return await window.waitForSupabase(timeout);
   }
-
-  return new Promise((resolve) => {
-    const startTime = Date.now();
-    
-    const readyHandler = () => {
-      if (window.__supabase__) {
-        resolve(window.__supabase__);
-      }
-    };
-    document.addEventListener('app:ready', readyHandler, { once: true });
-    
-    const interval = setInterval(() => {
-      if (window.__supabase__) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        resolve(window.__supabase__);
-      } else if (Date.now() - startTime > timeout) {
-        clearInterval(interval);
-        document.removeEventListener('app:ready', readyHandler);
-        console.error('[ADMIN-AUTH] Timeout waiting for Supabase client');
-        resolve(null);
-      }
-    }, 50);
-  });
+  
+  // Fallback if waitForSupabase not available
+  const client = window.getSupabase ? window.getSupabase() : null;
+  return client || null;
 }
 
 /**
