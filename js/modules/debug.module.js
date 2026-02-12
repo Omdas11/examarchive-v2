@@ -37,13 +37,13 @@ const DebugModule = {
 function classifyErrorCategory(message) {
   const msgLower = message.toLowerCase();
   
-  // RLS errors
-  if (msgLower.includes('row-level security') || msgLower.includes('policy') || msgLower.includes('rls')) {
+  // RLS errors (check first as most specific)
+  if (msgLower.includes('row-level security') || msgLower.includes('policy')) {
     return 'rls';
   }
   
   // Auth errors
-  if (msgLower.includes('jwt') || msgLower.includes('auth') || msgLower.includes('session') || msgLower.includes('user_id')) {
+  if (msgLower.includes('jwt') || msgLower.includes('auth') || msgLower.includes('session')) {
     return 'auth';
   }
   
@@ -71,8 +71,8 @@ function autoPrefixMessage(message) {
   
   const msgLower = message.toLowerCase();
   
-  // RLS errors
-  if (msgLower.includes('row-level security') || (msgLower.includes('policy') && msgLower.includes('violat'))) {
+  // RLS errors (most specific, check first)
+  if (msgLower.includes('row-level security') || (msgLower.includes('policy') && (msgLower.includes('violat') || msgLower.includes('block')))) {
     return `[RLS] ${message}`;
   }
   
