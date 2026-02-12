@@ -1,10 +1,12 @@
 -- ============================================
 -- STORAGE BUCKET POLICIES
--- RLS for three-bucket upload workflow
+-- Two-bucket system: uploads-temp, uploads-approved
+-- NOTE: Run 05_roles_system.sql before this file
+--       (get_current_user_role_level() must exist)
 -- ============================================
 
 -- ==========================================
--- BUCKET: uploads-temp
+-- BUCKET: uploads-temp (private)
 -- ==========================================
 
 -- Authenticated users can upload to temp
@@ -13,109 +15,25 @@ on storage.objects for insert
 with check (
   bucket_id = 'uploads-temp'
   and auth.role() = 'authenticated'
-  and (storage.foldername(name))[1] = auth.uid()::text
 );
 
--- Users can read their own temp uploads
-create policy "users read own temp uploads"
+-- Authenticated users can read temp uploads
+create policy "authenticated users read temp"
 on storage.objects for select
 using (
   bucket_id = 'uploads-temp'
-  and (storage.foldername(name))[1] = auth.uid()::text
-);
-
--- Admins can read all temp uploads
-create policy "admins read all temp uploads"
-on storage.objects for select
-using (
-  bucket_id = 'uploads-temp'
-  and exists (
-    select 1 from profiles
-    where id = auth.uid() and role = 'admin'
-  )
-);
-
--- Users can delete their own temp uploads
-create policy "users delete own temp uploads"
-on storage.objects for delete
-using (
-  bucket_id = 'uploads-temp'
-  and (storage.foldername(name))[1] = auth.uid()::text
-);
-
--- Admins can delete any temp upload
-create policy "admins delete temp uploads"
-on storage.objects for delete
-using (
-  bucket_id = 'uploads-temp'
-  and exists (
-    select 1 from profiles
-    where id = auth.uid() and role = 'admin'
-  )
+  and auth.role() = 'authenticated'
 );
 
 -- ==========================================
--- BUCKET: uploads-approved
+-- BUCKET: uploads-approved (public read)
 -- ==========================================
+-- Public read is handled by bucket visibility — no SELECT policy needed.
 
--- Only admins can write to approved bucket
-create policy "admins write approved"
+-- Only reviewer+ (level >= 50) can insert into approved bucket
+create policy "reviewers insert approved"
 on storage.objects for insert
 with check (
   bucket_id = 'uploads-approved'
-  and exists (
-    select 1 from profiles
-    where id = auth.uid() and role = 'admin'
-  )
-);
-
--- Admins can read approved uploads
-create policy "admins read approved"
-on storage.objects for select
-using (
-  bucket_id = 'uploads-approved'
-  and exists (
-    select 1 from profiles
-    where id = auth.uid() and role = 'admin'
-  )
-);
-
--- Admins can delete from approved bucket
-create policy "admins delete approved"
-on storage.objects for delete
-using (
-  bucket_id = 'uploads-approved'
-  and exists (
-    select 1 from profiles
-    where id = auth.uid() and role = 'admin'
-  )
-);
-
--- ==========================================
--- BUCKET: uploads-public
--- ==========================================
-
--- Only admins can publish to public bucket
-create policy "admins publish public"
-on storage.objects for insert
-with check (
-  bucket_id = 'uploads-public'
-  and exists (
-    select 1 from profiles
-    where id = auth.uid() and role = 'admin'
-  )
-);
-
--- Anyone can read public uploads (public bucket)
--- No policy needed - handled by bucket visibility
-
--- Admins can delete from public bucket
-create policy "admins delete public"
-on storage.objects for delete
-using (
-  bucket_id = 'uploads-public'
-  and exists (
-    select 1 from profiles
-    where id = auth.uid() and role = 'admin'
-  )
+  and get_current_user_role_level() >= 50
 );

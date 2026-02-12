@@ -1,6 +1,7 @@
 /**
  * ExamArchive v2 — Browse Page
- * FINAL STABLE VERSION (RQ / Notes badges added)
+ * Phase 1.0: Clean Architecture Reset
+ * Reads from data/papers.json (legacy) + approved_papers table (user uploads)
  */
 
 // Use relative path to work with custom domain
@@ -8,6 +9,7 @@ const DATA_URL = "data/papers.json";
 
 /* -------------------- State -------------------- */
 let allPapers = [];
+let approvedPapers = [];
 let view = [];
 
 let filters = {
@@ -45,11 +47,67 @@ async function loadPapers() {
       throw new Error(`Failed to fetch papers: ${res.status} ${res.statusText}`);
     }
     allPapers = await res.json();
-    console.log(`Loaded ${allPapers.length} papers successfully`);
+    console.log(`Loaded ${allPapers.length} legacy papers`);
   } catch (error) {
     console.error("Error loading papers:", error);
-    document.getElementById("paperCount").textContent = "Error loading papers. Please refresh the page.";
-    throw error;
+    allPapers = [];
+  }
+  
+  // Also load approved papers from Supabase
+  await loadApprovedPapers();
+}
+
+/**
+ * Load user-uploaded approved papers from Supabase approved_papers table
+ */
+async function loadApprovedPapers() {
+  try {
+    if (!window.waitForSupabase) return;
+    const supabase = await window.waitForSupabase();
+    if (!supabase) return;
+    
+    const { data, error } = await supabase
+      .from('approved_papers')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.warn('Could not load approved papers:', error.message);
+      approvedPapers = [];
+      return;
+    }
+    
+    approvedPapers = (data || []).map(p => ({
+      paper_codes: [p.paper_code],
+      paper_names: [p.paper_code],
+      year: p.exam_year,
+      stream: 'Science',
+      programme: 'ALL',
+      university: 'User Upload',
+      semester: 0,
+      pdf: getApprovedPaperUrl(supabase, p.file_path),
+      is_demo: p.is_demo || false,
+      is_approved_upload: true
+    }));
+    
+    console.log(`Loaded ${approvedPapers.length} approved papers from database`);
+  } catch (err) {
+    console.warn('Error loading approved papers:', err);
+    approvedPapers = [];
+  }
+}
+
+/**
+ * Get public URL for an approved paper
+ */
+function getApprovedPaperUrl(supabase, filePath) {
+  try {
+    const { data } = supabase.storage
+      .from('uploads-approved')
+      .getPublicUrl(filePath);
+    return data?.publicUrl || '#';
+  } catch {
+    return '#';
   }
 }
 
@@ -136,7 +194,9 @@ function closeSort() {
 
 /* -------------------- Filters -------------------- */
 function applyFilters() {
-  view = [...allPapers];
+  // Combine legacy papers + approved uploads
+  const combined = [...allPapers, ...approvedPapers];
+  view = [...combined];
 
   if (filters.programme !== "ALL") {
     view = view.filter(p => p.programme === filters.programme);
@@ -189,21 +249,6 @@ function render() {
     return;
   }
 
-  // Show notice that these are legacy static papers, not user-uploaded approved papers
-  const notice = document.createElement("div");
-  notice.className = "browse-notice";
-  notice.style.cssText = `
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-    background: var(--bg-soft, #f5f5f5);
-    border: 1px solid var(--border, #e0e0e0);
-    font-size: 0.85rem;
-    color: var(--text-muted, #666);
-  `;
-  notice.textContent = "These are archived question papers. User-uploaded papers will appear here after admin approval.";
-  list.appendChild(notice);
-
   view.forEach(p => {
     const card = document.createElement("div");
     card.className = "paper-card";
@@ -214,6 +259,11 @@ function render() {
 
     const badges = `
   <div class="availability-badges">
+    ${
+      p.is_demo
+        ? `<span class="availability-badge subtle" style="background: #FFF3E0; color: #E65100;">DEMO</span>`
+        : ""
+    }
     ${
       p.has_rq
         ? `<span class="availability-badge subtle">Repeated Questions</span>`
@@ -289,8 +339,9 @@ document.getElementById("searchInput").addEventListener("input", e => {
     buildYearToggle();
     renderSortOptions();
     applyFilters();
+    document.getElementById("paperCount").textContent = `Showing ${view.length} papers`;
   } catch (error) {
     console.error("Failed to initialize browse page:", error);
-    // Error message already shown by loadPapers
+    document.getElementById("paperCount").textContent = "Error loading papers. Please refresh the page.";
   }
 })();

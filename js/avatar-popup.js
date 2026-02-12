@@ -73,8 +73,8 @@ async function renderAvatarPopup() {
   const handleSwitchAccount = window.AvatarUtils.handleSwitchAccount;
   const handleSignIn = window.AvatarUtils.handleSignIn;
   
-  // Use session from window.App (single source of truth)
-  const session = window.App?.session || window.__SESSION__;
+  // Use AuthController as single source of truth
+  const session = window.AuthController?.getSession?.() || window.App?.session;
   const user = session?.user;
 
   const popup = document.getElementById("avatar-popup");

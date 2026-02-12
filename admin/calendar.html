@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Calendar Admin · ExamArchive</title>
+  
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/profile-panel.css">
+  <link rel="stylesheet" href="../css/avatar-popup.css">
+  <link rel="stylesheet" href="../css/avatar.css">
+  <link rel="stylesheet" href="dashboard.css">
+  
+  <meta name="description" content="Calendar administration for ExamArchive" />
+  <meta name="theme-color" content="#d32f2f" />
+  <meta name="robots" content="noindex, nofollow" />
+</head>
+<body>
+
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="dashboard-page container" id="main-content">
+
+    <div id="loading-state" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading calendar admin...</p>
+    </div>
+
+    <div id="access-denied" class="access-denied" style="display: none;">
+      <h2>Access Denied</h2>
+      <p class="text-muted">Admin access required.</p>
+      <a href="../index.html" class="btn btn-red">Go Home</a>
+    </div>
+
+    <div id="calendar-admin-content" style="display: none;">
+      
+      <section class="dashboard-header">
+        <h1>Calendar Admin</h1>
+        <p class="text-muted">Manage holiday and academic calendar data</p>
+      </section>
+
+      <!-- Upload PDF (stub for AI extraction) -->
+      <section class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h2>Upload Holiday PDF</h2>
+        <p class="text-muted" style="margin-bottom: 1rem;">
+          Upload a PDF with holiday data. AI extraction will parse and convert to structured JSON (stub).
+        </p>
+        <label class="file-drop" style="display: block; padding: 2rem; border: 2px dashed var(--border); border-radius: 8px; text-align: center; cursor: pointer;">
+          <input type="file" accept="application/pdf" id="calendarPdfInput" hidden />
+          <strong>Select PDF file</strong>
+          <p class="text-muted">Only PDF files supported</p>
+        </label>
+        <button class="btn btn-red" id="extractPdfBtn" style="margin-top: 1rem;" disabled>
+          Extract Calendar Data (AI Stub)
+        </button>
+      </section>
+
+      <!-- Paste URL -->
+      <section class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h2>Or Paste URL</h2>
+        <p class="text-muted" style="margin-bottom: 1rem;">
+          Paste a URL containing holiday data to parse.
+        </p>
+        <input type="url" id="calendarUrlInput" placeholder="https://example.com/holidays-2026" 
+          style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem;">
+        <button class="btn" id="fetchUrlBtn" style="margin-top: 1rem;">
+          Fetch & Parse (Stub)
+        </button>
+      </section>
+
+      <!-- Manual JSON Editor -->
+      <section class="card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h2>Current Calendar JSON</h2>
+        <p class="text-muted" style="margin-bottom: 1rem;">
+          View and edit the current calendar data in JSON format.
+        </p>
+        <textarea id="calendarJsonEditor" rows="20" 
+          style="width: 100%; font-family: monospace; font-size: 0.85rem; padding: 1rem; border: 1px solid var(--border); border-radius: 8px; resize: vertical;">
+Loading...
+        </textarea>
+        <button class="btn btn-red" id="saveJsonBtn" style="margin-top: 1rem;">
+          Save Calendar Data
+        </button>
+      </section>
+
+    </div>
+
+  </main>
+
+  <div id="footer"></div>
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <script src="../js/bootstrap.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <script type="module" src="../js/app.module.js"></script>
+  <script src="../js/utils/supabase-wait.js"></script>
+  <script src="../js/auth-controller.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/avatar-utils.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/admin-auth.js"></script>
+  <script src="../js/profile-panel.js"></script>
+  <script src="../js/avatar-popup.js"></script>
+  <script src="../js/theme.js"></script>
+  
+  <script>
+    // Calendar Admin Script
+    console.log('[CALENDAR-ADMIN] Loaded');
+
+    window.addEventListener('auth:ready', async () => {
+      const loadingState = document.getElementById('loading-state');
+      const accessDenied = document.getElementById('access-denied');
+      const content = document.getElementById('calendar-admin-content');
+
+      try {
+        const session = await window.AuthController.requireRole(['admin']);
+        loadingState.style.display = 'none';
+
+        if (!session) {
+          accessDenied.style.display = 'flex';
+          return;
+        }
+
+        content.style.display = 'block';
+        await loadCalendarJson();
+        setupCalendarAdmin();
+      } catch (err) {
+        console.error('[CALENDAR-ADMIN] Error:', err);
+        loadingState.style.display = 'none';
+        accessDenied.style.display = 'flex';
+      }
+    });
+
+    async function loadCalendarJson() {
+      try {
+        const res = await fetch('../data/calendar/assam-2026.json');
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('calendarJsonEditor').value = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        console.error('[CALENDAR-ADMIN] Failed to load calendar JSON:', err);
+      }
+    }
+
+    function setupCalendarAdmin() {
+      // PDF upload stub
+      const pdfInput = document.getElementById('calendarPdfInput');
+      const extractBtn = document.getElementById('extractPdfBtn');
+      
+      pdfInput.addEventListener('change', (e) => {
+        extractBtn.disabled = !e.target.files.length;
+      });
+      
+      extractBtn.addEventListener('click', () => {
+        alert('AI extraction is a stub in Phase 1. Manual JSON editing is available below.');
+      });
+
+      // URL fetch stub
+      document.getElementById('fetchUrlBtn').addEventListener('click', () => {
+        const url = document.getElementById('calendarUrlInput').value.trim();
+        if (!url) {
+          alert('Please enter a URL');
+          return;
+        }
+        alert('URL fetch & parse is a stub in Phase 1. Manual JSON editing is available below.');
+      });
+
+      // Save JSON (displays the data — actual save would require server-side in production)
+      document.getElementById('saveJsonBtn').addEventListener('click', () => {
+        try {
+          const jsonText = document.getElementById('calendarJsonEditor').value;
+          const parsed = JSON.parse(jsonText);
+          console.log('[CALENDAR-ADMIN] Validated JSON:', parsed);
+          alert('Calendar JSON is valid. In production, this would be saved to the database or file system.');
+        } catch (err) {
+          alert('Invalid JSON: ' + err.message);
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

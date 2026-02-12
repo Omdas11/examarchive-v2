@@ -10,8 +10,7 @@
  */
 const BUCKETS = {
   TEMP: 'uploads-temp',
-  APPROVED: 'uploads-approved',
-  PUBLIC: 'uploads-public'
+  APPROVED: 'uploads-approved'
 };
 
 /**
@@ -67,7 +66,7 @@ async function uploadFile(file, { bucket, path, onProgress }) {
 }
 
 /**
- * Get public URL for a file in public bucket
+ * Get public URL for a file in approved bucket
  * @param {string} path - File path
  * @returns {string|null} Public URL or null if Supabase not ready
  */
@@ -78,7 +77,7 @@ function getPublicUrl(path) {
     return null;
   }
   const { data } = supabase.storage
-    .from(BUCKETS.PUBLIC)
+    .from(BUCKETS.APPROVED)
     .getPublicUrl(path);
   
   return data.publicUrl;

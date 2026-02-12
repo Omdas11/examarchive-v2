@@ -175,10 +175,7 @@ async function loadSubmissions() {
     
     const { data, error } = await supabase
       .from('submissions')
-      .select(`
-        *,
-        profiles:user_id (email)
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -217,12 +214,11 @@ async function loadSubmissions() {
 function updateStats() {
   const pending = allSubmissions.filter(s => s.status === 'pending').length;
   const approved = allSubmissions.filter(s => s.status === 'approved').length;
-  const published = allSubmissions.filter(s => s.status === 'published').length;
   const rejected = allSubmissions.filter(s => s.status === 'rejected').length;
 
   document.getElementById('stat-pending').textContent = pending;
   document.getElementById('stat-approved').textContent = approved;
-  document.getElementById('stat-published').textContent = published;
+  document.getElementById('stat-published').textContent = 0;
   document.getElementById('stat-rejected').textContent = rejected;
 
   document.getElementById('badge-pending').textContent = pending;
@@ -266,14 +262,12 @@ function renderSubmissions() {
  * Render a single submission card
  */
 function renderSubmissionCard(submission) {
-  const userEmail = submission.profiles?.email || 'Unknown user';
   const statusClass = `status-${submission.status}`;
   
   const statusLabels = {
     pending: '⏳ Pending Review',
     approved: '✓ Approved',
-    rejected: '✗ Rejected',
-    published: '🌐 Published'
+    rejected: '✗ Rejected'
   };
 
   return `
@@ -282,66 +276,21 @@ function renderSubmissionCard(submission) {
         <div class="submission-meta">
           <h3>${submission.paper_code || 'Unknown Code'} - ${submission.exam_year || 'N/A'}</h3>
           <div class="meta-row">
-            <strong>Submitted by:</strong> ${userEmail}
-          </div>
-          <div class="meta-row">
-            <strong>File:</strong> ${submission.original_filename}
-          </div>
-          <div class="meta-row">
             ${window.UploadHandler.formatDate(submission.created_at)}
           </div>
         </div>
         <span class="status-badge ${statusClass}">
-          ${statusLabels[submission.status]}
+          ${statusLabels[submission.status] || submission.status}
         </span>
       </div>
 
-      <div class="submission-details">
-        <div class="detail-item">
-          <strong>File Size</strong>
-          <span>${window.UploadHandler.formatFileSize(submission.file_size)}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Paper Name</strong>
-          <span>${submission.paper_name || '-'}</span>
-        </div>
-        ${submission.reviewed_at ? `
-        <div class="detail-item">
-          <strong>Reviewed</strong>
-          <span>${window.UploadHandler.formatDate(submission.reviewed_at)}</span>
-        </div>
-        ` : ''}
-        ${submission.public_url ? `
-        <div class="detail-item">
-          <strong>Public URL</strong>
-          <span><a href="${submission.public_url}" target="_blank" rel="noopener">View PDF</a></span>
-        </div>
-        ` : ''}
-      </div>
-
-      ${submission.review_notes ? `
-      <div style="padding: 0.75rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem;">
-        <strong>Review Notes:</strong> ${submission.review_notes}
-      </div>
-      ` : ''}
-
       <div class="submission-actions">
         ${submission.status === 'pending' ? `
-          <button class="btn btn-outline" data-action="view" data-id="${submission.id}">
-            View Details
-          </button>
           <button class="btn btn-danger" data-action="reject" data-id="${submission.id}">
             Reject
           </button>
           <button class="btn btn-success" data-action="approve" data-id="${submission.id}">
-            Approve & Publish
-          </button>
-          <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: #f44336;">
-            Delete
-          </button>
-        ` : submission.status === 'approved' ? `
-          <button class="btn btn-view" data-action="publish" data-id="${submission.id}">
-            Publish Now
+            Approve
           </button>
           <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: #f44336;">
             Delete
@@ -376,8 +325,6 @@ function attachSubmissionListeners() {
         await approveSubmission(submission);
       } else if (action === 'reject') {
         showRejectModal(submission);
-      } else if (action === 'publish') {
-        await publishSubmission(submission);
       } else if (action === 'delete') {
         await deleteSubmission(submission);
       }
@@ -436,9 +383,6 @@ function showReviewModal(submission) {
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
       <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.exam_year}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission.original_filename} (${window.UploadHandler.formatFileSize(submission.file_size)})
-      </p>
-      <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
         <strong>Submitted:</strong> ${window.UploadHandler.formatDate(submission.created_at)}
       </p>
     </div>
@@ -466,9 +410,6 @@ function showRejectModal(submission) {
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
       <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.exam_year}</h4>
-      <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission.original_filename}
-      </p>
     </div>
   `;
 
@@ -487,47 +428,44 @@ async function approveSubmission(submission, notes = '') {
       throw new Error('Supabase not available');
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    const reviewerId = session.user.id;
+    // Move file from temp to approved bucket
+    const approvedPath = `approved/${submission.paper_code}/${submission.exam_year}/${Date.now()}.pdf`;
 
-    // Move file from temp to approved to public
-    const timestamp = Date.now();
-    const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
-    const publicPath = `papers/${filename}`;
+    // Download from temp
+    const { data: tempFile, error: dlErr } = await supabase.storage
+      .from('uploads-temp')
+      .download(submission.temp_path);
 
-    const moved = await window.SupabaseClient.moveFile(
-      window.SupabaseClient.BUCKETS.TEMP,
-      submission.temp_path,
-      window.SupabaseClient.BUCKETS.PUBLIC,
-      publicPath
-    );
+    if (dlErr) throw new Error('Failed to download temp file: ' + dlErr.message);
 
-    if (!moved) {
-      throw new Error('Failed to move file to public storage');
-    }
+    // Upload to approved
+    const { error: ulErr } = await supabase.storage
+      .from('uploads-approved')
+      .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
 
-    // Get public URL
-    const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
+    if (ulErr) throw new Error('Failed to upload to approved: ' + ulErr.message);
 
-    // Update submission
+    // Insert into approved_papers
+    await supabase.from('approved_papers').insert({
+      paper_code: submission.paper_code,
+      exam_year: submission.exam_year,
+      file_path: approvedPath,
+      uploaded_by: submission.user_id,
+      is_demo: false
+    });
+
+    // Update submission status
     const { error: updateError } = await supabase
       .from('submissions')
-      .update({
-        status: 'published',
-        reviewer_id: reviewerId,
-        review_notes: notes || null,
-        reviewed_at: new Date().toISOString(),
-        published_at: new Date().toISOString(),
-        public_path: publicPath,
-        public_url: publicUrl
-      })
+      .update({ status: 'approved' })
       .eq('id', submission.id);
 
     if (updateError) throw updateError;
 
-    showMessage('Submission approved and published!', 'success');
-    
-    // Reload submissions
+    // Clean up temp file
+    await supabase.storage.from('uploads-temp').remove([submission.temp_path]);
+
+    showMessage('Submission approved!', 'success');
     await loadSubmissions();
 
   } catch (error) {
@@ -548,28 +486,18 @@ async function rejectSubmission(submission, notes = '') {
       throw new Error('Supabase not available');
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    const reviewerId = session.user.id;
-
     // Delete file from temp storage
-    await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
+    await supabase.storage.from('uploads-temp').remove([submission.temp_path]);
 
-    // Update submission
+    // Update submission status
     const { error: updateError } = await supabase
       .from('submissions')
-      .update({
-        status: 'rejected',
-        reviewer_id: reviewerId,
-        rejection_reason: notes || null,
-        reviewed_at: new Date().toISOString()
-      })
+      .update({ status: 'rejected' })
       .eq('id', submission.id);
 
     if (updateError) throw updateError;
 
     showMessage('Submission rejected', 'success');
-    
-    // Reload submissions
     await loadSubmissions();
 
   } catch (error) {
@@ -579,66 +507,10 @@ async function rejectSubmission(submission, notes = '') {
 }
 
 /**
- * Publish approved submission
- */
-async function publishSubmission(submission) {
-  try {
-    showMessage('Publishing...', 'info');
-
-    const supabase = getSupabase();
-    if (!supabase) {
-      throw new Error('Supabase not available');
-    }
-
-    // Move from approved to public
-    const timestamp = Date.now();
-    const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
-    const publicPath = `papers/${filename}`;
-
-    const moved = await window.SupabaseClient.moveFile(
-      window.SupabaseClient.BUCKETS.APPROVED,
-      submission.approved_path,
-      window.SupabaseClient.BUCKETS.PUBLIC,
-      publicPath
-    );
-
-    if (!moved) {
-      throw new Error('Failed to move file to public storage');
-    }
-
-    // Get public URL
-    const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
-
-    // Update submission
-    const { error: updateError } = await supabase
-      .from('submissions')
-      .update({
-        status: 'published',
-        published_at: new Date().toISOString(),
-        public_path: publicPath,
-        public_url: publicUrl
-      })
-      .eq('id', submission.id);
-
-    if (updateError) throw updateError;
-
-    showMessage('Submission published!', 'success');
-    
-    // Reload submissions
-    await loadSubmissions();
-
-  } catch (error) {
-    console.error('Error publishing submission:', error);
-    showMessage('Failed to publish submission: ' + error.message, 'error');
-  }
-}
-
-/**
  * Delete submission (admin only)
  */
 async function deleteSubmission(submission) {
-  // Confirm deletion
-  if (!confirm(`Are you sure you want to delete this submission?\n\n${submission.paper_code} - ${submission.exam_year}\n\nThis action cannot be undone.`)) {
+  if (!confirm(`Delete submission ${submission.paper_code} - ${submission.exam_year}?\n\nThis action cannot be undone.`)) {
     return;
   }
 
@@ -650,18 +522,12 @@ async function deleteSubmission(submission) {
       throw new Error('Supabase not available');
     }
 
-    // Delete file from storage based on status
+    // Delete file from temp storage if present
     if (submission.temp_path) {
-      await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
-    }
-    if (submission.approved_path) {
-      await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.APPROVED, submission.approved_path);
-    }
-    if (submission.public_path) {
-      await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.PUBLIC, submission.public_path);
+      await supabase.storage.from('uploads-temp').remove([submission.temp_path]);
     }
 
-    // Delete submission record from database
+    // Delete submission record
     const { error: deleteError } = await supabase
       .from('submissions')
       .delete()
@@ -669,9 +535,7 @@ async function deleteSubmission(submission) {
 
     if (deleteError) throw deleteError;
 
-    showMessage('Submission deleted successfully', 'success');
-    
-    // Reload submissions
+    showMessage('Submission deleted', 'success');
     await loadSubmissions();
 
   } catch (error) {
