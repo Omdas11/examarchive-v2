@@ -194,6 +194,12 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (submissionError) {
       debugLog('error', '❌ Submission Insert Failed (Pending Review)', submissionError);
       console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
+      
+      // Classify error type
+      if (submissionError.message?.includes('row-level security') || submissionError.message?.includes('policy')) {
+        debugLog('error', '[RLS] Insert blocked. user_id mismatch or policy violation.', submissionError);
+      }
+      
       // Clean up uploaded file
       await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
       throw submissionError;

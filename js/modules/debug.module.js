@@ -5,7 +5,7 @@
 // slide-up UI, tabs, human-readable messages
 // ============================================
 
-import { supabase } from "../supabase.js";
+import { getSupabaseClient } from "../supabase.js";
 
 // Debug force enable flag
 const DEBUG_FORCE_ENABLE = true;
@@ -30,6 +30,69 @@ const DebugModule = {
   SETTINGS: 'settings',
   SYSTEM: 'system'
 };
+
+/**
+ * Classify error category based on message content
+ */
+function classifyErrorCategory(message) {
+  const msgLower = message.toLowerCase();
+  
+  // RLS errors
+  if (msgLower.includes('row-level security') || msgLower.includes('policy') || msgLower.includes('rls')) {
+    return 'rls';
+  }
+  
+  // Auth errors
+  if (msgLower.includes('jwt') || msgLower.includes('auth') || msgLower.includes('session') || msgLower.includes('user_id')) {
+    return 'auth';
+  }
+  
+  // Storage errors
+  if (msgLower.includes('storage') || msgLower.includes('bucket') || msgLower.includes('upload')) {
+    return 'storage';
+  }
+  
+  // Client initialization errors
+  if (msgLower.includes('not initialized') || msgLower.includes('client') || msgLower.includes('sdk')) {
+    return 'client';
+  }
+  
+  return null;
+}
+
+/**
+ * Auto-prefix messages based on content
+ */
+function autoPrefixMessage(message) {
+  // Don't prefix if already has a bracket prefix
+  if (message.match(/^\[[\w\s]+\]/)) {
+    return message;
+  }
+  
+  const msgLower = message.toLowerCase();
+  
+  // RLS errors
+  if (msgLower.includes('row-level security') || (msgLower.includes('policy') && msgLower.includes('violat'))) {
+    return `[RLS] ${message}`;
+  }
+  
+  // JWT/Auth errors
+  if (msgLower.includes('jwt') || (msgLower.includes('auth') && msgLower.includes('error'))) {
+    return `[AUTH] ${message}`;
+  }
+  
+  // Client initialization errors
+  if (msgLower.includes('not initialized') || msgLower.includes('sdk not loaded')) {
+    return `[CLIENT] ${message}`;
+  }
+  
+  // Storage errors
+  if (msgLower.includes('storage') && msgLower.includes('error')) {
+    return `[STORAGE] ${message}`;
+  }
+  
+  return message;
+}
 
 /**
  * Make messages human-readable
@@ -95,6 +158,9 @@ class DebugLogger {
       return;
     }
 
+    // Use getSupabaseClient singleton
+    const supabase = getSupabaseClient();
+    
     // Handle case when supabase is not available
     if (!supabase) {
       console.warn('[DEBUG-LOGGER] Supabase not available - debug disabled');
@@ -127,9 +193,12 @@ class DebugLogger {
       return;
     }
 
+    // Auto-prefix message based on content
+    const prefixedMessage = autoPrefixMessage(message);
+
     // Deduplicate identical messages within 800ms window
     const now = Date.now();
-    const messageKey = `${module}:${level}:${message}`;
+    const messageKey = `${module}:${level}:${prefixedMessage}`;
     
     if (this.lastLogMessage === messageKey && (now - this.lastLogTime) < this.dedupeWindowMs) {
       // Ignore duplicate message
@@ -139,11 +208,15 @@ class DebugLogger {
     this.lastLogMessage = messageKey;
     this.lastLogTime = now;
 
+    // Classify error category
+    const category = classifyErrorCategory(prefixedMessage);
+
     const entry = {
       timestamp: new Date().toISOString(),
       module,
       level,
-      message: friendlyMessage(module, level, message),
+      message: friendlyMessage(module, level, prefixedMessage),
+      category,
       data
     };
 
@@ -266,9 +339,10 @@ class DebugPanel {
    */
   async printAuthStatus() {
     try {
-      const supabase = window.supabase || (await window.waitForSupabase?.());
+      // Use getSupabase singleton
+      const supabase = window.getSupabase ? window.getSupabase() : null;
       if (!supabase) {
-        this.logger.log(DebugModule.AUTH, DebugLevel.WARN, '[AUTH] No active session.');
+        this.logger.log(DebugModule.AUTH, DebugLevel.WARN, '[AUTH] Client not initialized.');
         return;
       }
 
@@ -488,6 +562,12 @@ class DebugPanel {
       }
       .debug-log-entry.level-warning { border-left-color: #FFA726; }
       .debug-log-entry.level-error { border-left-color: #f44336; }
+      
+      /* Error Category Colors */
+      .debug-log-entry.category-auth { border-left-color: #2196F3; border-left-width: 4px; }
+      .debug-log-entry.category-rls { border-left-color: #f44336; border-left-width: 4px; }
+      .debug-log-entry.category-storage { border-left-color: #FF9800; border-left-width: 4px; }
+      .debug-log-entry.category-client { border-left-color: #9C27B0; border-left-width: 4px; }
       .debug-log-entry-header {
         display: flex;
         justify-content: space-between;
@@ -602,8 +682,9 @@ class DebugPanel {
 
   renderLogEntry(log) {
     const time = new Date(log.timestamp).toLocaleTimeString();
+    const categoryClass = log.category ? `category-${log.category}` : '';
     return `
-      <div class="debug-log-entry level-${log.level}">
+      <div class="debug-log-entry level-${log.level} ${categoryClass}">
         <div class="debug-log-entry-header">
           <span class="debug-log-entry-module">[${log.module}]</span>
           <span class="debug-log-entry-time">${time}</span>
