@@ -1,8 +1,8 @@
 // js/modules/debug.module.js
 // ============================================
-// DEBUG MODULE - Phase 9.2.8
-// Combined debug logger and panel in a single ES module
-// This is the ONLY place that uses ES module imports for debug
+// DEBUG MODULE - Phase 1.0
+// Redesigned mobile-friendly debug panel with
+// slide-up UI, tabs, human-readable messages
 // ============================================
 
 import { supabase } from "../supabase.js";
@@ -27,6 +27,32 @@ const DebugModule = {
   SETTINGS: 'settings',
   SYSTEM: 'system'
 };
+
+/**
+ * Make messages human-readable
+ */
+function friendlyMessage(module, level, message) {
+  // Already human-readable (multi-line with Reason/Check)
+  if (message.includes('\nReason:') || message.includes('\nCheck:')) {
+    return message;
+  }
+  // Storage errors
+  if (module === 'storage' && level === 'error') {
+    if (message.includes('permission') || message.includes('denied')) {
+      return `Storage Access Denied\nReason: Permission denied in storage bucket.\nCheck: Is the user authenticated?`;
+    }
+    if (message.includes('not found')) {
+      return `Storage Bucket Not Found\nReason: The requested bucket does not exist.\nCheck: Contact the administrator.`;
+    }
+  }
+  // Auth errors
+  if (module === 'auth' && level === 'error') {
+    if (message.includes('JWT') || message.includes('expired')) {
+      return `Session Expired\nReason: Your authentication token has expired.\nCheck: Sign in again.`;
+    }
+  }
+  return message;
+}
 
 /**
  * Debug Logger Class
@@ -89,7 +115,7 @@ class DebugLogger {
       timestamp: new Date().toISOString(),
       module,
       level,
-      message,
+      message: friendlyMessage(module, level, message),
       data
     };
 
@@ -196,7 +222,7 @@ class DebugLogger {
 }
 
 /**
- * Debug Panel Class
+ * Debug Panel Class — Mobile-friendly slide-up panel
  */
 class DebugPanel {
   constructor(logger) {
@@ -204,6 +230,7 @@ class DebugPanel {
     this.panel = null;
     this.logContainer = null;
     this.isCollapsed = true;
+    this.activeTab = 'all';
   }
 
   init() {
@@ -238,21 +265,21 @@ class DebugPanel {
       <div class="debug-panel-header">
         <div class="debug-panel-title">
           <span class="debug-panel-icon">🐛</span>
-          <span class="debug-panel-text">Debug Panel</span>
+          <span class="debug-panel-text">Debug</span>
           <span class="debug-panel-badge" id="debug-log-count">0</span>
         </div>
         <div class="debug-panel-actions">
           <button class="debug-panel-btn" id="debug-clear-btn" title="Clear logs">🗑️</button>
-          <button class="debug-panel-btn" id="debug-toggle-btn" title="Expand/Collapse">▼</button>
+          <button class="debug-panel-btn" id="debug-toggle-btn" title="Expand/Collapse">▲</button>
           <button class="debug-panel-btn" id="debug-close-btn" title="Close panel">✕</button>
         </div>
       </div>
       <div class="debug-panel-body">
-        <div class="debug-panel-filters">
-          <button class="debug-filter-btn active" data-level="all">All</button>
-          <button class="debug-filter-btn" data-level="info">Info</button>
-          <button class="debug-filter-btn" data-level="warning">Warnings</button>
-          <button class="debug-filter-btn" data-level="error">Errors</button>
+        <div class="debug-panel-tabs">
+          <button class="debug-tab-btn active" data-tab="all">All</button>
+          <button class="debug-tab-btn" data-tab="info">Info</button>
+          <button class="debug-tab-btn" data-tab="warning">Warnings</button>
+          <button class="debug-tab-btn" data-tab="error">Errors</button>
         </div>
         <div class="debug-panel-logs" id="debug-panel-logs"></div>
       </div>
@@ -274,33 +301,34 @@ class DebugPanel {
       .debug-panel {
         position: fixed;
         bottom: 0;
+        left: 0;
         right: 0;
-        width: 100%;
-        max-width: 500px;
-        max-height: 400px;
+        max-height: 60vh;
         background: var(--surface, #fff);
-        border: 1px solid var(--border, #e0e0e0);
-        border-bottom: none;
-        border-right: none;
-        border-radius: 8px 0 0 0;
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        border-top: 1px solid var(--border, #e0e0e0);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
         z-index: 9999;
         display: none;
         flex-direction: column;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         font-size: 13px;
+        border-radius: 12px 12px 0 0;
+        transition: transform 0.3s ease;
       }
       .debug-panel.visible { display: flex; }
       .debug-panel.collapsed .debug-panel-body { display: none; }
+      .debug-panel.collapsed { max-height: auto; }
       .debug-panel-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 12px;
+        padding: 10px 16px;
         background: var(--bg-soft, #f5f5f5);
         border-bottom: 1px solid var(--border, #e0e0e0);
         cursor: pointer;
         user-select: none;
+        border-radius: 12px 12px 0 0;
+        min-height: 44px;
       }
       .debug-panel-title {
         display: flex;
@@ -312,7 +340,7 @@ class DebugPanel {
       .debug-panel-icon { font-size: 16px; }
       .debug-panel-badge {
         display: inline-block;
-        padding: 2px 6px;
+        padding: 2px 8px;
         background: #2196F3;
         color: white;
         border-radius: 10px;
@@ -328,12 +356,17 @@ class DebugPanel {
       .debug-panel-btn {
         background: transparent;
         border: none;
-        padding: 4px 8px;
+        padding: 6px 10px;
         cursor: pointer;
-        border-radius: 4px;
+        border-radius: 6px;
         font-size: 14px;
         opacity: 0.7;
         transition: all 0.2s;
+        min-width: 36px;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .debug-panel-btn:hover {
         opacity: 1;
@@ -345,45 +378,49 @@ class DebugPanel {
         flex: 1;
         overflow: hidden;
       }
-      .debug-panel-filters {
+      .debug-panel-tabs {
         display: flex;
-        gap: 4px;
-        padding: 8px 12px;
+        gap: 0;
         background: var(--bg, #fff);
         border-bottom: 1px solid var(--border, #e0e0e0);
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
-      .debug-filter-btn {
-        padding: 4px 12px;
+      .debug-tab-btn {
+        flex: 1;
+        padding: 8px 12px;
         background: transparent;
-        border: 1px solid var(--border, #e0e0e0);
-        border-radius: 4px;
+        border: none;
+        border-bottom: 2px solid transparent;
         cursor: pointer;
         font-size: 12px;
+        font-weight: 500;
         white-space: nowrap;
         transition: all 0.2s;
+        color: var(--text-muted, #666);
+        min-height: 40px;
       }
-      .debug-filter-btn:hover { background: var(--bg-soft, #f5f5f5); }
-      .debug-filter-btn.active {
-        background: #2196F3;
-        color: white;
-        border-color: #2196F3;
+      .debug-tab-btn:hover { background: var(--bg-soft, #f5f5f5); }
+      .debug-tab-btn.active {
+        color: var(--red, #d32f2f);
+        border-bottom-color: var(--red, #d32f2f);
+        font-weight: 600;
       }
       .debug-panel-logs {
         flex: 1;
         overflow-y: auto;
         padding: 8px 12px;
         background: var(--bg, #fff);
+        -webkit-overflow-scrolling: touch;
       }
       .debug-log-entry {
-        padding: 6px 8px;
-        margin-bottom: 4px;
+        padding: 8px 10px;
+        margin-bottom: 6px;
         border-left: 3px solid #2196F3;
         background: var(--bg-soft, #f5f5f5);
-        border-radius: 4px;
-        font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-        font-size: 12px;
-        line-height: 1.4;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 1.5;
       }
       .debug-log-entry.level-warning { border-left-color: #FFA726; }
       .debug-log-entry.level-error { border-left-color: #f44336; }
@@ -407,18 +444,13 @@ class DebugPanel {
       .debug-log-entry-message {
         color: var(--text, #333);
         word-wrap: break-word;
+        white-space: pre-line;
       }
       .debug-log-empty {
-        padding: 20px;
+        padding: 24px;
         text-align: center;
         color: var(--text-muted, #666);
-      }
-      @media (max-width: 768px) {
-        .debug-panel {
-          max-width: 100%;
-          max-height: 300px;
-          border-radius: 0;
-        }
+        font-size: 0.85rem;
       }
     `;
     document.head.appendChild(style);
@@ -447,14 +479,14 @@ class DebugPanel {
       this.toggleCollapse();
     });
 
-    const filterBtns = this.panel.querySelectorAll('.debug-filter-btn');
-    filterBtns.forEach(btn => {
+    const tabBtns = this.panel.querySelectorAll('.debug-tab-btn');
+    tabBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const level = btn.dataset.level;
-        filterBtns.forEach(b => b.classList.remove('active'));
+        this.activeTab = btn.dataset.tab;
+        tabBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        this.render(level);
+        this.render(this.activeTab);
       });
     });
   }
@@ -471,9 +503,7 @@ class DebugPanel {
     }
 
     if (!this.isCollapsed) {
-      const activeFilter = this.panel.querySelector('.debug-filter-btn.active');
-      const level = activeFilter ? activeFilter.dataset.level : 'all';
-      this.render(level);
+      this.render(this.activeTab);
     }
   }
 
@@ -492,7 +522,7 @@ class DebugPanel {
     }
 
     if (logs.length === 0) {
-      this.logContainer.innerHTML = '<div class="debug-log-empty">No debug logs to display</div>';
+      this.logContainer.innerHTML = '<div class="debug-log-empty">No logs to display</div>';
       return;
     }
 
@@ -502,6 +532,7 @@ class DebugPanel {
       .map(log => this.renderLogEntry(log))
       .join('');
 
+    // Auto-scroll to newest (top, since reversed)
     this.logContainer.scrollTop = 0;
   }
 
@@ -543,11 +574,11 @@ class DebugPanel {
     
     const toggleBtn = document.getElementById('debug-toggle-btn');
     if (toggleBtn) {
-      toggleBtn.textContent = this.isCollapsed ? '▼' : '▲';
+      toggleBtn.textContent = this.isCollapsed ? '▲' : '▼';
     }
 
     if (!this.isCollapsed) {
-      this.render();
+      this.render(this.activeTab);
     }
   }
 

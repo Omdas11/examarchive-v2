@@ -5,6 +5,17 @@
 // ============================================
 
 /**
+ * Log to debug panel if available
+ */
+function debugLog(level, message, data) {
+  if (window.Debug) {
+    if (level === 'error') window.Debug.logError('upload', message, data);
+    else if (level === 'warn') window.Debug.logWarn('upload', message, data);
+    else window.Debug.logInfo('upload', message, data);
+  }
+}
+
+/**
  * Handle file upload to temp storage with submission tracking
  * @param {File} file - PDF file to upload
  * @param {Object} metadata - Paper metadata
@@ -16,15 +27,18 @@
  */
 async function handlePaperUpload(file, metadata, onProgress) {
   try {
+    debugLog('info', 'Starting paper upload', { filename: file?.name });
     console.log('[UPLOAD] Starting paper upload', { filename: file?.name });
 
     // Validate file
     if (!file || file.type !== 'application/pdf') {
+      debugLog('error', 'Invalid file type — only PDF files are allowed', { type: file?.type });
       console.error('[UPLOAD] Invalid file type', { type: file?.type });
       throw new Error('Only PDF files are allowed');
     }
 
     if (file.size > 50 * 1024 * 1024) {
+      debugLog('error', 'File too large — must be less than 50MB', { size: file.size });
       console.error('[UPLOAD] File too large', { size: file.size });
       throw new Error('File size must be less than 50MB');
     }
@@ -32,6 +46,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     // Wait for Supabase
     const supabase = await window.waitForSupabase();
     if (!supabase) {
+      debugLog('error', 'Upload service unavailable. Please refresh the page.');
       throw new Error('Failed to initialize upload service. Please refresh and try again.');
     }
 
@@ -42,6 +57,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (refreshError || !refreshData?.session) {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData?.session) {
+        debugLog('error', 'You must be signed in to upload');
         throw new Error('You must be signed in to upload');
       }
       session = sessionData.session;
@@ -51,16 +67,19 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     // Validate metadata
     if (!metadata || !metadata.paperCode || !metadata.examYear) {
+      debugLog('error', 'Paper code and examination year are required');
       throw new Error('Paper code and examination year are required');
     }
 
     const userId = session.user.id;
     const sanitizedFilename = sanitizeFilename(file.name);
-    const storagePath = `${userId}/${metadata.paperCode}/${metadata.examYear}/${sanitizedFilename}`;
+    const timestamp = Date.now();
+    const storagePath = `${userId}/${timestamp}-${sanitizedFilename}`;
     const TEMP_BUCKET = 'uploads-temp';
     const isDemo = metadata.uploadType === 'demo-paper';
 
     // Upload to temp bucket
+    debugLog('info', 'Uploading file to storage...', { bucket: TEMP_BUCKET, path: storagePath });
     console.log('[UPLOAD] Uploading to storage...', { bucket: TEMP_BUCKET, path: storagePath });
 
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -74,39 +93,23 @@ async function handlePaperUpload(file, metadata, onProgress) {
       console.error('[UPLOAD][STORAGE ERROR]', uploadError);
       const statusCode = uploadError.statusCode || uploadError.status;
       if (statusCode === 404) {
+        debugLog('error', 'Upload Failed\nReason: Storage bucket not found.\nCheck: Contact the administrator.', uploadError);
         throw new Error(`Storage bucket "${TEMP_BUCKET}" not found. Please contact the administrator.`);
       } else if (statusCode === 403) {
+        debugLog('error', 'Upload Failed\nReason: Permission denied in uploads-temp bucket.\nCheck: User authenticated?', uploadError);
         throw new Error('Storage permission denied. Please ensure you are signed in.');
       }
+      debugLog('error', 'Upload Failed\nReason: ' + (uploadError.message || 'Unknown storage error'), uploadError);
       throw uploadError;
     }
 
     if (onProgress) onProgress(100);
+    debugLog('info', 'File uploaded successfully', { path: uploadData?.path || storagePath });
     console.log('[UPLOAD SUCCESS]', uploadData?.path || storagePath);
 
-    // Create submission record (always starts as pending, demo gets updated after approval)
-    const { data: submission, error: submissionError } = await supabase
-      .from('submissions')
-      .insert({
-        user_id: userId,
-        paper_code: metadata.paperCode,
-        exam_year: metadata.examYear,
-        temp_path: storagePath,
-        status: 'pending'
-      })
-      .select()
-      .single();
-
-    if (submissionError) {
-      console.error('[UPLOAD] Submission record failed', submissionError);
-      // Clean up uploaded file
-      await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
-      throw submissionError;
-    }
-
-    // Demo paper: immediately insert into approved_papers
+    // Demo paper: upload directly to approved bucket, status = approved
     if (isDemo) {
-      const approvedPath = `demo/${metadata.paperCode}/${metadata.examYear}/${submission.id}.pdf`;
+      const approvedPath = `demo/${metadata.paperCode}/${metadata.examYear}/${timestamp}-${sanitizedFilename}`;
 
       // Copy file to approved bucket
       const { data: tempFile, error: downloadErr } = await supabase.storage
@@ -119,27 +122,33 @@ async function handlePaperUpload(file, metadata, onProgress) {
           .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
 
         if (approvedUploadErr) {
+          debugLog('error', 'Failed to copy demo to approved bucket', approvedUploadErr);
           console.error('[UPLOAD] Failed to copy demo to approved bucket:', approvedUploadErr);
         }
       }
 
-      // Insert approved_papers row
-      await supabase
-        .from('approved_papers')
+      // Create submission record with approved status
+      const { data: submission, error: submissionError } = await supabase
+        .from('submissions')
         .insert({
+          user_id: userId,
           paper_code: metadata.paperCode,
           exam_year: metadata.examYear,
-          file_path: approvedPath,
-          uploaded_by: userId,
-          is_demo: true
-        });
+          temp_path: storagePath,
+          approved_path: approvedPath,
+          status: 'approved'
+        })
+        .select()
+        .single();
 
-      // Now update submission status to approved
-      await supabase
-        .from('submissions')
-        .update({ status: 'approved' })
-        .eq('id', submission.id);
+      if (submissionError) {
+        debugLog('error', 'Submission record failed for demo paper', submissionError);
+        console.error('[UPLOAD] Submission record failed', submissionError);
+        await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
+        throw submissionError;
+      }
 
+      debugLog('info', 'Demo paper uploaded and approved — visible in Browse');
       return {
         success: true,
         submissionId: submission.id,
@@ -148,6 +157,29 @@ async function handlePaperUpload(file, metadata, onProgress) {
       };
     }
 
+    // Normal paper: create submission with pending status
+    const { data: submission, error: submissionError } = await supabase
+      .from('submissions')
+      .insert({
+        user_id: userId,
+        paper_code: metadata.paperCode,
+        exam_year: metadata.examYear,
+        temp_path: storagePath,
+        approved_path: null,
+        status: 'pending'
+      })
+      .select()
+      .single();
+
+    if (submissionError) {
+      debugLog('error', 'Submission record failed', submissionError);
+      console.error('[UPLOAD] Submission record failed', submissionError);
+      // Clean up uploaded file
+      await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
+      throw submissionError;
+    }
+
+    debugLog('info', 'Upload successful — pending review');
     return {
       success: true,
       submissionId: submission.id,
@@ -157,6 +189,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
   } catch (error) {
     console.error('[UPLOAD] Upload failed:', error);
+    debugLog('error', 'Upload Failed\nReason: ' + (error.message || 'Unknown error'), error);
 
     let userMessage = 'Upload failed. Please try again.';
     if (error.message?.includes('JWT') || error.message?.includes('jwt')) {
