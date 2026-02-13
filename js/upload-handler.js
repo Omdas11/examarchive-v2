@@ -153,6 +153,13 @@ async function handlePaperUpload(file, metadata, onProgress) {
       if (submissionError) {
         debugLog('error', '❌ Submission Insert Failed (Demo Paper)', submissionError);
         console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
+        
+        // Classify error type (case-insensitive)
+        const errorMsg = submissionError.message?.toLowerCase() || '';
+        if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
+          debugLog('error', '[RLS] Insert blocked. user_id mismatch or policy violation.', submissionError);
+        }
+        
         await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
         throw submissionError;
       }
@@ -194,6 +201,13 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (submissionError) {
       debugLog('error', '❌ Submission Insert Failed (Pending Review)', submissionError);
       console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
+      
+      // Classify error type (case-insensitive)
+      const errorMsg = submissionError.message?.toLowerCase() || '';
+      if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
+        debugLog('error', '[RLS] Insert blocked. user_id mismatch or policy violation.', submissionError);
+      }
+      
       // Clean up uploaded file
       await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
       throw submissionError;
@@ -213,8 +227,9 @@ async function handlePaperUpload(file, metadata, onProgress) {
   } catch (error) {
     console.error('[UPLOAD] Upload failed:', error);
     
-    // Human-readable RLS error handling
-    if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
+    // Human-readable RLS error handling (case-insensitive)
+    const errorMsg = error.message?.toLowerCase() || '';
+    if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
       debugLog('error', '[RLS] Insert blocked. user_id mismatch or policy violation.');
       return {
         success: false,

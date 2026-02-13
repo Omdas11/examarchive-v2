@@ -10,25 +10,29 @@
  * @returns {Promise<Object|null>} Supabase client or null on timeout
  */
 async function waitForSupabaseAvatar(timeout = 5000) {
-  if (window.__supabase__) {
-    return window.__supabase__;
+  // Use getSupabase singleton
+  const client = window.getSupabase ? window.getSupabase() : null;
+  if (client) {
+    return client;
   }
 
   return new Promise((resolve) => {
     const startTime = Date.now();
     
     const readyHandler = () => {
-      if (window.__supabase__) {
-        resolve(window.__supabase__);
+      const client = window.getSupabase ? window.getSupabase() : null;
+      if (client) {
+        resolve(client);
       }
     };
     document.addEventListener('app:ready', readyHandler, { once: true });
     
     const interval = setInterval(() => {
-      if (window.__supabase__) {
+      const client = window.getSupabase ? window.getSupabase() : null;
+      if (client) {
         clearInterval(interval);
         document.removeEventListener('app:ready', readyHandler);
-        resolve(window.__supabase__);
+        resolve(client);
       } else if (Date.now() - startTime > timeout) {
         clearInterval(interval);
         document.removeEventListener('app:ready', readyHandler);

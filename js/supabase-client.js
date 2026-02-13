@@ -1,8 +1,9 @@
 // js/supabase-client.js
 // ============================================
-// SUPABASE CLIENT SINGLETON - Phase 1.4
+// SUPABASE CLIENT SINGLETON - Phase 2
 // SINGLE SOURCE OF TRUTH for Supabase client instance
 // Guarantees client is created once and safely accessed
+// All code MUST use getSupabase() - never window.supabase.createClient()
 // ============================================
 
 const SUPABASE_URL = "https://jigeofftrhhyvnjpptxw.supabase.co";
@@ -51,7 +52,7 @@ function getSupabase() {
       window.App.supabase = supabaseInstance;
     }
 
-    // Also expose globally for classic scripts (backward compatibility)
+    // Also expose globally for backward compatibility (DEPRECATED - use getSupabase())
     window.__supabase__ = supabaseInstance;
 
     return supabaseInstance;
@@ -110,4 +111,4 @@ window.waitForSupabase = async function(timeout = 10000) {
   });
 };
 
-console.log('[SUPABASE-CLIENT] Singleton module loaded');
+console.log('[SUPABASE-CLIENT] Singleton module loaded. Use getSupabase() to access client.');

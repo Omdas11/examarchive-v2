@@ -12,10 +12,11 @@
  * @returns {Promise<Object|null>} Supabase client or null on timeout
  */
 function waitForSupabase(timeout = 10000) {
-  // If already available, return immediately
-  if (window.__supabase__) {
+  // Use getSupabase singleton
+  const client = window.getSupabase ? window.getSupabase() : null;
+  if (client) {
     console.log('[SUPABASE-WAIT] Client already available');
-    return Promise.resolve(window.__supabase__);
+    return Promise.resolve(client);
   }
 
   console.log('[SUPABASE-WAIT] Waiting for Supabase initialization...');
@@ -25,20 +26,22 @@ function waitForSupabase(timeout = 10000) {
     
     // Set up app:ready listener
     const readyHandler = () => {
-      if (window.__supabase__) {
+      const client = window.getSupabase ? window.getSupabase() : null;
+      if (client) {
         console.log('[SUPABASE-WAIT] Client ready via app:ready event');
-        resolve(window.__supabase__);
+        resolve(client);
       }
     };
     document.addEventListener('app:ready', readyHandler, { once: true });
     
     // Also poll in case event was already fired
     const interval = setInterval(() => {
-      if (window.__supabase__) {
+      const client = window.getSupabase ? window.getSupabase() : null;
+      if (client) {
         clearInterval(interval);
         document.removeEventListener('app:ready', readyHandler);
         console.log('[SUPABASE-WAIT] Client ready via polling');
-        resolve(window.__supabase__);
+        resolve(client);
       } else if (Date.now() - startTime > timeout) {
         clearInterval(interval);
         document.removeEventListener('app:ready', readyHandler);

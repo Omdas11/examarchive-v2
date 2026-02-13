@@ -32,9 +32,25 @@ ExamArchive is a static web application where students can upload, browse, and d
 
 **Demo papers** skip review and appear immediately.
 
-## Auth & RLS Flow
+## Auth & RLS Flow (Phase 2 Stabilization)
 
 Authentication is strictly enforced at the upload boundary to prevent NULL `user_id` violations:
+
+### Client Singleton Pattern
+
+All code must use the `getSupabase()` singleton from `js/supabase-client.js`:
+
+```javascript
+const supabase = window.getSupabase ? window.getSupabase() : null;
+if (!supabase) {
+  throw new Error('Supabase not initialized');
+}
+```
+
+**Never use:**
+- `window.supabase.createClient()` directly
+- `window.__supabase__` (deprecated, for backward compat only)
+- `const supabase = window.supabase` (this is the SDK, not the client)
 
 ### Upload Guard
 
@@ -48,7 +64,7 @@ Authentication is strictly enforced at the upload boundary to prevent NULL `user
 The `submissions` table has a row-level security policy:
 
 ```sql
-CREATE POLICY "Users can insert own submissions"
+CREATE POLICY "users insert own submissions"
 ON submissions FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 ```
@@ -58,12 +74,19 @@ This prevents:
 - Users inserting submissions for other users
 - Unauthenticated insertions
 
-### Error Handling
+### Error Handling & Debug Panel
+
+The debug panel (🐛 icon) classifies errors with color-coded borders:
+
+- **[AUTH]** — Blue border (#2196F3) — Authentication/JWT errors
+- **[RLS]** — Red border (#f44336) — Row-level security policy violations
+- **[STORAGE]** — Orange border (#FF9800) — Storage bucket/upload errors
+- **[CLIENT]** — Purple border (#9C27B0) — Client initialization errors
+
+Errors are auto-prefixed based on message content for clarity.
 
 If RLS blocks an insert, the user sees:
 > "Upload blocked by permission policy. Please re-login."
-
-Not generic "permission denied" — the exact cause is surfaced.
 
 ### Debug Panel Auth Status
 
