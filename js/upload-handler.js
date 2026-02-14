@@ -49,7 +49,9 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     // Wait for Supabase client to be ready
-    await window.waitForSupabase();
+    if (window.waitForSupabase) {
+      await window.waitForSupabase();
+    }
     
     // Get Supabase client
     const supabase = window.getSupabase ? window.getSupabase() : null;
