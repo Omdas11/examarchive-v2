@@ -48,6 +48,9 @@ async function handlePaperUpload(file, metadata, onProgress) {
       throw new Error('File size must be less than 50MB');
     }
 
+    // Wait for Supabase client to be ready
+    await window.waitForSupabase();
+    
     // Get Supabase client
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) {
@@ -65,8 +68,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     const userId = user.id;
-    debugLog('info', `[AUTH] Active user: ${userId}`);
-    console.log('[UPLOAD][AUTH] Active user:', userId);
+    debugLog('info', `Auth UID: ${userId}`);
+    console.log('Auth UID:', userId);
 
     // Validate metadata
     if (!metadata || !metadata.paperCode || !metadata.examYear) {
