@@ -152,7 +152,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       console.log('[UPLOAD][SUBMISSION] Inserting submission record (demo paper)...', { 
         user_id: userId, 
         paper_code: metadata.paperCode, 
-        exam_year: metadata.examYear,
+        year: metadata.examYear,
         status: 'approved'
       });
       
@@ -161,16 +161,17 @@ async function handlePaperUpload(file, metadata, onProgress) {
         .insert({
           user_id: userId,
           paper_code: metadata.paperCode,
-          exam_year: metadata.examYear,
-          temp_path: storagePath,
-          approved_path: approvedPath,
+          year: metadata.examYear,
+          storage_path: storagePath,
+          original_filename: file.name,
+          file_size: file.size,
           status: 'approved'
         })
         .select()
         .single();
 
       if (submissionError) {
-        debugLog('error', '❌ Submission Insert Failed (Demo Paper)', submissionError);
+        debugLog('error', 'Submission insert failed:', submissionError);
         console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
         
         // Classify error type (case-insensitive)
@@ -200,7 +201,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     console.log('[UPLOAD][SUBMISSION] Inserting submission record (pending review)...', { 
       user_id: userId, 
       paper_code: metadata.paperCode, 
-      exam_year: metadata.examYear,
+      year: metadata.examYear,
       status: 'pending'
     });
     
@@ -209,16 +210,17 @@ async function handlePaperUpload(file, metadata, onProgress) {
       .insert({
         user_id: userId,
         paper_code: metadata.paperCode,
-        exam_year: metadata.examYear,
-        temp_path: storagePath,
-        approved_path: null,
+        year: metadata.examYear,
+        storage_path: storagePath,
+        original_filename: file.name,
+        file_size: file.size,
         status: 'pending'
       })
       .select()
       .single();
 
     if (submissionError) {
-      debugLog('error', '❌ Submission Insert Failed (Pending Review)', submissionError);
+      debugLog('error', 'Submission insert failed:', submissionError);
       console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
       
       // Classify error type (case-insensitive)

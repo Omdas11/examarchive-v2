@@ -274,7 +274,7 @@ function renderSubmissionCard(submission) {
     <div class="submission-card" data-id="${submission.id}">
       <div class="submission-header">
         <div class="submission-meta">
-          <h3>${submission.paper_code || 'Unknown Code'} - ${submission.exam_year || 'N/A'}</h3>
+          <h3>${submission.paper_code || 'Unknown Code'} - ${submission.year || 'N/A'}</h3>
           <div class="meta-row">
             ${window.UploadHandler.formatDate(submission.created_at)}
           </div>
@@ -381,7 +381,7 @@ function showReviewModal(submission) {
 
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
-      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.exam_year}</h4>
+      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.year}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
         <strong>Submitted:</strong> ${window.UploadHandler.formatDate(submission.created_at)}
       </p>
@@ -409,7 +409,7 @@ function showRejectModal(submission) {
 
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
-      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.exam_year}</h4>
+      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.year}</h4>
     </div>
   `;
 
@@ -429,12 +429,12 @@ async function approveSubmission(submission, notes = '') {
     }
 
     // Move file from temp to approved bucket
-    const approvedPath = `approved/${submission.paper_code}/${submission.exam_year}/${Date.now()}.pdf`;
+    const approvedPath = `approved/${submission.paper_code}/${submission.year}/${Date.now()}.pdf`;
 
     // Download from temp
     const { data: tempFile, error: dlErr } = await supabase.storage
       .from('uploads-temp')
-      .download(submission.temp_path);
+      .download(submission.storage_path);
 
     if (dlErr) throw new Error('Failed to download temp file: ' + dlErr.message);
 
@@ -448,7 +448,7 @@ async function approveSubmission(submission, notes = '') {
     // Insert into approved_papers
     await supabase.from('approved_papers').insert({
       paper_code: submission.paper_code,
-      exam_year: submission.exam_year,
+      exam_year: submission.year,
       file_path: approvedPath,
       uploaded_by: submission.user_id,
       is_demo: false
@@ -463,7 +463,7 @@ async function approveSubmission(submission, notes = '') {
     if (updateError) throw updateError;
 
     // Clean up temp file
-    await supabase.storage.from('uploads-temp').remove([submission.temp_path]);
+    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
     showMessage('Submission approved!', 'success');
     await loadSubmissions();
@@ -487,7 +487,7 @@ async function rejectSubmission(submission, notes = '') {
     }
 
     // Delete file from temp storage
-    await supabase.storage.from('uploads-temp').remove([submission.temp_path]);
+    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
     // Update submission status
     const { error: updateError } = await supabase
@@ -510,7 +510,7 @@ async function rejectSubmission(submission, notes = '') {
  * Delete submission (admin only)
  */
 async function deleteSubmission(submission) {
-  if (!confirm(`Delete submission ${submission.paper_code} - ${submission.exam_year}?\n\nThis action cannot be undone.`)) {
+  if (!confirm(`Delete submission ${submission.paper_code} - ${submission.year}?\n\nThis action cannot be undone.`)) {
     return;
   }
 
@@ -523,8 +523,8 @@ async function deleteSubmission(submission) {
     }
 
     // Delete file from temp storage if present
-    if (submission.temp_path) {
-      await supabase.storage.from('uploads-temp').remove([submission.temp_path]);
+    if (submission.storage_path) {
+      await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
     }
 
     // Delete submission record

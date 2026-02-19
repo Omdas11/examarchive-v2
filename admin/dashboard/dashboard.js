@@ -188,7 +188,7 @@ function renderSubmissionCard(submission) {
     <div class="submission-card" data-id="${submission.id}">
       <div class="submission-header">
         <div class="submission-meta">
-          <h3>${submission.paper_code || 'Unknown Code'} - ${submission.exam_year || 'N/A'}</h3>
+          <h3>${submission.paper_code || 'Unknown Code'} - ${submission.year || 'N/A'}</h3>
           <div class="meta-row">
             <strong>Submitted by:</strong> ${userEmail}
           </div>
@@ -330,7 +330,7 @@ function showReviewModal(submission) {
 
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
-      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.exam_year}</h4>
+      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.year}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
         <strong>File:</strong> ${submission.original_filename} (${window.UploadHandler.formatFileSize(submission.file_size)})
       </p>
@@ -361,7 +361,7 @@ function showRejectModal(submission) {
 
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
-      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.exam_year}</h4>
+      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.year}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
         <strong>File:</strong> ${submission.original_filename}
       </p>
@@ -386,12 +386,12 @@ async function approveSubmission(submission, notes = '') {
 
     // Move file from temp to approved to public
     const timestamp = Date.now();
-    const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
+    const filename = `${submission.paper_code}_${submission.year}_${timestamp}.pdf`;
     const publicPath = `papers/${filename}`;
 
     const moved = await window.SupabaseClient.moveFile(
       window.SupabaseClient.BUCKETS.TEMP,
-      submission.temp_path,
+      submission.storage_path,
       window.SupabaseClient.BUCKETS.PUBLIC,
       publicPath
     );
@@ -444,7 +444,7 @@ async function rejectSubmission(submission, notes = '') {
     const reviewerId = session.user.id;
 
     // Delete file from temp storage
-    await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.temp_path);
+    await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.storage_path);
 
     // Update submission
     const { error: updateError } = await supabase
@@ -482,7 +482,7 @@ async function publishSubmission(submission) {
 
     // Move from approved to public
     const timestamp = Date.now();
-    const filename = `${submission.paper_code}_${submission.exam_year}_${timestamp}.pdf`;
+    const filename = `${submission.paper_code}_${submission.year}_${timestamp}.pdf`;
     const publicPath = `papers/${filename}`;
 
     const moved = await window.SupabaseClient.moveFile(
