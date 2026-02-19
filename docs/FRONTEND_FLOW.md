@@ -10,13 +10,14 @@ When a user uploads a paper, the following payload is inserted into the `submiss
 
 ```javascript
 await supabase.from('submissions').insert({
-  user_id: userId,          // From supabase.auth.getUser() — never cached
-  paper_code: paperCode,    // Paper/subject code from upload form
-  year: examYear,           // Examination year from upload form
-  storage_path: storagePath, // Path in uploads-temp bucket after successful upload
+  user_id: userId,              // From supabase.auth.getUser() — never cached
+  paper_code: metadata.paperCode, // Paper/subject code from upload form
+  year: metadata.examYear,     // Examination year from upload form
+  storage_path: storagePath,   // Path in uploads-temp bucket after successful upload
   original_filename: file.name, // Original filename — must not be undefined
-  file_size: file.size,     // File size in bytes — must not be undefined
-  status: 'pending'         // 'pending' for normal uploads, 'approved' for demo papers
+  file_size: file.size,        // File size in bytes — must not be undefined
+  content_type: file.type || 'application/pdf', // MIME type
+  status: 'pending'            // 'pending' for normal uploads, 'approved' for demo papers
 })
 ```
 
@@ -30,20 +31,22 @@ await supabase.from('submissions').insert({
 | `storage_path` | Storage upload response path | NOT NULL |
 | `original_filename` | `file.name` | NOT NULL |
 | `file_size` | `file.size` | NOT NULL |
+| `content_type` | `file.type` or `'application/pdf'` | NOT NULL |
 | `status` | `'pending'` or `'approved'` | NOT NULL (default: `'pending'`) |
 
 ## Demo Paper Upload
 
-Demo papers use a nearly identical payload but with `status: 'approved'`. They are also copied to the `uploads-approved` bucket immediately:
+Demo papers use the same payload but with `status: 'approved'`. They are also copied to the `uploads-approved` bucket immediately:
 
 ```javascript
 await supabase.from('submissions').insert({
   user_id: userId,
-  paper_code: paperCode,
-  year: examYear,
+  paper_code: metadata.paperCode,
+  year: metadata.examYear,
   storage_path: storagePath,
   original_filename: file.name,
   file_size: file.size,
+  content_type: file.type || 'application/pdf',
   status: 'approved'
 })
 ```
@@ -64,10 +67,11 @@ If the insert fails, the upload handler:
 4. **Submission Insert** — Row inserted into `submissions` with all required fields
 5. **Rollback on Failure** — If insert fails, the uploaded file is removed from storage
 
-## Column Rename History
+## Column Names
 
-In migration `08_submission_fields_migration.sql`:
-- `exam_year` was renamed to `year`
-- `temp_path` was renamed to `storage_path`
-- `original_filename text NOT NULL` was added
-- `file_size bigint NOT NULL` was added
+The database uses these column names consistently:
+- `year` (not `exam_year`)
+- `storage_path` (not `temp_path`)
+- `original_filename`
+- `file_size`
+- `content_type`

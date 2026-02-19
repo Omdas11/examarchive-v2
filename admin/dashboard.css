@@ -196,23 +196,23 @@
 }
 
 .status-pending {
-  background: #FFF3E0;
-  color: #E65100;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .status-approved {
-  background: #E8F5E9;
-  color: #2E7D32;
+  background: var(--accent-soft);
+  color: var(--color-success);
 }
 
 .status-rejected {
-  background: #FFEBEE;
-  color: #C62828;
+  background: var(--accent-soft);
+  color: var(--color-error);
 }
 
 .status-published {
-  background: #E3F2FD;
-  color: #1565C0;
+  background: var(--accent-soft);
+  color: var(--color-info);
 }
 
 .submission-details {
@@ -266,21 +266,21 @@
 }
 
 .btn-success {
-  background: #4CAF50;
+  background: var(--color-success);
   color: white;
 }
 
 .btn-success:hover {
-  background: #388E3C;
+  opacity: 0.85;
 }
 
 .btn-danger {
-  background: #f44336;
+  background: var(--color-error);
   color: white;
 }
 
 .btn-danger:hover {
-  background: #C62828;
+  opacity: 0.85;
 }
 
 .btn-view {
@@ -289,7 +289,7 @@
 }
 
 .btn-view:hover {
-  background: #B71C1C;
+  opacity: 0.85;
 }
 
 .empty-state {

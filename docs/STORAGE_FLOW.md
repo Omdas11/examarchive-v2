@@ -22,8 +22,11 @@ User selects PDF → Frontend validates (PDF only, < 50MB)
 Frontend inserts into submissions table:
   - user_id: from fresh getUser() call
   - paper_code: user input
-  - exam_year: user input
-  - temp_path: storage path in uploads-temp
+  - year: user input
+  - storage_path: path in uploads-temp
+  - original_filename: file.name
+  - file_size: file.size
+  - content_type: file.type or 'application/pdf'
   - status: 'pending'
 ```
 

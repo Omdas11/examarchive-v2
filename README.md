@@ -59,6 +59,7 @@ When inserting a submission, all of the following fields are required (NOT NULL)
 | `storage_path` | text | Path to the uploaded file in `uploads-temp` bucket |
 | `original_filename` | text | Original filename as provided by `file.name` |
 | `file_size` | bigint | File size in bytes from `file.size` |
+| `content_type` | text | MIME type from `file.type` (defaults to `application/pdf`) |
 | `status` | text | `"pending"` for normal uploads, `"approved"` for demo papers |
 
 
@@ -125,7 +126,7 @@ These are **separate security layers**. An authenticated user can upload to `upl
 
 ### Debug Panel
 
-The debug panel (🐛 icon) auto-classifies errors:
+The debug panel (🐛 icon) is restricted to users with role level > 80 (Reviewers and Admins). It auto-classifies errors:
 
 | Tag | Color | Description |
 |---|---|---|
@@ -203,9 +204,31 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed setup instructions.
 - ✅ Role-based access control (4-tier)
 - ✅ Upload with RLS enforcement
 - ✅ Admin/Reviewer bypass for submissions
-- ✅ Debug panel with error classification
+- ✅ Debug panel with error classification (admin/reviewer only)
 - ✅ Mobile-friendly responsive design
 - ✅ Demo paper auto-approval
+- ✅ Theme system with CSS variables (light/dark/AMOLED)
+- ✅ Login hint marker for unauthenticated users
+
+## Theme System
+
+Themes are applied via `body[data-theme]` attributes:
+
+| Theme | Attribute |
+|---|---|
+| Light | `body[data-theme="light"]` |
+| Dark | `body[data-theme="dark"]` |
+| AMOLED | `body[data-theme="amoled"]` |
+
+All colors use CSS custom properties defined in `css/common.css`:
+
+- `--bg`, `--bg-soft`, `--surface` — backgrounds
+- `--text`, `--text-muted` — text colors
+- `--border`, `--accent`, `--accent-soft` — UI chrome
+- `--color-success`, `--color-error`, `--color-info`, `--color-warning` — status colors
+- `--avatar-bg`, `--avatar-text`, `--avatar-ring` — avatar colors
+
+Theme presets (e.g., `red-classic`, `blue-slate`) set coordinated values for all variables. Each preset has light, dark, and AMOLED variants.
 
 ## Roadmap
 

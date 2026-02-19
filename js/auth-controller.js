@@ -190,7 +190,7 @@ console.log('[AUTH-CONTROLLER] Loading...');
       padding: 1rem 1.5rem;
       background: var(--surface, #fff);
       border: 1px solid var(--border, #e0e0e0);
-      border-left: 4px solid #f44336;
+      border-left: 4px solid var(--color-error, #f44336);
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       z-index: 10000;

@@ -1,14 +1,14 @@
 // js/modules/debug.module.js
 // ============================================
-// DEBUG MODULE - Phase 1.0
-// Redesigned mobile-friendly debug panel with
+// DEBUG MODULE
+// Mobile-friendly debug panel with
 // slide-up UI, tabs, human-readable messages
 // ============================================
 
 import { getSupabaseClient } from "../supabase.js";
 
-// Debug force enable flag
-const DEBUG_FORCE_ENABLE = true;
+// Debug force enable flag — disabled for production (role-gated)
+const DEBUG_FORCE_ENABLE = false;
 
 // Debug deduplication window (ms)
 const DEBUG_DEDUPE_WINDOW_MS = 800;
@@ -151,7 +151,7 @@ class DebugLogger {
   }
 
   async _checkDebugAccess() {
-    // Force enable for debugging
+    // Force enable for development debugging
     if (DEBUG_FORCE_ENABLE) {
       this.enabled = true;
       this.panelVisible = localStorage.getItem('debug-panel-enabled') !== 'false';
@@ -162,7 +162,6 @@ class DebugLogger {
     // Use getSupabaseClient singleton
     const supabase = getSupabaseClient();
     
-    // Handle case when supabase is not available
     if (!supabase) {
       console.warn('[DEBUG-LOGGER] Supabase not available - debug disabled');
       this.enabled = false;
@@ -176,8 +175,18 @@ class DebugLogger {
         return;
       }
 
-      // Check role via window.Auth if available
-      const hasAccess = window.Auth && await window.Auth.isAdmin();
+      // Check role level via RPC — only level > 80 can access debug
+      let roleLevel = 0;
+      try {
+        const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
+        if (roleLevelData !== null) {
+          roleLevel = roleLevelData;
+        }
+      } catch (err) {
+        console.warn('[DEBUG-LOGGER] Could not fetch role level:', err);
+      }
+
+      const hasAccess = roleLevel > 80;
       this.enabled = hasAccess;
       
       if (hasAccess) {
@@ -383,6 +392,7 @@ class DebugPanel {
       return;
     }
 
+    // Do not initialize DOM if debug is not enabled (role level <= 80)
     if (!this.logger.isEnabled()) {
       return;
     }
@@ -455,7 +465,17 @@ class DebugPanel {
         transition: transform 0.3s ease;
       }
       .debug-panel.visible { display: flex; }
-      .debug-panel.collapsed .debug-panel-body { display: none; }
+      .debug-panel.collapsed .debug-panel-body {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.3s ease, opacity 0.2s ease;
+      }
+      .debug-panel:not(.collapsed) .debug-panel-body {
+        max-height: 60vh;
+        opacity: 1;
+        transition: max-height 0.3s ease, opacity 0.2s ease 0.1s;
+      }
       .debug-panel.collapsed { max-height: auto; }
       .debug-panel-header {
         display: flex;
@@ -480,7 +500,7 @@ class DebugPanel {
       .debug-panel-badge {
         display: inline-block;
         padding: 2px 8px;
-        background: #2196F3;
+        background: var(--color-info);
         color: white;
         border-radius: 10px;
         font-size: 11px;
@@ -555,20 +575,20 @@ class DebugPanel {
       .debug-log-entry {
         padding: 8px 10px;
         margin-bottom: 6px;
-        border-left: 3px solid #2196F3;
+        border-left: 3px solid var(--color-info);
         background: var(--bg-soft, #f5f5f5);
         border-radius: 6px;
         font-size: 13px;
         line-height: 1.5;
       }
-      .debug-log-entry.level-warning { border-left-color: #FFA726; }
-      .debug-log-entry.level-error { border-left-color: #f44336; }
+      .debug-log-entry.level-warning { border-left-color: var(--color-warning); }
+      .debug-log-entry.level-error { border-left-color: var(--color-error); }
       
       /* Error Category Colors */
-      .debug-log-entry.category-auth { border-left-color: #2196F3; border-left-width: 4px; }
-      .debug-log-entry.category-rls { border-left-color: #f44336; border-left-width: 4px; }
-      .debug-log-entry.category-storage { border-left-color: #FF9800; border-left-width: 4px; }
-      .debug-log-entry.category-client { border-left-color: #9C27B0; border-left-width: 4px; }
+      .debug-log-entry.category-auth { border-left-color: var(--color-info); border-left-width: 4px; }
+      .debug-log-entry.category-rls { border-left-color: var(--color-error); border-left-width: 4px; }
+      .debug-log-entry.category-storage { border-left-color: var(--color-warning); border-left-width: 4px; }
+      .debug-log-entry.category-client { border-left-color: var(--color-purple); border-left-width: 4px; }
       .debug-log-entry-header {
         display: flex;
         justify-content: space-between;
@@ -596,6 +616,13 @@ class DebugPanel {
         text-align: center;
         color: var(--text-muted, #666);
         font-size: 0.85rem;
+      }
+      @media (max-width: 768px) {
+        .debug-panel { font-size: 12px; }
+        .debug-log-entry { padding: 6px 8px; font-size: 12px; }
+        .debug-log-entry-module { font-size: 10px; }
+        .debug-log-entry-time { font-size: 10px; }
+        .debug-panel-header { padding: 8px 12px; }
       }
     `;
     document.head.appendChild(style);

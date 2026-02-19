@@ -1,8 +1,6 @@
 // admin/dashboard.js
 // ============================================
-// ADMIN DASHBOARD - Phase 9.2.8
-// Updated to use auth contract with requireRole
-// Fixed to wait for Supabase initialization
+// ADMIN DASHBOARD
 // ============================================
 
 console.log("🎛️ dashboard.js loaded");
@@ -292,11 +290,11 @@ function renderSubmissionCard(submission) {
           <button class="btn btn-success" data-action="approve" data-id="${submission.id}">
             Approve
           </button>
-          <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: #f44336;">
+          <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: var(--color-error);">
             Delete
           </button>
         ` : `
-          <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: #f44336;">
+          <button class="btn btn-outline" data-action="delete" data-id="${submission.id}" style="color: var(--color-error);">
             Delete
           </button>
         `}
@@ -448,7 +446,7 @@ async function approveSubmission(submission, notes = '') {
     // Insert into approved_papers
     await supabase.from('approved_papers').insert({
       paper_code: submission.paper_code,
-      exam_year: submission.year,
+      year: submission.year,
       file_path: approvedPath,
       uploaded_by: submission.user_id,
       is_demo: false
@@ -592,9 +590,9 @@ function showMessage(message, type = 'info') {
   }
 
   const colors = {
-    success: '#4CAF50',
-    error: '#f44336',
-    info: '#2196F3'
+    success: 'var(--color-success)',
+    error: 'var(--color-error)',
+    info: 'var(--color-info)'
   };
   messageEl.style.borderLeft = `4px solid ${colors[type] || colors.info}`;
   messageEl.textContent = message;

@@ -27,12 +27,21 @@
 
 ### Frontend Display
 
+The `mapRole(level)` function in `js/utils/role-utils.js` is the **single source of truth** for role mapping. It evaluates in descending order:
+
+```javascript
+if (level >= 100) → Admin
+else if (level >= 80) → Reviewer
+else if (level >= 10) → Contributor
+else → Visitor
+```
+
 | Role | Badge | Icon | Color |
 |---|---|---|---|
-| Admin | Admin | 👑 | Red (#f44336) |
-| Reviewer | Reviewer | 🛡️ | Blue (#2196F3) |
-| Contributor | Contributor | 📝 | Green (#4CAF50) |
-| Visitor | Visitor | 👤 | Grey (#9E9E9E) |
+| Admin | Admin | 👑 | var(--color-error) |
+| Reviewer | Reviewer | 🛡️ | var(--color-info) |
+| Contributor | Contributor | ✍️ | var(--color-success) |
+| Visitor | Visitor | 👤 | var(--color-muted) |
 
 ## Promoting a User
 
@@ -80,5 +89,6 @@ order by r.level desc;
 | View own submissions | ❌ | ✅ | ✅ | ✅ |
 | View all submissions | ❌ | ❌ | ✅ | ✅ |
 | Approve/reject | ❌ | ❌ | ✅ | ✅ |
+| Debug panel | ❌ | ❌ | ✅ | ✅ |
 | Manage roles | ❌ | ❌ | ❌ | ✅ |
 | Admin dashboard | ❌ | ❌ | ❌ | ✅ |

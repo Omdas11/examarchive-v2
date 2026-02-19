@@ -1,7 +1,5 @@
 // ===============================
 // Settings Page Controller
-// Phase 9.2.5: Auth Single Source of Truth
-// Phase 9.2: Added debug panel controls
 // ===============================
 
 console.log("⚙️ settings.js loaded");
@@ -274,7 +272,7 @@ async function renderSettings() {
 
   // Settings page is accessible to all authenticated users
   // Only specific sections (requiresAdmin) are restricted
-  const isAdmin = roleInfo.name === 'admin';
+  const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
 
   window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
 
