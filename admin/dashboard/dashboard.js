@@ -509,23 +509,25 @@ async function publishSubmission(submission) {
  * Setup real-time subscriptions for live updates
  */
 function setupRealtimeSubscriptions() {
-  const supabase = window.getSupabase ? window.getSupabase() : null;
-  if (!supabase) {
-    console.warn('Supabase not initialized - realtime disabled');
-    return;
-  }
+  try {
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) {
+      return;
+    }
 
-  const channel = supabase
-    .channel('submissions-changes')
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'submissions' },
-      (payload) => {
-        console.log('Submission change detected:', payload);
-        loadSubmissions();
-      }
-    )
-    .subscribe();
+    const channel = supabase
+      .channel('submissions-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'submissions' },
+        (payload) => {
+          loadSubmissions();
+        }
+      )
+      .subscribe();
+  } catch (err) {
+    console.error('[ADMIN-DASHBOARD] Realtime subscription error:', err);
+  }
 }
 
 /**

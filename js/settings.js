@@ -735,7 +735,6 @@ function attachEventListeners() {
       localStorage.setItem("theme-preset", preset);
       applyThemePreset(preset);
       
-      console.log(`🎨 Theme preset applied: ${preset}`);
     });
   });
   
@@ -751,7 +750,6 @@ function attachEventListeners() {
       // Apply theme mode (saves to localStorage)
       applyThemeMode(mode);
       
-      console.log(`🌓 Theme mode applied: ${mode}`);
     });
   });
   
@@ -773,7 +771,6 @@ function attachEventListeners() {
       document.querySelectorAll(".accent-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       
-      console.log(`🎨 Accent color preview: ${accent}`);
     });
   });
   
@@ -783,7 +780,6 @@ function attachEventListeners() {
     applyAccentBtn.addEventListener("click", () => {
       const previewAccent = localStorage.getItem("accent-color-preview") || "red";
       localStorage.setItem("accent-color", previewAccent);
-      console.log(`✅ Accent color applied: ${previewAccent}`);
       
       // Show feedback
       applyAccentBtn.textContent = "Applied!";
@@ -806,7 +802,6 @@ function attachEventListeners() {
         btn.classList.toggle("active", btn.dataset.accent === defaultAccent);
       });
       
-      console.log(`🔄 Accent color reset to default (preview only - click Apply to persist)`);
     });
   }
   
@@ -825,7 +820,6 @@ function attachEventListeners() {
       
       // Store as preview only
       localStorage.setItem("font-family-preview", value);
-      console.log(`🔤 Font family preview: ${value}`);
     });
     
     // Apply saved preview on load
@@ -848,7 +842,6 @@ function attachEventListeners() {
         document.body.classList.add(`font-${previewFont}`);
       }
       
-      console.log(`✅ Font family applied: ${previewFont}`);
       
       // Show feedback
       applyFontBtn.textContent = "Applied!";
@@ -868,7 +861,6 @@ function attachEventListeners() {
       // Update select
       if (fontSelect) fontSelect.value = defaultFont;
       
-      console.log(`🔄 Font family reset to default (preview only - click Apply to persist)`);
     });
   }
   
@@ -898,7 +890,6 @@ function attachEventListeners() {
         }
       });
       
-      console.log(`✨ Glass effect ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -973,7 +964,6 @@ function attachEventListeners() {
         nightStrengthRange.parentElement.parentElement.style.opacity = isEnabled ? '1' : '0.5';
       }
       
-      console.log(`🌙 Night mode ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -1020,7 +1010,6 @@ function attachEventListeners() {
         document.body.classList.remove("high-contrast");
       }
       
-      console.log(`✅ High contrast ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -1042,7 +1031,6 @@ function attachEventListeners() {
         document.body.classList.remove("reduced-motion");
       }
       
-      console.log(`✅ Reduced motion ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -1119,7 +1107,6 @@ function attachEventListeners() {
           throw error;
         }
         
-        console.log("✅ Demo data reset successful");
         resetDemoBtn.textContent = "Reset Complete!";
         
         setTimeout(() => {
@@ -1139,7 +1126,6 @@ function attachEventListeners() {
   const signOutBtn = document.getElementById("sign-out");
   if (signOutBtn) {
     signOutBtn.addEventListener("click", async () => {
-      console.log("🚪 Sign out clicked");
       await window.AvatarUtils.handleLogout();
     });
   }
@@ -1206,33 +1192,40 @@ let settingsInitialized = false;
 document.addEventListener("DOMContentLoaded", () => {
   if (settingsInitialized) return;
   settingsInitialized = true;
-  
-  console.log("[settings] Waiting for auth initialization...");
   showLoadingState();
 });
 
 // Wait for auth:ready event before checking auth
 window.addEventListener("auth:ready", async (e) => {
-  const session = e.detail.session;
-  
-  if (!session) {
-    console.log("[settings] No session, showing login required");
-    showLoginRequiredMessage();
-  } else {
-    console.log("[settings] Session found, rendering settings");
-    renderSettings();
+  try {
+    const session = e.detail.session;
+    
+    if (!session) {
+      showLoginRequiredMessage();
+    } else {
+      renderSettings();
+    }
+  } catch (err) {
+    console.error('Settings init error:', err);
+    const container = document.getElementById("settings-container");
+    if (container) {
+      renderErrorMessage(container, 'Error Loading Settings', 'Something went wrong. Please try refreshing the page.');
+    }
   }
 });
 
 // Listen to auth state changes (single listener via event)
 window.addEventListener("auth-state-changed", async (e) => {
-  console.log("🔔 Auth state changed, re-rendering settings");
-  const session = e.detail.session;
-  
-  if (!session) {
-    showLoginRequiredMessage();
-  } else {
-    renderSettings();
+  try {
+    const session = e.detail.session;
+    
+    if (!session) {
+      showLoginRequiredMessage();
+    } else {
+      renderSettings();
+    }
+  } catch (err) {
+    console.error('Settings re-render error:', err);
   }
 });
 
@@ -1243,31 +1236,21 @@ window.addEventListener("auth-state-changed", async (e) => {
 function applyThemePreset(preset) {
   document.body.setAttribute("data-theme-preset", preset);
   localStorage.setItem("theme-preset", preset);
-  
-  // Each preset defines its own background, card, and accent colors
-  // CSS will handle the actual color values
-  console.log(`✅ Theme preset ${preset} applied globally`);
 }
 
 function applyThemeMode(mode) {
   localStorage.setItem("theme-mode", mode);
   
   if (mode === "auto") {
-    // Detect system preference
     const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     document.body.setAttribute("data-theme", isDark ? "dark" : "light");
   } else {
     document.body.setAttribute("data-theme", mode);
   }
-  console.log(`✅ Theme mode ${mode} applied globally`);
 }
 
 // Initialize theme preset and mode on page load
-// (Already applied in common.js, just sync UI here)
 document.addEventListener("DOMContentLoaded", () => {
   const savedPreset = localStorage.getItem("theme-preset") || "red-classic";
   const savedMode = localStorage.getItem("theme-mode") || "auto";
-  
-  // Theme is already applied by common.js, no need to reapply
-  console.log(`Theme preset: ${savedPreset}, Theme mode: ${savedMode}`);
 });

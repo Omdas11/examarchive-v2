@@ -4,8 +4,6 @@
 // Shows pending submissions, allows approve/reject
 // ============================================
 
-console.log('[REVIEW] review.js loaded');
-
 let pendingSubmissions = [];
 
 // Wait for auth:ready then check role
@@ -43,22 +41,26 @@ window.addEventListener('auth:ready', async (e) => {
  * Load pending submissions
  */
 async function loadPendingSubmissions() {
-  const supabase = window.getSupabase ? window.getSupabase() : null;
-  if (!supabase) return;
+  try {
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) return;
 
-  const { data, error } = await supabase
-    .from('submissions')
-    .select('*')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true });
+    const { data, error } = await supabase
+      .from('submissions')
+      .select('*')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true });
 
-  if (error) {
-    console.error('[REVIEW] Error loading submissions:', error);
-    return;
+    if (error) {
+      console.error('[REVIEW] Error loading submissions:', error);
+      return;
+    }
+
+    pendingSubmissions = data || [];
+    renderPendingList();
+  } catch (err) {
+    console.error('[REVIEW] Error loading submissions:', err);
   }
-
-  pendingSubmissions = data || [];
-  renderPendingList();
 }
 
 /**
@@ -76,7 +78,7 @@ function renderPendingList() {
 
   emptyState.style.display = 'none';
   list.innerHTML = pendingSubmissions.map(s => `
-    <div class="submission-card" data-id="${s.id}" style="
+    <div class="submission-card" data-id="${s?.id || ''}" style="
       padding: 1.25rem;
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -85,19 +87,19 @@ function renderPendingList() {
     ">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
         <div>
-          <strong>${s.paper_code || 'Unknown'}</strong>
-          <span style="color: var(--text-muted); margin-left: 0.5rem;">${s.year || ''}</span>
+          <strong>${s?.paper_code || 'Unknown'}</strong>
+          <span style="color: var(--text-muted); margin-left: 0.5rem;">${s?.year || ''}</span>
         </div>
         <span style="font-size: 0.75rem; color: var(--color-warning);">⏳ Pending</span>
       </div>
       <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-        Submitted ${window.UploadHandler.formatDate(s.created_at)}
+        Submitted ${s?.created_at ? new Date(s.created_at).toLocaleString() : 'Unknown date'}
       </div>
       <div style="display: flex; gap: 0.5rem;">
-        <button class="btn btn-red" onclick="approveSubmission('${s.id}')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+        <button class="btn btn-red" onclick="approveSubmission('${s?.id || ''}')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
           ✓ Approve
         </button>
-        <button class="btn" onclick="rejectSubmission('${s.id}')" style="font-size: 0.85rem; padding: 0.5rem 1rem; color: var(--color-error); border-color: var(--color-error);">
+        <button class="btn" onclick="rejectSubmission('${s?.id || ''}')" style="font-size: 0.85rem; padding: 0.5rem 1rem; color: var(--color-error); border-color: var(--color-error);">
           ✗ Reject
         </button>
       </div>
