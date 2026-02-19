@@ -424,7 +424,7 @@ async function approveSubmission(submission, notes = '') {
     // Clean up temp file
     await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
-    showMessage('Submission approved and published!', 'success');
+    showMessage('Submission approved!', 'success');
     
     // Reload submissions
     await loadSubmissions();
