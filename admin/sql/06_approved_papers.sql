@@ -6,7 +6,7 @@
 create table if not exists approved_papers (
   id uuid primary key default gen_random_uuid(),
   paper_code text,
-  exam_year int,
+  year int,
   file_path text,
   uploaded_by uuid,
   is_demo boolean default false,

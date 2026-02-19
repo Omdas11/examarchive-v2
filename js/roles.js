@@ -93,13 +93,15 @@ async function getUserBadge() {
       };
     }
 
-    // Get role LEVEL from backend (not name)
-    const { data: roleLevel, error } = await supabase.rpc('get_user_role_level', {
-      user_id_param: session.user.id
-    });
+    // Get role LEVEL directly from roles table (fresh, no caching)
+    const { data: roleRow, error: roleError } = await supabase
+      .from('roles')
+      .select('level')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
 
-    if (error) {
-      console.error('[BADGE] Error getting role level:', error);
+    if (roleError) {
+      console.error('[BADGE] Error getting role level:', roleError);
       // Default to contributor if backend fails
       const level = 10;
       const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };
@@ -113,7 +115,7 @@ async function getUserBadge() {
     }
 
     // Default to level 10 if no role row exists
-    const level = roleLevel !== null && roleLevel !== undefined ? roleLevel : 10;
+    const level = (roleRow?.level !== null && roleRow?.level !== undefined) ? roleRow.level : 10;
     
     // Use centralized mapRole function
     const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };

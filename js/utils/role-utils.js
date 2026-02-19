@@ -59,10 +59,12 @@ async function getCurrentUserRoleLevel() {
       return 0; // Visitor/guest
     }
 
-    // Use backend RPC function to get role level
-    const { data: roleLevel, error } = await supabase.rpc('get_user_role_level', {
-      user_id_param: session.user.id
-    });
+    // Get role level directly from roles table (fresh, no caching)
+    const { data: roleRow, error } = await supabase
+      .from('roles')
+      .select('level')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
 
     if (error) {
       console.warn('[ROLE-UTILS] Error getting role level, defaulting to 10:', error);
@@ -70,7 +72,7 @@ async function getCurrentUserRoleLevel() {
     }
 
     // If no role row exists, default to 10 (contributor)
-    return roleLevel !== null && roleLevel !== undefined ? roleLevel : 10;
+    return (roleRow?.level !== null && roleRow?.level !== undefined) ? roleRow.level : 10;
   } catch (err) {
     console.error('[ROLE-UTILS] Error getting user role level:', err);
     return 10; // Default to contributor

@@ -58,6 +58,7 @@ async function loadPapers() {
 
 /**
  * Load user-uploaded approved papers from Supabase approved_papers table
+ * and from submissions where status = 'approved' (fallback)
  */
 async function loadApprovedPapers() {
   try {
@@ -73,23 +74,51 @@ async function loadApprovedPapers() {
     if (error) {
       console.warn('Could not load approved papers:', error.message);
       approvedPapers = [];
-      return;
+    } else {
+      approvedPapers = (data || []).map(p => ({
+        paper_codes: [p.paper_code],
+        paper_names: [p.paper_code],
+        year: p.year,
+        stream: 'Science',
+        programme: 'ALL',
+        university: 'User Upload',
+        semester: 0,
+        pdf: getApprovedPaperUrl(supabase, p.file_path),
+        is_demo: p.is_demo || false,
+        is_approved_upload: true
+      }));
     }
     
-    approvedPapers = (data || []).map(p => ({
-      paper_codes: [p.paper_code],
-      paper_names: [p.paper_code],
-      year: p.year,
-      stream: 'Science',
-      programme: 'ALL',
-      university: 'User Upload',
-      semester: 0,
-      pdf: getApprovedPaperUrl(supabase, p.file_path),
-      is_demo: p.is_demo || false,
-      is_approved_upload: true
-    }));
-    
     console.log(`Loaded ${approvedPapers.length} approved papers from database`);
+
+    // Also load directly from submissions where status = 'approved' (fallback)
+    // Only include submissions with an approved_path set in uploads-approved bucket
+    const { data: approvedSubs, error: subsError } = await supabase
+      .from('submissions')
+      .select('paper_code, year, approved_path, user_id, created_at')
+      .eq('status', 'approved')
+      .not('approved_path', 'is', null);
+
+    if (!subsError && approvedSubs?.length) {
+      // Deduplicate: skip any paper_code+year already loaded from approved_papers
+      const existingKeys = new Set(approvedPapers.map(p => `${p.paper_codes[0]}-${p.year}`));
+      const submissionPapers = approvedSubs
+        .filter(s => !existingKeys.has(`${s.paper_code}-${s.year}`))
+        .map(s => ({
+          paper_codes: [s.paper_code],
+          paper_names: [s.paper_code],
+          year: s.year,
+          stream: 'Science',
+          programme: 'ALL',
+          university: 'User Upload',
+          semester: 0,
+          pdf: getApprovedPaperUrl(supabase, s.approved_path),
+          is_demo: false,
+          is_approved_upload: true
+        }));
+      approvedPapers = approvedPapers.concat(submissionPapers);
+      console.log(`Loaded ${submissionPapers.length} additional approved papers from submissions`);
+    }
   } catch (err) {
     console.warn('Error loading approved papers:', err);
     approvedPapers = [];

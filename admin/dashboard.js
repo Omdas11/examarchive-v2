@@ -177,13 +177,9 @@ async function loadSubmissions() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      // Check if it's a real error or just RLS/permissions issue
-      console.error('Error loading submissions:', error);
-      
-      // Only show error popup if it's not a permissions/RLS issue
-      if (error.code !== 'PGRST116' && !error.message?.includes('RLS')) {
-        showMessage('Failed to load submissions: ' + error.message, 'error');
-      }
+      // Log full error details for debugging
+      console.error('[ADMIN-DASHBOARD] Error loading submissions:', error);
+      showMessage('Failed to load submissions: ' + error.message, 'error');
       
       // Set empty array and continue rendering graceful empty state
       allSubmissions = [];
@@ -452,10 +448,10 @@ async function approveSubmission(submission, notes = '') {
       is_demo: false
     });
 
-    // Update submission status
+    // Update submission status and approved_path
     const { error: updateError } = await supabase
       .from('submissions')
-      .update({ status: 'approved' })
+      .update({ status: 'approved', approved_path: approvedPath })
       .eq('id', submission.id);
 
     if (updateError) throw updateError;
