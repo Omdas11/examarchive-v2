@@ -2,8 +2,6 @@
 // Settings Page Controller
 // ===============================
 
-console.log("⚙️ settings.js loaded");
-
 // ===============================
 // Settings Configuration
 // ===============================
@@ -237,62 +235,65 @@ const settingsConfig = [
 async function renderSettings() {
   const container = document.getElementById("settings-container");
   if (!container) {
-    console.error("❌ Settings container not found");
-    window.Debug.logError(window.Debug.DebugModule.SYSTEM, 'Settings container element not found in DOM');
+    console.error("Settings container not found");
+    if (window.Debug) window.Debug.logError(window.Debug.DebugModule.SYSTEM, 'Settings container element not found in DOM');
     return;
   }
 
-  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Starting settings page render, checking session...');
+  try {
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Starting settings page render, checking session...');
 
-  // Use auth contract to get session
-  const { requireSession } = window.AuthContract;
-  const session = await requireSession();
-  
-  // Check if user is signed in
-  if (!session) {
-    window.Debug.logWarn(window.Debug.DebugModule.SETTINGS, 'Settings hidden: no active session');
-    renderSignedOutMessage(container);
-    return;
-  }
-
-  window.Debug.logInfo(window.Debug.DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
-
-  const user = session.user;
-  
-  // Backend role verification - MANDATORY before rendering settings
-  const roleInfo = await window.AdminAuth.getUserRoleBackend(user.id);
-  
-  if (!roleInfo) {
-    window.Debug.logError(window.Debug.DebugModule.ROLE, 'Failed to retrieve user role from backend');
-    renderErrorMessage(container, 'Error Loading Settings', 'Unable to verify your permissions. Please try refreshing the page.');
-    return;
-  }
-
-  window.Debug.logInfo(window.Debug.DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
-
-  // Settings page is accessible to all authenticated users
-  // Only specific sections (requiresAdmin) are restricted
-  const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
-
-  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
-
-  container.innerHTML = "";
-
-  settingsConfig.forEach(section => {
-    // Skip admin-only sections if user is not admin
-    if (section.requiresAdmin && !isAdmin) {
+    // Use auth contract to get session
+    const session = window.AuthContract ? await window.AuthContract.requireSession() : null;
+    
+    // Check if user is signed in
+    if (!session) {
+      if (window.Debug) window.Debug.logWarn(window.Debug.DebugModule.SETTINGS, 'Settings hidden: no active session');
+      renderSignedOutMessage(container);
       return;
     }
+
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
+
+    const user = session.user;
     
-    const sectionEl = createSettingsSection(section, user);
-    container.appendChild(sectionEl);
-  });
+    // Backend role verification - MANDATORY before rendering settings
+    const roleInfo = await window.AdminAuth.getUserRoleBackend(user.id);
+    
+    if (!roleInfo) {
+      if (window.Debug) window.Debug.logError(window.Debug.DebugModule.ROLE, 'Failed to retrieve user role from backend');
+      renderErrorMessage(container, 'Error Loading Settings', 'Unable to verify your permissions. Please try refreshing the page.');
+      return;
+    }
 
-  // Attach event listeners
-  attachEventListeners();
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
 
-  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Settings UI rendered successfully');
-  console.log("✅ Settings rendered");
+    // Settings page is accessible to all authenticated users
+    // Only specific sections (requiresAdmin) are restricted
+    const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
+
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
+
+    container.innerHTML = "";
+
+    settingsConfig.forEach(section => {
+      // Skip admin-only sections if user is not admin
+      if (section.requiresAdmin && !isAdmin) {
+        return;
+      }
+      
+      const sectionEl = createSettingsSection(section, user);
+      container.appendChild(sectionEl);
+    });
+
+    // Attach event listeners
+    attachEventListeners();
+
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Settings UI rendered successfully');
+  } catch (err) {
+    console.error('Settings render error:', err);
+    renderErrorMessage(container, 'Error Loading Settings', 'Something went wrong. Please try refreshing the page.');
+  }
 }
 
 // ===============================
@@ -734,7 +735,6 @@ function attachEventListeners() {
       localStorage.setItem("theme-preset", preset);
       applyThemePreset(preset);
       
-      console.log(`🎨 Theme preset applied: ${preset}`);
     });
   });
   
@@ -750,7 +750,6 @@ function attachEventListeners() {
       // Apply theme mode (saves to localStorage)
       applyThemeMode(mode);
       
-      console.log(`🌓 Theme mode applied: ${mode}`);
     });
   });
   
@@ -772,7 +771,6 @@ function attachEventListeners() {
       document.querySelectorAll(".accent-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       
-      console.log(`🎨 Accent color preview: ${accent}`);
     });
   });
   
@@ -782,7 +780,6 @@ function attachEventListeners() {
     applyAccentBtn.addEventListener("click", () => {
       const previewAccent = localStorage.getItem("accent-color-preview") || "red";
       localStorage.setItem("accent-color", previewAccent);
-      console.log(`✅ Accent color applied: ${previewAccent}`);
       
       // Show feedback
       applyAccentBtn.textContent = "Applied!";
@@ -805,7 +802,6 @@ function attachEventListeners() {
         btn.classList.toggle("active", btn.dataset.accent === defaultAccent);
       });
       
-      console.log(`🔄 Accent color reset to default (preview only - click Apply to persist)`);
     });
   }
   
@@ -824,7 +820,6 @@ function attachEventListeners() {
       
       // Store as preview only
       localStorage.setItem("font-family-preview", value);
-      console.log(`🔤 Font family preview: ${value}`);
     });
     
     // Apply saved preview on load
@@ -847,7 +842,6 @@ function attachEventListeners() {
         document.body.classList.add(`font-${previewFont}`);
       }
       
-      console.log(`✅ Font family applied: ${previewFont}`);
       
       // Show feedback
       applyFontBtn.textContent = "Applied!";
@@ -867,7 +861,6 @@ function attachEventListeners() {
       // Update select
       if (fontSelect) fontSelect.value = defaultFont;
       
-      console.log(`🔄 Font family reset to default (preview only - click Apply to persist)`);
     });
   }
   
@@ -897,7 +890,6 @@ function attachEventListeners() {
         }
       });
       
-      console.log(`✨ Glass effect ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -972,7 +964,6 @@ function attachEventListeners() {
         nightStrengthRange.parentElement.parentElement.style.opacity = isEnabled ? '1' : '0.5';
       }
       
-      console.log(`🌙 Night mode ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -1019,7 +1010,6 @@ function attachEventListeners() {
         document.body.classList.remove("high-contrast");
       }
       
-      console.log(`✅ High contrast ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -1041,7 +1031,6 @@ function attachEventListeners() {
         document.body.classList.remove("reduced-motion");
       }
       
-      console.log(`✅ Reduced motion ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -1057,15 +1046,15 @@ function attachEventListeners() {
     debugPanelToggle.addEventListener("change", (e) => {
       const isEnabled = e.target.checked;
       
-      if (isEnabled) {
-        window.Debug.debugLogger.enablePanel();
-        window.Debug.togglePanel(); // Show panel
-      } else {
-        window.Debug.debugLogger.disablePanel();
-        window.Debug.togglePanel(); // Hide panel
+      if (window.Debug) {
+        if (isEnabled) {
+          if (window.Debug.debugLogger) window.Debug.debugLogger.enablePanel();
+          window.Debug.togglePanel();
+        } else {
+          if (window.Debug.debugLogger) window.Debug.debugLogger.disablePanel();
+          window.Debug.togglePanel();
+        }
       }
-      
-      console.log(`🐛 Debug panel ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -1078,8 +1067,9 @@ function attachEventListeners() {
   const clearDebugBtn = document.getElementById("clear-debug-logs");
   if (clearDebugBtn) {
     clearDebugBtn.addEventListener("click", () => {
-      window.Debug.debugLogger.clear();
-      console.log("🗑️ Debug logs cleared");
+      if (window.Debug && window.Debug.debugLogger) {
+        window.Debug.debugLogger.clear();
+      }
       
       // Show feedback
       clearDebugBtn.textContent = "Cleared!";
@@ -1117,7 +1107,6 @@ function attachEventListeners() {
           throw error;
         }
         
-        console.log("✅ Demo data reset successful");
         resetDemoBtn.textContent = "Reset Complete!";
         
         setTimeout(() => {
@@ -1137,7 +1126,6 @@ function attachEventListeners() {
   const signOutBtn = document.getElementById("sign-out");
   if (signOutBtn) {
     signOutBtn.addEventListener("click", async () => {
-      console.log("🚪 Sign out clicked");
       await window.AvatarUtils.handleLogout();
     });
   }
@@ -1204,33 +1192,40 @@ let settingsInitialized = false;
 document.addEventListener("DOMContentLoaded", () => {
   if (settingsInitialized) return;
   settingsInitialized = true;
-  
-  console.log("[settings] Waiting for auth initialization...");
   showLoadingState();
 });
 
 // Wait for auth:ready event before checking auth
 window.addEventListener("auth:ready", async (e) => {
-  const session = e.detail.session;
-  
-  if (!session) {
-    console.log("[settings] No session, showing login required");
-    showLoginRequiredMessage();
-  } else {
-    console.log("[settings] Session found, rendering settings");
-    renderSettings();
+  try {
+    const session = e.detail.session;
+    
+    if (!session) {
+      showLoginRequiredMessage();
+    } else {
+      renderSettings();
+    }
+  } catch (err) {
+    console.error('Settings init error:', err);
+    const container = document.getElementById("settings-container");
+    if (container) {
+      renderErrorMessage(container, 'Error Loading Settings', 'Something went wrong. Please try refreshing the page.');
+    }
   }
 });
 
 // Listen to auth state changes (single listener via event)
 window.addEventListener("auth-state-changed", async (e) => {
-  console.log("🔔 Auth state changed, re-rendering settings");
-  const session = e.detail.session;
-  
-  if (!session) {
-    showLoginRequiredMessage();
-  } else {
-    renderSettings();
+  try {
+    const session = e.detail.session;
+    
+    if (!session) {
+      showLoginRequiredMessage();
+    } else {
+      renderSettings();
+    }
+  } catch (err) {
+    console.error('Settings re-render error:', err);
   }
 });
 
@@ -1241,31 +1236,21 @@ window.addEventListener("auth-state-changed", async (e) => {
 function applyThemePreset(preset) {
   document.body.setAttribute("data-theme-preset", preset);
   localStorage.setItem("theme-preset", preset);
-  
-  // Each preset defines its own background, card, and accent colors
-  // CSS will handle the actual color values
-  console.log(`✅ Theme preset ${preset} applied globally`);
 }
 
 function applyThemeMode(mode) {
   localStorage.setItem("theme-mode", mode);
   
   if (mode === "auto") {
-    // Detect system preference
     const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     document.body.setAttribute("data-theme", isDark ? "dark" : "light");
   } else {
     document.body.setAttribute("data-theme", mode);
   }
-  console.log(`✅ Theme mode ${mode} applied globally`);
 }
 
 // Initialize theme preset and mode on page load
-// (Already applied in common.js, just sync UI here)
 document.addEventListener("DOMContentLoaded", () => {
   const savedPreset = localStorage.getItem("theme-preset") || "red-classic";
   const savedMode = localStorage.getItem("theme-mode") || "auto";
-  
-  // Theme is already applied by common.js, no need to reapply
-  console.log(`Theme preset: ${savedPreset}, Theme mode: ${savedMode}`);
 });

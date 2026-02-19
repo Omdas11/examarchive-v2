@@ -186,7 +186,7 @@ class DebugLogger {
         console.warn('[DEBUG-LOGGER] Could not fetch role level:', err);
       }
 
-      const hasAccess = roleLevel > 80;
+      const hasAccess = roleLevel >= 80;
       this.enabled = hasAccess;
       
       if (hasAccess) {
