@@ -4,38 +4,27 @@
 // Phase 9.2.3 - Converted to Classic JS (NO IMPORTS)
 // ============================================
 
-console.log("🎛️ dashboard.js loaded (Phase 8.3 - Backend-First)");
-
 let currentTab = 'pending';
 let currentSubmission = null;
 let allSubmissions = [];
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log('[ADMIN-DASHBOARD] DOMContentLoaded - Checking admin access...');
-  
   const loadingState = document.getElementById('loading-state');
   const accessDenied = document.getElementById('access-denied');
   const dashboardContent = document.getElementById('dashboard-content');
 
   try {
-    // CRITICAL: Backend-only verification
-    // NO reliance on frontend role state or role:ready events
-    console.log('[ADMIN-DASHBOARD] Calling backend is_admin() function...');
     const hasAdminAccess = await window.AdminAuth.isCurrentUserAdmin();
-    console.log('[ADMIN-DASHBOARD] Backend admin check result:', hasAdminAccess);
     
     // Hide loading state
     loadingState.style.display = 'none';
     
     if (!hasAdminAccess) {
       accessDenied.style.display = 'flex';
-      console.log("🔒 Admin dashboard access denied - backend verification failed");
       return;
     }
 
-    console.log("✅ Admin access granted by backend");
-    console.log('[ADMIN] dashboard access granted (backend-verified)');
     dashboardContent.style.display = 'block';
 
     // Initialize dashboard
@@ -92,6 +81,12 @@ function setupTabs() {
  */
 async function loadSubmissions() {
   try {
+    const session = window.waitForSession ? await window.waitForSession() : null;
+    if (!session) {
+      console.warn('[ADMIN-DASHBOARD] No session — skipping load');
+      return;
+    }
+
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
     
@@ -100,21 +95,15 @@ async function loadSubmissions() {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('[ADMIN-DASHBOARD] Full error loading submissions:', JSON.stringify(error));
-      throw error;
-    }
+    if (error) throw error;
 
     allSubmissions = data || [];
-    
-    // Update stats
+
     updateStats();
-    
-    // Render submissions for current tab
     renderSubmissions();
-    
-  } catch (error) {
-    console.error('Error loading submissions:', error);
+
+  } catch (err) {
+    console.error('Dashboard load error:', err);
     showMessage('Failed to load submissions', 'error');
   }
 }
@@ -174,7 +163,7 @@ function renderSubmissions() {
  * Render a single submission card
  */
 function renderSubmissionCard(submission) {
-  const statusClass = `status-${submission.status}`;
+  const statusClass = `status-${submission?.status || 'pending'}`;
   
   const statusLabels = {
     pending: '⏳ Pending Review',
@@ -183,39 +172,48 @@ function renderSubmissionCard(submission) {
     published: '🌐 Published'
   };
 
+  const safeFileSize = (submission?.file_size ?? 0);
+  const safeFilename = (submission?.original_filename || 'Unknown');
+  const safePaperCode = (submission?.paper_code || 'Unknown Code');
+  const safeYear = (submission?.year || 'N/A');
+  const safeStatus = (submission?.status || 'pending');
+  const safeCreatedAt = submission?.created_at
+    ? new Date(submission.created_at).toLocaleString()
+    : 'Unknown date';
+
   return `
-    <div class="submission-card" data-id="${submission.id}">
+    <div class="submission-card" data-id="${submission?.id || ''}">
       <div class="submission-header">
         <div class="submission-meta">
-          <h3>${submission.paper_code || 'Unknown Code'} - ${submission.year || 'N/A'}</h3>
+          <h3>${safePaperCode} - ${safeYear}</h3>
           <div class="meta-row">
-            <strong>File:</strong> ${submission.original_filename || 'Unknown'}
+            <strong>File:</strong> ${safeFilename}
           </div>
           <div class="meta-row">
-            ${window.UploadHandler.formatDate(submission.created_at)}
+            ${safeCreatedAt}
           </div>
         </div>
         <span class="status-badge ${statusClass}">
-          ${statusLabels[submission.status]}
+          ${statusLabels[safeStatus] || '⏳ Pending Review'}
         </span>
       </div>
 
       <div class="submission-details">
         <div class="detail-item">
           <strong>File Size</strong>
-          <span>${window.UploadHandler.formatFileSize(submission.file_size)}</span>
+          <span>${window.UploadHandler ? window.UploadHandler.formatFileSize(safeFileSize) : safeFileSize + ' B'}</span>
         </div>
         <div class="detail-item">
           <strong>Paper Name</strong>
-          <span>${submission.paper_name || '-'}</span>
+          <span>${submission?.paper_name || '-'}</span>
         </div>
-        ${submission.reviewed_at ? `
+        ${submission?.reviewed_at ? `
         <div class="detail-item">
           <strong>Reviewed</strong>
-          <span>${window.UploadHandler.formatDate(submission.reviewed_at)}</span>
+          <span>${new Date(submission.reviewed_at).toLocaleString()}</span>
         </div>
         ` : ''}
-        ${submission.public_url ? `
+        ${submission?.public_url ? `
         <div class="detail-item">
           <strong>Public URL</strong>
           <span><a href="${submission.public_url}" target="_blank" rel="noopener">View PDF</a></span>
@@ -223,25 +221,25 @@ function renderSubmissionCard(submission) {
         ` : ''}
       </div>
 
-      ${submission.review_notes ? `
+      ${submission?.review_notes ? `
       <div style="padding: 0.75rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem;">
         <strong>Review Notes:</strong> ${submission.review_notes}
       </div>
       ` : ''}
 
       <div class="submission-actions">
-        ${submission.status === 'pending' ? `
-          <button class="btn btn-outline" data-action="view" data-id="${submission.id}">
+        ${safeStatus === 'pending' ? `
+          <button class="btn btn-outline" data-action="view" data-id="${submission?.id || ''}">
             View Details
           </button>
-          <button class="btn btn-danger" data-action="reject" data-id="${submission.id}">
+          <button class="btn btn-danger" data-action="reject" data-id="${submission?.id || ''}">
             Reject
           </button>
-          <button class="btn btn-success" data-action="approve" data-id="${submission.id}">
+          <button class="btn btn-success" data-action="approve" data-id="${submission?.id || ''}">
             Approve & Publish
           </button>
-        ` : submission.status === 'approved' ? `
-          <button class="btn btn-view" data-action="publish" data-id="${submission.id}">
+        ` : safeStatus === 'approved' ? `
+          <button class="btn btn-view" data-action="publish" data-id="${submission?.id || ''}">
             Publish Now
           </button>
         ` : ''}
@@ -326,12 +324,12 @@ function showReviewModal(submission) {
 
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
-      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.year}</h4>
+      <h4 style="margin: 0 0 0.5rem 0;">${submission?.paper_code || 'Unknown'} - ${submission?.year || 'N/A'}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission.original_filename} (${window.UploadHandler.formatFileSize(submission.file_size)})
+        <strong>File:</strong> ${submission?.original_filename || 'Unknown'} (${window.UploadHandler ? window.UploadHandler.formatFileSize(submission?.file_size ?? 0) : (submission?.file_size ?? 0) + ' B'})
       </p>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>Submitted:</strong> ${window.UploadHandler.formatDate(submission.created_at)}
+        <strong>Submitted:</strong> ${submission?.created_at ? new Date(submission.created_at).toLocaleString() : 'Unknown'}
       </p>
     </div>
   `;
@@ -357,9 +355,9 @@ function showRejectModal(submission) {
 
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
-      <h4 style="margin: 0 0 0.5rem 0;">${submission.paper_code} - ${submission.year}</h4>
+      <h4 style="margin: 0 0 0.5rem 0;">${submission?.paper_code || 'Unknown'} - ${submission?.year || 'N/A'}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission.original_filename}
+        <strong>File:</strong> ${submission?.original_filename || 'Unknown'}
       </p>
     </div>
   `;

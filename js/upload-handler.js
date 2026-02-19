@@ -376,7 +376,7 @@ function sanitizeFilename(filename) {
  * Format file size for display
  */
 function formatFileSize(bytes) {
-  if (bytes === 0) return '0 B';
+  if (!bytes || bytes === 0) return '0 B';
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -387,6 +387,7 @@ function formatFileSize(bytes) {
  * Format timestamp for display
  */
 function formatDate(timestamp) {
+  if (!timestamp) return 'Unknown date';
   const date = new Date(timestamp);
   const now = new Date();
   const diff = now - date;

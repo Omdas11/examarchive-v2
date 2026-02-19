@@ -2,8 +2,6 @@
 // Settings Page Controller
 // ===============================
 
-console.log("⚙️ settings.js loaded");
-
 // ===============================
 // Settings Configuration
 // ===============================
@@ -237,62 +235,65 @@ const settingsConfig = [
 async function renderSettings() {
   const container = document.getElementById("settings-container");
   if (!container) {
-    console.error("❌ Settings container not found");
-    window.Debug.logError(window.Debug.DebugModule.SYSTEM, 'Settings container element not found in DOM');
+    console.error("Settings container not found");
+    if (window.Debug) window.Debug.logError(window.Debug.DebugModule.SYSTEM, 'Settings container element not found in DOM');
     return;
   }
 
-  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Starting settings page render, checking session...');
+  try {
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Starting settings page render, checking session...');
 
-  // Use auth contract to get session
-  const { requireSession } = window.AuthContract;
-  const session = await requireSession();
-  
-  // Check if user is signed in
-  if (!session) {
-    window.Debug.logWarn(window.Debug.DebugModule.SETTINGS, 'Settings hidden: no active session');
-    renderSignedOutMessage(container);
-    return;
-  }
-
-  window.Debug.logInfo(window.Debug.DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
-
-  const user = session.user;
-  
-  // Backend role verification - MANDATORY before rendering settings
-  const roleInfo = await window.AdminAuth.getUserRoleBackend(user.id);
-  
-  if (!roleInfo) {
-    window.Debug.logError(window.Debug.DebugModule.ROLE, 'Failed to retrieve user role from backend');
-    renderErrorMessage(container, 'Error Loading Settings', 'Unable to verify your permissions. Please try refreshing the page.');
-    return;
-  }
-
-  window.Debug.logInfo(window.Debug.DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
-
-  // Settings page is accessible to all authenticated users
-  // Only specific sections (requiresAdmin) are restricted
-  const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
-
-  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
-
-  container.innerHTML = "";
-
-  settingsConfig.forEach(section => {
-    // Skip admin-only sections if user is not admin
-    if (section.requiresAdmin && !isAdmin) {
+    // Use auth contract to get session
+    const session = window.AuthContract ? await window.AuthContract.requireSession() : null;
+    
+    // Check if user is signed in
+    if (!session) {
+      if (window.Debug) window.Debug.logWarn(window.Debug.DebugModule.SETTINGS, 'Settings hidden: no active session');
+      renderSignedOutMessage(container);
       return;
     }
+
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
+
+    const user = session.user;
     
-    const sectionEl = createSettingsSection(section, user);
-    container.appendChild(sectionEl);
-  });
+    // Backend role verification - MANDATORY before rendering settings
+    const roleInfo = await window.AdminAuth.getUserRoleBackend(user.id);
+    
+    if (!roleInfo) {
+      if (window.Debug) window.Debug.logError(window.Debug.DebugModule.ROLE, 'Failed to retrieve user role from backend');
+      renderErrorMessage(container, 'Error Loading Settings', 'Unable to verify your permissions. Please try refreshing the page.');
+      return;
+    }
 
-  // Attach event listeners
-  attachEventListeners();
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
 
-  window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Settings UI rendered successfully');
-  console.log("✅ Settings rendered");
+    // Settings page is accessible to all authenticated users
+    // Only specific sections (requiresAdmin) are restricted
+    const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
+
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
+
+    container.innerHTML = "";
+
+    settingsConfig.forEach(section => {
+      // Skip admin-only sections if user is not admin
+      if (section.requiresAdmin && !isAdmin) {
+        return;
+      }
+      
+      const sectionEl = createSettingsSection(section, user);
+      container.appendChild(sectionEl);
+    });
+
+    // Attach event listeners
+    attachEventListeners();
+
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Settings UI rendered successfully');
+  } catch (err) {
+    console.error('Settings render error:', err);
+    renderErrorMessage(container, 'Error Loading Settings', 'Something went wrong. Please try refreshing the page.');
+  }
 }
 
 // ===============================
@@ -1057,15 +1058,15 @@ function attachEventListeners() {
     debugPanelToggle.addEventListener("change", (e) => {
       const isEnabled = e.target.checked;
       
-      if (isEnabled) {
-        window.Debug.debugLogger.enablePanel();
-        window.Debug.togglePanel(); // Show panel
-      } else {
-        window.Debug.debugLogger.disablePanel();
-        window.Debug.togglePanel(); // Hide panel
+      if (window.Debug) {
+        if (isEnabled) {
+          if (window.Debug.debugLogger) window.Debug.debugLogger.enablePanel();
+          window.Debug.togglePanel();
+        } else {
+          if (window.Debug.debugLogger) window.Debug.debugLogger.disablePanel();
+          window.Debug.togglePanel();
+        }
       }
-      
-      console.log(`🐛 Debug panel ${isEnabled ? "enabled" : "disabled"}`);
     });
     
     // Apply saved preference
@@ -1078,8 +1079,9 @@ function attachEventListeners() {
   const clearDebugBtn = document.getElementById("clear-debug-logs");
   if (clearDebugBtn) {
     clearDebugBtn.addEventListener("click", () => {
-      window.Debug.debugLogger.clear();
-      console.log("🗑️ Debug logs cleared");
+      if (window.Debug && window.Debug.debugLogger) {
+        window.Debug.debugLogger.clear();
+      }
       
       // Show feedback
       clearDebugBtn.textContent = "Cleared!";
