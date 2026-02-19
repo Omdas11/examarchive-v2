@@ -201,7 +201,7 @@ function renderSubmissionCard(submission) {
       <div class="submission-details">
         <div class="detail-item">
           <strong>File Size</strong>
-          <span>${window.UploadHandler ? window.UploadHandler.formatFileSize(safeFileSize) : safeFileSize + ' B'}</span>
+          <span>${window.UploadHandler?.formatFileSize ? window.UploadHandler.formatFileSize(safeFileSize) : '0 B'}</span>
         </div>
         <div class="detail-item">
           <strong>Paper Name</strong>
@@ -326,7 +326,7 @@ function showReviewModal(submission) {
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
       <h4 style="margin: 0 0 0.5rem 0;">${submission?.paper_code || 'Unknown'} - ${submission?.year || 'N/A'}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission?.original_filename || 'Unknown'} (${window.UploadHandler ? window.UploadHandler.formatFileSize(submission?.file_size ?? 0) : (submission?.file_size ?? 0) + ' B'})
+        <strong>File:</strong> ${submission?.original_filename || 'Unknown'} (${window.UploadHandler?.formatFileSize ? window.UploadHandler.formatFileSize(submission?.file_size ?? 0) : '0 B'})
       </p>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
         <strong>Submitted:</strong> ${submission?.created_at ? new Date(submission.created_at).toLocaleString() : 'Unknown'}
