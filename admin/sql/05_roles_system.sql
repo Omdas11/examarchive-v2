@@ -77,21 +77,29 @@ as $$
 $$;
 
 -- Map a user's level to a human-readable role name
+-- Uses range matching for robustness (not exact values)
 create or replace function get_user_role_name(user_id_param uuid)
 returns text
 language sql
 security definer
 set search_path = public
 as $$
-  select case coalesce(
-           (select level from roles where user_id = user_id_param limit 1),
-           0
-         )
-    when 100 then 'admin'
-    when 80  then 'reviewer'
-    when 10  then 'contributor'
-    else          'visitor'
-  end;
+  select
+    case
+      when coalesce(
+        (select level from roles where user_id = user_id_param limit 1),
+        0
+      ) >= 100 then 'admin'
+      when coalesce(
+        (select level from roles where user_id = user_id_param limit 1),
+        0
+      ) >= 80 then 'reviewer'
+      when coalesce(
+        (select level from roles where user_id = user_id_param limit 1),
+        0
+      ) >= 10 then 'contributor'
+      else 'visitor'
+    end;
 $$;
 
 -- Check whether a given user is an admin (level >= 100)

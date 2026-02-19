@@ -23,7 +23,7 @@ create index if not exists submissions_created_at_idx on submissions(created_at 
 alter table submissions enable row level security;
 
 -- Users can see their own submissions
-create policy "users see own submissions"
+create policy "user_select_own_submissions"
 on submissions for select
 using (auth.uid() = user_id);
 
@@ -36,10 +36,16 @@ with check (
   or get_current_user_role_level() >= 80
 );
 
--- Reviewers and admins (level >= 80) can see all submissions
-create policy "reviewers see all submissions"
+-- Admins and reviewers (level >= 80) can see all submissions
+create policy "admin_select_all_submissions"
 on submissions for select
-using (get_current_user_role_level() >= 80);
+using (
+  exists (
+    select 1 from roles
+    where roles.user_id = auth.uid()
+    and roles.level >= 80
+  )
+);
 
 -- Reviewers and admins can update submissions (only status and approved_path fields)
 create policy "reviewers update submissions"

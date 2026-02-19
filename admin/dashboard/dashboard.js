@@ -97,13 +97,13 @@ async function loadSubmissions() {
     
     const { data, error } = await supabase
       .from('submissions')
-      .select(`
-        *,
-        profiles:user_id (email)
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('[ADMIN-DASHBOARD] Full error loading submissions:', JSON.stringify(error));
+      throw error;
+    }
 
     allSubmissions = data || [];
     
@@ -174,7 +174,6 @@ function renderSubmissions() {
  * Render a single submission card
  */
 function renderSubmissionCard(submission) {
-  const userEmail = submission.profiles?.email || 'Unknown user';
   const statusClass = `status-${submission.status}`;
   
   const statusLabels = {
@@ -190,10 +189,7 @@ function renderSubmissionCard(submission) {
         <div class="submission-meta">
           <h3>${submission.paper_code || 'Unknown Code'} - ${submission.year || 'N/A'}</h3>
           <div class="meta-row">
-            <strong>Submitted by:</strong> ${userEmail}
-          </div>
-          <div class="meta-row">
-            <strong>File:</strong> ${submission.original_filename}
+            <strong>File:</strong> ${submission.original_filename || 'Unknown'}
           </div>
           <div class="meta-row">
             ${window.UploadHandler.formatDate(submission.created_at)}
@@ -384,40 +380,49 @@ async function approveSubmission(submission, notes = '') {
     const { data: { session } } = await supabase.auth.getSession();
     const reviewerId = session.user.id;
 
-    // Move file from temp to approved to public
+    // Move file from temp to approved bucket
     const timestamp = Date.now();
-    const filename = `${submission.paper_code}_${submission.year}_${timestamp}.pdf`;
-    const publicPath = `papers/${filename}`;
+    const approvedPath = `approved/${submission.paper_code}/${submission.year}/${timestamp}.pdf`;
 
-    const moved = await window.SupabaseClient.moveFile(
-      window.SupabaseClient.BUCKETS.TEMP,
-      submission.storage_path,
-      window.SupabaseClient.BUCKETS.PUBLIC,
-      publicPath
-    );
+    // Download from temp
+    const { data: tempFile, error: dlErr } = await supabase.storage
+      .from('uploads-temp')
+      .download(submission.storage_path);
 
-    if (!moved) {
-      throw new Error('Failed to move file to public storage');
-    }
+    if (dlErr) throw new Error('Failed to download temp file: ' + dlErr.message);
 
-    // Get public URL
-    const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
+    // Upload to approved
+    const { error: ulErr } = await supabase.storage
+      .from('uploads-approved')
+      .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
 
-    // Update submission
+    if (ulErr) throw new Error('Failed to upload to approved: ' + ulErr.message);
+
+    // Insert into approved_papers table
+    await supabase.from('approved_papers').insert({
+      paper_code: submission.paper_code,
+      year: submission.year,
+      file_path: approvedPath,
+      uploaded_by: submission.user_id,
+      is_demo: false
+    });
+
+    // Update submission status and approved_path
     const { error: updateError } = await supabase
       .from('submissions')
       .update({
-        status: 'published',
+        status: 'approved',
+        approved_path: approvedPath,
         reviewer_id: reviewerId,
         review_notes: notes || null,
-        reviewed_at: new Date().toISOString(),
-        published_at: new Date().toISOString(),
-        public_path: publicPath,
-        public_url: publicUrl
+        reviewed_at: new Date().toISOString()
       })
       .eq('id', submission.id);
 
     if (updateError) throw updateError;
+
+    // Clean up temp file
+    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
     showMessage('Submission approved and published!', 'success');
     
@@ -444,7 +449,7 @@ async function rejectSubmission(submission, notes = '') {
     const reviewerId = session.user.id;
 
     // Delete file from temp storage
-    await window.SupabaseClient.deleteFile(window.SupabaseClient.BUCKETS.TEMP, submission.storage_path);
+    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
     // Update submission
     const { error: updateError } = await supabase
@@ -480,33 +485,12 @@ async function publishSubmission(submission) {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
 
-    // Move from approved to public
-    const timestamp = Date.now();
-    const filename = `${submission.paper_code}_${submission.year}_${timestamp}.pdf`;
-    const publicPath = `papers/${filename}`;
-
-    const moved = await window.SupabaseClient.moveFile(
-      window.SupabaseClient.BUCKETS.APPROVED,
-      submission.approved_path,
-      window.SupabaseClient.BUCKETS.PUBLIC,
-      publicPath
-    );
-
-    if (!moved) {
-      throw new Error('Failed to move file to public storage');
-    }
-
-    // Get public URL
-    const publicUrl = window.SupabaseClient.getPublicUrl(publicPath);
-
-    // Update submission
+    // File is already in uploads-approved; just update status
     const { error: updateError } = await supabase
       .from('submissions')
       .update({
         status: 'published',
-        published_at: new Date().toISOString(),
-        public_path: publicPath,
-        public_url: publicUrl
+        published_at: new Date().toISOString()
       })
       .eq('id', submission.id);
 

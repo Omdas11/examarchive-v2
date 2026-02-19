@@ -14,6 +14,9 @@ function debugLog(level, message, data) {
   }
 }
 
+// Upload-in-progress flag to prevent duplicate submissions
+let uploadInProgress = false;
+
 /**
  * Handle file upload to temp storage with submission tracking
  * @param {File} file - PDF file to upload
@@ -25,6 +28,18 @@ function debugLog(level, message, data) {
  * @returns {Promise<Object>} Result with submissionId and error
  */
 async function handlePaperUpload(file, metadata, onProgress) {
+  // Prevent duplicate submissions
+  if (uploadInProgress) {
+    console.warn('[UPLOAD] Upload already in progress — blocking duplicate');
+    return {
+      success: false,
+      submissionId: null,
+      message: 'Upload already in progress. Please wait.',
+      error: new Error('Duplicate upload blocked')
+    };
+  }
+
+  uploadInProgress = true;
   try {
     debugLog('info', 'Starting paper upload', { filename: file?.name });
     console.log('[UPLOAD] Starting paper upload', { filename: file?.name });
@@ -281,6 +296,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
       message: userMessage,
       error
     };
+  } finally {
+    uploadInProgress = false;
   }
 }
 
