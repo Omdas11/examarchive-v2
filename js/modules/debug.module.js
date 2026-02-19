@@ -28,7 +28,8 @@ const DebugModule = {
   STORAGE: 'storage',
   ROLE: 'role',
   SETTINGS: 'settings',
-  SYSTEM: 'system'
+  SYSTEM: 'system',
+  RLS: 'rls'
 };
 
 /**

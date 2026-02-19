@@ -70,8 +70,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     const userId = user.id;
-    debugLog('info', `Auth UID: ${userId}`);
-    console.log('Auth UID:', userId);
+    debugLog('info', `[UPLOAD] Inserting submission for UID: ${userId}`);
+    console.log('[UPLOAD] Auth verified, UID:', userId);
 
     // Validate metadata
     if (!metadata || !metadata.paperCode || !metadata.examYear) {

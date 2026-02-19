@@ -28,17 +28,21 @@ on submissions for select
 using (auth.uid() = user_id);
 
 -- Users can insert their own submissions
+-- Admin/Reviewer bypass: role level >= 80 can insert on behalf of others
 create policy "users insert own submissions"
 on submissions for insert
-with check (auth.uid() = user_id);
+with check (
+  auth.uid() = user_id
+  or get_current_user_role_level() >= 80
+);
 
--- Admins and reviewers (level >= 50) can see all submissions
+-- Reviewers and admins (level >= 80) can see all submissions
 create policy "reviewers see all submissions"
 on submissions for select
-using (get_current_user_role_level() >= 50);
+using (get_current_user_role_level() >= 80);
 
--- Admins and reviewers can update submissions (only status and approved_path fields)
+-- Reviewers and admins can update submissions (only status and approved_path fields)
 create policy "reviewers update submissions"
 on submissions for update
-using (get_current_user_role_level() >= 50)
-with check (get_current_user_role_level() >= 50);
+using (get_current_user_role_level() >= 80)
+with check (get_current_user_role_level() >= 80);
