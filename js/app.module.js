@@ -1,8 +1,7 @@
 // js/app.module.js
 // ============================================
-// SINGLE MODULE ENTRY POINT - Phase 9.2.3
-// This is the ONLY file in the entire project that uses type="module"
-// All other JavaScript files MUST be classic scripts
+// SINGLE MODULE ENTRY POINT
+// This is the ONLY file that uses type="module"
 // ============================================
 
 import { initAuth } from './modules/auth.module.js';

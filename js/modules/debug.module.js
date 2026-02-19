@@ -1,7 +1,7 @@
 // js/modules/debug.module.js
 // ============================================
-// DEBUG MODULE - Phase 1.0
-// Redesigned mobile-friendly debug panel with
+// DEBUG MODULE
+// Mobile-friendly debug panel with
 // slide-up UI, tabs, human-readable messages
 // ============================================
 

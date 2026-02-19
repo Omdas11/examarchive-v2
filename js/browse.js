@@ -1,6 +1,5 @@
 /**
  * ExamArchive v2 — Browse Page
- * Phase 1.0: Clean Architecture Reset
  * Reads from data/papers.json (legacy) + approved_papers table (user uploads)
  */
 

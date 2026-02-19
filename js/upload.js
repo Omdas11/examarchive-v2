@@ -1,6 +1,5 @@
 // ===============================
 // Upload Page - Auth Guard & Upload Handler
-// Phase 1.0: Clean Architecture Reset
 // ===============================
 
 console.log("📤 upload.js loaded");

@@ -1,7 +1,6 @@
 // js/common.js
 // ============================================
 // GLOBAL UI HELPERS (Theme + Partials + Menu)
-// Phase 9.2.8: Graceful degradation, no blocking errors
 // ============================================
 
 // ⚠️ GRACEFUL DEGRADATION: Log warning instead of throwing

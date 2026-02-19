@@ -1,6 +1,6 @@
 // admin/review.js
 // ============================================
-// REVIEW PANEL — Phase 1.0: Clean Architecture
+// REVIEW PANEL
 // Shows pending submissions, allows approve/reject
 // ============================================
 

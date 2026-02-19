@@ -1,6 +1,6 @@
 // js/utils/role-utils.js
 // ============================================
-// ROLE UTILITIES - Phase 1.2
+// ROLE UTILITIES
 // Hard verification from database (no frontend guessing)
 // ============================================
 

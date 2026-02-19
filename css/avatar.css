@@ -99,15 +99,15 @@
   height: 10px;
   border-radius: 50%;
   border: 2px solid var(--surface);
-  background: #10b981;
+  background: var(--color-success);
 }
 
 .avatar-status.offline {
-  background: #6b7280;
+  background: var(--color-muted);
 }
 
 .avatar-status.busy {
-  background: #ef4444;
+  background: var(--color-error);
 }
 
 /* Responsive adjustments */

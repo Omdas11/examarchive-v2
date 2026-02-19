@@ -1,7 +1,5 @@
 // ===============================
 // Settings Page Controller
-// Phase 9.2.5: Auth Single Source of Truth
-// Phase 9.2: Added debug panel controls
 // ===============================
 
 console.log("⚙️ settings.js loaded");

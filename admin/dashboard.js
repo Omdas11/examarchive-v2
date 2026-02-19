@@ -1,8 +1,6 @@
 // admin/dashboard.js
 // ============================================
-// ADMIN DASHBOARD - Phase 9.2.8
-// Updated to use auth contract with requireRole
-// Fixed to wait for Supabase initialization
+// ADMIN DASHBOARD
 // ============================================
 
 console.log("🎛️ dashboard.js loaded");

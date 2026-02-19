@@ -1,7 +1,6 @@
 // js/upload-handler.js
 // ============================================
 // UPLOAD HANDLER - Supabase Storage Integration
-// Phase 1.0: Clean Architecture Reset
 // ============================================
 
 /**

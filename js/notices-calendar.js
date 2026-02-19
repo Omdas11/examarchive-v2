@@ -187,9 +187,9 @@ function renderCalendarMonth() {
   const isCurrentMonth = today.getMonth() === calendarMonth && today.getFullYear() === calendarYear;
   
   const categoryColors = {
-    gazetted: '#d32f2f',
-    restricted: '#1976D2',
-    other: '#388E3C'
+    gazetted: 'var(--red)',
+    restricted: 'var(--color-info)',
+    other: 'var(--color-success)'
   };
   
   let html = '<div class="cal-grid">';
@@ -262,9 +262,9 @@ function renderCalendarWeek() {
   today.setHours(0, 0, 0, 0);
   
   const categoryColors = {
-    gazetted: '#d32f2f',
-    restricted: '#1976D2',
-    other: '#388E3C'
+    gazetted: 'var(--red)',
+    restricted: 'var(--color-info)',
+    other: 'var(--color-success)'
   };
   const categoryLabels = { gazetted: 'Gazetted Holiday', restricted: 'Restricted Holiday', other: 'Academic' };
   
@@ -286,7 +286,7 @@ function renderCalendarWeek() {
     
     if (dayEvents.length > 0) {
       dayEvents.forEach(e => {
-        html += `<div class="cal-week-event" style="border-left-color:${categoryColors[e.category] || '#999'}">
+        html += `<div class="cal-week-event" style="border-left-color:${categoryColors[e.category] || 'var(--text-muted)'}">
           <strong>${e.title}</strong>
           <small>${categoryLabels[e.category] || e.category}</small>
         </div>`;
@@ -315,14 +315,14 @@ function showDayEvents(day) {
   }
   
   const categoryLabels = { gazetted: 'Gazetted Holiday', restricted: 'Restricted Holiday', other: 'Academic' };
-  const categoryColors = { gazetted: '#d32f2f', restricted: '#1976D2', other: '#388E3C' };
+  const categoryColors = { gazetted: 'var(--red)', restricted: 'var(--color-info)', other: 'var(--color-success)' };
   
   detail.style.display = 'block';
   detail.innerHTML = events.map(e => `
     <div style="
       padding: 0.75rem 1rem;
       border-radius: 8px;
-      border-left: 4px solid ${categoryColors[e.category] || '#999'};
+      border-left: 4px solid ${categoryColors[e.category] || 'var(--text-muted)'};
       background: var(--bg-soft, #f5f5f5);
       margin-bottom: 0.5rem;
     ">

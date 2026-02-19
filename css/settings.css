@@ -426,9 +426,9 @@ body[data-theme="amoled"] .settings-theme-btn.active {
 }
 
 .settings-night-btn.active {
-  background: #f4c97a;
-  color: #2b1b00;
-  border-color: #f4c97a;
+  background: var(--color-warning);
+  color: var(--bg);
+  border-color: var(--color-warning);
 }
 
 /* ================================
