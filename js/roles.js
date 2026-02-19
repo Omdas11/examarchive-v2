@@ -42,7 +42,7 @@ function getBadgeIcon(badgeName) {
   const icons = {
     'Admin': '👑',
     'Reviewer': '🛡️',
-    'Contributor': '📝',
+    'Contributor': '✍️',
     'Visitor': '👤'
   };
   return icons[badgeName] || '✓';
@@ -66,7 +66,8 @@ function getBadgeColor(role) {
 /**
  * Get user's badge information from backend
  * This is the ONLY way to get badge info - no frontend inference
- * @returns {Promise<Object>} Badge info {role, badge, icon, color}
+ * Fetches role LEVEL and uses centralized mapRole() function
+ * @returns {Promise<Object>} Badge info {role, badge, icon, color, level}
  */
 async function getUserBadge() {
   try {
@@ -78,22 +79,10 @@ async function getUserBadge() {
         role: 'visitor',
         badge: 'Visitor',
         icon: getBadgeIcon('Visitor'),
-        color: getBadgeColor('visitor')
+        color: getBadgeColor('visitor'),
+        level: 0
       };
     }
-    
-    // Wait for AdminAuth to be available
-    if (!window.AdminAuth?.getUserRoleBackend) {
-      console.warn('[BADGE] AdminAuth not available, returning visitor badge');
-      return {
-        role: 'visitor',
-        badge: 'Visitor',
-        icon: getBadgeIcon('Visitor'),
-        color: getBadgeColor('visitor')
-      };
-    }
-    
-    const getUserRoleBackend = window.AdminAuth.getUserRoleBackend;
     
     const { data: { session } } = await supabase.auth.getSession();
     
@@ -103,39 +92,53 @@ async function getUserBadge() {
         role: 'visitor',
         badge: 'Visitor',
         icon: getBadgeIcon('Visitor'),
-        color: getBadgeColor('visitor')
+        color: getBadgeColor('visitor'),
+        level: 0
       };
     }
 
-    // Get role from backend
-    const roleInfo = await getUserRoleBackend(session.user.id);
-    
-    if (!roleInfo) {
+    // Get role LEVEL from backend (not name)
+    const { data: roleLevel, error } = await supabase.rpc('get_user_role_level', {
+      user_id_param: session.user.id
+    });
+
+    if (error) {
+      console.error('[BADGE] Error getting role level:', error);
       // Default to contributor if backend fails
+      const level = 10;
+      const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };
       return {
-        role: 'contributor',
-        badge: 'Contributor',
-        icon: getBadgeIcon('Contributor'),
-        color: getBadgeColor('contributor')
+        role: roleInfo.name,
+        badge: roleInfo.displayName.replace(/^[^\s]+ /, ''), // Remove icon from display name
+        icon: roleInfo.icon,
+        color: getBadgeColor(roleInfo.name),
+        level: level
       };
     }
 
-    const badgeName = mapRoleToBadge(roleInfo.name);
+    // Default to level 10 if no role row exists
+    const level = roleLevel !== null && roleLevel !== undefined ? roleLevel : 10;
+    
+    // Use centralized mapRole function
+    const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };
     
     return {
       role: roleInfo.name,
-      badge: badgeName,
-      icon: getBadgeIcon(badgeName),
+      badge: roleInfo.displayName.replace(/^[^\s]+ /, ''), // Remove icon from display name
+      icon: roleInfo.icon,
       color: getBadgeColor(roleInfo.name),
-      level: roleInfo.level
+      level: level
     };
   } catch (err) {
     console.error('[BADGE] Error getting user badge:', err);
+    const level = 10;
+    const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };
     return {
-      role: 'visitor',
-      badge: 'Visitor',
-      icon: getBadgeIcon('Visitor'),
-      color: getBadgeColor('visitor')
+      role: roleInfo.name,
+      badge: roleInfo.displayName.replace(/^[^\s]+ /, ''),
+      icon: roleInfo.icon,
+      color: getBadgeColor(roleInfo.name),
+      level: level
     };
   }
 }

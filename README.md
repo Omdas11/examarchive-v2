@@ -38,6 +38,41 @@ New users are automatically assigned **Contributor** (level 10) on signup. Roles
 
 **Demo papers** skip review and appear immediately.
 
+## Storage Buckets
+
+ExamArchive uses two storage buckets:
+
+| Bucket | Visibility | Purpose |
+|---|---|---|
+| `uploads-temp` | Private | Temporary storage for pending submissions |
+| `uploads-approved` | Public | Public storage for approved papers |
+
+### Storage RLS Policies
+
+**uploads-temp:**
+- Authenticated users can upload (INSERT)
+- Users can only read their own files (SELECT where auth.uid() = owner)
+
+**uploads-approved:**
+- Public read access (no authentication required)
+- Only reviewers/admins can write (INSERT/UPDATE/DELETE where role level ≥ 80)
+
+## Role System Details
+
+Roles are stored in the `roles` table with numeric levels. Frontend uses a centralized `mapRole(level)` function:
+
+```javascript
+// In js/utils/role-utils.js
+function mapRole(level) {
+  if (level >= 100) return { name: 'admin', displayName: '👑 Admin', icon: '👑' };
+  if (level >= 80) return { name: 'reviewer', displayName: '🛡️ Reviewer', icon: '🛡️' };
+  if (level >= 10) return { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };
+  return { name: 'visitor', displayName: '👤 Visitor', icon: '👤' };
+}
+```
+
+**Important:** Always fetch the role **level** from the backend and map it client-side. Never depend on the database returning a name. If no role row exists, default to level 10 (Contributor).
+
 ## Security Model
 
 ### Client Singleton
@@ -55,7 +90,7 @@ const supabase = window.getSupabase ? window.getSupabase() : null;
 3. If no user or auth error, upload is rejected immediately
 4. Only fresh `user.id` from `getUser()` is used in submissions
 
-### RLS Policy
+### Database RLS Policy
 
 ```sql
 -- Users insert own submissions (admin/reviewer bypass for level >= 80)
@@ -67,6 +102,13 @@ WITH CHECK (
 );
 ```
 
+### Separation of Storage RLS and Database RLS
+
+**Storage RLS** controls file access in Supabase Storage buckets.  
+**Database RLS** controls row access in Supabase Database tables.  
+
+These are **separate security layers**. An authenticated user can upload to `uploads-temp` (Storage RLS allows it), but the submission must still pass Database RLS (user_id must match auth.uid()).
+
 ### Debug Panel
 
 The debug panel (🐛 icon) auto-classifies errors:
@@ -77,6 +119,12 @@ The debug panel (🐛 icon) auto-classifies errors:
 | `[RLS]` | Red | Row-level security violations |
 | `[STORAGE]` | Orange | Storage bucket errors |
 | `[CLIENT]` | Purple | Client initialization errors |
+
+Storage errors include full context:
+- Bucket name used
+- Storage path
+- Full error object
+- HTTP status code
 
 ## How to Run Locally
 

@@ -45,13 +45,36 @@ Each log entry contains:
 | `[UPLOAD]` | Default blue | Upload flow messages |
 | `[SYSTEM]` | Default | System-level messages |
 
+## Storage Error Logging
+
+When storage operations fail, the debug panel logs detailed context:
+
+```javascript
+// Error context includes:
+{
+  bucket: "uploads-temp",        // Bucket name
+  path: "user_id/timestamp-file.pdf",  // Storage path
+  error: { /* full error object */ },
+  statusCode: 404                // HTTP status code
+}
+```
+
+Example error message:
+```
+[STORAGE ERROR]
+Bucket: uploads-temp
+Path: abc123/1234567890-exam.pdf
+Reason: Storage bucket not found.
+Check: Contact the administrator.
+```
+
 ## Logging Methods
 
 ```javascript
 // Available via window.Debug
 window.Debug.logInfo('upload', 'Starting upload...');
 window.Debug.logWarn('auth', 'Session expiring soon');
-window.Debug.logError('storage', 'Bucket not found');
+window.Debug.logError('storage', 'Bucket not found', errorContext);
 window.Debug.printAuthStatus();  // Logs session, user ID, role level
 window.Debug.clear();            // Clear all logs
 ```

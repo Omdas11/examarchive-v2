@@ -98,14 +98,23 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (uploadError) {
       console.error('[UPLOAD][STORAGE ERROR]', uploadError);
       const statusCode = uploadError.statusCode || uploadError.status;
+      
+      // Detailed error context for debugging
+      const errorContext = {
+        bucket: TEMP_BUCKET,
+        path: storagePath,
+        error: uploadError,
+        statusCode: statusCode
+      };
+      
       if (statusCode === 404) {
-        debugLog('error', 'Upload Failed\nReason: Storage bucket not found.\nCheck: Contact the administrator.', uploadError);
+        debugLog('error', `[STORAGE ERROR]\nBucket: ${TEMP_BUCKET}\nPath: ${storagePath}\nReason: Storage bucket not found.\nCheck: Contact the administrator.`, errorContext);
         throw new Error(`Storage bucket "${TEMP_BUCKET}" not found. Please contact the administrator.`);
       } else if (statusCode === 403) {
-        debugLog('error', 'Upload Failed\nReason: Permission denied in uploads-temp bucket.\nCheck: User authenticated?', uploadError);
+        debugLog('error', `[STORAGE ERROR]\nBucket: ${TEMP_BUCKET}\nPath: ${storagePath}\nReason: Permission denied in uploads-temp bucket.\nCheck: User authenticated?`, errorContext);
         throw new Error('Storage permission denied. Please ensure you are signed in.');
       }
-      debugLog('error', 'Upload Failed\nReason: ' + (uploadError.message || 'Unknown storage error'), uploadError);
+      debugLog('error', `[STORAGE ERROR]\nBucket: ${TEMP_BUCKET}\nPath: ${storagePath}\nReason: ${uploadError.message || 'Unknown storage error'}`, errorContext);
       throw uploadError;
     }
 
@@ -128,7 +137,12 @@ async function handlePaperUpload(file, metadata, onProgress) {
           .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
 
         if (approvedUploadErr) {
-          debugLog('error', 'Failed to copy demo to approved bucket', approvedUploadErr);
+          const errorContext = {
+            bucket: 'uploads-approved',
+            path: approvedPath,
+            error: approvedUploadErr
+          };
+          debugLog('error', `[STORAGE ERROR]\nBucket: uploads-approved\nPath: ${approvedPath}\nReason: Failed to copy demo to approved bucket`, errorContext);
           console.error('[UPLOAD] Failed to copy demo to approved bucket:', approvedUploadErr);
         }
       }
