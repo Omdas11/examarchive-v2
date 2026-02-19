@@ -1,5 +1,21 @@
 # Timelog
 
+## Storage + Profile Alignment
+
+**Date:** February 2026
+
+### Changes
+
+- Implemented centralized `mapRole(level)` function in `js/utils/role-utils.js`
+- Updated role mapping to use level-based logic (not name from DB)
+- Profile panel now fetches role level and maps using centralized function
+- Default to level 10 (Contributor) if no role row exists
+- Updated icon mapping: 👑 Admin, 🛡️ Reviewer, ✍️ Contributor, 👤 Visitor
+- Improved storage error logging to include bucket name, path, and full error object
+- Updated documentation to reflect storage buckets, RLS policies, and role mapping
+
+---
+
 ## Frontend Alignment + Doc Rebuild
 
 **Date:** February 2026
