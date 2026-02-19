@@ -165,12 +165,26 @@ function updateAuthStatusIndicator(session) {
     indicator.classList.add('logged-in');
     indicator.title = 'Logged In';
     if (text) text.textContent = 'Logged In';
+    document.body.classList.add('user-authenticated');
   } else {
     indicator.classList.remove('logged-in');
     indicator.classList.add('logged-out');
     indicator.title = 'Not Logged In';
     if (text) text.textContent = 'Not Logged In';
+    document.body.classList.remove('user-authenticated');
+    injectLoginHint();
   }
+}
+
+function injectLoginHint() {
+  if (sessionStorage.getItem('login-hint-shown')) return;
+  const avatarWrap = document.querySelector('.avatar-wrap');
+  if (!avatarWrap || avatarWrap.querySelector('.login-hint')) return;
+  const hint = document.createElement('span');
+  hint.className = 'login-hint';
+  hint.textContent = 'Tap to Login';
+  avatarWrap.appendChild(hint);
+  sessionStorage.setItem('login-hint-shown', '1');
 }
 
 /* ===============================
