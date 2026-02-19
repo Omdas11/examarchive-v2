@@ -452,10 +452,10 @@ async function approveSubmission(submission, notes = '') {
       is_demo: false
     });
 
-    // Update submission status
+    // Update submission status and approved_path
     const { error: updateError } = await supabase
       .from('submissions')
-      .update({ status: 'approved' })
+      .update({ status: 'approved', approved_path: approvedPath })
       .eq('id', submission.id);
 
     if (updateError) throw updateError;

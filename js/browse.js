@@ -58,6 +58,7 @@ async function loadPapers() {
 
 /**
  * Load user-uploaded approved papers from Supabase approved_papers table
+ * Also reads from submissions where status = 'approved'
  */
 async function loadApprovedPapers() {
   try {
@@ -65,6 +66,7 @@ async function loadApprovedPapers() {
     const supabase = await window.waitForSupabase();
     if (!supabase) return;
     
+    // Load from approved_papers table
     const { data, error } = await supabase
       .from('approved_papers')
       .select('*')
@@ -72,11 +74,9 @@ async function loadApprovedPapers() {
     
     if (error) {
       console.warn('Could not load approved papers:', error.message);
-      approvedPapers = [];
-      return;
     }
     
-    approvedPapers = (data || []).map(p => ({
+    const fromApprovedTable = (data || []).map(p => ({
       paper_codes: [p.paper_code],
       paper_names: [p.paper_code],
       year: p.year,
@@ -88,6 +88,38 @@ async function loadApprovedPapers() {
       is_demo: p.is_demo || false,
       is_approved_upload: true
     }));
+
+    // Also load from submissions where status = 'approved' (fallback)
+    const { data: approvedSubs, error: subErr } = await supabase
+      .from('submissions')
+      .select('*')
+      .eq('status', 'approved')
+      .not('approved_path', 'is', null)
+      .order('created_at', { ascending: false });
+
+    if (subErr) {
+      console.warn('Could not load approved submissions:', subErr.message);
+    }
+
+    const fromSubmissions = (approvedSubs || [])
+      .filter(s => s.approved_path)
+      .map(s => ({
+        paper_codes: [s.paper_code],
+        paper_names: [s.paper_code],
+        year: s.year,
+        stream: 'Science',
+        programme: 'ALL',
+        university: 'User Upload',
+        semester: 0,
+        pdf: getApprovedPaperUrl(supabase, s.approved_path),
+        is_demo: false,
+        is_approved_upload: true
+      }));
+
+    // Combine both sources, deduplicate by file path
+    const seenPaths = new Set(fromApprovedTable.map(p => p.pdf));
+    const uniqueFromSubmissions = fromSubmissions.filter(p => !seenPaths.has(p.pdf));
+    approvedPapers = [...fromApprovedTable, ...uniqueFromSubmissions];
     
     console.log(`Loaded ${approvedPapers.length} approved papers from database`);
   } catch (err) {
