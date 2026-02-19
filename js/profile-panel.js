@@ -15,7 +15,7 @@ function debug(msg) {
 
 /**
  * Compute badges for a user using backend-verified roles
- * Badge Slot 1: Primary role badge (VISITOR/USER/ADMIN/REVIEWER)
+ * Badge Slot 1: Primary role badge (VISITOR/CONTRIBUTOR/REVIEWER/ADMIN)
  * Badge Slot 2: Empty (future use)
  * Badge Slot 3: Empty (future use)
  * 

@@ -5,11 +5,10 @@
 -- No separate user_roles join table; no seed data needed.
 --
 -- Role Levels:
---   0   = visitor  (default / unauthenticated)
---   10  = user
---   50  = reviewer
---   80  = moderator
---   100 = admin
+--   0   = visitor     (default / unauthenticated — browse only)
+--   10  = contributor (authenticated — can upload)
+--   80  = reviewer    (can approve/reject submissions)
+--   100 = admin       (full access)
 -- ============================================
 
 -- ============================================
@@ -89,9 +88,8 @@ as $$
            0
          )
     when 100 then 'admin'
-    when 80  then 'moderator'
-    when 50  then 'reviewer'
-    when 10  then 'user'
+    when 80  then 'reviewer'
+    when 10  then 'contributor'
     else          'visitor'
   end;
 $$;

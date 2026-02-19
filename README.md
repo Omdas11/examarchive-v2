@@ -2,137 +2,156 @@
 
 > A modern, community-driven archive of university question papers.
 
-## What It Is
+## What is ExamArchive
 
-ExamArchive is a static web application where students can upload, browse, and download university question papers. Built with vanilla HTML/CSS/JS and powered by Supabase for auth, database, and storage.
+ExamArchive is a web application where students can upload, browse, and download university question papers. It provides a centralized repository for exam preparation materials with role-based access control and a review pipeline for quality assurance.
 
-## Architecture
+## Tech Stack
 
-- **Frontend:** Static HTML/CSS/Vanilla JS — no framework, no build step
-- **Backend:** Supabase (PostgreSQL + Auth + Storage)
-- **Hosting:** GitHub Pages
-- **Single SQL setup** — 6 ordered scripts in `admin/sql/`
+| Component | Technology |
+|---|---|
+| Frontend | Static HTML / CSS / Vanilla JavaScript |
+| Backend | Supabase (PostgreSQL + Auth + Storage) |
+| Hosting | GitHub Pages |
+| Authentication | Google OAuth via Supabase Auth |
+| Security | Row-Level Security (RLS) on all tables |
 
-## Role Levels
+No build step, no framework, no dependencies. Just HTML, CSS, and JavaScript.
+
+## Role System
 
 | Level | Role | Access |
 |---|---|---|
 | 0 | Visitor | Browse approved papers |
-| 10 | User | Upload papers |
-| 50 | Reviewer | Approve/reject submissions |
-| 80 | Moderator | User management |
+| 10 | Contributor | Upload papers |
+| 80 | Reviewer | Approve/reject submissions |
 | 100 | Admin | Full access |
+
+New users are automatically assigned **Contributor** (level 10) on signup. Roles are managed via the `roles` table in Supabase.
 
 ## Upload Flow
 
 1. Authenticated user uploads a PDF → saved to `uploads-temp` bucket
-2. Submission row created with `status = "pending"`
+2. Submission row created with `status = "pending"` and `user_id` from fresh `getUser()` call
 3. Reviewer approves → file copied to `uploads-approved`, status updated
 4. Paper appears in Browse page
 
 **Demo papers** skip review and appear immediately.
 
-## Auth & RLS Flow (Phase 2 Stabilization)
+## Security Model
 
-Authentication is strictly enforced at the upload boundary to prevent NULL `user_id` violations:
+### Client Singleton
 
-### Client Singleton Pattern
-
-All code must use the `getSupabase()` singleton from `js/supabase-client.js`:
+All code uses `getSupabase()` from `js/supabase-client.js`. Never create clients directly.
 
 ```javascript
 const supabase = window.getSupabase ? window.getSupabase() : null;
-if (!supabase) {
-  throw new Error('Supabase not initialized');
-}
 ```
-
-**Never use:**
-- `window.supabase.createClient()` directly
-- `window.__supabase__` (deprecated, for backward compat only)
-- `const supabase = window.supabase` (this is the SDK, not the client)
 
 ### Upload Guard
 
-1. **Auth Ready Check** — Upload button is blocked until `auth:ready` event fires
-2. **User Verification** — Before any insert, `supabase.auth.getUser()` is called
-3. **Hard Block** — If no user or auth error, upload is rejected immediately
-4. **User ID Lock** — Only the fresh `user.id` from `getUser()` is used for insert
+1. Upload button blocked until `auth:ready` event fires
+2. `supabase.auth.getUser()` called before every insert — never cached
+3. If no user or auth error, upload is rejected immediately
+4. Only fresh `user.id` from `getUser()` is used in submissions
 
 ### RLS Policy
 
-The `submissions` table has a row-level security policy:
-
 ```sql
+-- Users insert own submissions (admin/reviewer bypass for level >= 80)
 CREATE POLICY "users insert own submissions"
 ON submissions FOR INSERT
-WITH CHECK (auth.uid() = user_id);
+WITH CHECK (
+  auth.uid() = user_id
+  OR get_current_user_role_level() >= 80
+);
 ```
 
-This prevents:
-- NULL `user_id` inserts
-- Users inserting submissions for other users
-- Unauthenticated insertions
+### Debug Panel
 
-### Error Handling & Debug Panel
+The debug panel (🐛 icon) auto-classifies errors:
 
-The debug panel (🐛 icon) classifies errors with color-coded borders:
+| Tag | Color | Description |
+|---|---|---|
+| `[AUTH]` | Blue | Authentication/JWT errors |
+| `[RLS]` | Red | Row-level security violations |
+| `[STORAGE]` | Orange | Storage bucket errors |
+| `[CLIENT]` | Purple | Client initialization errors |
 
-- **[AUTH]** — Blue border (#2196F3) — Authentication/JWT errors
-- **[RLS]** — Red border (#f44336) — Row-level security policy violations
-- **[STORAGE]** — Orange border (#FF9800) — Storage bucket/upload errors
-- **[CLIENT]** — Purple border (#9C27B0) — Client initialization errors
-
-Errors are auto-prefixed based on message content for clarity.
-
-If RLS blocks an insert, the user sees:
-> "Upload blocked by permission policy. Please re-login."
-
-### Debug Panel Auth Status
-
-Open the debug panel (🐛 icon at bottom) to view:
-- Session Status: Logged In / Not Logged In
-- User ID: `xxxxx`
-- Role Level: `10` (User), `50` (Reviewer), etc.
-
-This is logged:
-- On page load
-- When debug panel opens
-- At upload start
-
-## How to Run
+## How to Run Locally
 
 1. Clone this repository
-2. Set up a Supabase project — run SQL scripts from `admin/sql/` in order
+2. Set up a Supabase project — run SQL scripts from `admin/sql/` in order (01 through 07)
 3. Update `js/supabase.js` with your project URL and anon key
-4. Serve with any static file server:
+4. Configure Google OAuth provider in Supabase Authentication settings
+5. Serve with any static file server:
    ```bash
    python -m http.server 8000
    ```
-5. Open `http://localhost:8000`
+6. Open `http://localhost:8000`
+
+## How to Configure Supabase
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Run SQL scripts in `admin/sql/` in numerical order
+3. Enable Google provider in Authentication → Providers
+4. Verify storage buckets: `uploads-temp` (private), `uploads-approved` (public)
+5. Update `js/supabase.js` with your project URL and anon key
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed setup instructions.
+
+## Folder Structure
+
+```
+/
+├── index.html              # Home page
+├── upload.html             # Upload page
+├── browse.html             # Browse papers
+├── about.html              # About page
+├── settings.html           # User settings
+├── js/                     # JavaScript modules
+│   ├── supabase-client.js  # Singleton client factory
+│   ├── auth-controller.js  # Central auth state manager
+│   ├── upload-handler.js   # Storage + submission logic
+│   └── modules/            # ES modules (debug panel)
+├── css/                    # Stylesheets
+├── admin/sql/              # Database setup scripts
+├── docs/                   # Documentation
+├── partials/               # Reusable HTML components
+└── assets/                 # Static assets
+```
 
 ## Documentation
 
-All docs are in [`/docs`](docs/):
-
 | Document | Content |
 |---|---|
-| [Architecture](docs/ARCHITECTURE_MASTER_PLAN.md) | Full system overview |
-| [Backend Setup](docs/BACKEND_SETUP.md) | SQL scripts and bucket config |
-| [Frontend Flow](docs/FRONTEND_FLOW.md) | Upload lifecycle and approval logic |
-| [Roles System](docs/ROLES_SYSTEM.md) | Role levels and RPC function |
-| [Storage Setup](docs/STORAGE_SETUP.md) | Bucket policies and file paths |
-| [Review Flow](docs/REVIEW_FLOW.md) | Submission approval pipeline |
-| [Calendar System](docs/CALENDAR_SYSTEM.md) | Holiday calendar data and views |
-| [Debug System](docs/DEBUG_SYSTEM.md) | Debug panel usage and logging |
-| [Timeline Log](docs/TIMELINE_LOG.md) | Development history |
+| [Architecture](docs/ARCHITECTURE.md) | System overview and data flow |
+| [Backend](docs/BACKEND.md) | Tables, RLS, RPC functions, SQL setup |
+| [Frontend](docs/FRONTEND.md) | Auth listener, upload logic, debug system |
+| [RLS Policy](docs/RLS_POLICY.md) | Row-level security policies |
+| [Role System](docs/ROLE_SYSTEM.md) | Role levels, promotion, access control |
+| [Storage Flow](docs/STORAGE_FLOW.md) | Buckets, upload/approval flow, rollback |
+| [Debug System](docs/DEBUG_SYSTEM.md) | Debug panel usage and error diagnosis |
+| [Deployment](docs/DEPLOYMENT.md) | GitHub Pages and Supabase setup |
+| [Timelog](docs/TIMELOG.md) | Development history |
+
+## Current System Status
+
+- ✅ Authentication (Google OAuth)
+- ✅ Role-based access control (4-tier)
+- ✅ Upload with RLS enforcement
+- ✅ Admin/Reviewer bypass for submissions
+- ✅ Debug panel with error classification
+- ✅ Mobile-friendly responsive design
+- ✅ Demo paper auto-approval
 
 ## Roadmap
 
 - **Phase 1** ✅ — Core Recovery (backend reset, upload fix, calendar, debug)
-- **Phase 2** — Search & Browse enhancements
-- **Phase 3** — Syllabus and repeated questions
-- **Phase 4** — AI integration
+- **Phase 2** ✅ — Auth + RLS Stabilization (singleton enforcement, error classification)
+- **Phase 3** — Search & Browse enhancements
+- **Phase 4** — Syllabus and repeated questions
+- **Phase 5** — AI integration
 
 ## License
 

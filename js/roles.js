@@ -23,8 +23,8 @@ function mapRoleToBadge(role) {
     case 'admin':
       return 'Admin';
     case 'reviewer':
-      return 'Moderator';
-    case 'user':
+      return 'Reviewer';
+    case 'contributor':
       return 'Contributor';
     case 'visitor':
       return 'Visitor';
@@ -41,7 +41,7 @@ function mapRoleToBadge(role) {
 function getBadgeIcon(badgeName) {
   const icons = {
     'Admin': '👑',
-    'Moderator': '🛡️',
+    'Reviewer': '🛡️',
     'Contributor': '📝',
     'Visitor': '👤'
   };
@@ -57,7 +57,7 @@ function getBadgeColor(role) {
   const colors = {
     'admin': '#f44336',
     'reviewer': '#2196F3',
-    'user': '#4CAF50',
+    'contributor': '#4CAF50',
     'visitor': '#9E9E9E'
   };
   return colors[role] || '#9E9E9E';
@@ -111,12 +111,12 @@ async function getUserBadge() {
     const roleInfo = await getUserRoleBackend(session.user.id);
     
     if (!roleInfo) {
-      // Default to user if backend fails
+      // Default to contributor if backend fails
       return {
-        role: 'user',
+        role: 'contributor',
         badge: 'Contributor',
         icon: getBadgeIcon('Contributor'),
-        color: getBadgeColor('user')
+        color: getBadgeColor('contributor')
       };
     }
 
@@ -155,7 +155,7 @@ function normalizeRole(role) {
     return 'visitor';
   }
   const normalized = role.toLowerCase().trim();
-  const VALID_ROLES = new Set(['admin', 'reviewer', 'user', 'visitor']);
+  const VALID_ROLES = new Set(['admin', 'reviewer', 'contributor', 'visitor']);
   return VALID_ROLES.has(normalized) ? normalized : 'visitor';
 }
 

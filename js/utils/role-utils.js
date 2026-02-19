@@ -7,7 +7,7 @@
 /**
  * Get current user's role from database
  * This is the ONLY reliable way to check user role
- * @returns {Promise<string>} Role name: "admin", "reviewer", "user", or "guest"
+ * @returns {Promise<string>} Role name: "admin", "reviewer", "contributor", or "guest"
  */
 async function getCurrentUserRole() {
   try {
@@ -30,14 +30,14 @@ async function getCurrentUserRole() {
     });
 
     if (error) {
-      console.warn('[ROLE-UTILS] Error getting role, defaulting to "user":', error);
-      return "user";
+      console.warn('[ROLE-UTILS] Error getting role, defaulting to "contributor":', error);
+      return "contributor";
     }
 
-    return roleName ? roleName.toLowerCase() : "user";
+    return roleName ? roleName.toLowerCase() : "contributor";
   } catch (err) {
     console.error('[ROLE-UTILS] Error getting user role:', err);
-    return "user";
+    return "contributor";
   }
 }
 
