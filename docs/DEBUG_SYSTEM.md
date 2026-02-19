@@ -6,10 +6,16 @@ The debug panel is a mobile-friendly slide-up panel that provides real-time logg
 
 ## How to Enable
 
-The debug panel is controlled by the `DEBUG_FORCE_ENABLE` flag:
+The debug panel is restricted to users with **role level > 80** (Reviewers and Admins). For users with lower roles:
+- The debug system does not initialize
+- No DOM is injected
+- No logs are displayed
+
+Admins can toggle the panel visibility in **Settings → Debug Panel**.
+
+For development, set `DEBUG_FORCE_ENABLE = true` in `js/modules/debug.module.js`:
 
 ```javascript
-// In js/modules/debug.module.js
 const DEBUG_FORCE_ENABLE = true;  // Set to false for production
 ```
 
@@ -38,10 +44,10 @@ Each log entry contains:
 
 | Tag | Color | Description |
 |---|---|---|
-| `[AUTH]` | Blue (#2196F3) | Authentication and JWT errors |
-| `[RLS]` | Red (#f44336) | Row-level security policy violations |
-| `[STORAGE]` | Orange (#FF9800) | Storage bucket and upload errors |
-| `[CLIENT]` | Purple (#9C27B0) | Client initialization errors |
+| `[AUTH]` | Blue (var(--color-info)) | Authentication and JWT errors |
+| `[RLS]` | Red (var(--color-error)) | Row-level security policy violations |
+| `[STORAGE]` | Orange (var(--color-warning)) | Storage bucket and upload errors |
+| `[CLIENT]` | Purple (var(--color-purple)) | Client initialization errors |
 | `[UPLOAD]` | Default blue | Upload flow messages |
 | `[SYSTEM]` | Default | System-level messages |
 

@@ -1,5 +1,22 @@
 # Timelog
 
+## Full Stabilization & Cleanup Pass
+
+**Date:** February 2026
+
+### Changes
+
+- **Upload Insert Fix:** Added `content_type` field to submission inserts; ensured all NOT NULL fields are populated
+- **Theme System Fix:** Replaced all hardcoded hex colors with CSS variables (`--color-success`, `--color-error`, `--color-info`, `--color-warning`, `--color-muted`, `--color-purple`); added dark/AMOLED variants for status and avatar colors
+- **Mobile Header Fix:** Added `min-height` to header; fixed avatar ring positioning using `inset` instead of `transform`; improved mobile breakpoint spacing
+- **Login Hint Marker:** Added pulsing "Tap to Login" indicator near avatar for unauthenticated users; shown once per session
+- **Debug Panel Restriction:** Set `DEBUG_FORCE_ENABLE = false`; restricted to role level > 80 via RPC; no DOM injection for unauthorized users; added smooth collapse/expand animation; improved mobile readability
+- **Profile Role Display Fix:** Verified `mapRole()` descending order; fresh RPC fetch; no stale localStorage cache
+- **Repo Cleanup:** Removed deprecated functions (`normalizeRole`, `clearRoleCache`, `getUserProfile`, `initializeGlobalRoleState`, `waitForRole`); removed phase comments; removed all stale `exam_year` and `temp_path` references; fixed hardcoded colors in admin CSS, avatar CSS, settings CSS, notices-calendar.js, auth-controller.js
+- **Documentation Rewrite:** Updated README, FRONTEND_FLOW.md, DEBUG_SYSTEM.md, ROLE_SYSTEM.md, STORAGE_FLOW.md, BACKEND.md, TIMELOG.md
+
+---
+
 ## Role Fix + Submission Insert Fix
 
 **Date:** February 2026

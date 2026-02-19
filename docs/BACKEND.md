@@ -30,10 +30,12 @@ Tracks uploaded papers and their review status.
 create table submissions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users on delete cascade,
-  paper_code text,
-  exam_year int,
-  temp_path text,
-  approved_path text,
+  paper_code text not null,
+  year int not null,
+  storage_path text not null,
+  original_filename text not null,
+  file_size bigint not null,
+  content_type text not null default 'application/pdf',
   status text default 'pending',
   created_at timestamptz default now()
 );
