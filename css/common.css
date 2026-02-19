@@ -33,6 +33,19 @@
   --accent: var(--red);
   --accent-soft: var(--red-soft);
   
+  /* Status colors */
+  --color-success: #4CAF50;
+  --color-error: #f44336;
+  --color-info: #2196F3;
+  --color-warning: #FFA726;
+  --color-muted: #9E9E9E;
+  --color-purple: #9C27B0;
+
+  /* Avatar colors */
+  --avatar-bg: #ecfeff;
+  --avatar-text: #155e75;
+  --avatar-ring: #16a34a;
+
   /* Glass UI settings */
   --glass-opacity: 0.1;
   --glass-blur: 10px;
@@ -120,6 +133,17 @@ body[data-theme="dark"] {
 
   --red: #ff5252;
 
+  --color-success: #66bb6a;
+  --color-error: #ff5252;
+  --color-info: #42a5f5;
+  --color-warning: #ffa726;
+  --color-muted: #bdbdbd;
+  --color-purple: #ce93d8;
+
+  --avatar-bg: #1a2e33;
+  --avatar-text: #a7d8e8;
+  --avatar-ring: #66bb6a;
+
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
   --shadow-md: 0 6px 16px rgba(0,0,0,0.5);
 }
@@ -137,6 +161,17 @@ body[data-theme="amoled"] {
   --border: #1a1a1a;
 
   --red: #ff5252;
+
+  --color-success: #66bb6a;
+  --color-error: #ff5252;
+  --color-info: #42a5f5;
+  --color-warning: #ffa726;
+  --color-muted: #bdbdbd;
+  --color-purple: #ce93d8;
+
+  --avatar-bg: #0a1a1f;
+  --avatar-text: #a7d8e8;
+  --avatar-ring: #66bb6a;
 
   --shadow-sm: none;
   --shadow-md: none;

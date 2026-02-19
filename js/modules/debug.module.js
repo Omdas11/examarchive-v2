@@ -480,7 +480,7 @@ class DebugPanel {
       .debug-panel-badge {
         display: inline-block;
         padding: 2px 8px;
-        background: #2196F3;
+        background: var(--color-info);
         color: white;
         border-radius: 10px;
         font-size: 11px;
@@ -555,20 +555,20 @@ class DebugPanel {
       .debug-log-entry {
         padding: 8px 10px;
         margin-bottom: 6px;
-        border-left: 3px solid #2196F3;
+        border-left: 3px solid var(--color-info);
         background: var(--bg-soft, #f5f5f5);
         border-radius: 6px;
         font-size: 13px;
         line-height: 1.5;
       }
-      .debug-log-entry.level-warning { border-left-color: #FFA726; }
-      .debug-log-entry.level-error { border-left-color: #f44336; }
+      .debug-log-entry.level-warning { border-left-color: var(--color-warning); }
+      .debug-log-entry.level-error { border-left-color: var(--color-error); }
       
       /* Error Category Colors */
-      .debug-log-entry.category-auth { border-left-color: #2196F3; border-left-width: 4px; }
-      .debug-log-entry.category-rls { border-left-color: #f44336; border-left-width: 4px; }
-      .debug-log-entry.category-storage { border-left-color: #FF9800; border-left-width: 4px; }
-      .debug-log-entry.category-client { border-left-color: #9C27B0; border-left-width: 4px; }
+      .debug-log-entry.category-auth { border-left-color: var(--color-info); border-left-width: 4px; }
+      .debug-log-entry.category-rls { border-left-color: var(--color-error); border-left-width: 4px; }
+      .debug-log-entry.category-storage { border-left-color: var(--color-warning); border-left-width: 4px; }
+      .debug-log-entry.category-client { border-left-color: var(--color-purple); border-left-width: 4px; }
       .debug-log-entry-header {
         display: flex;
         justify-content: space-between;

@@ -2,12 +2,6 @@
    ExamArchive – Header (POLISHED)
    ================================ */
 
-:root {
-  --avatar-bg: #ecfeff;
-  --avatar-text: #155e75;
-  --avatar-ring: #16a34a;
-}
-
 /* ---------- Header ---------- */
 .site-header {
   position: sticky;
@@ -375,7 +369,7 @@ body.menu-open .hamburger-icon line:nth-child(2) {
 /* ---------- Dark / AMOLED ---------- */
 body[data-theme="dark"] .site-header,
 body[data-theme="amoled"] .site-header {
-  color: #fff;
+  color: var(--text);
 }
 
 body[data-theme="dark"] .site-header button,
@@ -402,17 +396,17 @@ body[data-theme="amoled"] .site-header button {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #9E9E9E;
+  background: var(--color-muted);
   transition: background 0.3s ease;
 }
 
 .auth-status-indicator.logged-in .auth-status-dot {
-  background: #4CAF50;
+  background: var(--color-success);
   box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
 }
 
 .auth-status-indicator.logged-out .auth-status-dot {
-  background: #f44336;
+  background: var(--color-error);
 }
 
 .auth-status-text {

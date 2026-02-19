@@ -80,7 +80,7 @@ async function loadApprovedPapers() {
     approvedPapers = (data || []).map(p => ({
       paper_codes: [p.paper_code],
       paper_names: [p.paper_code],
-      year: p.exam_year,
+      year: p.year,
       stream: 'Science',
       programme: 'ALL',
       university: 'User Upload',
@@ -261,7 +261,7 @@ function render() {
   <div class="availability-badges">
     ${
       p.is_demo
-        ? `<span class="availability-badge subtle" style="background: #FFF3E0; color: #E65100;">DEMO</span>`
+        ? `<span class="availability-badge subtle" style="background: var(--accent-soft); color: var(--accent);">DEMO</span>`
         : ""
     }
     ${

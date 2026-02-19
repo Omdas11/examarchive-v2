@@ -352,9 +352,9 @@ function showMessage(message, type = 'info') {
 
   // Set color based on type
   const colors = {
-    success: '#4CAF50',
-    error: '#f44336',
-    info: '#2196F3'
+    success: 'var(--color-success)',
+    error: 'var(--color-error)',
+    info: 'var(--color-info)'
   };
   messageEl.style.borderLeft = `4px solid ${colors[type] || colors.info}`;
   messageEl.textContent = message;
@@ -407,9 +407,9 @@ function renderSubmission(submission) {
   const formatDate = window.UploadHandler.formatDate;
   
   const statusColors = {
-    pending: '#FFA726',
-    approved: '#4CAF50',
-    rejected: '#f44336'
+    pending: 'var(--color-warning)',
+    approved: 'var(--color-success)',
+    rejected: 'var(--color-error)'
   };
 
   const statusText = {
@@ -437,8 +437,8 @@ function renderSubmission(submission) {
           font-size: 0.75rem;
           padding: 0.25rem 0.5rem;
           border-radius: 4px;
-          background: ${statusColors[submission.status] || '#9E9E9E'}22;
-          color: ${statusColors[submission.status] || '#9E9E9E'};
+          background: var(--bg-soft);
+          color: ${statusColors[submission.status] || 'var(--color-muted)'};
           font-weight: 500;
         ">
           ${statusText[submission.status] || submission.status}

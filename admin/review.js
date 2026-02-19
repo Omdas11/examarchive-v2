@@ -88,7 +88,7 @@ function renderPendingList() {
           <strong>${s.paper_code || 'Unknown'}</strong>
           <span style="color: var(--text-muted); margin-left: 0.5rem;">${s.year || ''}</span>
         </div>
-        <span style="font-size: 0.75rem; color: #FFA726;">⏳ Pending</span>
+        <span style="font-size: 0.75rem; color: var(--color-warning);">⏳ Pending</span>
       </div>
       <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
         Submitted ${window.UploadHandler.formatDate(s.created_at)}
@@ -97,7 +97,7 @@ function renderPendingList() {
         <button class="btn btn-red" onclick="approveSubmission('${s.id}')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
           ✓ Approve
         </button>
-        <button class="btn" onclick="rejectSubmission('${s.id}')" style="font-size: 0.85rem; padding: 0.5rem 1rem; color: #f44336; border-color: #f44336;">
+        <button class="btn" onclick="rejectSubmission('${s.id}')" style="font-size: 0.85rem; padding: 0.5rem 1rem; color: var(--color-error); border-color: var(--color-error);">
           ✗ Reject
         </button>
       </div>
@@ -139,7 +139,7 @@ async function approveSubmission(submissionId) {
       .from('approved_papers')
       .insert({
         paper_code: submission.paper_code,
-        exam_year: submission.year,
+        year: submission.year,
         file_path: approvedPath,
         uploaded_by: submission.user_id,
         is_demo: false
@@ -219,7 +219,7 @@ function showReviewMessage(message, type = 'info') {
     document.body.appendChild(el);
   }
 
-  const colors = { success: '#4CAF50', error: '#f44336', info: '#2196F3' };
+  const colors = { success: 'var(--color-success)', error: 'var(--color-error)', info: 'var(--color-info)' };
   el.style.borderLeft = `4px solid ${colors[type] || colors.info}`;
   el.textContent = message;
 

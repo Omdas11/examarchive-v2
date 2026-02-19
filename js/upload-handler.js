@@ -165,6 +165,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
           storage_path: storagePath,
           original_filename: file.name,
           file_size: file.size,
+          content_type: file.type || 'application/pdf',
           status: 'approved'
         })
         .select()
@@ -214,6 +215,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
         storage_path: storagePath,
         original_filename: file.name,
         file_size: file.size,
+        content_type: file.type || 'application/pdf',
         status: 'pending'
       })
       .select()

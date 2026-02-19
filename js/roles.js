@@ -55,12 +55,12 @@ function getBadgeIcon(badgeName) {
  */
 function getBadgeColor(role) {
   const colors = {
-    'admin': '#f44336',
-    'reviewer': '#2196F3',
-    'contributor': '#4CAF50',
-    'visitor': '#9E9E9E'
+    'admin': 'var(--color-error)',
+    'reviewer': 'var(--color-info)',
+    'contributor': 'var(--color-success)',
+    'visitor': 'var(--color-muted)'
   };
-  return colors[role] || '#9E9E9E';
+  return colors[role] || 'var(--color-muted)';
 }
 
 /**
