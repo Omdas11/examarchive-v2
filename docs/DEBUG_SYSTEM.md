@@ -1,113 +1,105 @@
 # Debug System
 
-> Phase 1 — Mobile-Friendly Debug Panel
-
 ## Overview
 
-The debug system provides a slide-up panel at the bottom of the screen for viewing application logs. It shows human-readable messages instead of raw error codes.
-
-## Auth State Tracking
-
-The debug panel tracks and displays authentication state:
-
-### When Printed
-
-Auth status is logged automatically:
-- **On page load** — When `auth:ready` event fires
-- **Debug panel open** — When you manually open the debug panel
-- **Upload start** — Before any upload operation begins
-
-### What It Shows
-
-```
-[AUTH] Session Status: Logged In
-[AUTH] User ID: 12345678-abcd-1234-5678-abcdef012345
-[AUTH] Role Level: 10
-```
-
-Or if not authenticated:
-```
-[AUTH] No active session.
-```
-
-### Manual Check
-
-You can manually print auth status:
-```js
-window.Debug.printAuthStatus();
-```
-
-This calls `supabase.auth.getUser()` and retrieves the current role level via RPC.
+The debug panel is a mobile-friendly slide-up panel that provides real-time logging, auth status, and error diagnosis. It is implemented as an ES module in `js/modules/debug.module.js`.
 
 ## How to Enable
 
-The debug panel is controlled by `DEBUG_FORCE_ENABLE` in `js/modules/debug.module.js`. When set to `true`, the panel is visible for all users.
+The debug panel is controlled by the `DEBUG_FORCE_ENABLE` flag:
 
-Toggle via Settings page or programmatically:
-
-```js
-window.Debug.showPanel();
-window.Debug.hidePanel();
-window.Debug.togglePanel();
+```javascript
+// In js/modules/debug.module.js
+const DEBUG_FORCE_ENABLE = true;  // Set to false for production
 ```
 
-## How to Read Logs
+When enabled, the panel appears at the bottom of every page. Visibility state is persisted in `localStorage`.
 
-### Tabs
+## Toggle in Settings
 
-| Tab | Shows |
+The panel can be toggled via:
+- Clicking the 🐛 debug panel header to collapse/expand
+- The ✕ button to close the panel entirely
+- `window.Debug.togglePanel()` from the console
+
+## Message Format
+
+Each log entry contains:
+
+| Field | Description |
 |---|---|
-| All | Every log entry |
-| Info | Informational messages (blue) |
-| Warnings | Warning messages (orange) |
-| Errors | Error messages (red) |
+| Timestamp | Time the message was logged |
+| Module | Source module (AUTH, UPLOAD, STORAGE, SYSTEM, etc.) |
+| Level | INFO, WARNING, or ERROR |
+| Message | Human-readable description |
+| Category | Auto-classified: auth, rls, storage, client |
 
-### Message Format
+## Log Types
 
-Messages are human-readable. Example:
+| Tag | Color | Description |
+|---|---|---|
+| `[AUTH]` | Blue (#2196F3) | Authentication and JWT errors |
+| `[RLS]` | Red (#f44336) | Row-level security policy violations |
+| `[STORAGE]` | Orange (#FF9800) | Storage bucket and upload errors |
+| `[CLIENT]` | Purple (#9C27B0) | Client initialization errors |
+| `[UPLOAD]` | Default blue | Upload flow messages |
+| `[SYSTEM]` | Default | System-level messages |
 
+## Logging Methods
+
+```javascript
+// Available via window.Debug
+window.Debug.logInfo('upload', 'Starting upload...');
+window.Debug.logWarn('auth', 'Session expiring soon');
+window.Debug.logError('storage', 'Bucket not found');
+window.Debug.printAuthStatus();  // Logs session, user ID, role level
+window.Debug.clear();            // Clear all logs
 ```
-Upload Failed
-Reason: Permission denied in uploads-temp bucket.
-Check: User authenticated?
+
+## Debug Modules
+
+```javascript
+const DebugModule = {
+  AUTH: 'auth',
+  UPLOAD: 'upload',
+  ADMIN: 'admin',
+  STORAGE: 'storage',
+  ROLE: 'role',
+  SETTINGS: 'settings',
+  SYSTEM: 'system',
+  RLS: 'rls'
+};
 ```
 
-Instead of raw: `[STORAGE] Upload failed`
+## How to Debug Upload Failure
+
+1. Open the debug panel (🐛 icon at bottom of page)
+2. Expand the panel and switch to the "Errors" tab
+3. Look for `[UPLOAD]`, `[RLS]`, or `[STORAGE]` tagged entries
+4. Check auth status: click the panel header to trigger `printAuthStatus()`
+5. Common issues:
+   - **`[AUTH]` error** — User session expired. Sign out and sign in again.
+   - **`[RLS]` error** — user_id mismatch or missing role. Check that `getUser()` returns valid user.
+   - **`[STORAGE]` error** — Bucket not found or permission denied. Check Supabase storage policies.
+
+## How to Debug RLS Errors
+
+1. Look for red-bordered entries in the debug panel
+2. The message will contain "row-level security" or "policy"
+3. Verify the user is authenticated: check `[AUTH] Session Status` in logs
+4. Verify user_id matches: check `[AUTH] User ID` matches the insert
+5. If admin/reviewer, verify role level ≥ 80 in the logs
 
 ## Deduplication
 
-Debug panel deduplicates identical messages within an **800ms window** to prevent log spam. Configurable via `DEBUG_DEDUPE_WINDOW_MS` constant.
+Identical messages within an 800ms window are suppressed to prevent log spam. This is configurable via `DEBUG_DEDUPE_WINDOW_MS`.
 
-## Logging from Code
+## Panel Features
 
-```js
-// Info
-window.Debug.logInfo('upload', 'File uploaded successfully');
-
-// Warning
-window.Debug.logWarn('auth', 'Session refresh failed, using cached session');
-
-// Error
-window.Debug.logError('storage', 'Upload Failed\nReason: Bucket not found.\nCheck: Contact admin.');
-
-// Print auth status
-window.Debug.printAuthStatus();
-```
-
-## Common Errors
-
-| Error | Meaning | Fix |
-|---|---|---|
-| Storage Access Denied | RLS policy blocking upload | Check if user is authenticated |
-| Session Expired | JWT token expired | Sign in again |
-| Bucket Not Found | Storage bucket doesn't exist | Run SQL setup scripts |
-| Submission Record Failed | Database insert failed | Check submissions table RLS |
-| RLS Insert Blocked | user_id mismatch or NULL | Re-login to refresh session |
-
-## Architecture
-
-- **Module:** `js/modules/debug.module.js` (ES module)
-- **Panel:** Slide-up, max 60% viewport height
-- **Touch-friendly:** Min 36px tap targets
-- **Persistence:** Panel state saved in localStorage
-- **Auth tracking:** Prints user ID and role level on demand
+- **Tabs:** All / Info / Warnings / Errors
+- **Clear button:** Removes all log entries
+- **Collapse/Expand:** Toggle panel body visibility
+- **Close button:** Hides panel entirely
+- **Auto-scroll:** Newest entries appear at top
+- **Mobile-friendly:** Touch-friendly buttons, slide-up design, max 60vh height
+- **Non-blocking:** Panel does not overlap main content or upload buttons
