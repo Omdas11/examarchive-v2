@@ -47,7 +47,7 @@ ExamArchive uses two storage buckets in Supabase:
 ### Upload Flow
 
 1. **Authenticated user uploads** → File goes to `uploads-temp`
-2. **Submission record created** → Database row with `temp_path` and `status = "pending"`
+2. **Submission record created** → Database row with `storage_path`, `original_filename`, `file_size`, and `status = "pending"`
 3. **Reviewer approves** → File copied to `uploads-approved`, `approved_path` updated
 4. **Paper visible in Browse** → Public URL generated from `uploads-approved`
 
@@ -94,7 +94,7 @@ The upload flow in `js/upload.js` and `js/upload-handler.js`:
 2. **Upload Lock** — `isUploading` flag prevents duplicate submissions
 3. **Fresh Auth** — `supabase.auth.getUser()` called before every insert
 4. **File Upload** — PDF uploaded to `uploads-temp` storage bucket
-5. **DB Insert** — Submission record created with `user_id`, `paper_code`, `exam_year`, `temp_path`, `status`
+5. **DB Insert** — Submission record created with `user_id`, `paper_code`, `year`, `storage_path`, `original_filename`, `file_size`, `status`
 6. **Rollback** — If DB insert fails, uploaded file is deleted from storage
 
 ### Key Rules

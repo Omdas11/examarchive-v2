@@ -430,7 +430,7 @@ function renderSubmission(submission) {
         <div>
           <strong style="font-size: 0.9rem;">${submission.paper_code || 'Unknown'}</strong>
           <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.5rem;">
-            ${submission.exam_year || ''}
+            ${submission.year || ''}
           </span>
         </div>
         <span style="

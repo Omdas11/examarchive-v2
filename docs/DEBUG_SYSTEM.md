@@ -94,6 +94,19 @@ const DebugModule = {
 };
 ```
 
+## NOT NULL Constraint Errors
+
+If a submission insert fails with a `null value in column` error, check that all required fields are provided:
+
+- `original_filename` — must be `file.name` (never undefined or null)
+- `file_size` — must be `file.size` (never undefined or null)
+- `user_id` — must be from a fresh `supabase.auth.getUser()` call
+- `paper_code` — must not be empty
+- `year` — must be a valid integer
+- `storage_path` — must be the path returned after successful storage upload
+
+These fields are declared `NOT NULL` in the database. Passing `undefined` or `null` will cause the insert to fail with a constraint violation. When this happens, the debug panel will log: `Submission insert failed:` with the full error object.
+
 ## How to Debug Upload Failure
 
 1. Open the debug panel (🐛 icon at bottom of page)

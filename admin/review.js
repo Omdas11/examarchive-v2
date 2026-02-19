@@ -86,7 +86,7 @@ function renderPendingList() {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
         <div>
           <strong>${s.paper_code || 'Unknown'}</strong>
-          <span style="color: var(--text-muted); margin-left: 0.5rem;">${s.exam_year || ''}</span>
+          <span style="color: var(--text-muted); margin-left: 0.5rem;">${s.year || ''}</span>
         </div>
         <span style="font-size: 0.75rem; color: #FFA726;">⏳ Pending</span>
       </div>
@@ -122,12 +122,12 @@ async function approveSubmission(submissionId) {
     // Download file from temp
     const { data: tempFile, error: downloadErr } = await supabase.storage
       .from('uploads-temp')
-      .download(submission.temp_path);
+      .download(submission.storage_path);
 
     if (downloadErr) throw new Error('Failed to download temp file: ' + downloadErr.message);
 
     // Upload to approved bucket
-    const approvedPath = `approved/${submission.paper_code}/${submission.exam_year}/${submission.id}.pdf`;
+    const approvedPath = `approved/${submission.paper_code}/${submission.year}/${submission.id}.pdf`;
     const { error: uploadErr } = await supabase.storage
       .from('uploads-approved')
       .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
@@ -139,7 +139,7 @@ async function approveSubmission(submissionId) {
       .from('approved_papers')
       .insert({
         paper_code: submission.paper_code,
-        exam_year: submission.exam_year,
+        exam_year: submission.year,
         file_path: approvedPath,
         uploaded_by: submission.user_id,
         is_demo: false
@@ -156,7 +156,7 @@ async function approveSubmission(submissionId) {
     if (updateErr) throw new Error('Failed to update submission status: ' + updateErr.message);
 
     // Clean up temp file
-    await supabase.storage.from('uploads-temp').remove([submission.temp_path]);
+    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
     showReviewMessage('Submission approved! Paper is now visible in Browse.', 'success');
     await loadPendingSubmissions();
@@ -182,7 +182,7 @@ async function rejectSubmission(submissionId) {
     showReviewMessage('Processing rejection...', 'info');
 
     // Delete temp file
-    await supabase.storage.from('uploads-temp').remove([submission.temp_path]);
+    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
     // Update submission status
     const { error: updateErr } = await supabase

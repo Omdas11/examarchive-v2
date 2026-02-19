@@ -32,7 +32,7 @@ New users are automatically assigned **Contributor** (level 10) on signup. Roles
 ## Upload Flow
 
 1. Authenticated user uploads a PDF → saved to `uploads-temp` bucket
-2. Submission row created with `status = "pending"` and `user_id` from fresh `getUser()` call
+2. Submission row created with `status = "pending"`, `user_id` from fresh `getUser()` call, `original_filename`, and `file_size`
 3. Reviewer approves → file copied to `uploads-approved`, status updated
 4. Paper appears in Browse page
 
@@ -47,7 +47,21 @@ ExamArchive uses two storage buckets:
 | `uploads-temp` | Private | Temporary storage for pending submissions |
 | `uploads-approved` | Public | Public storage for approved papers |
 
-### Storage RLS Policies
+### Required Submission Fields
+
+When inserting a submission, all of the following fields are required (NOT NULL):
+
+| Field | Type | Description |
+|---|---|---|
+| `user_id` | uuid | User's ID from `supabase.auth.getUser()` |
+| `paper_code` | text | Paper/subject code |
+| `year` | int | Examination year |
+| `storage_path` | text | Path to the uploaded file in `uploads-temp` bucket |
+| `original_filename` | text | Original filename as provided by `file.name` |
+| `file_size` | bigint | File size in bytes from `file.size` |
+| `status` | text | `"pending"` for normal uploads, `"approved"` for demo papers |
+
+
 
 **uploads-temp:**
 - Authenticated users can upload (INSERT)

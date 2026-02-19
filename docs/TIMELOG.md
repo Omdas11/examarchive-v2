@@ -1,5 +1,23 @@
 # Timelog
 
+## Role Fix + Submission Insert Fix
+
+**Date:** February 2026
+
+### Changes
+
+- Confirmed `mapRole(level)` in `js/utils/role-utils.js` uses correct descending order (`>= 100` Admin, `>= 80` Reviewer, `>= 10` Contributor, default Visitor) — no early return issues
+- Fixed submission insert payload in `js/upload-handler.js` to include `original_filename: file.name` and `file_size: file.size` (both NOT NULL in DB)
+- Renamed `exam_year` → `year` and `temp_path` → `storage_path` in all JS files to match new schema
+- Updated `admin/dashboard.js`, `admin/review.js`, `admin/dashboard/dashboard.js`, `js/upload.js` to use new column names
+- Improved debug error log message to `Submission insert failed:` for both pending and demo inserts
+- Created SQL migration `08_submission_fields_migration.sql` to apply schema changes
+- Created `docs/FRONTEND_FLOW.md` documenting upload payload and NOT NULL field requirements
+- Updated `docs/DEBUG_SYSTEM.md` with NOT NULL constraint debugging guidance
+- Updated `README.md` with required submission fields table
+
+---
+
 ## Storage + Profile Alignment
 
 **Date:** February 2026
