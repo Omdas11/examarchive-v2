@@ -10,7 +10,6 @@ When a user uploads a paper, the following payload is inserted into the `submiss
 
 ```javascript
 await supabase.from('submissions').insert({
-  user_id: userId,              // From supabase.auth.getUser() — never cached
   paper_code: metadata.paperCode, // Paper/subject code from upload form
   year: metadata.examYear,     // Examination year from upload form
   storage_path: storagePath,   // Path in uploads-temp bucket after successful upload
@@ -21,11 +20,13 @@ await supabase.from('submissions').insert({
 })
 ```
 
+> **Note:** `user_id` is NOT sent by the frontend. The backend column defaults to `auth.uid()` via a database default. The INSERT RLS policy only checks that `auth.uid()` is not null.
+
 ## Required Fields (NOT NULL)
 
 | Field | Source | Constraint |
 |---|---|---|
-| `user_id` | `supabase.auth.getUser().user.id` | NOT NULL, RLS requires `auth.uid() = user_id` |
+| `user_id` | Database default: `auth.uid()` | NOT NULL, auto-set by backend |
 | `paper_code` | Upload form input | NOT NULL |
 | `year` | Upload form input | NOT NULL |
 | `storage_path` | Storage upload response path | NOT NULL |
@@ -40,7 +41,6 @@ Demo papers use the same payload but with `status: 'approved'`. They are also co
 
 ```javascript
 await supabase.from('submissions').insert({
-  user_id: userId,
   paper_code: metadata.paperCode,
   year: metadata.examYear,
   storage_path: storagePath,
@@ -64,7 +64,7 @@ If the insert fails, the upload handler:
 1. **Auth Guard** — `supabase.auth.getUser()` called; upload blocked if no user
 2. **Metadata Validation** — `paper_code` and `examYear` checked; error thrown if missing
 3. **File Upload** — PDF uploaded to `uploads-temp/{userId}/{timestamp}-{filename}`
-4. **Submission Insert** — Row inserted into `submissions` with all required fields
+4. **Submission Insert** — Row inserted into `submissions` with all required fields (`user_id` is auto-set by the database)
 5. **Rollback on Failure** — If insert fails, the uploaded file is removed from storage
 
 ## Column Names

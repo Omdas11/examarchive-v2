@@ -95,16 +95,22 @@ async function loadSubmissions() {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      if (window.Debug) window.Debug.logError('admin', 'Failed to load submissions', { code: error.code, details: error.details, hint: error.hint, message: error.message });
+      throw error;
+    }
 
     allSubmissions = data || [];
+
+    if (window.Debug) window.Debug.logInfo('admin', 'Loaded submissions', { count: allSubmissions.length });
 
     updateStats();
     renderSubmissions();
 
   } catch (err) {
     console.error('Dashboard load error:', err);
-    showMessage('Failed to load submissions', 'error');
+    if (window.Debug) window.Debug.logError('admin', 'Dashboard load error', { code: err.code, details: err.details, hint: err.hint, message: err.message });
+    showMessage('Failed to load submissions: ' + (err.message || 'Unknown error'), 'error');
   }
 }
 
