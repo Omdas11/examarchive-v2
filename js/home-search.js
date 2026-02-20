@@ -1,10 +1,12 @@
 /**
  * ExamArchive v2 — Home Search
  * FINAL STABLE (schema-aware + RQ-enabled)
- * TODO: migrate RQ + syllabus to database in Phase 3
+ * // PHASE 3: migrate RQ & syllabus to backend
+ * // PHASE 3: migrate home search to Supabase full-text search
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
+// PHASE 3: paper search should use Supabase full-text search instead of JSON
 const PAPERS_URL = `${BASE}/data/papers.json`;
 
 const input = document.querySelector(".search-input");

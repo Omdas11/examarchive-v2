@@ -130,6 +130,12 @@
   margin: 0.3rem 0;
 }
 
+.footer-stats {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
 /* ---------- Tablet ---------- */
 @media (min-width: 640px) {
   .footer-inner {

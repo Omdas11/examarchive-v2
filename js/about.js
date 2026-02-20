@@ -109,72 +109,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /* ==================================================
-     PROJECT STATUS
+     PROJECT STATUS (backend-driven)
      ================================================== */
   try {
-    const statusRes = await fetch("./data/about/status.json");
-    if (!statusRes.ok) throw new Error("status.json missing");
-
-    const status = await statusRes.json();
-
-    document.querySelector('[data-stat="papers"]').textContent =
-      status.totals?.papers ?? "—";
-
-    document.querySelector('[data-stat="pdfs"]').textContent =
-      status.totals?.pdfs ?? "—";
-
-    document.querySelector('[data-stat="subjects"]').textContent =
-      status.totals?.subjects ?? "—";
-
-    /* Content update = generator timestamp */
-    document.querySelector('[data-stat="content-update"]').textContent =
-      formatIST(status.generated_at);
-
     /* System update = cached GitHub commit */
     const lastCommit = await getLastSystemUpdate();
-    document.querySelector('[data-stat="system-update"]').textContent =
-      lastCommit ? formatIST(lastCommit) : "—";
+    const systemUpdateEl = document.querySelector('[data-stat="system-update"]');
+    if (systemUpdateEl) {
+      systemUpdateEl.textContent = lastCommit ? formatIST(lastCommit) : "—";
+    }
 
-    /* ==================================================
-       PDFs BREAKDOWN (SINGLE ROUNDED BLOCK)
-       ================================================== */
-    const breakdownRoot = document.getElementById("pdfBreakdown");
-    const toggleBtn = document.getElementById("toggleBreakdown");
+    /* Content update from status.json if available */
+    try {
+      const statusRes = await fetch("./data/about/status.json");
+      if (statusRes.ok) {
+        const status = await statusRes.json();
 
-    if (breakdownRoot && toggleBtn && status.breakdown?.by_programme) {
-      breakdownRoot.innerHTML = "";
+        const papersEl = document.querySelector('[data-stat="papers"]');
+        const pdfsEl = document.querySelector('[data-stat="pdfs"]');
+        const subjectsEl = document.querySelector('[data-stat="subjects"]');
+        const contentUpdateEl = document.querySelector('[data-stat="content-update"]');
 
-      toggleBtn.onclick = () => {
-        breakdownRoot.classList.toggle("hidden");
-      };
-
-      Object.entries(status.breakdown.by_programme).forEach(
-        ([programme, data]) => {
-          const block = document.createElement("div");
-          block.className = "programme-block";
-
-          block.innerHTML = `
-            <div class="programme-header">
-              <span>${programme}</span>
-              <span class="count-pill">${data.total}</span>
-            </div>
-            <ul class="subject-list">
-              ${Object.entries(data.subjects)
-                .map(
-                  ([subject, count]) => `
-                  <li>
-                    <span>${subject.toUpperCase()}</span>
-                    <span class="count-pill muted">${count}</span>
-                  </li>
-                `
-                )
-                .join("")}
-            </ul>
-          `;
-
-          breakdownRoot.appendChild(block);
-        }
-      );
+        if (papersEl) papersEl.textContent = status.totals?.papers ?? "—";
+        if (pdfsEl) pdfsEl.textContent = status.totals?.pdfs ?? "—";
+        if (subjectsEl) subjectsEl.textContent = status.totals?.subjects ?? "—";
+        if (contentUpdateEl) contentUpdateEl.textContent = formatIST(status.generated_at);
+      }
+    } catch (e) {
+      // status.json is optional - backend stats are primary
     }
 
   } catch (err) {
