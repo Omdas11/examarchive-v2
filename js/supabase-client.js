@@ -45,8 +45,6 @@ function getSupabase() {
       }
     );
 
-    console.log('[SUPABASE-CLIENT] Client instance created');
-
     // Store in window.App for backward compatibility
     if (window.App) {
       window.App.supabase = supabaseInstance;
@@ -111,4 +109,4 @@ window.waitForSupabase = async function(timeout = 10000) {
   });
 };
 
-console.log('[SUPABASE-CLIENT] Singleton module loaded. Use getSupabase() to access client.');
+

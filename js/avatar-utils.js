@@ -2,6 +2,8 @@
 // js/avatar-utils.js
 // ===============================
 // SHARED AVATAR UTILITIES
+// PHASE 3: Add profile image upload to 'avatars' Storage bucket
+// PHASE 3: Add default fallback avatar for users without profile images
 // ===============================
 
 /**
@@ -99,10 +101,11 @@ function updateAvatarElement(avatarEl, user) {
       avatarEl.style.backgroundColor = stringToColor(fullName || email || "User");
     }
   } else {
-    avatarEl.setAttribute("data-initials", "?");
+    avatarEl.setAttribute("data-initials", "👤");
     avatarEl.removeAttribute("data-avatar");
     avatarEl.style.backgroundImage = "none";
     avatarEl.style.backgroundColor = "#888";
+    avatarEl.title = "Visitor";
   }
 }
 
@@ -110,7 +113,6 @@ function updateAvatarElement(avatarEl, user) {
  * Shared logout handler
  */
 async function handleLogout() {
-  console.log("[avatar-utils] 🚪 Signing out...");
   const supabase = await waitForSupabaseAvatar();
   if (!supabase) {
     console.error("[avatar-utils] ❌ Cannot sign out - Supabase not ready");
@@ -124,7 +126,6 @@ async function handleLogout() {
  * Shared sign-in handler
  */
 async function handleSignIn() {
-  console.log("[avatar-utils] 🔐 Signing in with Google...");
   const supabase = await waitForSupabaseAvatar();
   if (!supabase) {
     console.error("[avatar-utils] ❌ Cannot sign in - Supabase not ready");
@@ -148,7 +149,6 @@ async function handleSignIn() {
  * Shared switch account handler
  */
 async function handleSwitchAccount() {
-  console.log("[avatar-utils] 🔄 Switching account...");
   const supabase = await waitForSupabaseAvatar();
   if (!supabase) {
     console.error("[avatar-utils] ❌ Cannot switch account - Supabase not ready");

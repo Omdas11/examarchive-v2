@@ -7,6 +7,7 @@
 let currentTab = 'pending';
 let currentSubmission = null;
 let allSubmissions = [];
+let userRoleLevel = 0;
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
@@ -26,6 +27,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     dashboardContent.style.display = 'block';
+
+    // Fetch role level for permission checks
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (supabase) {
+      try {
+        const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
+        userRoleLevel = roleLevelData || 0;
+      } catch (e) {
+        userRoleLevel = 80; // Fallback for admin access
+      }
+    }
 
     // Initialize dashboard
     initializeDashboard();
@@ -213,6 +225,18 @@ function renderSubmissionCard(submission) {
           <strong>Paper Name</strong>
           <span>${submission?.paper_name || '-'}</span>
         </div>
+        ${submission?.storage_path ? `
+        <div class="detail-item">
+          <strong>Storage Path</strong>
+          <span style="font-size:0.75rem;word-break:break-all;">${submission.storage_path}</span>
+        </div>
+        ` : ''}
+        ${submission?.approved_path ? `
+        <div class="detail-item">
+          <strong>Approved Path</strong>
+          <span style="font-size:0.75rem;word-break:break-all;">${submission.approved_path}</span>
+        </div>
+        ` : ''}
         ${submission?.reviewed_at ? `
         <div class="detail-item">
           <strong>Reviewed</strong>
@@ -238,15 +262,29 @@ function renderSubmissionCard(submission) {
           <button class="btn btn-outline" data-action="view" data-id="${submission?.id || ''}">
             View Details
           </button>
+          ${userRoleLevel >= 75 ? `
           <button class="btn btn-danger" data-action="reject" data-id="${submission?.id || ''}">
             Reject
           </button>
           <button class="btn btn-success" data-action="approve" data-id="${submission?.id || ''}">
+            Approve
+          </button>
+          ` : ''}
+          ${userRoleLevel >= 90 ? `
+          <button class="btn btn-primary" data-action="approve-publish" data-id="${submission?.id || ''}">
             Approve & Publish
           </button>
+          ` : ''}
         ` : safeStatus === 'approved' ? `
+          ${userRoleLevel >= 90 ? `
           <button class="btn btn-view" data-action="publish" data-id="${submission?.id || ''}">
             Publish Now
+          </button>
+          ` : ''}
+        ` : ''}
+        ${submission?.storage_path || submission?.approved_path ? `
+          <button class="btn btn-outline" data-action="preview" data-id="${submission?.id || ''}">
+            Preview File
           </button>
         ` : ''}
       </div>
@@ -272,10 +310,14 @@ function attachSubmissionListeners() {
         showReviewModal(submission);
       } else if (action === 'approve') {
         await approveSubmission(submission);
+      } else if (action === 'approve-publish') {
+        await approveAndPublishSubmission(submission);
       } else if (action === 'reject') {
         showRejectModal(submission);
       } else if (action === 'publish') {
         await publishSubmission(submission);
+      } else if (action === 'preview') {
+        await previewFile(submission);
       }
     });
   });
@@ -372,11 +414,72 @@ function showRejectModal(submission) {
 }
 
 /**
- * Approve submission and publish
+ * Approve submission (move file, set status to approved)
+ * Level 75+ can approve
  */
 async function approveSubmission(submission, notes = '') {
   try {
     showMessage('Processing approval...', 'info');
+
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    const { data: { session } } = await supabase.auth.getSession();
+    const reviewerId = session.user.id;
+
+    // Move file from temp to approved bucket
+    const timestamp = Date.now();
+    const approvedPath = `approved/${submission.paper_code}/${submission.year}/${timestamp}.pdf`;
+
+    // Download from temp
+    const { data: tempFile, error: dlErr } = await supabase.storage
+      .from('uploads-temp')
+      .download(submission.storage_path);
+
+    if (dlErr) throw new Error('Failed to download temp file: ' + dlErr.message);
+
+    // Upload to approved
+    const { error: ulErr } = await supabase.storage
+      .from('uploads-approved')
+      .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
+
+    if (ulErr) throw new Error('Failed to upload to approved: ' + ulErr.message);
+
+    // Update submission status to approved (not published)
+    const { error: updateError } = await supabase
+      .from('submissions')
+      .update({
+        status: 'approved',
+        approved_path: approvedPath,
+        reviewer_id: reviewerId,
+        review_notes: notes || null,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', submission.id);
+
+    if (updateError) throw updateError;
+
+    // Clean up temp file
+    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
+
+    showMessage('Submission approved! Awaiting publish by level 90+ admin.', 'success');
+    
+    // Reload submissions
+    await loadSubmissions();
+
+  } catch (error) {
+    console.error('Error approving submission:', error);
+    showMessage('Failed to approve submission: ' + error.message, 'error');
+  }
+}
+
+/**
+ * Approve and publish in one step
+ * Level 90+ can approve & publish
+ */
+async function approveAndPublishSubmission(submission, notes = '') {
+  try {
+    showMessage('Processing approval & publish...', 'info');
 
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
@@ -411,15 +514,16 @@ async function approveSubmission(submission, notes = '') {
       is_demo: false
     });
 
-    // Update submission status and approved_path
+    // Update submission status directly to published
     const { error: updateError } = await supabase
       .from('submissions')
       .update({
-        status: 'approved',
+        status: 'published',
         approved_path: approvedPath,
         reviewer_id: reviewerId,
         review_notes: notes || null,
-        reviewed_at: new Date().toISOString()
+        reviewed_at: new Date().toISOString(),
+        published_at: new Date().toISOString()
       })
       .eq('id', submission.id);
 
@@ -428,14 +532,14 @@ async function approveSubmission(submission, notes = '') {
     // Clean up temp file
     await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
-    showMessage('Submission approved!', 'success');
+    showMessage('Submission approved & published!', 'success');
     
     // Reload submissions
     await loadSubmissions();
 
   } catch (error) {
-    console.error('Error approving submission:', error);
-    showMessage('Failed to approve submission: ' + error.message, 'error');
+    console.error('Error approving & publishing submission:', error);
+    showMessage('Failed to approve & publish: ' + error.message, 'error');
   }
 }
 
@@ -476,6 +580,28 @@ async function rejectSubmission(submission, notes = '') {
   } catch (error) {
     console.error('Error rejecting submission:', error);
     showMessage('Failed to reject submission: ' + error.message, 'error');
+  }
+}
+
+/**
+ * Preview file in a new tab
+ */
+async function previewFile(submission) {
+  try {
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    const bucket = submission.approved_path ? 'uploads-approved' : 'uploads-temp';
+    const path = submission.approved_path || submission.storage_path;
+
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(path, 300); // 5 min URL
+
+    if (error) throw error;
+    window.open(data.signedUrl, '_blank');
+  } catch (err) {
+    showMessage('Preview failed: ' + err.message, 'error');
   }
 }
 

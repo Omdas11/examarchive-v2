@@ -152,8 +152,8 @@ const settingsConfig = [
   },
   {
     id: "debug-section",
-    title: "Debug Panel (Admin Only)",
-    description: "Diagnostic tools for administrators and reviewers",
+    title: "Debug Panel",
+    description: "Diagnostic tools (level ≥ 90 visible, level ≥ 100 full access)",
     requiresAdmin: true,
     settings: [
       {
@@ -175,18 +175,6 @@ const settingsConfig = [
         label: "Reset Upload Demo Data",
         buttonText: "Reset Demo Data",
         buttonClass: "btn-outline-red"
-      }
-    ]
-  },
-  {
-    id: "admin-application-section",
-    title: "Admin Panel Application",
-    description: "Apply to become an admin or reviewer",
-    settings: [
-      {
-        id: "admin-application-form",
-        type: "admin-application",
-        label: "Application Form"
       }
     ]
   },
@@ -254,7 +242,8 @@ async function renderSettings() {
 
     // Settings page is accessible to all authenticated users
     // Only specific sections (requiresAdmin) are restricted
-    const isAdmin = roleInfo.name === 'admin' || roleInfo.name === 'reviewer';
+    // Debug panel requires level >= 90
+    const isAdmin = (roleInfo.level || 0) >= 90;
 
     if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
 

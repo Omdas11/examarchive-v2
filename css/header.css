@@ -378,62 +378,6 @@ body[data-theme="amoled"] .site-header button {
   color: inherit;
 }
 
-/* ---------- Auth Status Indicator ---------- */
-.auth-status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 12px;
-  background: var(--bg-soft);
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: default;
-  user-select: none;
-  transition: all 0.2s ease;
-}
-
-.auth-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-muted);
-  transition: background 0.3s ease;
-}
-
-.auth-status-indicator.logged-in .auth-status-dot {
-  background: var(--color-success);
-  box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
-}
-
-.auth-status-indicator.logged-out .auth-status-dot {
-  background: var(--color-error);
-}
-
-.auth-status-text {
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-/* Mobile: Hide text, show only dot */
-@media (max-width: 768px) {
-  .auth-status-text {
-    display: none;
-  }
-  
-  .auth-status-indicator {
-    padding: 0.4rem;
-    min-width: 28px;
-    min-height: 28px;
-    justify-content: center;
-  }
-  
-  .auth-status-dot {
-    width: 10px;
-    height: 10px;
-  }
-}
-
 /* ---------- Login Hint Marker ---------- */
 .login-hint {
   position: absolute;

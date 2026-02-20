@@ -1,0 +1,67 @@
+/* ================================
+   ExamArchive – Brand Theme Kit
+   Phase 2 Cleanup: Unified brand tokens
+   ================================ */
+
+:root {
+  /* Brand primary colors */
+  --brand-primary: #d32f2f;
+  --brand-secondary: #b71c1c;
+  --brand-accent: #ff5252;
+
+  /* Brand backgrounds */
+  --brand-bg-light: #ffffff;
+  --brand-bg-dark: #121212;
+
+  /* Brand border */
+  --brand-border: #e0e0e0;
+}
+
+/* ================================
+   BRAND LIGHT THEME
+   ================================ */
+body[data-theme="light"] {
+  --accent: var(--brand-primary);
+  --accent-soft: #fdeaea;
+}
+
+/* ================================
+   BRAND DARK THEME
+   Dark theme follows brand red - not blue
+   ================================ */
+body[data-theme="dark"] {
+  --accent: var(--brand-accent);
+  --accent-soft: rgba(255, 82, 82, 0.15);
+}
+
+body[data-theme="amoled"] {
+  --accent: var(--brand-accent);
+  --accent-soft: rgba(255, 82, 82, 0.12);
+}
+
+/* ================================
+   POPUP THEME CONSISTENCY
+   Ensure all popups follow the active theme
+   ================================ */
+.avatar-popup,
+.profile-panel,
+.mobile-nav {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* ================================
+   ACTIVE BUTTON FIX
+   Prevent greyed-out active buttons
+   ================================ */
+.theme-btn.active,
+.night-btn.active {
+  opacity: 1;
+}
+
+.btn.active,
+.nav-link.active {
+  opacity: 1;
+  color: var(--accent);
+}

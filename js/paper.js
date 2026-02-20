@@ -3,10 +3,10 @@
  * Phase 9.2.8 - Fixed Supabase initialization timing
  * FINAL (Year-resolved, schema-correct, UX-polished + PDF downloads)
  * + AUTH PROTECTED: RQ and Notes require login
- * TODO: migrate RQ + syllabus to database in Phase 3
+ * // PHASE 3: migrate RQ & syllabus to backend
  */
 
-// Use relative path to work with custom domain
+// PHASE 3: paper metadata should come from database, not JSON
 const PAPERS_URL = "data/papers.json";
 
 const params = new URLSearchParams(window.location.search);

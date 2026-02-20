@@ -5,9 +5,7 @@
 // Dynamic Rendering Based on Auth State
 // ===============================
 
-function debug(msg) {
-  console.log("[avatar-popup]", msg);
-}
+function debug() {}
 
 if (window.__AVATAR_POPUP_INIT__) {
   console.warn('[avatar-popup] Already initialized, skipping');
@@ -155,7 +153,7 @@ async function renderAvatarPopup() {
     debug(`✅ Avatar popup updated (logged-in): ${fullName || email || "User"}`);
   } else {
     // Guest state
-    nameEl.textContent = "Guest";
+    nameEl.textContent = "👤 Visitor";
     usernameEl.textContent = "Not signed in";
     
     // Update avatar for guest
@@ -236,9 +234,10 @@ function updateHeaderAvatar(user) {
       avatarMini.style.backgroundColor = color;
     }
   } else {
-    avatarMini.textContent = "?";
+    avatarMini.textContent = "👤";
     avatarMini.style.backgroundImage = "none";
     avatarMini.style.backgroundColor = "";
+    avatarMini.title = "Visitor";
   }
 }
 
