@@ -175,7 +175,7 @@ class DebugLogger {
         return;
       }
 
-      // Check role level via RPC — only level > 80 can access debug
+      // Check role level via RPC — only level >= 90 can access debug
       let roleLevel = 0;
       try {
         const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
@@ -186,13 +186,13 @@ class DebugLogger {
         console.warn('[DEBUG-LOGGER] Could not fetch role level:', err);
       }
 
-      const hasAccess = roleLevel >= 80;
+      const hasAccess = roleLevel >= 90;
       this.enabled = hasAccess;
       this.roleLevel = roleLevel;
       
       if (hasAccess) {
-        // Full debug for level >= 90, limited for 80-89
-        this.fullAccess = roleLevel >= 90;
+        // Full logging panel for level >= 100
+        this.fullAccess = roleLevel >= 100;
         this.panelVisible = localStorage.getItem('debug-panel-enabled') === 'true';
       }
     } catch (err) {
@@ -427,6 +427,7 @@ class DebugPanel {
           <span class="debug-panel-badge" id="debug-log-count">0</span>
         </div>
         <div class="debug-panel-actions">
+          <button class="debug-panel-btn" id="debug-export-btn" title="Export logs">💾</button>
           <button class="debug-panel-btn" id="debug-copy-btn" title="Copy logs">📋</button>
           <button class="debug-panel-btn" id="debug-clear-btn" title="Clear logs">🗑️</button>
           <button class="debug-panel-btn" id="debug-toggle-btn" title="Expand/Collapse">▲</button>
@@ -650,6 +651,10 @@ class DebugPanel {
         .debug-log-entry-time { font-size: 10px; }
         .debug-panel-header { padding: 8px 12px; }
       }
+      /* Ensure debug panel is always visible in night mode */
+      body[data-night="on"] .debug-panel {
+        filter: none !important;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -687,6 +692,26 @@ class DebugPanel {
         const btn = document.getElementById('debug-copy-btn');
         if (btn) { btn.textContent = '✓'; setTimeout(() => { btn.textContent = '📋'; }, 1500); }
       }).catch(() => {});
+    });
+
+    document.getElementById('debug-export-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const logs = this.logger.getLogs();
+      const text = logs.map(l => {
+        const time = new Date(l.timestamp).toISOString();
+        let line = `[${time}] [${l.module.toUpperCase()}] [${l.level.toUpperCase()}] ${l.message}`;
+        if (l.data) {
+          try { line += '\n  ' + JSON.stringify(l.data); } catch (_) { line += '\n  [non-serializable data]'; }
+        }
+        return line;
+      }).join('\n');
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `examarchive-debug-${new Date().toISOString().slice(0,10)}.log`;
+      a.click();
+      URL.revokeObjectURL(url);
     });
 
     document.getElementById('debug-toggle-btn').addEventListener('click', (e) => {

@@ -152,8 +152,8 @@ const settingsConfig = [
   },
   {
     id: "debug-section",
-    title: "Debug Panel (Admin Only)",
-    description: "Diagnostic tools for administrators and reviewers",
+    title: "Debug Panel",
+    description: "Diagnostic tools (level ≥ 90 visible, level ≥ 100 full access)",
     requiresAdmin: true,
     settings: [
       {
