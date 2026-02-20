@@ -65,13 +65,17 @@ window.systemHealthCheck = async function() {
   try {
     var supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) {
+      console.warn('[HEALTH-CHECK] Supabase client not available');
       window.debugLog('SYSTEM', 'Health check: Supabase client not available');
       return;
     }
 
     var sessionResult = await supabase.auth.getSession();
     var session = sessionResult.data;
-    window.debugLog('SYSTEM', 'Session check', session);
+    window.debugLog('SYSTEM', 'Session check', { 
+      hasSession: !!(session && session.session),
+      userId: session && session.session && session.session.user ? session.session.user.id : null
+    });
 
     var countResult = await supabase
       .from('submissions')

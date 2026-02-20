@@ -670,7 +670,7 @@ class DebugPanel {
         const time = new Date(l.timestamp).toLocaleTimeString();
         let line = `[${time}] [${l.module.toUpperCase()}] [${l.level.toUpperCase()}] ${l.message}`;
         if (l.data) {
-          try { line += '\n  ' + JSON.stringify(l.data); } catch (_) { /* ignore */ }
+          try { line += '\n  ' + JSON.stringify(l.data); } catch (_) { line += '\n  [non-serializable data]'; }
         }
         return line;
       }).join('\n');
