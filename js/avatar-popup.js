@@ -5,9 +5,7 @@
 // Dynamic Rendering Based on Auth State
 // ===============================
 
-function debug(msg) {
-  console.log("[avatar-popup]", msg);
-}
+function debug() {}
 
 if (window.__AVATAR_POPUP_INIT__) {
   console.warn('[avatar-popup] Already initialized, skipping');

@@ -5,8 +5,6 @@
 // This is the ONLY file that should manage auth state
 // ============================================
 
-console.log('[AUTH-CONTROLLER] Loading...');
-
 /**
  * Central Authentication Controller
  * Responsibilities:
@@ -36,8 +34,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
    * This runs once when the script loads
    */
   async function init() {
-    console.log('[AUTH-CONTROLLER] Initializing...');
-
     // Get Supabase client using singleton
     supabaseClient = window.getSupabase ? window.getSupabase() : null;
     
@@ -47,8 +43,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
       emitAuthReady(null);
       return;
     }
-
-    console.log('[AUTH-CONTROLLER] Supabase client ready');
 
     // Handle OAuth callback if present in URL
     await handleOAuthCallback();
@@ -61,10 +55,8 @@ console.log('[AUTH-CONTROLLER] Loading...');
         console.error('[AUTH-CONTROLLER] Error getting session:', error);
         currentSession = null;
       } else if (data?.session) {
-        console.log('[AUTH-CONTROLLER] Session restored:', data.session.user.email);
         currentSession = data.session;
       } else {
-        console.log('[AUTH-CONTROLLER] No active session');
         currentSession = null;
       }
     } catch (err) {
@@ -74,7 +66,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
 
     // Set up auth state change listener (SINGLE LISTENER)
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log('[AUTH-CONTROLLER] Auth state changed:', event);
       currentSession = session;
       
       // Update window.App session for backward compatibility
@@ -91,8 +82,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
     // Mark auth as ready and emit event
     authReady = true;
     emitAuthReady(currentSession);
-
-    console.log('[AUTH-CONTROLLER] Initialization complete');
   }
 
   /**
@@ -107,8 +96,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
     if (!hasOAuthParams) {
       return; // No OAuth callback to handle
     }
-
-    console.log('[AUTH-CONTROLLER] OAuth callback detected');
 
     // Check for errors
     const error = urlParams.get('error');
@@ -132,15 +119,11 @@ console.log('[AUTH-CONTROLLER] Loading...');
 
     // OAuth success - Supabase will automatically handle the code exchange
     // due to detectSessionInUrl: true in supabase.js
-    console.log('[AUTH-CONTROLLER] OAuth callback processing...');
-
     // Wait a bit for Supabase to process the callback
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Clean URL to remove OAuth parameters
     cleanURL();
-
-    console.log('[AUTH-CONTROLLER] OAuth callback handled successfully');
   }
 
   /**
@@ -165,7 +148,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
     // Replace history state to clean URL
     if (newURL !== window.location.pathname + window.location.search + window.location.hash) {
       window.history.replaceState({}, '', newURL);
-      console.log('[AUTH-CONTROLLER] URL cleaned');
     }
   }
 
@@ -242,8 +224,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
    * Other parts of the app should wait for this event before checking auth
    */
   function emitAuthReady(session) {
-    console.log('[AUTH-CONTROLLER] Emitting auth:ready event');
-    
     window.dispatchEvent(new CustomEvent('auth:ready', {
       detail: { session }
     }));
@@ -301,7 +281,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
     const session = await requireSession();
     
     if (!session) {
-      console.log('[AUTH-CONTROLLER] No session for role check');
       return null;
     }
 
@@ -322,15 +301,12 @@ console.log('[AUTH-CONTROLLER] Loading...');
       }
 
       const userRole = data;
-      console.log('[AUTH-CONTROLLER] User role:', userRole);
 
       // Check if user has required role
       if (!allowedRoles.includes(userRole)) {
-        console.log('[AUTH-CONTROLLER] Access denied - role not allowed:', userRole);
         return null;
       }
 
-      console.log('[AUTH-CONTROLLER] Role check passed:', userRole);
       return session;
     } catch (err) {
       console.error('[AUTH-CONTROLLER] Exception in requireRole:', err);
@@ -340,6 +316,9 @@ console.log('[AUTH-CONTROLLER] Loading...');
 
   /**
    * Public API - Sign in with OAuth
+   * // PHASE 3: Add email + password auth (signInWithPassword)
+   * // PHASE 3: Add profile image upload to Storage bucket 'avatars'
+   * // PHASE 3: Add default fallback avatar for users without profile images
    */
   async function signInWithGoogle() {
     if (!supabaseClient) {
@@ -376,8 +355,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
       return;
     }
 
-    console.log('[AUTH-CONTROLLER] Signing out...');
-    
     try {
       await supabaseClient.auth.signOut();
       currentSession = null;
@@ -386,8 +363,6 @@ console.log('[AUTH-CONTROLLER] Loading...');
       if (window.App) {
         window.App.session = null;
       }
-      
-      console.log('[AUTH-CONTROLLER] Signed out successfully');
     } catch (err) {
       console.error('[AUTH-CONTROLLER] Error signing out:', err);
     }

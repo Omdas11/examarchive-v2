@@ -8,8 +8,6 @@
   if (window.__APP_BOOTED__) return;
   window.__APP_BOOTED__ = true;
 
-  console.log('[BOOT] Initializing app');
-
   window.App = {
     ready: false,
     supabase: null,
@@ -28,6 +26,4 @@
     console.error('[BOOT] Unhandled Promise Rejection:', e);
   });
 
-  console.log('[BOOT] Global error handlers installed');
-  console.log('[BOOT] Bootstrap complete - app ready to load');
 })();
