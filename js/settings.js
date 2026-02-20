@@ -10,22 +10,16 @@ const settingsConfig = [
   {
     id: "theme-section",
     title: "Theme",
-    description: "Choose your preferred theme with unique backgrounds and colors",
+    description: "Choose your preferred theme",
     settings: [
       {
         id: "theme-preset",
         type: "theme-preset-grid",
         label: "Theme Preset",
-        description: "Each theme includes background, cards, and harmonized accent colors",
+        description: "Select a theme for ExamArchive",
         options: [
-          { value: "red-classic", label: "Red Classic", desc: "Default ExamArchive look" },
-          { value: "blue-slate", label: "Blue Slate", desc: "Cool professional blue" },
-          { value: "green-mint", label: "Green Mint", desc: "Fresh and natural" },
-          { value: "purple-nebula", label: "Purple Nebula", desc: "Deep cosmic purple" },
-          { value: "amber-warm", label: "Amber Warm", desc: "Warm and inviting" },
-          { value: "mono-gray", label: "Mono Gray", desc: "Minimal grayscale" },
-          { value: "glass-light", label: "Glass Light", desc: "Transparent light" },
-          { value: "glass-dark", label: "Glass Dark", desc: "Transparent dark" }
+          { value: "red-classic", label: "Brand Light", desc: "Default ExamArchive look" },
+          { value: "glass-dark", label: "Brand Dark", desc: "Dark mode" }
         ]
       },
       {
@@ -36,29 +30,7 @@ const settingsConfig = [
         options: [
           { value: "auto", label: "Auto" },
           { value: "light", label: "Light" },
-          { value: "dark", label: "Dark" },
-          { value: "amoled", label: "AMOLED" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "accent-section",
-    title: "Accent Color (Legacy)",
-    description: "Fine-tune accent color - use Theme Presets above for coordinated looks",
-    settings: [
-      {
-        id: "accent-color",
-        type: "accent-pills",
-        label: "Accent Color",
-        description: "Choose your preferred accent color (overrides theme preset accent)",
-        options: [
-          { value: "red", label: "Red" },
-          { value: "blue", label: "Blue" },
-          { value: "green", label: "Green" },
-          { value: "purple", label: "Purple" },
-          { value: "amber", label: "Amber" },
-          { value: "mono", label: "Mono" }
+          { value: "dark", label: "Dark" }
         ]
       }
     ]
@@ -203,6 +175,18 @@ const settingsConfig = [
         label: "Reset Upload Demo Data",
         buttonText: "Reset Demo Data",
         buttonClass: "btn-outline-red"
+      }
+    ]
+  },
+  {
+    id: "admin-application-section",
+    title: "Admin Panel Application",
+    description: "Apply to become an admin or reviewer",
+    settings: [
+      {
+        id: "admin-application-form",
+        type: "admin-application",
+        label: "Application Form"
       }
     ]
   },
@@ -458,6 +442,8 @@ function createSettingElement(setting, user) {
       return createAccountInfo(user);
     case "button":
       return createButton(setting);
+    case "admin-application":
+      return createAdminApplicationForm(user);
     default:
       return "";
   }
@@ -712,6 +698,41 @@ function createButton(setting) {
       >
         ${setting.buttonText}
       </button>
+    </div>
+  `;
+}
+
+// ===============================
+// Admin Application Form
+// ===============================
+
+function createAdminApplicationForm(user) {
+  return `
+    <div class="setting-group admin-application-form" style="flex-direction: column; align-items: stretch;">
+      <div class="setting-label-container">
+        <p class="setting-label">Apply to become an Admin/Reviewer</p>
+        <p class="setting-description">Submit your application and we'll review it.</p>
+      </div>
+      <form id="admin-application-form" class="admin-form">
+        <div class="form-field">
+          <label for="admin-reason">Why do you want to join? *</label>
+          <textarea id="admin-reason" name="reason" rows="3" required placeholder="Tell us why you'd like to help manage ExamArchive..."></textarea>
+        </div>
+        <div class="form-field">
+          <label for="admin-expertise">Subject expertise</label>
+          <input type="text" id="admin-expertise" name="subject_expertise" placeholder="e.g., Physics, Chemistry, Commerce" />
+        </div>
+        <div class="form-field">
+          <label for="admin-experience">Experience</label>
+          <textarea id="admin-experience" name="experience" rows="2" placeholder="Describe any relevant experience..."></textarea>
+        </div>
+        <div class="form-field">
+          <label for="admin-portfolio">Portfolio link (optional)</label>
+          <input type="url" id="admin-portfolio" name="portfolio_link" placeholder="https://..." />
+        </div>
+        <button type="submit" class="btn btn-primary" id="admin-application-submit">Submit Application</button>
+        <p id="admin-application-status" class="form-status" style="display:none;"></p>
+      </form>
     </div>
   `;
 }
@@ -1127,6 +1148,56 @@ function attachEventListeners() {
   if (signOutBtn) {
     signOutBtn.addEventListener("click", async () => {
       await window.AvatarUtils.handleLogout();
+    });
+  }
+
+  // ========== ADMIN APPLICATION FORM ==========
+  const adminForm = document.getElementById("admin-application-form");
+  if (adminForm) {
+    adminForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const statusEl = document.getElementById("admin-application-status");
+      const submitBtn = document.getElementById("admin-application-submit");
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+
+        const supabase = window.getSupabase ? window.getSupabase() : null;
+        if (!supabase) throw new Error("Service unavailable");
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+
+        const reason = document.getElementById("admin-reason").value.trim();
+        const subjectExpertise = document.getElementById("admin-expertise").value.trim();
+        const experience = document.getElementById("admin-experience").value.trim();
+        const portfolioLink = document.getElementById("admin-portfolio").value.trim();
+
+        if (!reason) throw new Error("Please provide a reason");
+
+        const { error } = await supabase.from("admin_requests").insert({
+          user_id: user.id,
+          reason,
+          subject_expertise: subjectExpertise || null,
+          experience: experience || null,
+          portfolio_link: portfolioLink || null
+        });
+
+        if (error) throw error;
+
+        statusEl.textContent = "✅ Application submitted successfully!";
+        statusEl.style.display = "block";
+        statusEl.style.color = "var(--color-success)";
+        adminForm.reset();
+      } catch (err) {
+        statusEl.textContent = "❌ " + (err.message || "Failed to submit");
+        statusEl.style.display = "block";
+        statusEl.style.color = "var(--color-error)";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Application";
+      }
     });
   }
 }

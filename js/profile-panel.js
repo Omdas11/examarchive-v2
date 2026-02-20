@@ -16,8 +16,8 @@ function debug(msg) {
 /**
  * Compute badges for a user using backend-verified roles
  * Badge Slot 1: Primary role badge (VISITOR/CONTRIBUTOR/REVIEWER/ADMIN)
- * Badge Slot 2: Empty (future use)
- * Badge Slot 3: Empty (future use)
+ * Badge Slot 2: Founder badge (if user_id matches owner)
+ * Badge Slot 3: Custom title from roles table (level 90-99)
  * 
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects
@@ -26,12 +26,8 @@ async function computeBadges(user) {
   const getUserBadge = window.Roles.getUserBadge;
   const badges = [];
   
-  console.log('[BADGE] Computing badges from backend...');
-  
   // Get badge from backend (SINGLE SOURCE OF TRUTH)
   const badgeInfo = await getUserBadge();
-  
-  console.log('[BADGE] Backend badge info:', badgeInfo);
   
   // Slot 1: Primary role badge
   badges.push({
@@ -41,15 +37,51 @@ async function computeBadges(user) {
     color: badgeInfo.color
   });
   
-  console.log(`[BADGE] rendered: ${badgeInfo.badge} (profile-panel, backend-verified)`);
+  // Slot 2: Founder badge (hardcoded owner check)
+  if (user && user.id) {
+    try {
+      const supabase = await window.waitForSupabase();
+      if (supabase) {
+        // Check for founder status (level 100 is admin/owner)
+        if (badgeInfo.level >= 100) {
+          badges.push({
+            type: 'founder',
+            label: 'Founder',
+            icon: '⭐',
+            color: 'var(--color-warning)'
+          });
+        }
+
+        // Slot 3: Custom title for level 90-99
+        if (badgeInfo.level >= 90 && badgeInfo.level < 100) {
+          const { data: roleData } = await supabase
+            .from('roles')
+            .select('role_title')
+            .eq('user_id', user.id)
+            .single();
+
+          if (roleData?.role_title) {
+            badges.push({
+              type: 'expert',
+              label: roleData.role_title,
+              icon: '🏅',
+              color: 'var(--color-purple)'
+            });
+          } else {
+            badges.push({
+              type: 'expert',
+              label: 'Subject Expert',
+              icon: '🏅',
+              color: 'var(--color-purple)'
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[BADGE] Error fetching additional badges:', err);
+    }
+  }
   
-  // Slot 2: Empty (future use)
-  // Could be used for achievements, activity level, etc.
-  
-  // Slot 3: Empty (future use)
-  // Could be used for certifications, special roles, etc.
-  
-  console.log('[BADGE] Final badges array:', badges);
   return badges;
 }
 
@@ -290,12 +322,19 @@ async function renderProfilePanel() {
       usernameEl.textContent = "Signed in";
     }
 
+    // Show "Member since" from created_at
+    const memberSinceEl = document.querySelector(".profile-member-since");
+    if (memberSinceEl && user.created_at) {
+      const d = new Date(user.created_at);
+      memberSinceEl.textContent = `Member since ${d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}`;
+      memberSinceEl.style.display = "block";
+    }
+
     // Update avatar using shared utility
     if (updateAvatarElement) updateAvatarElement(avatarEl, user);
 
     // Compute and render badges dynamically
     const badges = await computeBadges(user);
-    console.log('[PROFILE-PANEL] Badges computed:', badges);
     renderBadges(badges);
 
     // Show stats
@@ -303,8 +342,6 @@ async function renderProfilePanel() {
 
     // Check if user is admin - use BACKEND VERIFICATION ONLY
     const userIsAdmin = isCurrentUserAdmin ? await isCurrentUserAdmin() : false;
-    console.log('[PROFILE-PANEL] User is admin:', userIsAdmin);
-    console.log('[ADMIN] dashboard access', userIsAdmin ? 'granted' : 'denied');
 
     // Dynamically create logged-in actions with admin dashboard link if admin
     actionsSection.innerHTML = `
@@ -332,13 +369,16 @@ async function renderProfilePanel() {
     // Guest state
     nameEl.textContent = "Guest";
     usernameEl.textContent = "Not signed in";
+
+    // Hide member since for guest
+    const memberSinceEl = document.querySelector(".profile-member-since");
+    if (memberSinceEl) memberSinceEl.style.display = "none";
     
     // Update avatar for guest
     if (updateAvatarElement) updateAvatarElement(avatarEl, null);
 
     // Show guest badge
     const guestBadges = await computeBadges(null);
-    console.log('[PROFILE-PANEL] Guest badges computed:', guestBadges);
     renderBadges(guestBadges);
 
     // Hide stats
