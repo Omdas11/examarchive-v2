@@ -1,15 +1,15 @@
 /**
  * ExamArchive v2 — Browse Page
- * Reads from data/papers.json (legacy) + approved_papers table (user uploads)
+ * Phase 2: Fully database-driven from Supabase submissions table
  */
-
-// Use relative path to work with custom domain
-const DATA_URL = "data/papers.json";
 
 /* -------------------- State -------------------- */
 let allPapers = [];
-let approvedPapers = [];
 let view = [];
+
+// Cache for signed URLs (path → { url, expiresAt })
+const signedUrlCache = new Map();
+const SIGNED_URL_TTL = 3600; // 1 hour
 
 let filters = {
   programme: "ALL",
@@ -29,6 +29,13 @@ function toRoman(num) {
   return r;
 }
 
+function formatFileSize(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
 /* -------------------- DOM -------------------- */
 const sortTrigger = document.getElementById("sortTrigger");
 const sortOverlay = document.getElementById("sortOverlay");
@@ -38,107 +45,101 @@ const closeSortBtn = document.getElementById("closeSort");
 const cancelSortBtn = document.getElementById("cancelSort");
 const currentSortLabel = document.getElementById("currentSort");
 
+/* -------------------- Signed URL -------------------- */
+/**
+ * Get a signed URL for a file in uploads-approved bucket
+ * Uses cache and auto-refreshes when expired
+ */
+async function getSignedUrl(supabase, filePath) {
+  if (!filePath) return '#';
+
+  const cached = signedUrlCache.get(filePath);
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.url;
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from('uploads-approved')
+      .createSignedUrl(filePath, SIGNED_URL_TTL);
+
+    if (error || !data?.signedUrl) {
+      return '#';
+    }
+
+    signedUrlCache.set(filePath, {
+      url: data.signedUrl,
+      expiresAt: Date.now() + (SIGNED_URL_TTL - 60) * 1000 // refresh 1 min early
+    });
+
+    if (window.Debug) {
+      window.Debug.logInfo('storage', 'Signed URL generated', { path: filePath });
+    }
+
+    return data.signedUrl;
+  } catch {
+    return '#';
+  }
+}
+
 /* -------------------- Load -------------------- */
 async function loadPapers() {
   try {
-    const res = await fetch(DATA_URL);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch papers: ${res.status} ${res.statusText}`);
+    if (!window.waitForSupabase) {
+      allPapers = [];
+      return;
     }
-    allPapers = await res.json();
-    console.log(`Loaded ${allPapers.length} legacy papers`);
-  } catch (error) {
-    console.error("Error loading papers:", error);
-    allPapers = [];
-  }
-  
-  // Also load approved papers from Supabase
-  await loadApprovedPapers();
-}
-
-/**
- * Load user-uploaded approved papers from Supabase approved_papers table
- * Also reads from submissions where status = 'approved'
- */
-async function loadApprovedPapers() {
-  try {
-    if (!window.waitForSupabase) return;
     const supabase = await window.waitForSupabase();
-    if (!supabase) return;
-    
-    // Load from approved_papers table
-    const { data, error } = await supabase
-      .from('approved_papers')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.warn('Could not load approved papers:', error.message);
+    if (!supabase) {
+      allPapers = [];
+      return;
     }
-    
-    const fromApprovedTable = (data || []).map(p => ({
-      paper_codes: [p.paper_code],
-      paper_names: [p.paper_code],
-      year: p.year,
-      stream: 'Science',
-      programme: 'ALL',
-      university: 'User Upload',
-      semester: 0,
-      pdf: getApprovedPaperUrl(supabase, p.file_path),
-      is_demo: p.is_demo || false,
-      is_approved_upload: true
-    }));
 
-    // Also load from submissions where status = 'approved' (fallback)
-    const { data: approvedSubs, error: subErr } = await supabase
+    // Load published submissions from Supabase
+    const { data, error } = await supabase
       .from('submissions')
       .select('*')
-      .eq('status', 'approved')
-      .not('approved_path', 'is', null)
-      .order('created_at', { ascending: false });
+      .eq('status', 'published')
+      .order('published_at', { ascending: false });
 
-    if (subErr) {
-      console.warn('Could not load approved submissions:', subErr.message);
+    if (error) {
+      console.warn('Could not load published papers:', error.message);
+      allPapers = [];
+      return;
     }
 
-    const fromSubmissions = (approvedSubs || [])
-      .filter(s => s.approved_path)
-      .map(s => ({
+    // Map submissions to display format with signed URLs
+    const papers = await Promise.all((data || []).map(async (s) => {
+      const pdfUrl = s.approved_path
+        ? await getSignedUrl(supabase, s.approved_path)
+        : '#';
+
+      return {
         paper_codes: [s.paper_code],
-        paper_names: [s.paper_code],
+        paper_names: [s.original_filename ? s.original_filename.replace(/\.pdf$/i, '') : s.paper_code],
         year: s.year,
         stream: 'Science',
         programme: 'ALL',
-        university: 'User Upload',
+        university: 'ExamArchive',
         semester: 0,
-        pdf: getApprovedPaperUrl(supabase, s.approved_path),
-        is_demo: false,
-        is_approved_upload: true
-      }));
+        pdf: pdfUrl,
+        is_demo: s.is_demo || false,
+        file_size: s.file_size,
+        published_at: s.published_at,
+        approved_path: s.approved_path,
+        original_filename: s.original_filename,
+        is_published: true
+      };
+    }));
 
-    // Combine both sources, deduplicate by file path
-    const seenPaths = new Set(fromApprovedTable.map(p => p.pdf));
-    const uniqueFromSubmissions = fromSubmissions.filter(p => !seenPaths.has(p.pdf));
-    approvedPapers = [...fromApprovedTable, ...uniqueFromSubmissions];
-    
-    console.log(`Loaded ${approvedPapers.length} approved papers from database`);
+    allPapers = papers;
+
+    if (window.Debug) {
+      window.Debug.logInfo('system', `Loaded ${allPapers.length} published papers from database`);
+    }
   } catch (err) {
-    console.warn('Error loading approved papers:', err);
-    approvedPapers = [];
-  }
-}
-
-/**
- * Get public URL for an approved paper
- */
-function getApprovedPaperUrl(supabase, filePath) {
-  try {
-    const { data } = supabase.storage
-      .from('uploads-approved')
-      .getPublicUrl(filePath);
-    return data?.publicUrl || '#';
-  } catch {
-    return '#';
+    console.warn('Error loading papers:', err);
+    allPapers = [];
   }
 }
 
@@ -225,9 +226,7 @@ function closeSort() {
 
 /* -------------------- Filters -------------------- */
 function applyFilters() {
-  // Combine legacy papers + approved uploads
-  const combined = [...allPapers, ...approvedPapers];
-  view = [...combined];
+  view = [...allPapers];
 
   if (filters.programme !== "ALL") {
     view = view.filter(p => p.programme === filters.programme);
@@ -292,7 +291,7 @@ function render() {
   <div class="availability-badges">
     ${
       p.is_demo
-        ? `<span class="availability-badge subtle" style="background: var(--accent-soft); color: var(--accent);">DEMO</span>`
+        ? `<span class="availability-badge subtle" style="background: var(--accent-soft); color: var(--accent);">🧪 DEMO PAPER</span>`
         : ""
     }
     ${
@@ -308,12 +307,17 @@ function render() {
   </div>
 `;
 
+    const fileSizeStr = p.file_size ? ` • ${formatFileSize(p.file_size)}` : '';
+    const publishedStr = p.published_at
+      ? ` • ${new Date(p.published_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`
+      : '';
+
     card.innerHTML = `
       <h3 class="paper-name">${p.paper_names.join(" / ")}</h3>
       <div class="paper-code">${p.paper_codes.join(" / ")}</div>
       <div class="paper-meta">
         ${p.university} • ${p.programme} • ${p.stream.toUpperCase()}
-        • Semester ${toRoman(p.semester)} • ${p.year}
+        • ${p.year}${fileSizeStr}${publishedStr}
       </div>
       ${badges}
       <a class="open-pdf"

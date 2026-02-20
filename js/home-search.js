@@ -1,6 +1,7 @@
 /**
  * ExamArchive v2 — Home Search
  * FINAL STABLE (schema-aware + RQ-enabled)
+ * TODO: migrate RQ + syllabus to database in Phase 3
  */
 
 const BASE = "https://omdas11.github.io/examarchive-v2";
