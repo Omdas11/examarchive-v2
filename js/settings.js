@@ -179,18 +179,6 @@ const settingsConfig = [
     ]
   },
   {
-    id: "admin-application-section",
-    title: "Admin Panel Application",
-    description: "Apply to become an admin or reviewer",
-    settings: [
-      {
-        id: "admin-application-form",
-        type: "admin-application",
-        label: "Application Form"
-      }
-    ]
-  },
-  {
     id: "account-section",
     title: "Account",
     description: "Manage your account",

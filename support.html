@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Help & Support | ExamArchive</title>
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/avatar-popup.css">
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/profile-panel.css">
+  <link rel="stylesheet" href="css/avatar.css">
+  <link rel="stylesheet" href="css/settings.css" />
+
+  <!-- Accessibility and SEO -->
+  <meta name="description" content="ExamArchive Help & Support - Apply for admin access, report issues, and get help." />
+  <meta name="theme-color" content="#d32f2f" />
+</head>
+<body>
+
+  <!-- Skip to content link for accessibility -->
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <!-- Header include -->
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="support-page" id="main-content" style="max-width: var(--max-width); margin: 0 auto; padding: 2rem 1rem;">
+
+    <h1>Help & Support</h1>
+
+    <section style="margin-bottom: 2rem;">
+      <h2>Contact</h2>
+      <p style="color: var(--text-muted); margin-bottom: 1rem;">
+        For questions, feedback, or to report issues, reach out to us:
+      </p>
+      <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem;">
+        <li><a href="mailto:omdasg11@gmail.com" style="color: var(--accent);">📧 Email us</a></li>
+        <li><a href="mailto:omdasg11@gmail.com?subject=Feedback for ExamArchive" style="color: var(--accent);">💬 Send Feedback</a></li>
+        <li><a href="https://github.com/Omdas11/examarchive-v2/issues" target="_blank" rel="noopener" style="color: var(--accent);">🐛 Report a Bug</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Admin Application</h2>
+      <p style="color: var(--text-muted); margin-bottom: 1rem;">
+        Want to help manage ExamArchive? Apply to become a reviewer or admin.
+      </p>
+
+      <div id="support-form-container">
+        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Loading...</p>
+      </div>
+
+      <div id="admin-request-status-container" style="display: none; margin-top: 1rem;">
+        <div style="padding: 1rem; border-radius: var(--radius-md); background: var(--bg-soft); border: 1px solid var(--border);">
+          <p style="margin: 0; font-weight: 600;">Your application status:</p>
+          <p id="admin-request-status-text" style="margin: 0.5rem 0 0; color: var(--text-muted);"></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer include -->
+  <div id="footer"></div>
+
+  <!-- ✅ GLOBAL PORTALS (MUST EXIST BEFORE JS) -->
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <!-- ⚡ BOOTSTRAP (MUST BE FIRST) -->
+  <script src="js/bootstrap.js"></script>
+  
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  
+  <!-- ⚡ SUPABASE CLIENT SINGLETON -->
+  <script src="js/supabase-client.js"></script>
+  
+  <!-- ⚡ SUPABASE INITIALIZATION -->
+  <script type="module" src="js/app.module.js"></script>
+  
+  <!-- Classic Scripts -->
+  <script src="js/utils/supabase-wait.js"></script>
+  <script src="js/auth-controller.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/avatar-utils.js"></script>
+  <script src="js/utils/role-utils.js"></script>
+  <script src="js/roles.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/profile-panel.js"></script>
+  <script src="js/avatar-popup.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/support.js"></script>
+
+</body>
+</html>
