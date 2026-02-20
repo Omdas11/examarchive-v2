@@ -155,7 +155,7 @@ async function renderAvatarPopup() {
     debug(`✅ Avatar popup updated (logged-in): ${fullName || email || "User"}`);
   } else {
     // Guest state
-    nameEl.textContent = "Guest";
+    nameEl.textContent = "👤 Visitor";
     usernameEl.textContent = "Not signed in";
     
     // Update avatar for guest
@@ -236,9 +236,10 @@ function updateHeaderAvatar(user) {
       avatarMini.style.backgroundColor = color;
     }
   } else {
-    avatarMini.textContent = "?";
+    avatarMini.textContent = "👤";
     avatarMini.style.backgroundImage = "none";
     avatarMini.style.backgroundColor = "";
+    avatarMini.title = "Visitor";
   }
 }
 

@@ -99,10 +99,11 @@ function updateAvatarElement(avatarEl, user) {
       avatarEl.style.backgroundColor = stringToColor(fullName || email || "User");
     }
   } else {
-    avatarEl.setAttribute("data-initials", "?");
+    avatarEl.setAttribute("data-initials", "👤");
     avatarEl.removeAttribute("data-avatar");
     avatarEl.style.backgroundImage = "none";
     avatarEl.style.backgroundColor = "#888";
+    avatarEl.title = "Visitor";
   }
 }
 

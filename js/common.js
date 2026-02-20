@@ -153,23 +153,9 @@ function initAuthStatusIndicator() {
 }
 
 function updateAuthStatusIndicator(session) {
-  const indicator = document.getElementById('authStatusIndicator');
-  if (!indicator) return;
-
-  const dot = indicator.querySelector('.auth-status-dot');
-  const text = indicator.querySelector('.auth-status-text');
-  
   if (session) {
-    indicator.classList.remove('logged-out');
-    indicator.classList.add('logged-in');
-    indicator.title = 'Logged In';
-    if (text) text.textContent = 'Logged In';
     document.body.classList.add('user-authenticated');
   } else {
-    indicator.classList.remove('logged-in');
-    indicator.classList.add('logged-out');
-    indicator.title = 'Not Logged In';
-    if (text) text.textContent = 'Not Logged In';
     document.body.classList.remove('user-authenticated');
     injectLoginHint();
   }
