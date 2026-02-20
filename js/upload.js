@@ -254,7 +254,6 @@ function initializeUploadForm() {
 
     try {
       // Upload file — pass uploadType for demo handling
-      console.log('[UPLOAD] Calling handlePaperUpload...', { paperCode, examYear, uploadType: selectedUploadType });
       const result = await handlePaperUpload(
         selectedFile,
         {
@@ -269,8 +268,10 @@ function initializeUploadForm() {
 
       // Handle result
       if (result.success) {
-        console.log('[UPLOAD] Upload successful - submission ID:', result.submissionId);
         showMessage(result.message, 'success');
+        
+        // Show success animation
+        uploadButton.textContent = '✅ Uploaded!';
         
         // Reset form
         paperCodeInput.value = '';
@@ -284,11 +285,9 @@ function initializeUploadForm() {
           loadUserSubmissions();
         }, 500);
       } else {
-        console.error('[UPLOAD] Upload failed:', result.message);
         showMessage(result.message, 'error');
       }
     } catch (err) {
-      console.error('[UPLOAD] Unexpected error:', err);
       showMessage('Upload failed. Please try again.', 'error');
     }
 
@@ -308,7 +307,7 @@ function updateFileUI(file, fileUI) {
   const size = formatFileSize(file.size);
   fileUI.innerHTML = `
     <strong>✓ ${file.name}</strong>
-    <p class="text-muted">${size} · Ready to upload</p>
+    <p class="text-muted">${size} · PDF · Ready to upload</p>
   `;
 }
 

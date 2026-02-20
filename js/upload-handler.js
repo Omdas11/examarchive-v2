@@ -94,7 +94,9 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
     const sanitizedFilename = sanitizeFilename(file.name);
     const timestamp = Date.now();
-    const storagePath = `${userId}/${timestamp}-${sanitizedFilename}`;
+    // Generate structured filename: {paper_code}-{year}-{timestamp}.pdf
+    const generatedFilename = `${metadata.paperCode}-${metadata.examYear}-${timestamp}.pdf`;
+    const storagePath = `${userId}/${generatedFilename}`;
     const TEMP_BUCKET = 'uploads-temp';
     const isDemo = metadata.uploadType === 'demo-paper';
 
@@ -138,7 +140,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     // Demo paper: upload directly to approved bucket, status = approved
     if (isDemo) {
-      const approvedPath = `demo/${metadata.paperCode}/${metadata.examYear}/${timestamp}-${sanitizedFilename}`;
+      const approvedPath = `demo/${metadata.paperCode}/${metadata.examYear}/${generatedFilename}`;
 
       // Copy file to approved bucket
       const { data: tempFile, error: downloadErr } = await supabase.storage
