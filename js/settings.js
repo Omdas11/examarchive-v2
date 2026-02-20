@@ -1175,6 +1175,7 @@ function attachEventListeners() {
         const portfolioLink = document.getElementById("admin-portfolio").value.trim();
 
         if (!reason) throw new Error("Please provide a reason");
+        if (reason.length < 10) throw new Error("Please provide a more detailed reason (at least 10 characters)");
 
         const { error } = await supabase.from("admin_requests").insert({
           user_id: user.id,

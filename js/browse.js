@@ -69,7 +69,7 @@ async function getSignedUrl(supabase, filePath) {
 
     signedUrlCache.set(filePath, {
       url: data.signedUrl,
-      expiresAt: Date.now() + (SIGNED_URL_TTL - 60) * 1000 // refresh 1 min early
+      expiresAt: Date.now() + (SIGNED_URL_TTL - 60) * 1000 // refresh 60s before expiry (converting seconds to ms)
     });
 
     if (window.Debug) {

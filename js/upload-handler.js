@@ -92,7 +92,9 @@ async function handlePaperUpload(file, metadata, onProgress) {
     const sanitizedFilename = sanitizeFilename(file.name);
     const timestamp = Date.now();
     // Generate structured filename: {paper_code}-{year}-{timestamp}.pdf
-    const generatedFilename = `${metadata.paperCode}-${metadata.examYear}-${timestamp}.pdf`;
+    const sanitizedCode = String(metadata.paperCode).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const sanitizedYear = String(metadata.examYear).replace(/[^0-9]/g, '');
+    const generatedFilename = `${sanitizedCode}-${sanitizedYear}-${timestamp}.pdf`;
     const storagePath = `${userId}/${generatedFilename}`;
     const TEMP_BUCKET = 'uploads-temp';
     const isDemo = metadata.uploadType === 'demo-paper';

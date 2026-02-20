@@ -39,9 +39,9 @@
   // Delay slightly to not block page load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(incrementCounter, 2000);
+      setTimeout(incrementCounter, 1000);
     });
   } else {
-    setTimeout(incrementCounter, 2000);
+    setTimeout(incrementCounter, 1000);
   }
 })();

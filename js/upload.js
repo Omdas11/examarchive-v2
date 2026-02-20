@@ -287,9 +287,10 @@ function initializeUploadForm() {
 function updateFileUI(file, fileUI) {
   const formatFileSize = window.UploadHandler.formatFileSize;
   const size = formatFileSize(file.size);
+  const fileType = file.type === 'application/pdf' ? 'PDF' : file.type || 'Unknown';
   fileUI.innerHTML = `
     <strong>✓ ${file.name}</strong>
-    <p class="text-muted">${size} · PDF · Ready to upload</p>
+    <p class="text-muted">${size} · ${fileType} · Ready to upload</p>
   `;
 }
 
