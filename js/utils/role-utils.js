@@ -15,27 +15,39 @@ function mapRole(level) {
     return {
       name: 'admin',
       displayName: '👑 Admin',
-      icon: '👑'
+      icon: '👑',
+      level
     };
   }
-  if (level >= 80) {
+  if (level >= 90) {
+    return {
+      name: 'publisher',
+      displayName: '📢 Publisher',
+      icon: '📢',
+      level
+    };
+  }
+  if (level >= 75) {
     return {
       name: 'reviewer',
       displayName: '🛡️ Reviewer',
-      icon: '🛡️'
+      icon: '🛡️',
+      level
     };
   }
   if (level >= 10) {
     return {
       name: 'contributor',
       displayName: '✍️ Contributor',
-      icon: '✍️'
+      icon: '✍️',
+      level
     };
   }
   return {
     name: 'visitor',
     displayName: '👤 Visitor',
-    icon: '👤'
+    icon: '👤',
+    level
   };
 }
 
@@ -124,12 +136,12 @@ async function isCurrentUserAdmin() {
 }
 
 /**
- * Check if current user has at least reviewer access
- * @returns {Promise<boolean>} True if user is admin or reviewer
+ * Check if current user has at least reviewer access (level >= 75)
+ * @returns {Promise<boolean>} True if user level >= 75
  */
 async function isCurrentUserReviewer() {
-  const role = await getCurrentUserRole();
-  return role === "admin" || role === "reviewer";
+  const level = await getCurrentUserRoleLevel();
+  return level >= 75;
 }
 
 // Expose to window
