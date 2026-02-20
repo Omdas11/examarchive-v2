@@ -49,6 +49,45 @@
 }
 
 /* ==================================================
+   LIVE STATS GRID
+   ================================================== */
+
+.live-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.live-stat-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 12px;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.live-stat-card strong {
+  font-size: 2rem;
+  color: var(--accent, var(--red));
+  line-height: 1.2;
+}
+
+.live-stat-card span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+@media (min-width: 600px) {
+  .live-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ==================================================
    PROJECT STATUS
    ================================================== */
 

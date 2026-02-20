@@ -2,21 +2,16 @@
 // Upload Page - Auth Guard & Upload Handler
 // ===============================
 
-console.log("📤 upload.js loaded");
-
 let selectedFile = null;
 let selectedUploadType = 'question-paper';
-let isUploading = false; // UPLOAD LOCK - prevents multiple uploads
-let uploadFormInitialized = false; // Prevents multiple initializations
-let authReady = false; // AUTH READY FLAG - prevents upload before auth initialized
+let isUploading = false;
+let uploadFormInitialized = false;
+let authReady = false;
 
 // Wrap everything in DOMContentLoaded to ensure page is ready
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('[UPLOAD] DOMContentLoaded - page ready');
-  
   // Wait for auth:ready event before checking auth
   window.addEventListener("auth:ready", async (e) => {
-    console.log('[UPLOAD] auth:ready event received - initializing upload page');
     authReady = true;
     const session = e.detail.session;
     
@@ -27,13 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (!session) {
-      console.log("🔒 User not authenticated — upload form disabled");
       disableUploadForm();
     } else {
-      console.log("✅ User authenticated, upload page ready");
       enableUploadForm();
       initializeUploadTypeSelector();
-      // Only initialize form once
       if (!uploadFormInitialized) {
         initializeUploadForm();
         uploadFormInitialized = true;
@@ -44,13 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Listen for auth changes (e.g. user signs in via popup)
   window.addEventListener("auth-state-changed", (e) => {
-    console.log('[UPLOAD] auth-state-changed event received');
     const session = e.detail.session;
     if (session) {
-      console.log("✅ Auth changed — enabling upload form");
       enableUploadForm();
       initializeUploadTypeSelector();
-      // Only initialize form once
       if (!uploadFormInitialized) {
         initializeUploadForm();
         uploadFormInitialized = true;
@@ -143,7 +132,6 @@ function initializeUploadTypeSelector() {
       
       // Update selected type
       selectedUploadType = input.value;
-      console.log('Selected upload type:', selectedUploadType);
     });
   });
 }
@@ -203,11 +191,8 @@ function initializeUploadForm() {
   uploadButton.addEventListener('click', async (e) => {
     e.preventDefault();
     
-    console.log('[UPLOAD] Upload button clicked - checking auth ready');
-    
-    // AUTH READY CHECK - prevent upload before auth ready
+    // AUTH READY CHECK
     if (!authReady) {
-      console.warn('[UPLOAD] Upload attempted before auth ready - blocking');
       if (window.Debug) {
         window.Debug.logWarn('auth', '[AUTH] Upload attempted before auth ready.');
       }
@@ -215,9 +200,8 @@ function initializeUploadForm() {
       return;
     }
     
-    // UPLOAD LOCK - prevent multiple uploads
+    // UPLOAD LOCK
     if (isUploading) {
-      console.warn('[UPLOAD] Upload already in progress - ignoring click');
       showMessage('Upload already in progress', 'info');
       return;
     }
@@ -246,7 +230,6 @@ function initializeUploadForm() {
 
     // Set upload lock
     isUploading = true;
-    console.log('[UPLOAD] Upload lock acquired - starting upload');
     
     // Disable button and show progress
     uploadButton.disabled = true;
@@ -254,7 +237,6 @@ function initializeUploadForm() {
 
     try {
       // Upload file — pass uploadType for demo handling
-      console.log('[UPLOAD] Calling handlePaperUpload...', { paperCode, examYear, uploadType: selectedUploadType });
       const result = await handlePaperUpload(
         selectedFile,
         {
@@ -269,8 +251,10 @@ function initializeUploadForm() {
 
       // Handle result
       if (result.success) {
-        console.log('[UPLOAD] Upload successful - submission ID:', result.submissionId);
         showMessage(result.message, 'success');
+        
+        // Show success animation
+        uploadButton.textContent = '✅ Uploaded!';
         
         // Reset form
         paperCodeInput.value = '';
@@ -284,11 +268,9 @@ function initializeUploadForm() {
           loadUserSubmissions();
         }, 500);
       } else {
-        console.error('[UPLOAD] Upload failed:', result.message);
         showMessage(result.message, 'error');
       }
     } catch (err) {
-      console.error('[UPLOAD] Unexpected error:', err);
       showMessage('Upload failed. Please try again.', 'error');
     }
 
@@ -296,7 +278,6 @@ function initializeUploadForm() {
     uploadButton.disabled = false;
     uploadButton.textContent = 'Upload Paper';
     isUploading = false;
-    console.log('[UPLOAD] Upload lock released');
   });
 }
 
@@ -306,9 +287,10 @@ function initializeUploadForm() {
 function updateFileUI(file, fileUI) {
   const formatFileSize = window.UploadHandler.formatFileSize;
   const size = formatFileSize(file.size);
+  const fileType = file.type === 'application/pdf' ? 'PDF' : file.type || 'Unknown';
   fileUI.innerHTML = `
     <strong>✓ ${file.name}</strong>
-    <p class="text-muted">${size} · Ready to upload</p>
+    <p class="text-muted">${size} · ${fileType} · Ready to upload</p>
   `;
 }
 

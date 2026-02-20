@@ -42,7 +42,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
   uploadInProgress = true;
   try {
     debugLog('info', 'Starting paper upload', { filename: file?.name });
-    console.log('[UPLOAD] Starting paper upload', { filename: file?.name });
     
     // Print auth status on upload start
     if (window.Debug && window.Debug.printAuthStatus) {
@@ -79,13 +78,11 @@ async function handlePaperUpload(file, metadata, onProgress) {
     
     if (authError || !user) {
       debugLog('error', '[AUTH] User not authenticated. Blocking upload.');
-      console.error('[UPLOAD][AUTH] User not authenticated:', authError);
       throw new Error('Please sign in before uploading.');
     }
 
     const userId = user.id;
     debugLog('info', `[UPLOAD] Inserting submission for UID: ${userId}`);
-    console.log('[UPLOAD] Auth verified, UID:', userId);
 
     // Validate metadata
     if (!metadata || !metadata.paperCode || !metadata.examYear) {
@@ -94,13 +91,16 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
     const sanitizedFilename = sanitizeFilename(file.name);
     const timestamp = Date.now();
-    const storagePath = `${userId}/${timestamp}-${sanitizedFilename}`;
+    // Generate structured filename: {paper_code}-{year}-{timestamp}.pdf
+    const sanitizedCode = String(metadata.paperCode).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const sanitizedYear = String(metadata.examYear).replace(/[^0-9]/g, '');
+    const generatedFilename = `${sanitizedCode}-${sanitizedYear}-${timestamp}.pdf`;
+    const storagePath = `${userId}/${generatedFilename}`;
     const TEMP_BUCKET = 'uploads-temp';
     const isDemo = metadata.uploadType === 'demo-paper';
 
     // Upload to temp bucket
     debugLog('info', '📤 Storage Upload Starting', { bucket: TEMP_BUCKET, path: storagePath });
-    console.log('[UPLOAD][STORAGE] Starting upload to storage...', { bucket: TEMP_BUCKET, path: storagePath });
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(TEMP_BUCKET)
@@ -110,10 +110,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       });
 
     if (uploadError) {
-      console.error('[UPLOAD][STORAGE ERROR]', uploadError);
       const statusCode = uploadError.statusCode || uploadError.status;
-      
-      // Detailed error context for debugging
       const errorContext = {
         bucket: TEMP_BUCKET,
         path: storagePath,
@@ -134,11 +131,10 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     if (onProgress) onProgress(100);
     debugLog('info', '✅ Storage Upload Complete', { path: uploadData?.path || storagePath });
-    console.log('[UPLOAD][STORAGE SUCCESS] File uploaded to storage:', uploadData?.path || storagePath);
 
     // Demo paper: upload directly to approved bucket, status = approved
     if (isDemo) {
-      const approvedPath = `demo/${metadata.paperCode}/${metadata.examYear}/${timestamp}-${sanitizedFilename}`;
+      const approvedPath = `demo/${metadata.paperCode}/${metadata.examYear}/${generatedFilename}`;
 
       // Copy file to approved bucket
       const { data: tempFile, error: downloadErr } = await supabase.storage
@@ -157,17 +153,11 @@ async function handlePaperUpload(file, metadata, onProgress) {
             error: approvedUploadErr
           };
           debugLog('error', `[STORAGE ERROR]\nBucket: uploads-approved\nPath: ${approvedPath}\nReason: Failed to copy demo to approved bucket`, errorContext);
-          console.error('[UPLOAD] Failed to copy demo to approved bucket:', approvedUploadErr);
         }
       }
 
       // Create submission record with approved status
       debugLog('info', '📝 Submission Insert Starting (Demo Paper)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
-      console.log('[UPLOAD][SUBMISSION] Inserting submission record (demo paper)...', { 
-        paper_code: metadata.paperCode, 
-        year: metadata.examYear,
-        status: 'approved'
-      });
       
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
@@ -186,9 +176,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       if (submissionError) {
         debugLog('error', 'Submission insert failed:', submissionError);
         if (window.debugError) window.debugError('SUBMISSION_INSERT_FAILED', submissionError);
-        console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
         
-        // Classify error type (case-insensitive)
         const errorMsg = submissionError.message?.toLowerCase() || '';
         if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
           debugLog('error', '[RLS] Insert blocked by policy.', submissionError);
@@ -199,7 +187,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
       }
 
       debugLog('info', '✅ Submission Insert Complete (Demo Paper)', { submissionId: submission.id });
-      console.log('[UPLOAD][SUBMISSION SUCCESS] Submission record created:', { submissionId: submission.id });
 
       debugLog('info', 'Demo paper uploaded and approved — visible in Browse');
       return {
@@ -212,11 +199,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     // Normal paper: create submission with pending status
     debugLog('info', '📝 Submission Insert Starting (Pending Review)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
-    console.log('[UPLOAD][SUBMISSION] Inserting submission record (pending review)...', { 
-      paper_code: metadata.paperCode, 
-      year: metadata.examYear,
-      status: 'pending'
-    });
     
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
@@ -235,9 +217,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (submissionError) {
       debugLog('error', 'Submission insert failed:', submissionError);
       if (window.debugError) window.debugError('SUBMISSION_INSERT_FAILED', submissionError);
-      console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
       
-      // Classify error type (case-insensitive)
       const errorMsg = submissionError.message?.toLowerCase() || '';
       if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
         debugLog('error', '[RLS] Insert blocked by policy.', submissionError);
@@ -249,7 +229,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     debugLog('info', '✅ Submission Insert Complete (Pending Review)', { submissionId: submission.id });
-    console.log('[UPLOAD][SUBMISSION SUCCESS] Submission record created:', { submissionId: submission.id });
 
     debugLog('info', 'Upload successful — pending review');
     return {
@@ -260,8 +239,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
     };
 
   } catch (error) {
-    console.error('[UPLOAD] Upload failed:', error);
-    
     // Human-readable RLS error handling (case-insensitive)
     const errorMsg = error.message?.toLowerCase() || '';
     if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {

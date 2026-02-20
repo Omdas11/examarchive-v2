@@ -22,6 +22,56 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /* ==================================================
+     LIVE STATS FROM DATABASE
+     ================================================== */
+  async function loadLiveStats() {
+    try {
+      if (!window.waitForSupabase) return;
+      const supabase = await window.waitForSupabase();
+      if (!supabase) return;
+
+      // Count published papers
+      const { count: publishedCount } = await supabase
+        .from('submissions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'published');
+
+      // Count distinct contributors
+      const { data: contributors } = await supabase
+        .from('submissions')
+        .select('user_id');
+      const uniqueContributors = new Set((contributors || []).map(c => c.user_id)).size;
+
+      // Count pending papers
+      const { count: pendingCount } = await supabase
+        .from('submissions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      // Total uploads
+      const { count: totalUploads } = await supabase
+        .from('submissions')
+        .select('*', { count: 'exact', head: true });
+
+      // Update DOM
+      const publishedEl = document.querySelector('[data-stat="published"]');
+      const contributorsEl = document.querySelector('[data-stat="contributors"]');
+      const pendingEl = document.querySelector('[data-stat="pending"]');
+      const totalUploadsEl = document.querySelector('[data-stat="total-uploads"]');
+
+      if (publishedEl) publishedEl.textContent = publishedCount ?? '0';
+      if (contributorsEl) contributorsEl.textContent = uniqueContributors || '0';
+      if (pendingEl) pendingEl.textContent = pendingCount ?? '0';
+      if (totalUploadsEl) totalUploadsEl.textContent = totalUploads ?? '0';
+    } catch (err) {
+      console.warn('Could not load live stats:', err);
+    }
+  }
+
+  // Load live stats
+  loadLiveStats();
+
+  /* ==================================================
      RATE-LIMIT SAFE SYSTEM UPDATE (GitHub)
      ================================================== */
   const COMMIT_CACHE_KEY = "examarchive:lastCommit";

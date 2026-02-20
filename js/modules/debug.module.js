@@ -188,8 +188,11 @@ class DebugLogger {
 
       const hasAccess = roleLevel >= 80;
       this.enabled = hasAccess;
+      this.roleLevel = roleLevel;
       
       if (hasAccess) {
+        // Full debug for level >= 90, limited for 80-89
+        this.fullAccess = roleLevel >= 90;
         this.panelVisible = localStorage.getItem('debug-panel-enabled') === 'true';
       }
     } catch (err) {
@@ -349,7 +352,6 @@ class DebugPanel {
    */
   async printAuthStatus() {
     try {
-      // Use getSupabase singleton
       const supabase = window.getSupabase ? window.getSupabase() : null;
       if (!supabase) {
         this.logger.log(DebugModule.AUTH, DebugLevel.WARN, '[AUTH] Client not initialized.');
@@ -363,18 +365,25 @@ class DebugPanel {
         return;
       }
 
-      // Get role level if available
+      // Get role level
       let roleLevel = 'unknown';
+      let isAdmin = false;
       try {
         const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
         if (roleLevelData !== null) {
           roleLevel = roleLevelData;
+          isAdmin = roleLevelData >= 100;
         }
       } catch (err) {
         console.error('[DEBUG-PANEL] Error getting role level:', err);
       }
 
-      this.logger.log(DebugModule.AUTH, DebugLevel.INFO, `[AUTH] Session Status: Logged In\n[AUTH] User ID: ${user.id}\n[AUTH] Role Level: ${roleLevel}`);
+      this.logger.log(DebugModule.AUTH, DebugLevel.INFO,
+        `[AUTH] Session Status: Logged In\n` +
+        `[AUTH] User ID: ${user.id}\n` +
+        `[AUTH] Role Level: ${roleLevel}\n` +
+        `[AUTH] is_admin(): ${isAdmin}`
+      );
     } catch (err) {
       console.error('[DEBUG-PANEL] Error printing auth status:', err);
       this.logger.log(DebugModule.AUTH, DebugLevel.ERROR, `[AUTH] Error checking session: ${err.message}`);
@@ -847,6 +856,15 @@ export async function initDebug() {
     hidePanel: () => debugPanel.hide(),
     togglePanel: () => debugPanel.toggle(),
     printAuthStatus: () => debugPanel.printAuthStatus(),
+    exportLogs: () => {
+      const logs = debugLogger.getLogs();
+      const text = logs.map(l => {
+        const time = new Date(l.timestamp).toLocaleTimeString();
+        return `[${time}] [${l.module.toUpperCase()}] [${l.level.toUpperCase()}] ${l.message}`;
+      }).join('\n');
+      navigator.clipboard.writeText(text).catch(() => {});
+      return text;
+    },
     DebugLevel: DebugLevel,
     DebugModule: DebugModule
   };
