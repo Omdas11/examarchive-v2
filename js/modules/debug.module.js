@@ -418,6 +418,7 @@ class DebugPanel {
           <span class="debug-panel-badge" id="debug-log-count">0</span>
         </div>
         <div class="debug-panel-actions">
+          <button class="debug-panel-btn" id="debug-copy-btn" title="Copy logs">📋</button>
           <button class="debug-panel-btn" id="debug-clear-btn" title="Clear logs">🗑️</button>
           <button class="debug-panel-btn" id="debug-toggle-btn" title="Expand/Collapse">▲</button>
           <button class="debug-panel-btn" id="debug-close-btn" title="Close panel">✕</button>
@@ -617,6 +618,22 @@ class DebugPanel {
         color: var(--text-muted, #666);
         font-size: 0.85rem;
       }
+      .debug-log-entry-details {
+        display: none;
+        margin-top: 6px;
+        padding: 6px 8px;
+        background: rgba(0,0,0,0.04);
+        border-radius: 4px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text-muted, #666);
+      }
+      .debug-log-entry.expanded .debug-log-entry-details {
+        display: block;
+      }
+      .debug-log-entry.expanded .debug-log-entry-module {
+        /* Rotate arrow indicator */
+      }
       @media (max-width: 768px) {
         .debug-panel { font-size: 12px; }
         .debug-log-entry { padding: 6px 8px; font-size: 12px; }
@@ -644,6 +661,23 @@ class DebugPanel {
       e.stopPropagation();
       this.logger.clear();
       this.render();
+    });
+
+    document.getElementById('debug-copy-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const logs = this.logger.getLogs();
+      const text = logs.map(l => {
+        const time = new Date(l.timestamp).toLocaleTimeString();
+        let line = `[${time}] [${l.module.toUpperCase()}] [${l.level.toUpperCase()}] ${l.message}`;
+        if (l.data) {
+          try { line += '\n  ' + JSON.stringify(l.data); } catch (_) { line += '\n  [non-serializable data]'; }
+        }
+        return line;
+      }).join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('debug-copy-btn');
+        if (btn) { btn.textContent = '✓'; setTimeout(() => { btn.textContent = '📋'; }, 1500); }
+      }).catch(() => {});
     });
 
     document.getElementById('debug-toggle-btn').addEventListener('click', (e) => {
@@ -711,13 +745,30 @@ class DebugPanel {
   renderLogEntry(log) {
     const time = new Date(log.timestamp).toLocaleTimeString();
     const categoryClass = log.category ? `category-${log.category}` : '';
+    
+    // Build error details section if data contains code/details/hint
+    let detailsHtml = '';
+    if (log.data && typeof log.data === 'object') {
+      const parts = [];
+      if (log.data.code) parts.push(`<strong>Code:</strong> ${this.escapeHtml(String(log.data.code))}`);
+      if (log.data.details) parts.push(`<strong>Details:</strong> ${this.escapeHtml(String(log.data.details))}`);
+      if (log.data.hint) parts.push(`<strong>Hint:</strong> ${this.escapeHtml(String(log.data.hint))}`);
+      if (parts.length > 0) {
+        detailsHtml = `<div class="debug-log-entry-details">${parts.join('<br>')}</div>`;
+      }
+    }
+
+    const hasDetails = detailsHtml !== '';
+    const toggleAttr = hasDetails ? 'onclick="this.classList.toggle(\'expanded\')" style="cursor:pointer;"' : '';
+
     return `
-      <div class="debug-log-entry level-${log.level} ${categoryClass}">
+      <div class="debug-log-entry level-${log.level} ${categoryClass}" ${toggleAttr}>
         <div class="debug-log-entry-header">
-          <span class="debug-log-entry-module">[${log.module}]</span>
+          <span class="debug-log-entry-module">${hasDetails ? '▶ ' : ''}[${log.module}]</span>
           <span class="debug-log-entry-time">${time}</span>
         </div>
         <div class="debug-log-entry-message">${this.escapeHtml(log.message)}</div>
+        ${detailsHtml}
       </div>
     `;
   }
@@ -799,6 +850,9 @@ export async function initDebug() {
     DebugLevel: DebugLevel,
     DebugModule: DebugModule
   };
+
+  // Set global DEBUG_ENABLED flag for js/core/debug.js integration
+  window.DEBUG_ENABLED = debugLogger.isEnabled();
   
   console.log('[DEBUG-MODULE] Debug system initialized');
 }

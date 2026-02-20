@@ -2,11 +2,11 @@
 
 ## Overview
 
-The debug panel is a mobile-friendly slide-up panel that provides real-time logging, auth status, and error diagnosis. It is implemented as an ES module in `js/modules/debug.module.js`.
+The debug panel is a mobile-friendly slide-up panel that provides real-time logging, auth status, and error diagnosis. It is implemented as an ES module in `js/modules/debug.module.js` with structured logging helpers in `js/core/debug.js`.
 
 ## How to Enable
 
-The debug panel is restricted to users with **role level > 80** (Reviewers and Admins). For users with lower roles:
+The debug panel is restricted to users with **role level >= 80** (Reviewers and Admins). For users with lower roles:
 - The debug system does not initialize
 - No DOM is injected
 - No logs are displayed
@@ -106,7 +106,7 @@ If a submission insert fails with a `null value in column` error, check that all
 
 - `original_filename` — must be `file.name` (never undefined or null)
 - `file_size` — must be `file.size` (never undefined or null)
-- `user_id` — must be from a fresh `supabase.auth.getUser()` call
+- `user_id` — auto-set by database default (`auth.uid()`), NOT sent by frontend
 - `paper_code` — must not be empty
 - `year` — must be a valid integer
 - `storage_path` — must be the path returned after successful storage upload
@@ -129,7 +129,7 @@ These fields are declared `NOT NULL` in the database. Passing `undefined` or `nu
 1. Look for red-bordered entries in the debug panel
 2. The message will contain "row-level security" or "policy"
 3. Verify the user is authenticated: check `[AUTH] Session Status` in logs
-4. Verify user_id matches: check `[AUTH] User ID` matches the insert
+4. Verify user has a valid session: check `[AUTH] User ID` in the logs
 5. If admin/reviewer, verify role level ≥ 80 in the logs
 
 ## Deduplication
@@ -140,8 +140,38 @@ Identical messages within an 800ms window are suppressed to prevent log spam. Th
 
 - **Tabs:** All / Info / Warnings / Errors
 - **Clear button:** Removes all log entries
-- **Collapse/Expand:** Toggle panel body visibility
+- **Copy button:** Copies all logs to clipboard as formatted text
+- **Collapse/Expand entries:** Click error entries to expand code/details/hint
+- **Collapse/Expand panel:** Toggle panel body visibility
 - **Close button:** Hides panel entirely
 - **Auto-scroll:** Newest entries appear at top
 - **Mobile-friendly:** Touch-friendly buttons, slide-up design, max 60vh height
 - **Non-blocking:** Panel does not overlap main content or upload buttons
+
+## Structured Logging (js/core/debug.js)
+
+The `js/core/debug.js` file provides global helper functions:
+
+```javascript
+// Structured log with type
+window.debugLog('AUTH', 'User logged in', { userId: '...' });
+window.debugLog('SUBMISSION', 'Insert started', metadata);
+window.debugLog('ERROR', 'Something failed', errorObj);
+
+// Error with code/details/hint extraction
+window.debugError('SUBMISSION_INSERT_FAILED', supabaseError);
+
+// Health check — auto-called after login for admins
+window.systemHealthCheck();
+```
+
+Types: `AUTH`, `STORAGE`, `SUBMISSION`, `RLS`, `DASHBOARD`, `ERROR`, `SYSTEM`
+
+## Health Check
+
+`window.systemHealthCheck()` verifies:
+1. Supabase client is available
+2. User session is active
+3. Submissions table is reachable
+
+It runs automatically after `auth:ready` for users with debug access (role level ≥ 80).

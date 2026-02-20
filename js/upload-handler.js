@@ -164,7 +164,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
       // Create submission record with approved status
       debugLog('info', '📝 Submission Insert Starting (Demo Paper)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
       console.log('[UPLOAD][SUBMISSION] Inserting submission record (demo paper)...', { 
-        user_id: userId, 
         paper_code: metadata.paperCode, 
         year: metadata.examYear,
         status: 'approved'
@@ -173,7 +172,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
         .insert({
-          user_id: userId,
           paper_code: metadata.paperCode,
           year: metadata.examYear,
           storage_path: storagePath,
@@ -187,12 +185,13 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
       if (submissionError) {
         debugLog('error', 'Submission insert failed:', submissionError);
+        if (window.debugError) window.debugError('SUBMISSION_INSERT_FAILED', submissionError);
         console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
         
         // Classify error type (case-insensitive)
         const errorMsg = submissionError.message?.toLowerCase() || '';
         if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
-          debugLog('error', '[RLS] Insert blocked. user_id mismatch or policy violation.', submissionError);
+          debugLog('error', '[RLS] Insert blocked by policy.', submissionError);
         }
         
         await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
@@ -214,7 +213,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
     // Normal paper: create submission with pending status
     debugLog('info', '📝 Submission Insert Starting (Pending Review)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
     console.log('[UPLOAD][SUBMISSION] Inserting submission record (pending review)...', { 
-      user_id: userId, 
       paper_code: metadata.paperCode, 
       year: metadata.examYear,
       status: 'pending'
@@ -223,7 +221,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
       .insert({
-        user_id: userId,
         paper_code: metadata.paperCode,
         year: metadata.examYear,
         storage_path: storagePath,
@@ -237,12 +234,13 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     if (submissionError) {
       debugLog('error', 'Submission insert failed:', submissionError);
+      if (window.debugError) window.debugError('SUBMISSION_INSERT_FAILED', submissionError);
       console.error('[UPLOAD][SUBMISSION ERROR] Submission record failed:', submissionError);
       
       // Classify error type (case-insensitive)
       const errorMsg = submissionError.message?.toLowerCase() || '';
       if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
-        debugLog('error', '[RLS] Insert blocked. user_id mismatch or policy violation.', submissionError);
+        debugLog('error', '[RLS] Insert blocked by policy.', submissionError);
       }
       
       // Clean up uploaded file
@@ -267,7 +265,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     // Human-readable RLS error handling (case-insensitive)
     const errorMsg = error.message?.toLowerCase() || '';
     if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
-      debugLog('error', '[RLS] Insert blocked. user_id mismatch or policy violation.');
+      debugLog('error', '[RLS] Insert blocked by policy.');
       return {
         success: false,
         submissionId: null,
