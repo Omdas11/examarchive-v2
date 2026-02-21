@@ -132,7 +132,9 @@ function loadPartial(id, file, callback) {
    =============================== */
 loadPartial("header", "/partials/header.html", () => {
   highlightActiveNav();
+  highlightActiveDrawerLink();
   initAuthStatusIndicator();
+  initAdminDrawerLink();
   document.dispatchEvent(new CustomEvent("header:loaded"));
   logInfo(DebugModule.SYSTEM, 'Header loaded');
 });
@@ -204,23 +206,99 @@ function highlightActiveNav() {
 }
 
 /* ===============================
-   Mobile menu
+   Drawer menu
    =============================== */
-document.addEventListener("click", (e) => {
-  const menuBtn = e.target.closest(".menu-btn");
-  const mobileNav = document.getElementById("mobileNav");
+function openDrawer() {
+  document.body.classList.add("drawer-open");
+}
 
-  if (menuBtn && mobileNav) {
-    mobileNav.classList.toggle("open");
-    document.body.classList.toggle("menu-open");
+function closeDrawer() {
+  document.body.classList.remove("drawer-open");
+}
+
+document.addEventListener("click", (e) => {
+  // Hamburger toggles drawer
+  if (e.target.closest(".menu-btn")) {
+    if (document.body.classList.contains("drawer-open")) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
     return;
   }
 
-  if (e.target.closest(".mobile-nav a")) {
-    mobileNav?.classList.remove("open");
-    document.body.classList.remove("menu-open");
+  // Close button in drawer
+  if (e.target.closest(".drawer-close")) {
+    closeDrawer();
+    return;
+  }
+
+  // Overlay click closes drawer
+  if (e.target.closest(".drawer-overlay")) {
+    closeDrawer();
+    return;
+  }
+
+  // Clicking a drawer link closes drawer
+  if (e.target.closest(".drawer-link")) {
+    closeDrawer();
   }
 });
+
+// Close drawer on ESC key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.body.classList.contains("drawer-open")) {
+    closeDrawer();
+  }
+});
+
+// Highlight active drawer link
+function highlightActiveDrawerLink() {
+  const current = window.location.pathname.split("/").pop() || "index.html";
+  document.querySelectorAll(".drawer-link").forEach(link => {
+    const href = link.getAttribute("href");
+    if (href && href.endsWith(current)) {
+      link.classList.add("active");
+    }
+  });
+}
+
+// Profile link in drawer opens avatar trigger
+document.addEventListener("click", (e) => {
+  const profileLink = e.target.closest("#drawerProfileLink");
+  if (profileLink) {
+    e.preventDefault();
+    closeDrawer();
+    setTimeout(() => {
+      const avatarTrigger = document.getElementById("avatarTrigger");
+      if (avatarTrigger) avatarTrigger.click();
+    }, 350);
+  }
+});
+
+/* ===============================
+   Admin drawer link visibility
+   =============================== */
+function initAdminDrawerLink() {
+  // Show admin link for users with role level >= 75
+  window.addEventListener('auth:ready', () => {
+    updateAdminDrawerVisibility();
+  });
+  window.addEventListener('auth-state-changed', () => {
+    updateAdminDrawerVisibility();
+  });
+}
+
+function updateAdminDrawerVisibility() {
+  const adminLink = document.getElementById("drawerAdminLink");
+  if (!adminLink) return;
+  
+  if (window.RoleUtils?.getCurrentUserRoleLevel) {
+    window.RoleUtils.getCurrentUserRoleLevel().then(level => {
+      adminLink.style.display = level >= 75 ? "flex" : "none";
+    });
+  }
+}
 
 /* ===============================
    Footer year

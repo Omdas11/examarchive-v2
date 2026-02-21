@@ -151,12 +151,12 @@
 }
 
 .file-ui {
-  padding: 1.2rem;
+  padding: 1.5rem;
   border-radius: 12px;
   border: 2px dashed var(--border);
   background: var(--bg-soft);
   text-align: center;
-  transition: border 0.2s, background 0.2s;
+  transition: border 0.2s, background 0.2s, transform 0.2s;
 }
 
 .file-ui strong {
@@ -168,6 +168,102 @@
 .file-ui:hover {
   border-color: var(--red);
   background: rgba(211,47,47,0.04);
+}
+
+/* Cloud Upload Icon */
+.upload-cloud-icon {
+  display: block;
+  margin: 0 auto 0.75rem;
+  color: var(--text-muted);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.file-ui:hover .upload-cloud-icon {
+  color: var(--red);
+  transform: translateY(-2px);
+}
+
+/* Drag-over state */
+.file-drop.drag-over .file-ui {
+  border-color: var(--red);
+  background: rgba(211,47,47,0.08);
+  transform: scale(1.01);
+}
+
+.file-drop.drag-over .upload-cloud-icon {
+  color: var(--red);
+  transform: translateY(-4px);
+}
+
+/* File selected state */
+.file-drop.file-selected .file-ui {
+  border-color: var(--color-success);
+  border-style: solid;
+  background: rgba(76, 175, 80, 0.06);
+}
+
+/* Filename preview */
+.filename-preview {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--bg-soft);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-family: monospace;
+  border: 1px solid var(--border);
+}
+
+/* ---------- Year Validation ---------- */
+.field-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-input-wrap input {
+  flex: 1;
+  padding: 0.6rem 0.7rem;
+  padding-right: 2.2rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.field-input-wrap input:focus {
+  outline: none;
+  border-color: var(--red);
+}
+
+.field-validation-icon {
+  position: absolute;
+  right: 0.6rem;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.year-hint {
+  min-height: 1em;
+  transition: color 0.2s ease;
+}
+
+.year-hint.valid {
+  color: var(--color-success);
+}
+
+.year-hint.invalid {
+  color: var(--color-error);
+}
+
+.field-input-wrap input.input-valid {
+  border-color: var(--color-success);
+}
+
+.field-input-wrap input.input-invalid {
+  border-color: var(--color-error);
 }
 
 /* ---------- Submit ---------- */
