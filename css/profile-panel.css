@@ -231,6 +231,37 @@
   white-space: nowrap;
 }
 
+/* ---------- XP Progress Bar ---------- */
+
+.profile-xp {
+  margin-bottom: 1rem;
+  padding: 0 0.2rem;
+}
+
+.xp-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #43A047, #66BB6A);
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xp-bar-label {
+  display: flex;
+  justify-content: center;
+  gap: 0.2rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
 /* ---------- Stats ---------- */
 
 .profile-stats {
@@ -244,6 +275,13 @@
   background: rgba(255, 255, 255, 0.7);
   border-radius: 12px;
   padding: 0.7rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* ---------- Actions ---------- */
@@ -401,6 +439,11 @@ body[data-theme="amoled"] .profile-panel-card {
 body[data-theme="dark"] .stat,
 body[data-theme="amoled"] .stat {
   background: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="dark"] .xp-bar-container,
+body[data-theme="amoled"] .xp-bar-container {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 body[data-theme="dark"] .achievement-pill,

@@ -7,14 +7,14 @@
 /**
  * Map role level to display name and icon
  * Centralized mapping function - SINGLE SOURCE OF TRUTH
- * Phase 3 hierarchy:
- *   0   = Visitor
- *   10  = User
- *   20  = Contributor (auto after first upload)
- *   50  = Reviewer
- *   75  = Moderator (can approve)
- *   90  = Senior Moderator (can publish)
- *   100 = Founder/Admin (full access)
+ * Phase 4 XP-based hierarchy:
+ *   0   = Visitor       (0 XP)
+ *   5   = Explorer      (100 XP)
+ *   10  = Contributor   (300 XP)
+ *   25  = Reviewer      (800 XP)
+ *   50  = Senior Mod    (1500 XP)
+ *   90  = Admin         (3000 XP)
+ *   100 = Founder       (5000 XP)
  * @param {number} level - Role level from database
  * @returns {Object} {name, displayName, icon}
  */
@@ -29,21 +29,21 @@ function mapRole(level) {
   }
   if (level >= 90) {
     return {
-      name: 'senior_moderator',
-      displayName: '🔰 Senior Moderator',
+      name: 'admin',
+      displayName: '🔰 Admin',
       icon: '🔰',
       level
     };
   }
-  if (level >= 75) {
+  if (level >= 50) {
     return {
-      name: 'moderator',
-      displayName: '🛡️ Moderator',
+      name: 'senior_moderator',
+      displayName: '🛡️ Senior Moderator',
       icon: '🛡️',
       level
     };
   }
-  if (level >= 50) {
+  if (level >= 25) {
     return {
       name: 'reviewer',
       displayName: '📋 Reviewer',
@@ -51,7 +51,7 @@ function mapRole(level) {
       level
     };
   }
-  if (level >= 20) {
+  if (level >= 10) {
     return {
       name: 'contributor',
       displayName: '✍️ Contributor',
@@ -59,11 +59,11 @@ function mapRole(level) {
       level
     };
   }
-  if (level >= 10) {
+  if (level >= 5) {
     return {
-      name: 'user',
-      displayName: '👤 User',
-      icon: '👤',
+      name: 'explorer',
+      displayName: '🔍 Explorer',
+      icon: '🔍',
       level
     };
   }

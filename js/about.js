@@ -42,11 +42,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         .select('user_id');
       const uniqueContributors = new Set((contributors || []).map(c => c.user_id)).size;
 
-      // Count pending papers
-      const { count: pendingCount } = await supabase
-        .from('submissions')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
+      // Count total requests
+      const { count: totalRequests } = await supabase
+        .from('paper_requests')
+        .select('*', { count: 'exact', head: true });
 
       // Total uploads
       const { count: totalUploads } = await supabase
@@ -56,15 +55,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Update DOM
       const publishedEl = document.querySelector('[data-stat="published"]');
       const contributorsEl = document.querySelector('[data-stat="contributors"]');
-      const pendingEl = document.querySelector('[data-stat="pending"]');
+      const totalRequestsEl = document.querySelector('[data-stat="total-requests"]');
       const totalUploadsEl = document.querySelector('[data-stat="total-uploads"]');
 
       if (publishedEl) publishedEl.textContent = publishedCount ?? '0';
       if (contributorsEl) contributorsEl.textContent = uniqueContributors || '0';
-      if (pendingEl) pendingEl.textContent = pendingCount ?? '0';
+      if (totalRequestsEl) totalRequestsEl.textContent = totalRequests ?? '0';
       if (totalUploadsEl) totalUploadsEl.textContent = totalUploads ?? '0';
     } catch (err) {
-      console.warn('Could not load live stats:', err);
+      // Silently handle stats loading errors
     }
   }
 
@@ -118,29 +117,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (systemUpdateEl) {
       systemUpdateEl.textContent = lastCommit ? formatIST(lastCommit) : "—";
     }
-
-    /* Content update from status.json if available */
-    try {
-      const statusRes = await fetch("./data/about/status.json");
-      if (statusRes.ok) {
-        const status = await statusRes.json();
-
-        const papersEl = document.querySelector('[data-stat="papers"]');
-        const pdfsEl = document.querySelector('[data-stat="pdfs"]');
-        const subjectsEl = document.querySelector('[data-stat="subjects"]');
-        const contentUpdateEl = document.querySelector('[data-stat="content-update"]');
-
-        if (papersEl) papersEl.textContent = status.totals?.papers ?? "—";
-        if (pdfsEl) pdfsEl.textContent = status.totals?.pdfs ?? "—";
-        if (subjectsEl) subjectsEl.textContent = status.totals?.subjects ?? "—";
-        if (contentUpdateEl) contentUpdateEl.textContent = formatIST(status.generated_at);
-      }
-    } catch (e) {
-      // status.json is optional - backend stats are primary
-    }
-
   } catch (err) {
-    console.error("❌ About status error:", err);
+    // Silently handle status errors
   }
 
   /* ==================================================
@@ -197,6 +175,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       .forEach(el => observer.observe(el));
 
   } catch (err) {
-    console.error("❌ Timeline render error:", err);
+    // Timeline rendering failed silently
   }
 });

@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/header.css" />
   <link rel="stylesheet" href="css/footer.css">
   <link rel="stylesheet" href="css/profile-panel.css">
+  <link rel="stylesheet" href="css/levelup.css">
   <link rel="stylesheet" href="css/avatar.css">
   <link rel="stylesheet" href="css/about.css" />
 
@@ -71,42 +72,106 @@
     </section>
 
     <!-- =====================
-         LIVE PROJECT STATUS
+         PLATFORM STATS (Live)
          ===================== -->
     <section class="about-status">
-      <h2>Project Status</h2>
+      <h2>Platform Stats</h2>
 
       <p class="section-note">
-        This section shows live data from the database.
+        Live data from the database — no hardcoded numbers.
       </p>
 
       <div class="live-stats-grid">
         <div class="live-stat-card">
           <strong data-stat="published">—</strong>
-          <span>Published Papers</span>
+          <span>Total Papers</span>
         </div>
         <div class="live-stat-card">
           <strong data-stat="contributors">—</strong>
-          <span>Contributors</span>
+          <span>Total Contributors</span>
         </div>
         <div class="live-stat-card">
-          <strong data-stat="pending">—</strong>
-          <span>Pending Review</span>
+          <strong data-stat="total-requests">—</strong>
+          <span>Total Requests</span>
         </div>
         <div class="live-stat-card">
           <strong data-stat="total-uploads">—</strong>
           <span>Total Uploads</span>
         </div>
       </div>
+    </section>
 
-      <ul class="status-list">
-        <li><strong>Total papers archived:</strong> <span data-stat="papers">—</span></li>
-        <li><strong>Subjects covered:</strong> <span data-stat="subjects">—</span></li>
-        <li><strong>Total PDFs stored:</strong> <span data-stat="pdfs">—</span></li>
-        <li><strong>Last content update:</strong> <span data-stat="content-update">—</span></li>
-        <li><strong>Last system update:</strong> <span data-stat="system-update">—</span></li>
+    <!-- =====================
+         XP SYSTEM
+         ===================== -->
+    <section class="about-xp-system">
+      <h2>XP &amp; Level System</h2>
+
+      <p>
+        ExamArchive uses an <strong>experience point (XP)</strong> system to track and
+        reward user contributions. XP is earned by uploading papers, contributing resources,
+        and daily engagement. Your level is calculated automatically from your XP.
+      </p>
+
+      <div class="xp-table-wrap">
+        <table class="xp-table">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>XP Required</th>
+              <th>Role Title</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>0</td><td>0</td><td>Visitor</td></tr>
+            <tr><td>5</td><td>100</td><td>Explorer</td></tr>
+            <tr><td>10</td><td>300</td><td>Contributor</td></tr>
+            <tr><td>25</td><td>800</td><td>Reviewer</td></tr>
+            <tr><td>50</td><td>1,500</td><td>Senior Moderator</td></tr>
+            <tr><td>90</td><td>3,000</td><td>Admin</td></tr>
+            <tr><td>100</td><td>5,000</td><td>Founder</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>How to Earn XP</h3>
+      <ul>
+        <li><strong>Upload a paper</strong> → +50 XP</li>
+        <li><strong>Paper approved</strong> → +100 XP</li>
+        <li><strong>RQ contribution</strong> → +40 XP</li>
+        <li><strong>Notes upload</strong> → +30 XP</li>
+        <li><strong>Daily login streak</strong> → +5 XP</li>
       </ul>
+    </section>
 
+    <!-- =====================
+         ROADMAP / PHASE PROGRESS
+         ===================== -->
+    <section class="about-roadmap">
+      <h2>Roadmap &amp; Phase Progress</h2>
+
+      <div class="phase-grid">
+        <div class="phase-card completed">
+          <h4>Phase 1 ✓</h4>
+          <p>Core infrastructure, Supabase integration, basic uploads</p>
+        </div>
+        <div class="phase-card completed">
+          <h4>Phase 2 ✓</h4>
+          <p>Role system, admin review, storage flow, RLS policies</p>
+        </div>
+        <div class="phase-card completed">
+          <h4>Phase 3 ✓</h4>
+          <p>Achievements, paper requests, drawer navigation, theme system</p>
+        </div>
+        <div class="phase-card active">
+          <h4>Phase 4 (Current)</h4>
+          <p>XP system, profile redesign, admin unlock, storage architecture</p>
+        </div>
+        <div class="phase-card upcoming">
+          <h4>Phase 5</h4>
+          <p>Advanced search, syllabus integration, repeated questions, mobile optimization</p>
+        </div>
+      </div>
     </section>
 
     <!-- =====================
@@ -192,6 +257,7 @@
   <script src="js/roles.js"></script>
   <script src="js/admin-auth.js"></script>
   <script src="js/profile-panel.js"></script>
+  <script src="js/levelup.js"></script>
   <script src="js/avatar-popup.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/about.js"></script>

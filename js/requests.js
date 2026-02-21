@@ -173,25 +173,58 @@
       return;
     }
 
+    // Find the vote button and disable during processing
+    const safeId = CSS.escape(requestId);
+    const btn = document.querySelector(`[data-vote-id="${safeId}"]`);
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+
+    // Optimistic UI update
+    const countEl = btn.parentElement?.querySelector('.vote-count');
+    const prevCount = parseInt(countEl?.textContent || '0');
+
+    if (hasVoted) {
+      btn.classList.remove('voted');
+      btn.textContent = '▲';
+      btn.dataset.hasVoted = 'false';
+      if (countEl) countEl.textContent = Math.max(0, prevCount - 1);
+    } else {
+      btn.classList.add('voted');
+      btn.textContent = '✓ Voted';
+      btn.dataset.hasVoted = 'true';
+      if (countEl) countEl.textContent = prevCount + 1;
+    }
+
     try {
       const supabase = await window.waitForSupabase();
       if (!supabase) return;
 
       if (!hasVoted) {
-        const { data, error } = await supabase.rpc('upvote_paper_request', {
+        const { error } = await supabase.rpc('upvote_paper_request', {
           request_id_param: requestId
         });
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.rpc('remove_vote', {
+        const { error } = await supabase.rpc('remove_vote', {
           request_id_param: requestId
         });
         if (error) throw error;
       }
-
-      await loadRequests();
     } catch (err) {
-      console.error(`Vote toggle error (${hasVoted ? 'remove' : 'upvote'}, id=${requestId}):`, err);
+      // Revert optimistic update on error
+      if (hasVoted) {
+        btn.classList.add('voted');
+        btn.textContent = '✓ Voted';
+        btn.dataset.hasVoted = 'true';
+        if (countEl) countEl.textContent = prevCount;
+      } else {
+        btn.classList.remove('voted');
+        btn.textContent = '▲';
+        btn.dataset.hasVoted = 'false';
+        if (countEl) countEl.textContent = prevCount;
+      }
+    } finally {
+      btn.disabled = false;
     }
   }
 

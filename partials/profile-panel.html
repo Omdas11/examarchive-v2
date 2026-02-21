@@ -58,6 +58,16 @@
       <!-- Badges will be dynamically created by profile-panel.js -->
     </section>
 
+    <!-- XP Progress Bar -->
+    <section class="profile-xp" style="display: none;">
+      <div class="xp-bar-container">
+        <div class="xp-bar-fill" id="xpBarFill" style="width: 0%"></div>
+      </div>
+      <div class="xp-bar-label">
+        <span id="xpCurrent">0</span> / <span id="xpNext">100</span> XP
+      </div>
+    </section>
+
     <!-- Stats (Dynamically shown/hidden) -->
     <section class="profile-stats" style="display: none;">
       <div class="stat">
@@ -71,13 +81,13 @@
       </div>
 
       <div class="stat">
-        <strong data-field="points">0</strong>
-        <span>Points</span>
+        <strong data-field="approval-pct">—</strong>
+        <span>Approval %</span>
       </div>
 
       <div class="stat">
-        <strong data-field="streak">0</strong>
-        <span>Streak</span>
+        <strong data-field="contribution">0</strong>
+        <span>Contribution</span>
       </div>
     </section>
 
