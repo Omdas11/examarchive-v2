@@ -190,6 +190,130 @@ async function renderAchievements(userId) {
 }
 
 /* ===============================
+   XP Level Thresholds
+   =============================== */
+const XP_LEVELS = [
+  { level: 0,   xp: 0,    title: 'Visitor' },
+  { level: 5,   xp: 100,  title: 'Explorer' },
+  { level: 10,  xp: 300,  title: 'Contributor' },
+  { level: 25,  xp: 800,  title: 'Reviewer' },
+  { level: 50,  xp: 1500, title: 'Senior Moderator' },
+  { level: 90,  xp: 3000, title: 'Admin' },
+  { level: 100, xp: 5000, title: 'Founder' }
+];
+
+/**
+ * Get XP thresholds for current and next level
+ */
+function getXpThresholds(currentXp) {
+  let current = XP_LEVELS[0];
+  let next = XP_LEVELS[1];
+  for (let i = XP_LEVELS.length - 1; i >= 0; i--) {
+    if (currentXp >= XP_LEVELS[i].xp) {
+      current = XP_LEVELS[i];
+      next = XP_LEVELS[i + 1] || XP_LEVELS[i];
+      break;
+    }
+  }
+  return { current, next };
+}
+
+/**
+ * Get level ring gradient color based on level
+ */
+function getLevelRingColor(level) {
+  if (level >= 80) return 'linear-gradient(135deg, #FFD700, #FFA000)';
+  if (level >= 50) return 'linear-gradient(135deg, #9C27B0, #E040FB)';
+  if (level >= 20) return 'linear-gradient(135deg, #1E88E5, #42A5F5)';
+  return 'linear-gradient(135deg, #43A047, #66BB6A)';
+}
+
+/**
+ * Populate profile stats from database
+ */
+async function populateProfileStats(user) {
+  if (!user || !user.id) return;
+
+  try {
+    const supabase = await window.waitForSupabase();
+    if (!supabase) return;
+
+    // Fetch upload stats
+    const { data: statsData } = await supabase.rpc('get_user_upload_stats', {
+      target_user_id: user.id
+    });
+
+    let totalUploads = 0;
+    let approvedUploads = 0;
+    if (statsData && statsData.length > 0) {
+      totalUploads = statsData[0].total_uploads || 0;
+      approvedUploads = statsData[0].approved_uploads || 0;
+    }
+
+    // Update stats in DOM
+    const uploadsEl = document.querySelector('[data-field="uploads"]');
+    const approvedEl = document.querySelector('[data-field="approved"]');
+    const approvalPctEl = document.querySelector('[data-field="approval-pct"]');
+    const contributionEl = document.querySelector('[data-field="contribution"]');
+
+    if (uploadsEl) uploadsEl.textContent = totalUploads;
+    if (approvedEl) approvedEl.textContent = approvedUploads;
+    if (approvalPctEl) {
+      approvalPctEl.textContent = totalUploads > 0
+        ? Math.round((approvedUploads / totalUploads) * 100) + '%'
+        : '—';
+    }
+
+    // Fetch XP info
+    const { data: xpData } = await supabase.rpc('get_user_xp_info', {
+      target_user_id: user.id
+    });
+
+    let userXp = 0;
+    let userLevel = 0;
+    if (xpData && xpData.length > 0) {
+      userXp = xpData[0].xp || 0;
+      userLevel = xpData[0].level || 0;
+    }
+
+    // Contribution score = XP weighted metric
+    if (contributionEl) contributionEl.textContent = userXp;
+
+    // Update XP progress bar
+    const xpSection = document.querySelector('.profile-xp');
+    const xpBarFill = document.getElementById('xpBarFill');
+    const xpCurrentEl = document.getElementById('xpCurrent');
+    const xpNextEl = document.getElementById('xpNext');
+
+    if (xpSection) xpSection.style.display = 'block';
+
+    const { current, next } = getXpThresholds(userXp);
+    if (xpCurrentEl) xpCurrentEl.textContent = userXp;
+    if (xpNextEl) xpNextEl.textContent = next.xp;
+
+    if (xpBarFill) {
+      const range = next.xp - current.xp;
+      const progress = range > 0 ? ((userXp - current.xp) / range) * 100 : 100;
+      setTimeout(() => {
+        xpBarFill.style.width = Math.min(100, Math.max(0, progress)) + '%';
+      }, 100);
+    }
+
+    // Update avatar ring color based on level
+    const avatarEl = document.getElementById('profileAvatar');
+    if (avatarEl) {
+      avatarEl.style.borderImage = getLevelRingColor(userLevel);
+      avatarEl.style.borderImageSlice = '1';
+      avatarEl.style.borderWidth = '4px';
+      avatarEl.style.borderStyle = 'solid';
+    }
+
+  } catch (err) {
+    // Silently handle stats fetch errors
+  }
+}
+
+/* ===============================
    State tracking for both events
    =============================== */
 if (window.__PROFILE_PANEL_INIT__) {
@@ -392,6 +516,9 @@ async function renderProfilePanel() {
 
     // Show stats
     if (statsSection) statsSection.style.display = "grid";
+
+    // Fetch and display upload stats + XP
+    await populateProfileStats(user);
 
     // Check if user is admin - use BACKEND VERIFICATION ONLY
     const userIsAdmin = isCurrentUserAdmin ? await isCurrentUserAdmin() : false;

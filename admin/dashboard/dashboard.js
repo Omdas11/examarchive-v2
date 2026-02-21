@@ -20,24 +20,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Hide loading state
     loadingState.style.display = 'none';
+
+    // Also allow level >= 90 for admin dashboard access
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    let levelAccess = false;
+    if (supabase) {
+      try {
+        const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
+        userRoleLevel = roleLevelData || 0;
+        levelAccess = userRoleLevel >= 90;
+      } catch (e) {
+        userRoleLevel = 0;
+      }
+    }
     
-    if (!hasAdminAccess) {
+    if (!hasAdminAccess && !levelAccess) {
       accessDenied.style.display = 'flex';
       return;
     }
 
     dashboardContent.style.display = 'block';
-
-    // Fetch role level for permission checks
-    const supabase = window.getSupabase ? window.getSupabase() : null;
-    if (supabase) {
-      try {
-        const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
-        userRoleLevel = roleLevelData || 0;
-      } catch (e) {
-        userRoleLevel = 80; // Fallback for admin access
-      }
-    }
 
     // Initialize dashboard
     initializeDashboard();
@@ -64,8 +66,8 @@ async function initializeDashboard() {
   // Setup real-time subscriptions
   setupRealtimeSubscriptions();
 
-  // Setup role management panel (level 100+ only)
-  if (userRoleLevel >= 100) {
+  // Setup role management panel (level 90+ can access)
+  if (userRoleLevel >= 90) {
     setupRoleManagement();
   }
 }
@@ -725,7 +727,7 @@ function setupRoleManagement() {
 }
 
 /**
- * Search users by email or UUID
+ * Search users by username, email, or UUID
  */
 async function searchUsers() {
   const query = document.getElementById('roleSearchInput')?.value.trim();
@@ -748,10 +750,19 @@ async function searchUsers() {
       });
       if (!error && data) results = Array.isArray(data) ? data : [data];
     } else {
-      const { data, error } = await supabase.rpc('search_users_by_email', {
-        search_email: query
+      // Search by username or email
+      const { data, error } = await supabase.rpc('search_users_by_username', {
+        search_username: query
       });
       if (!error && data) results = data;
+
+      // Fallback to email search if no results
+      if (results.length === 0) {
+        const { data: emailData, error: emailErr } = await supabase.rpc('search_users_by_email', {
+          search_email: query
+        });
+        if (!emailErr && emailData) results = emailData;
+      }
     }
 
     if (results.length === 0) {
@@ -765,10 +776,11 @@ async function searchUsers() {
       <div class="role-search-result" data-user-id="${u.user_id}">
         <div>
           <strong>${u.display_name || u.email}</strong>
+          ${u.username ? `<span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem;">@${u.username}</span>` : ''}
           <span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem;">${u.email}</span>
         </div>
         <div style="display:flex;align-items:center;gap:0.5rem;">
-          <span class="text-muted" style="font-size:0.8rem;">Level: ${u.level}</span>
+          <span class="text-muted" style="font-size:0.8rem;">Level: ${u.level} · XP: ${u.xp || 0}</span>
           <button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.8rem;" data-edit-user="${u.user_id}" data-user-data='${JSON.stringify(u).replace(/'/g, "&#39;")}'>Edit</button>
         </div>
       </div>
@@ -802,6 +814,10 @@ function openRoleEditor(userData) {
   document.getElementById('roleEditSecondary').value = userData.secondary_role || '';
   document.getElementById('roleEditTertiary').value = userData.tertiary_role || '';
 
+  // XP field
+  const xpField = document.getElementById('roleEditXP');
+  if (xpField) xpField.value = userData.xp || 0;
+
   const badges = userData.custom_badges || [];
   document.getElementById('roleEditBadges').value = Array.isArray(badges) ? badges.join(', ') : '';
 
@@ -809,13 +825,14 @@ function openRoleEditor(userData) {
 }
 
 /**
- * Save role changes
+ * Save role changes (XP-based: updating XP auto-recalculates level)
  */
 async function saveRoleChanges() {
   const userId = document.getElementById('roleEditUserId')?.value;
   if (!userId) return;
 
   const level = parseInt(document.getElementById('roleEditLevel')?.value);
+  const xp = parseInt(document.getElementById('roleEditXP')?.value);
   const primaryRole = document.getElementById('roleEditPrimary')?.value.trim() || null;
   const secondaryRole = document.getElementById('roleEditSecondary')?.value.trim() || null;
   const tertiaryRole = document.getElementById('roleEditTertiary')?.value.trim() || null;
@@ -826,6 +843,16 @@ async function saveRoleChanges() {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
 
+    // If XP was changed, update XP (level auto-syncs via trigger)
+    if (!isNaN(xp)) {
+      const { error: xpError } = await supabase
+        .from('roles')
+        .update({ xp: xp })
+        .eq('user_id', userId);
+      if (xpError) throw xpError;
+    }
+
+    // Update role metadata
     const { error } = await supabase.rpc('update_user_role', {
       target_user_id: userId,
       new_level: isNaN(level) ? null : level,
