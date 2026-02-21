@@ -449,7 +449,7 @@ function renderStreak(streakCount, longestStreak) {
   headerDiv.className = 'streak-header';
   const headerLabel = document.createElement('span');
   headerLabel.className = 'streak-title';
-  headerLabel.textContent = '\uD83D\uDD25 Daily Streak';
+  headerLabel.textContent = '🔥 Daily Streak';
   headerDiv.appendChild(headerLabel);
   streakSection.appendChild(headerDiv);
 
@@ -467,7 +467,7 @@ function renderStreak(streakCount, longestStreak) {
 
     const inner = document.createElement('span');
     inner.className = 'streak-circle-inner';
-    inner.textContent = isActive ? '\u2713' : String(i + 1);
+    inner.textContent = isActive ? '✓' : String(i + 1);
     circle.appendChild(inner);
     rowDiv.appendChild(circle);
   }
@@ -502,7 +502,7 @@ function renderStreak(streakCount, longestStreak) {
   const milestoneDiv = document.createElement('div');
   milestoneDiv.className = 'streak-stat';
   const milestoneVal = document.createElement('strong');
-  milestoneVal.textContent = nextMilestone ? String(nextMilestone) : '\uD83C\uDFC6';
+  milestoneVal.textContent = nextMilestone ? String(nextMilestone) : '🏆';
   const milestoneLabel = document.createElement('span');
   milestoneLabel.textContent = nextMilestone ? 'Next goal' : 'Master';
   milestoneDiv.appendChild(milestoneVal);
