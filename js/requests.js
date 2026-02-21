@@ -131,7 +131,7 @@
 
       // Attach vote handlers
       listEl.querySelectorAll('[data-vote-id]').forEach(btn => {
-        btn.addEventListener('click', () => handleVote(btn.dataset.voteId));
+        btn.addEventListener('click', () => toggleVote(btn.dataset.voteId, btn.dataset.hasVoted === 'true'));
       });
 
       // Attach admin fulfill handlers
@@ -150,7 +150,7 @@
     return `
       <div class="request-card">
         <div class="request-vote">
-          <button data-vote-id="${req.id}" class="${hasVoted ? 'voted' : ''}" ${!currentUser ? 'disabled' : ''} title="Upvote">▲</button>
+          <button data-vote-id="${req.id}" data-has-voted="${hasVoted}" class="${hasVoted ? 'voted' : ''}" ${!currentUser ? 'disabled' : ''} title="Upvote">${hasVoted ? '✓ Voted' : '▲'}</button>
           <span class="vote-count">${req.votes || 0}</span>
         </div>
         <div class="request-body">
@@ -167,26 +167,31 @@
     `;
   }
 
-  async function handleVote(requestId) {
-    if (!currentUser) return;
+  async function toggleVote(requestId, hasVoted) {
+    if (!currentUser) {
+      alert("Please login to vote.");
+      return;
+    }
 
     try {
       const supabase = await window.waitForSupabase();
       if (!supabase) return;
 
-      const { data, error } = await supabase.rpc('upvote_paper_request', {
-        request_id_param: requestId
-      });
-
-      if (error) throw error;
-      if (!data) {
-        // Already voted
-        return;
+      if (!hasVoted) {
+        const { data, error } = await supabase.rpc('upvote_paper_request', {
+          request_id_param: requestId
+        });
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.rpc('remove_vote', {
+          request_id_param: requestId
+        });
+        if (error) throw error;
       }
 
       await loadRequests();
     } catch (err) {
-      console.warn('[REQUESTS] Vote error:', err);
+      console.error(`Vote toggle error (${hasVoted ? 'remove' : 'upvote'}, id=${requestId}):`, err);
     }
   }
 
