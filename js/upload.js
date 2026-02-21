@@ -289,7 +289,6 @@ function initializeUploadForm() {
     const university = document.getElementById('university')?.value || '';
     const stream = document.getElementById('stream')?.value || '';
     const paperType = document.getElementById('paperType')?.value || 'main';
-    const paperTags = document.getElementById('paperTags')?.value.trim() || '';
 
     // Validate inputs
     if (!paperCode) {
@@ -327,8 +326,7 @@ function initializeUploadForm() {
           uploadType: selectedUploadType,
           university,
           stream,
-          paperType,
-          tags: paperTags
+          paperType
         },
         (progress) => {
           uploadButton.textContent = `Uploading ${progress}%`;

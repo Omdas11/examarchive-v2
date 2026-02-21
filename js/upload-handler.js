@@ -214,8 +214,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
         original_filename: file.name,
         file_size: file.size,
         content_type: file.type || 'application/pdf',
-        status: 'pending',
-        paper_name: [metadata.university, metadata.stream, metadata.paperType].filter(v => v && v !== 'unknown').join(' / ') || null
+        status: 'pending'
       })
       .select()
       .single();

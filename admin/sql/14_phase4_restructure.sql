@@ -472,5 +472,80 @@ GRANT EXECUTE ON FUNCTION get_current_user_primary_role TO authenticated, anon;
 COMMENT ON COLUMN roles.custom_badges IS 'JSON array of custom badge strings, e.g. ["Subject Expert (Physics)", "Beta Tester"]';
 
 -- ============================================
+-- 12. GRANT add_user_xp TO authenticated
+-- Previously restricted to service_role; now
+-- Founder/Admin auth check is in the function body
+-- ============================================
+
+GRANT EXECUTE ON FUNCTION add_user_xp TO authenticated;
+
+-- ============================================
+-- 13. UPDATE LEGACY RLS + RPCs TO USE primary_role
+-- Ensures XP farming cannot bypass role-based access
+-- ============================================
+
+-- Update legacy is_admin() to check primary_role instead of level
+CREATE OR REPLACE FUNCTION is_admin(user_id_param uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM roles
+    WHERE user_id = user_id_param
+    AND primary_role IN ('Founder', 'Admin')
+  );
+$$;
+
+-- Update is_current_user_admin() to check primary_role
+CREATE OR REPLACE FUNCTION is_current_user_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM roles
+    WHERE user_id = auth.uid()
+    AND primary_role IN ('Founder', 'Admin')
+  );
+$$;
+
+-- Update get_user_role_name() to use primary_role
+CREATE OR REPLACE FUNCTION get_user_role_name(user_id_param uuid)
+RETURNS text
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT COALESCE(
+    (SELECT
+      CASE
+        WHEN primary_role IN ('Founder', 'Admin') THEN 'admin'
+        WHEN primary_role = 'Senior Moderator' THEN 'senior_moderator'
+        WHEN primary_role = 'Reviewer' THEN 'reviewer'
+        WHEN primary_role = 'Contributor' THEN 'contributor'
+        ELSE 'visitor'
+      END
+    FROM roles WHERE user_id = user_id_param LIMIT 1),
+    'visitor'
+  );
+$$;
+
+-- Update "admins manage roles" RLS policy to use primary_role
+-- Drop old level-based policy and create role-based one
+DROP POLICY IF EXISTS "admins manage roles" ON roles;
+CREATE POLICY "admins manage roles"
+ON roles FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM roles r
+    WHERE r.user_id = auth.uid()
+    AND r.primary_role IN ('Founder', 'Admin')
+  )
+);
+
+-- ============================================
 -- END OF PHASE 4 RESTRUCTURE MIGRATION
 -- ============================================

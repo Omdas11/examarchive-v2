@@ -10,6 +10,18 @@ let allSubmissions = [];
 let userRoleLevel = 0;
 let userPrimaryRoleGlobal = null;
 
+/**
+ * Escape HTML special characters to prevent XSS
+ */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
   const loadingState = document.getElementById('loading-state');
@@ -214,12 +226,12 @@ function renderSubmissionCard(submission) {
   };
 
   const safeFileSize = (submission?.file_size ?? 0);
-  const safeFilename = (submission?.original_filename || 'Unknown');
-  const safePaperCode = (submission?.paper_code || 'Unknown Code');
-  const safeYear = (submission?.year || 'N/A');
+  const safeFilename = escapeHtml(submission?.original_filename || 'Unknown');
+  const safePaperCode = escapeHtml(submission?.paper_code || 'Unknown Code');
+  const safeYear = escapeHtml(submission?.year || 'N/A');
   const safeStatus = (submission?.status || 'pending');
   const safeCreatedAt = submission?.created_at
-    ? new Date(submission.created_at).toLocaleString()
+    ? escapeHtml(new Date(submission.created_at).toLocaleString())
     : 'Unknown date';
 
   return `
@@ -246,37 +258,37 @@ function renderSubmissionCard(submission) {
         </div>
         <div class="detail-item">
           <strong>Paper Name</strong>
-          <span>${submission?.paper_name || '-'}</span>
+          <span>${escapeHtml(submission?.paper_name || '-')}</span>
         </div>
         ${submission?.storage_path ? `
         <div class="detail-item">
           <strong>Storage Path</strong>
-          <span style="font-size:0.75rem;word-break:break-all;">${submission.storage_path}</span>
+          <span style="font-size:0.75rem;word-break:break-all;">${escapeHtml(submission.storage_path)}</span>
         </div>
         ` : ''}
         ${submission?.approved_path ? `
         <div class="detail-item">
           <strong>Approved Path</strong>
-          <span style="font-size:0.75rem;word-break:break-all;">${submission.approved_path}</span>
+          <span style="font-size:0.75rem;word-break:break-all;">${escapeHtml(submission.approved_path)}</span>
         </div>
         ` : ''}
         ${submission?.reviewed_at ? `
         <div class="detail-item">
           <strong>Reviewed</strong>
-          <span>${new Date(submission.reviewed_at).toLocaleString()}</span>
+          <span>${escapeHtml(new Date(submission.reviewed_at).toLocaleString())}</span>
         </div>
         ` : ''}
         ${submission?.public_url ? `
         <div class="detail-item">
           <strong>Public URL</strong>
-          <span><a href="${submission.public_url}" target="_blank" rel="noopener">View PDF</a></span>
+          <span><a href="${escapeHtml(submission.public_url)}" target="_blank" rel="noopener">View PDF</a></span>
         </div>
         ` : ''}
       </div>
 
       ${submission?.review_notes ? `
       <div style="padding: 0.75rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem;">
-        <strong>Review Notes:</strong> ${submission.review_notes}
+        <strong>Review Notes:</strong> ${escapeHtml(submission.review_notes)}
       </div>
       ` : ''}
 

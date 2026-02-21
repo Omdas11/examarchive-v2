@@ -52,12 +52,19 @@ function getBadgeIcon(badgeName) {
 function getBadgeColor(role) {
   const colors = {
     'admin': 'var(--color-error)',
+    'founder': 'var(--color-warning)',
     'senior_moderator': 'var(--color-warning)',
     'moderator': 'var(--color-info)',
     'reviewer': 'var(--color-info)',
     'contributor': 'var(--color-success)',
     'user': 'var(--color-muted)',
-    'visitor': 'var(--color-muted)'
+    'visitor': 'var(--color-muted)',
+    // Cosmetic XP tier names
+    'legend': 'var(--color-warning)',
+    'elite': 'var(--color-error)',
+    'senior': 'var(--color-warning)',
+    'veteran': 'var(--color-info)',
+    'explorer': 'var(--color-info)'
   };
   return colors[role] || 'var(--color-muted)';
 }

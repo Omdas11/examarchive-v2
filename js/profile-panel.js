@@ -152,12 +152,30 @@ function renderBadges(badges) {
   }
   
   badgesSection.style.display = "flex";
-  badgesSection.innerHTML = badges.map(badge => `
-    <div class="badge badge-${badge.type}" aria-label="${badge.label} badge" style="border-color: ${badge.color};">
-      <span class="badge-icon" aria-hidden="true">${badge.icon}</span>
-      <span class="badge-label">${badge.label}</span>
-    </div>
-  `).join("");
+  // Clear previous badges safely
+  while (badgesSection.firstChild) {
+    badgesSection.removeChild(badgesSection.firstChild);
+  }
+
+  badges.forEach(badge => {
+    const div = document.createElement('div');
+    div.className = 'badge badge-' + (badge.type || 'visitor');
+    div.setAttribute('aria-label', (badge.label || '') + ' badge');
+    div.style.borderColor = badge.color || '';
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'badge-icon';
+    iconSpan.setAttribute('aria-hidden', 'true');
+    iconSpan.textContent = badge.icon || '';
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'badge-label';
+    labelSpan.textContent = badge.label || '';
+
+    div.appendChild(iconSpan);
+    div.appendChild(labelSpan);
+    badgesSection.appendChild(div);
+  });
 }
 
 /**
@@ -380,27 +398,52 @@ function renderStreak(streakCount) {
     streakSection = document.createElement('section');
     streakSection.className = 'profile-streak';
     const xpSection = document.querySelector('.profile-xp');
-    if (xpSection) {
+    if (xpSection && xpSection.parentNode) {
       xpSection.parentNode.insertBefore(streakSection, xpSection.nextSibling);
     }
   }
 
+  // Normalize streakCount to a non-negative finite number
+  let normalizedStreak = Number.isFinite(streakCount) ? streakCount : 0;
+  if (normalizedStreak < 0) normalizedStreak = 0;
+
   const days = 7;
-  const activeDays = Math.min(streakCount, days);
-  const circles = Array.from({ length: days }, (_, i) => {
+  const activeDays = Math.min(normalizedStreak, days);
+
+  // Clear previous content safely
+  while (streakSection.firstChild) {
+    streakSection.removeChild(streakSection.firstChild);
+  }
+
+  // Build streak row with dots
+  const rowDiv = document.createElement('div');
+  rowDiv.className = 'streak-row';
+
+  for (let i = 0; i < days; i++) {
     const isActive = i < activeDays;
-    return `<span class="streak-dot${isActive ? ' active' : ''}" role="img" aria-label="Day ${i + 1}${isActive ? ' (active)' : ''}"></span>`;
-  }).join('');
+    const dot = document.createElement('span');
+    dot.className = 'streak-dot' + (isActive ? ' active' : '');
+    dot.setAttribute('role', 'img');
+    dot.setAttribute('aria-label', 'Day ' + (i + 1) + (isActive ? ' (active)' : ''));
+    rowDiv.appendChild(dot);
+  }
 
-  const fireIcon = streakCount >= 7 ? '<span class="streak-fire" aria-label="Streak on fire!">🔥</span>' : '';
+  // Fire icon when streak >= 7
+  if (normalizedStreak >= 7) {
+    const fireSpan = document.createElement('span');
+    fireSpan.className = 'streak-fire';
+    fireSpan.setAttribute('aria-label', 'Streak on fire!');
+    fireSpan.textContent = '🔥';
+    rowDiv.appendChild(fireSpan);
+  }
 
-  streakSection.innerHTML = `
-    <div class="streak-row">
-      ${circles}
-      ${fireIcon}
-    </div>
-    <div class="streak-label">${streakCount} day streak</div>
-  `;
+  // Streak label
+  const labelDiv = document.createElement('div');
+  labelDiv.className = 'streak-label';
+  labelDiv.textContent = normalizedStreak + ' day streak';
+
+  streakSection.appendChild(rowDiv);
+  streakSection.appendChild(labelDiv);
   streakSection.style.display = 'block';
 }
 

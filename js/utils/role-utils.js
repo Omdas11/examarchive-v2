@@ -143,17 +143,18 @@ async function getCurrentUserRole() {
       .single();
 
     if (error || !data || !data.primary_role) {
-      return "contributor";
+      return "visitor";
     }
 
     const role = data.primary_role;
     if (role === 'Founder' || role === 'Admin') return 'admin';
     if (role === 'Senior Moderator') return 'senior_moderator';
     if (role === 'Reviewer') return 'reviewer';
-    return 'contributor';
+    if (role === 'Contributor') return 'contributor';
+    return 'visitor';
   } catch (err) {
     console.error('[ROLE-UTILS] Error getting user role:', err);
-    return "contributor";
+    return "visitor";
   }
 }
 
