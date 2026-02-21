@@ -8,8 +8,6 @@ if (!window.__APP_BOOTED__) {
   console.warn('[COMMON] Bootstrap not loaded - continuing with degraded functionality');
 }
 
-console.log('[COMMON] common.js started');
-
 // Helper for debug logging
 function logInfo(module, message, data) {
   if (window.Debug && window.Debug.logInfo) {

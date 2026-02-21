@@ -5,8 +5,6 @@
 // This is the ONLY file allowed to reason about auth
 // ============================================
 
-console.log("🔐 auth.js loaded - Phase 9.2.8");
-
 /**
  * Wait for Supabase client to be initialized
  * This now delegates to the global waitForSupabase from supabase-client.js

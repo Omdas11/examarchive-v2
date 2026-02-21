@@ -52,8 +52,11 @@ function getBadgeIcon(badgeName) {
 function getBadgeColor(role) {
   const colors = {
     'admin': 'var(--color-error)',
+    'senior_moderator': 'var(--color-warning)',
+    'moderator': 'var(--color-info)',
     'reviewer': 'var(--color-info)',
     'contributor': 'var(--color-success)',
+    'user': 'var(--color-muted)',
     'visitor': 'var(--color-muted)'
   };
   return colors[role] || 'var(--color-muted)';

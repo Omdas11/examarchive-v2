@@ -63,6 +63,11 @@ async function initializeDashboard() {
   
   // Setup real-time subscriptions
   setupRealtimeSubscriptions();
+
+  // Setup role management panel (level 100+ only)
+  if (userRoleLevel >= 100) {
+    setupRoleManagement();
+  }
 }
 
 /**
@@ -270,11 +275,6 @@ function renderSubmissionCard(submission) {
             Approve
           </button>
           ` : ''}
-          ${userRoleLevel >= 90 ? `
-          <button class="btn btn-primary" data-action="approve-publish" data-id="${submission?.id || ''}">
-            Approve & Publish
-          </button>
-          ` : ''}
         ` : safeStatus === 'approved' ? `
           ${userRoleLevel >= 90 ? `
           <button class="btn btn-view" data-action="publish" data-id="${submission?.id || ''}">
@@ -310,8 +310,6 @@ function attachSubmissionListeners() {
         showReviewModal(submission);
       } else if (action === 'approve') {
         await approveSubmission(submission);
-      } else if (action === 'approve-publish') {
-        await approveAndPublishSubmission(submission);
       } else if (action === 'reject') {
         showRejectModal(submission);
       } else if (action === 'publish') {
@@ -700,6 +698,153 @@ function showMessage(message, type = 'info') {
       setTimeout(() => messageEl.remove(), 300);
     }
   }, 5000);
+}
+
+/**
+ * Setup role management panel (Admin level 100+ only)
+ */
+function setupRoleManagement() {
+  const panel = document.getElementById('role-management-panel');
+  if (!panel) return;
+
+  panel.style.display = 'block';
+
+  const searchBtn = document.getElementById('roleSearchBtn');
+  const searchInput = document.getElementById('roleSearchInput');
+  const cancelBtn = document.getElementById('roleEditCancel');
+  const saveBtn = document.getElementById('roleEditSave');
+
+  searchBtn?.addEventListener('click', () => searchUsers());
+  searchInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') searchUsers();
+  });
+  cancelBtn?.addEventListener('click', () => {
+    document.getElementById('roleEditPanel').style.display = 'none';
+  });
+  saveBtn?.addEventListener('click', () => saveRoleChanges());
+}
+
+/**
+ * Search users by email or UUID
+ */
+async function searchUsers() {
+  const query = document.getElementById('roleSearchInput')?.value.trim();
+  if (!query) return;
+
+  const resultsEl = document.getElementById('roleSearchResults');
+  if (!resultsEl) return;
+
+  try {
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    let results = [];
+
+    // Check if it looks like a UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(query)) {
+      const { data, error } = await supabase.rpc('get_user_role_by_id', {
+        target_user_id: query
+      });
+      if (!error && data) results = Array.isArray(data) ? data : [data];
+    } else {
+      const { data, error } = await supabase.rpc('search_users_by_email', {
+        search_email: query
+      });
+      if (!error && data) results = data;
+    }
+
+    if (results.length === 0) {
+      resultsEl.style.display = 'block';
+      resultsEl.innerHTML = '<p class="text-muted">No users found.</p>';
+      return;
+    }
+
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = results.map(u => `
+      <div class="role-search-result" data-user-id="${u.user_id}">
+        <div>
+          <strong>${u.display_name || u.email}</strong>
+          <span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem;">${u.email}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span class="text-muted" style="font-size:0.8rem;">Level: ${u.level}</span>
+          <button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.8rem;" data-edit-user="${u.user_id}" data-user-data='${JSON.stringify(u).replace(/'/g, "&#39;")}'>Edit</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Attach edit handlers
+    resultsEl.querySelectorAll('[data-edit-user]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const userData = JSON.parse(btn.dataset.userData);
+        openRoleEditor(userData);
+      });
+    });
+
+  } catch (err) {
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `<p class="text-muted">Error: ${err.message}</p>`;
+  }
+}
+
+/**
+ * Open role editor for a user
+ */
+function openRoleEditor(userData) {
+  const editPanel = document.getElementById('roleEditPanel');
+  if (!editPanel) return;
+
+  document.getElementById('roleEditName').textContent = `Edit: ${userData.display_name || userData.email}`;
+  document.getElementById('roleEditUserId').value = userData.user_id;
+  document.getElementById('roleEditLevel').value = userData.level || 0;
+  document.getElementById('roleEditPrimary').value = userData.primary_role || '';
+  document.getElementById('roleEditSecondary').value = userData.secondary_role || '';
+  document.getElementById('roleEditTertiary').value = userData.tertiary_role || '';
+
+  const badges = userData.custom_badges || [];
+  document.getElementById('roleEditBadges').value = Array.isArray(badges) ? badges.join(', ') : '';
+
+  editPanel.style.display = 'block';
+}
+
+/**
+ * Save role changes
+ */
+async function saveRoleChanges() {
+  const userId = document.getElementById('roleEditUserId')?.value;
+  if (!userId) return;
+
+  const level = parseInt(document.getElementById('roleEditLevel')?.value);
+  const primaryRole = document.getElementById('roleEditPrimary')?.value.trim() || null;
+  const secondaryRole = document.getElementById('roleEditSecondary')?.value.trim() || null;
+  const tertiaryRole = document.getElementById('roleEditTertiary')?.value.trim() || null;
+  const badgesStr = document.getElementById('roleEditBadges')?.value.trim();
+  const customBadges = badgesStr ? badgesStr.split(',').map(b => b.trim()).filter(Boolean) : [];
+
+  try {
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    const { error } = await supabase.rpc('update_user_role', {
+      target_user_id: userId,
+      new_level: isNaN(level) ? null : level,
+      new_primary_role: primaryRole,
+      new_secondary_role: secondaryRole,
+      new_tertiary_role: tertiaryRole,
+      new_custom_badges: customBadges
+    });
+
+    if (error) throw error;
+
+    showMessage('Role updated successfully!', 'success');
+    document.getElementById('roleEditPanel').style.display = 'none';
+
+    // Refresh search results
+    await searchUsers();
+  } catch (err) {
+    showMessage('Failed to update role: ' + err.message, 'error');
+  }
 }
 
 // Add animation styles

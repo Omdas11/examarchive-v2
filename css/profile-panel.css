@@ -174,6 +174,63 @@
   color: #e65100;
 }
 
+.badge-founder {
+  background: rgba(245, 124, 0, 0.12);
+  color: #e65100;
+}
+
+.badge-custom {
+  background: rgba(156, 39, 176, 0.1);
+  color: #7b1fa2;
+}
+
+.badge-senior_moderator {
+  background: rgba(245, 124, 0, 0.1);
+  color: #e65100;
+}
+
+.badge-moderator {
+  background: rgba(25, 118, 210, 0.1);
+  color: #1565c0;
+}
+
+.badge-reviewer {
+  background: rgba(25, 118, 210, 0.1);
+  color: #1565c0;
+}
+
+.badge-user {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-muted);
+}
+
+.badge-visitor {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-muted);
+}
+
+/* ---------- Achievements ---------- */
+
+.profile-achievements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.achievement-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-secondary, #555);
+  white-space: nowrap;
+}
+
 /* ---------- Stats ---------- */
 
 .profile-stats {
@@ -327,4 +384,51 @@
 .switch-account-modal .modal-close:hover {
   background: var(--bg-soft);
   color: var(--text);
+}
+
+/* ---------- Dark Mode Support ---------- */
+
+body[data-theme="dark"] .profile-panel-card,
+body[data-theme="amoled"] .profile-panel-card {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 30, 30, 0.98),
+    rgba(26, 26, 26, 0.95)
+  );
+  color: var(--text);
+}
+
+body[data-theme="dark"] .stat,
+body[data-theme="amoled"] .stat {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="dark"] .achievement-pill,
+body[data-theme="amoled"] .achievement-pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+body[data-theme="dark"] .badge-admin,
+body[data-theme="amoled"] .badge-admin {
+  background: rgba(255, 82, 82, 0.15);
+  color: #ff8a80;
+}
+
+body[data-theme="dark"] .badge-contributor,
+body[data-theme="amoled"] .badge-contributor {
+  background: rgba(102, 187, 106, 0.15);
+  color: #a5d6a7;
+}
+
+body[data-theme="dark"] .badge-founder,
+body[data-theme="amoled"] .badge-founder {
+  background: rgba(255, 167, 38, 0.15);
+  color: #ffcc80;
+}
+
+body[data-theme="dark"] .badge-custom,
+body[data-theme="amoled"] .badge-custom {
+  background: rgba(206, 147, 216, 0.15);
+  color: #ce93d8;
 }

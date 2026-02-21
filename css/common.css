@@ -135,7 +135,7 @@ body[data-theme="dark"] {
 
   --color-success: #66bb6a;
   --color-error: #ff5252;
-  --color-info: #42a5f5;
+  --color-info: #ff8a80;
   --color-warning: #ffa726;
   --color-muted: #bdbdbd;
   --color-purple: #ce93d8;
@@ -164,7 +164,7 @@ body[data-theme="amoled"] {
 
   --color-success: #66bb6a;
   --color-error: #ff5252;
-  --color-info: #42a5f5;
+  --color-info: #ff8a80;
   --color-warning: #ffa726;
   --color-muted: #bdbdbd;
   --color-purple: #ce93d8;

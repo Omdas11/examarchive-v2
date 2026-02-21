@@ -66,16 +66,11 @@
 
       const totalVisits = statsError ? 0 : (statsData?.total_visits || 0);
 
-      // Estimate active users from auth.users last_sign_in_at (last 10 minutes)
-      // Since auth.users may not be directly queryable via client, use a simple fallback
+      // Get active users (signed in within last 10 minutes)
       let activeUsers = 0;
       try {
-        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-        const { count, error: activeError } = await supabase
-          .from('roles')
-          .select('*', { count: 'exact', head: true });
-        // Use total registered users as a proxy if session tracking isn't available
-        activeUsers = activeError ? 0 : Math.min(count || 0, Math.max(1, Math.ceil((count || 0) * 0.1)));
+        const { data: activeCount, error: activeError } = await supabase.rpc('get_active_user_count');
+        activeUsers = activeError ? 0 : (activeCount || 0);
       } catch (e) {
         activeUsers = 0;
       }
@@ -98,7 +93,11 @@
     if (!el) return;
 
     const formattedVisits = totalVisits.toLocaleString();
-    el.textContent = `Visitors: ${formattedVisits}`;
+    const parts = [`Visitors: ${formattedVisits}`];
+    if (activeUsers > 0) {
+      parts.push(`Active: ${activeUsers}`);
+    }
+    el.textContent = parts.join(' · ');
 
     // Show admin reset button if user has level >= 100
     showAdminResetButton();
