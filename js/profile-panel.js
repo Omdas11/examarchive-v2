@@ -346,7 +346,15 @@ async function populateProfileStats(user) {
 
     const { current, next } = getXpThresholds(userXp);
     if (xpCurrentEl) xpCurrentEl.textContent = userXp;
+    const xpCurrentTierEl = document.getElementById('xpCurrentTier');
+    const xpNextTierEl = document.getElementById('xpNextTier');
+    const xpNextInfoEl = document.getElementById('xpNextInfo');
+    if (xpCurrentTierEl) xpCurrentTierEl.textContent = current.title;
     if (xpNextEl) xpNextEl.textContent = next.xp;
+    if (xpNextTierEl) xpNextTierEl.textContent = next.title;
+    if (xpNextInfoEl) {
+      xpNextInfoEl.style.display = (current.xp !== next.xp) ? 'block' : 'none';
+    }
 
     if (xpBarFill) {
       const range = next.xp - current.xp;
@@ -369,7 +377,7 @@ async function populateProfileStats(user) {
     try {
       const { data: streakData } = await supabase.rpc('update_daily_streak');
       if (streakData && streakData.length > 0) {
-        renderStreak(streakData[0].streak);
+        renderStreak(streakData[0].streak, streakData[0].longest_streak);
       }
     } catch (_) {
       // Streak update is optional
@@ -389,10 +397,11 @@ async function populateProfileStats(user) {
 
 /**
  * Render daily streak visualization in profile panel
- * Shows 7 small circles, filled = active streak day
+ * Shows 7 large circles with day numbers/checkmarks, stats, and next milestone
  * @param {number} streakCount - Current streak count
+ * @param {number} [longestStreak] - Longest streak (optional, falls back to streakCount)
  */
-function renderStreak(streakCount) {
+function renderStreak(streakCount, longestStreak) {
   let streakSection = document.querySelector('.profile-streak');
   if (!streakSection) {
     streakSection = document.createElement('section');
@@ -403,47 +412,86 @@ function renderStreak(streakCount) {
     }
   }
 
-  // Normalize streakCount to a non-negative finite number
   let normalizedStreak = Number.isFinite(streakCount) ? streakCount : 0;
   if (normalizedStreak < 0) normalizedStreak = 0;
+  let normalizedLongest = Number.isFinite(longestStreak) ? longestStreak : normalizedStreak;
 
   const days = 7;
   const activeDays = Math.min(normalizedStreak, days);
 
-  // Clear previous content safely
   while (streakSection.firstChild) {
     streakSection.removeChild(streakSection.firstChild);
   }
 
-  // Build streak row with dots
+  // Streak header
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'streak-header';
+  const headerLabel = document.createElement('span');
+  headerLabel.className = 'streak-title';
+  headerLabel.textContent = '\uD83D\uDD25 Daily Streak';
+  headerDiv.appendChild(headerLabel);
+  streakSection.appendChild(headerDiv);
+
+  // Build streak row with large circles
   const rowDiv = document.createElement('div');
   rowDiv.className = 'streak-row';
 
   for (let i = 0; i < days; i++) {
     const isActive = i < activeDays;
-    const dot = document.createElement('span');
-    dot.className = 'streak-dot' + (isActive ? ' active' : '');
-    dot.setAttribute('role', 'img');
-    dot.setAttribute('aria-label', 'Day ' + (i + 1) + (isActive ? ' (active)' : ''));
-    rowDiv.appendChild(dot);
-  }
+    const isCurrent = i === activeDays - 1 && activeDays > 0;
+    const circle = document.createElement('div');
+    circle.className = 'streak-circle' + (isActive ? ' active' : '') + (isCurrent ? ' current' : '');
+    circle.setAttribute('role', 'img');
+    circle.setAttribute('aria-label', 'Day ' + (i + 1) + (isActive ? ' (completed)' : ''));
 
-  // Fire icon when streak >= 7
-  if (normalizedStreak >= 7) {
-    const fireSpan = document.createElement('span');
-    fireSpan.className = 'streak-fire';
-    fireSpan.setAttribute('aria-label', 'Streak on fire!');
-    fireSpan.textContent = '🔥';
-    rowDiv.appendChild(fireSpan);
+    const inner = document.createElement('span');
+    inner.className = 'streak-circle-inner';
+    inner.textContent = isActive ? '\u2713' : String(i + 1);
+    circle.appendChild(inner);
+    rowDiv.appendChild(circle);
   }
-
-  // Streak label
-  const labelDiv = document.createElement('div');
-  labelDiv.className = 'streak-label';
-  labelDiv.textContent = normalizedStreak + ' day streak';
 
   streakSection.appendChild(rowDiv);
-  streakSection.appendChild(labelDiv);
+
+  // Stats row
+  const statsDiv = document.createElement('div');
+  statsDiv.className = 'streak-stats';
+
+  const currentDiv = document.createElement('div');
+  currentDiv.className = 'streak-stat';
+  const currentVal = document.createElement('strong');
+  currentVal.textContent = normalizedStreak;
+  const currentLabel = document.createElement('span');
+  currentLabel.textContent = 'Current';
+  currentDiv.appendChild(currentVal);
+  currentDiv.appendChild(currentLabel);
+
+  const longestDiv = document.createElement('div');
+  longestDiv.className = 'streak-stat';
+  const longestVal = document.createElement('strong');
+  longestVal.textContent = normalizedLongest;
+  const longestLabel = document.createElement('span');
+  longestLabel.textContent = 'Best';
+  longestDiv.appendChild(longestVal);
+  longestDiv.appendChild(longestLabel);
+
+  // Next milestone
+  const milestones = [7, 14, 30, 60, 100];
+  let nextMilestone = milestones.find(m => m > normalizedStreak) || null;
+  const milestoneDiv = document.createElement('div');
+  milestoneDiv.className = 'streak-stat';
+  const milestoneVal = document.createElement('strong');
+  milestoneVal.textContent = nextMilestone ? String(nextMilestone) : '\uD83C\uDFC6';
+  const milestoneLabel = document.createElement('span');
+  milestoneLabel.textContent = nextMilestone ? 'Next goal' : 'Master';
+  milestoneDiv.appendChild(milestoneVal);
+  milestoneDiv.appendChild(milestoneLabel);
+
+  statsDiv.appendChild(currentDiv);
+  statsDiv.appendChild(longestDiv);
+  statsDiv.appendChild(milestoneDiv);
+  streakSection.appendChild(statsDiv);
+
   streakSection.style.display = 'block';
 }
 
