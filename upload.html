@@ -89,6 +89,25 @@
         <h2>Paper details</h2>
 
         <label class="field">
+          <span class="field-label">University</span>
+          <select id="university">
+            <option value="">Select University</option>
+            <option value="assam-university">Assam University</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Stream</span>
+          <select id="stream">
+            <option value="">Select Stream</option>
+            <option value="science">Science</option>
+            <option value="arts">Arts</option>
+            <option value="commerce">Commerce</option>
+          </select>
+        </label>
+
+        <label class="field">
           <span class="field-label">Paper / Subject Code</span>
           <input
             id="paperCode"
@@ -115,6 +134,15 @@
             <span class="field-validation-icon" id="yearValidationIcon" role="status" aria-live="polite" aria-label="Validation status"></span>
           </div>
           <small class="field-hint year-hint" id="yearHint"></small>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Paper Type</span>
+          <select id="paperType">
+            <option value="main">Main Examination</option>
+            <option value="supplementary">Supplementary</option>
+            <option value="internal">Internal</option>
+          </select>
         </label>
       </div>
 

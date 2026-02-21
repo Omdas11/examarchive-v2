@@ -286,6 +286,9 @@ function initializeUploadForm() {
     
     const paperCode = paperCodeInput.value.trim();
     const examYear = parseInt(examYearInput.value);
+    const university = document.getElementById('university')?.value || '';
+    const stream = document.getElementById('stream')?.value || '';
+    const paperType = document.getElementById('paperType')?.value || 'main';
 
     // Validate inputs
     if (!paperCode) {
@@ -320,7 +323,10 @@ function initializeUploadForm() {
         {
           paperCode,
           examYear,
-          uploadType: selectedUploadType
+          uploadType: selectedUploadType,
+          university,
+          stream,
+          paperType
         },
         (progress) => {
           uploadButton.textContent = `Uploading ${progress}%`;

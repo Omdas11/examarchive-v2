@@ -102,7 +102,7 @@
     </section>
 
     <!-- =====================
-         XP SYSTEM
+         XP SYSTEM (Cosmetic Only)
          ===================== -->
     <section class="about-xp-system">
       <h2>XP &amp; Level System</h2>
@@ -113,23 +113,29 @@
         and daily engagement. Your level is calculated automatically from your XP.
       </p>
 
+      <p>
+        <strong>Note:</strong> XP levels are <em>cosmetic only</em>. System permissions
+        (Admin, Moderator, Reviewer) are assigned manually by administrators and are
+        separate from XP.
+      </p>
+
       <div class="xp-table-wrap">
         <table class="xp-table">
           <thead>
             <tr>
               <th>Level</th>
               <th>XP Required</th>
-              <th>Role Title</th>
+              <th>Title</th>
             </tr>
           </thead>
           <tbody>
             <tr><td>0</td><td>0</td><td>Visitor</td></tr>
             <tr><td>5</td><td>100</td><td>Explorer</td></tr>
             <tr><td>10</td><td>300</td><td>Contributor</td></tr>
-            <tr><td>25</td><td>800</td><td>Reviewer</td></tr>
-            <tr><td>50</td><td>1,500</td><td>Senior Moderator</td></tr>
-            <tr><td>90</td><td>3,000</td><td>Admin</td></tr>
-            <tr><td>100</td><td>5,000</td><td>Founder</td></tr>
+            <tr><td>25</td><td>800</td><td>Veteran</td></tr>
+            <tr><td>50</td><td>1,500</td><td>Senior</td></tr>
+            <tr><td>90</td><td>3,000</td><td>Elite</td></tr>
+            <tr><td>100</td><td>5,000</td><td>Legend</td></tr>
           </tbody>
         </table>
       </div>
@@ -140,7 +146,20 @@
         <li><strong>Paper approved</strong> → +100 XP</li>
         <li><strong>RQ contribution</strong> → +40 XP</li>
         <li><strong>Notes upload</strong> → +30 XP</li>
-        <li><strong>Daily login streak</strong> → +5 XP</li>
+        <li><strong>Daily login streak</strong> → +5 XP per day</li>
+      </ul>
+
+      <h3>System Roles (Separate from XP)</h3>
+      <p>
+        System roles control permissions and are assigned by administrators:
+      </p>
+      <ul>
+        <li><strong>Founder</strong> — Full access (unique, one per platform)</li>
+        <li><strong>Admin</strong> — Full access</li>
+        <li><strong>Senior Moderator</strong> — Partial admin access (review &amp; publish)</li>
+        <li><strong>Reviewer</strong> — Limited moderation (approve/reject)</li>
+        <li><strong>Contributor</strong> — Can upload papers</li>
+        <li><strong>Visitor</strong> — Browse only</li>
       </ul>
     </section>
 
@@ -181,7 +200,8 @@
       <h2>Project Timeline</h2>
 
       <p class="section-note">
-        This timeline is generated automatically from project history data.
+        This timeline is generated automatically from verified project milestones.
+        No hardcoded dates — all data is dynamically loaded.
       </p>
 
       <div class="timeline"></div>

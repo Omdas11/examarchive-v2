@@ -8,6 +8,19 @@ let currentTab = 'pending';
 let currentSubmission = null;
 let allSubmissions = [];
 let userRoleLevel = 0;
+let userPrimaryRoleGlobal = null;
+
+/**
+ * Escape HTML special characters to prevent XSS
+ */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
@@ -21,28 +34,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Hide loading state
     loadingState.style.display = 'none';
 
-    // Also allow level >= 90 for admin dashboard access
+    // Check primary_role for dashboard access (Founder, Admin, Senior Moderator)
     const supabase = window.getSupabase ? window.getSupabase() : null;
-    let levelAccess = false;
+    let roleAccess = false;
+    let userPrimaryRole = null;
     if (supabase) {
       try {
-        const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
-        userRoleLevel = roleLevelData || 0;
-        levelAccess = userRoleLevel >= 90;
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const { data: roleData } = await supabase
+            .from('roles')
+            .select('primary_role, level')
+            .eq('user_id', session.user.id)
+            .single();
+          if (roleData) {
+            userPrimaryRole = roleData.primary_role;
+            userRoleLevel = roleData.level || 0;
+            roleAccess = ['Founder', 'Admin', 'Senior Moderator'].includes(userPrimaryRole);
+          }
+        }
       } catch (e) {
         userRoleLevel = 0;
       }
     }
     
-    if (!hasAdminAccess && !levelAccess) {
+    if (!hasAdminAccess && !roleAccess) {
       accessDenied.style.display = 'flex';
       return;
     }
 
     dashboardContent.style.display = 'block';
 
+    // Store primary role globally for UI checks
+    userPrimaryRoleGlobal = userPrimaryRole;
+
     // Initialize dashboard
-    initializeDashboard();
+    initializeDashboard(userPrimaryRole);
   } catch (err) {
     console.error('[ADMIN-DASHBOARD] Error checking access:', err);
     loadingState.style.display = 'none';
@@ -53,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 /**
  * Initialize dashboard
  */
-async function initializeDashboard() {
+async function initializeDashboard(primaryRole) {
   // Setup tab switching
   setupTabs();
   
@@ -66,9 +93,10 @@ async function initializeDashboard() {
   // Setup real-time subscriptions
   setupRealtimeSubscriptions();
 
-  // Setup role management panel (level 100+ can access, matches update_user_role RPC)
-  if (userRoleLevel >= 100) {
+  // Setup role management panel (Founder/Admin only via primary_role)
+  if (primaryRole === 'Founder' || primaryRole === 'Admin') {
     setupRoleManagement();
+    setupUsersTable();
   }
 }
 
@@ -198,12 +226,12 @@ function renderSubmissionCard(submission) {
   };
 
   const safeFileSize = (submission?.file_size ?? 0);
-  const safeFilename = (submission?.original_filename || 'Unknown');
-  const safePaperCode = (submission?.paper_code || 'Unknown Code');
-  const safeYear = (submission?.year || 'N/A');
+  const safeFilename = escapeHtml(submission?.original_filename || 'Unknown');
+  const safePaperCode = escapeHtml(submission?.paper_code || 'Unknown Code');
+  const safeYear = escapeHtml(submission?.year || 'N/A');
   const safeStatus = (submission?.status || 'pending');
   const safeCreatedAt = submission?.created_at
-    ? new Date(submission.created_at).toLocaleString()
+    ? escapeHtml(new Date(submission.created_at).toLocaleString())
     : 'Unknown date';
 
   return `
@@ -230,37 +258,37 @@ function renderSubmissionCard(submission) {
         </div>
         <div class="detail-item">
           <strong>Paper Name</strong>
-          <span>${submission?.paper_name || '-'}</span>
+          <span>${escapeHtml(submission?.paper_name || '-')}</span>
         </div>
         ${submission?.storage_path ? `
         <div class="detail-item">
           <strong>Storage Path</strong>
-          <span style="font-size:0.75rem;word-break:break-all;">${submission.storage_path}</span>
+          <span style="font-size:0.75rem;word-break:break-all;">${escapeHtml(submission.storage_path)}</span>
         </div>
         ` : ''}
         ${submission?.approved_path ? `
         <div class="detail-item">
           <strong>Approved Path</strong>
-          <span style="font-size:0.75rem;word-break:break-all;">${submission.approved_path}</span>
+          <span style="font-size:0.75rem;word-break:break-all;">${escapeHtml(submission.approved_path)}</span>
         </div>
         ` : ''}
         ${submission?.reviewed_at ? `
         <div class="detail-item">
           <strong>Reviewed</strong>
-          <span>${new Date(submission.reviewed_at).toLocaleString()}</span>
+          <span>${escapeHtml(new Date(submission.reviewed_at).toLocaleString())}</span>
         </div>
         ` : ''}
         ${submission?.public_url ? `
         <div class="detail-item">
           <strong>Public URL</strong>
-          <span><a href="${submission.public_url}" target="_blank" rel="noopener">View PDF</a></span>
+          <span><a href="${escapeHtml(submission.public_url)}" target="_blank" rel="noopener">View PDF</a></span>
         </div>
         ` : ''}
       </div>
 
       ${submission?.review_notes ? `
       <div style="padding: 0.75rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem;">
-        <strong>Review Notes:</strong> ${submission.review_notes}
+        <strong>Review Notes:</strong> ${escapeHtml(submission.review_notes)}
       </div>
       ` : ''}
 
@@ -269,7 +297,7 @@ function renderSubmissionCard(submission) {
           <button class="btn btn-outline" data-action="view" data-id="${submission?.id || ''}">
             View Details
           </button>
-          ${userRoleLevel >= 75 ? `
+          ${['Founder', 'Admin', 'Senior Moderator', 'Reviewer'].includes(userPrimaryRoleGlobal) ? `
           <button class="btn btn-danger" data-action="reject" data-id="${submission?.id || ''}">
             Reject
           </button>
@@ -278,7 +306,7 @@ function renderSubmissionCard(submission) {
           </button>
           ` : ''}
         ` : safeStatus === 'approved' ? `
-          ${userRoleLevel >= 90 ? `
+          ${['Founder', 'Admin', 'Senior Moderator'].includes(userPrimaryRoleGlobal) ? `
           <button class="btn btn-view" data-action="publish" data-id="${submission?.id || ''}">
             Publish Now
           </button>
@@ -857,7 +885,7 @@ function openRoleEditor(userData) {
 }
 
 /**
- * Save role changes (via update_user_role RPC — level 100+ required by backend)
+ * Save role changes (via update_user_role RPC — Founder/Admin required by backend)
  */
 async function saveRoleChanges() {
   const userId = document.getElementById('roleEditUserId')?.value;
@@ -875,7 +903,7 @@ async function saveRoleChanges() {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
 
-    // Update role metadata (including XP) via privileged RPC
+    // Update role metadata via privileged RPC
     const { error } = await supabase.rpc('update_user_role', {
       target_user_id: userId,
       new_level: isNaN(level) ? null : level,
@@ -894,6 +922,113 @@ async function saveRoleChanges() {
     await searchUsers();
   } catch (err) {
     showMessage('Failed to update role: ' + err.message, 'error');
+  }
+}
+
+/**
+ * Setup admin users table (Founder/Admin only)
+ */
+function setupUsersTable() {
+  const panel = document.getElementById('users-table-panel');
+  if (!panel) return;
+
+  panel.style.display = 'block';
+  loadUsersTable();
+
+  const searchInput = document.getElementById('usersSearchInput');
+  const searchBtn = document.getElementById('usersSearchBtn');
+
+  searchBtn?.addEventListener('click', () => loadUsersTable(1, searchInput?.value.trim()));
+  searchInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loadUsersTable(1, searchInput?.value.trim());
+  });
+}
+
+let usersCurrentPage = 1;
+let usersSortBy = 'created_at';
+let usersSortDir = 'desc';
+
+/**
+ * Load users table from database
+ */
+async function loadUsersTable(page, searchQuery) {
+  page = page || usersCurrentPage;
+  usersCurrentPage = page;
+
+  const tbody = document.getElementById('usersTableBody');
+  const paginationEl = document.getElementById('usersPagination');
+  if (!tbody) return;
+
+  try {
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    const { data, error } = await supabase.rpc('list_all_users', {
+      page_number: page,
+      page_size: 25,
+      search_query: searchQuery || null,
+      sort_by: usersSortBy,
+      sort_dir: usersSortDir
+    });
+
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
+      if (paginationEl) paginationEl.innerHTML = '';
+      return;
+    }
+
+    const totalCount = data[0]?.total_count || 0;
+    const totalPages = Math.ceil(totalCount / 25);
+
+    tbody.innerHTML = '';
+    data.forEach(u => {
+      const tr = document.createElement('tr');
+
+      const cells = [
+        u.username || '—',
+        u.email || '—',
+        String(u.xp ?? 0),
+        String(u.level ?? 0),
+        u.primary_role || '—',
+        u.secondary_role || '—',
+        u.tertiary_role || '—'
+      ];
+
+      cells.forEach(text => {
+        const td = document.createElement('td');
+        td.textContent = text;
+        tr.appendChild(td);
+      });
+
+      // Actions cell
+      const actionsTd = document.createElement('td');
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-outline';
+      editBtn.style.cssText = 'padding:0.2rem 0.5rem;font-size:0.75rem;';
+      editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', () => openRoleEditor(u));
+      actionsTd.appendChild(editBtn);
+      tr.appendChild(actionsTd);
+
+      tbody.appendChild(tr);
+    });
+
+    // Pagination
+    if (paginationEl && totalPages > 1) {
+      paginationEl.innerHTML = '';
+      for (let i = 1; i <= Math.min(totalPages, 10); i++) {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-outline' + (i === page ? ' active' : '');
+        btn.style.cssText = 'padding:0.2rem 0.5rem;font-size:0.75rem;margin:0 0.15rem;';
+        btn.textContent = String(i);
+        btn.addEventListener('click', () => loadUsersTable(i, searchQuery));
+        paginationEl.appendChild(btn);
+      }
+    }
+
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
   }
 }
 

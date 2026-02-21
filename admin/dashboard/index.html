@@ -62,10 +62,10 @@
         <p class="text-muted">Review and manage submissions</p>
       </section>
 
-      <!-- Role Management Panel (Level 100+ only) -->
+      <!-- Role Management Panel (Founder/Admin only) -->
       <section id="role-management-panel" class="role-management-panel" style="display: none;">
         <h2>Role Management</h2>
-        <p class="text-muted" style="margin-bottom: 1rem;">Search and manage user roles (Admin only)</p>
+        <p class="text-muted" style="margin-bottom: 1rem;">Search and manage user roles (Founder/Admin only)</p>
 
         <div class="role-search-row">
           <input type="text" id="roleSearchInput" placeholder="Search by username, email, or paste UUID..." class="role-search-input" />
@@ -82,16 +82,24 @@
 
           <div class="role-edit-fields">
             <div class="role-field">
-              <label for="roleEditXP">XP (auto-calculates level)</label>
+              <label for="roleEditXP">XP (cosmetic)</label>
               <input type="number" id="roleEditXP" min="0" />
             </div>
             <div class="role-field">
-              <label for="roleEditLevel">Level (auto from XP)</label>
+              <label for="roleEditLevel">Level (cosmetic)</label>
               <input type="number" id="roleEditLevel" min="0" max="100" />
             </div>
             <div class="role-field">
-              <label for="roleEditPrimary">Primary Role</label>
-              <input type="text" id="roleEditPrimary" placeholder="e.g. Moderator" />
+              <label for="roleEditPrimary">Primary Role (permissions)</label>
+              <select id="roleEditPrimary">
+                <option value="">— Select —</option>
+                <option value="Visitor">Visitor</option>
+                <option value="Contributor">Contributor</option>
+                <option value="Reviewer">Reviewer</option>
+                <option value="Senior Moderator">Senior Moderator</option>
+                <option value="Admin">Admin</option>
+                <option value="Founder">Founder (unique)</option>
+              </select>
             </div>
             <div class="role-field">
               <label for="roleEditSecondary">Secondary Role</label>
@@ -103,7 +111,7 @@
             </div>
             <div class="role-field">
               <label for="roleEditBadges">Custom Badges (comma-separated)</label>
-              <input type="text" id="roleEditBadges" placeholder="e.g. Early Adopter, Top Uploader" />
+              <input type="text" id="roleEditBadges" placeholder="e.g. Subject Expert (Physics), Beta Tester" />
             </div>
           </div>
 
@@ -112,6 +120,39 @@
             <button class="btn btn-red" id="roleEditSave">Save Changes</button>
           </div>
         </div>
+      </section>
+
+      <!-- Users Table (Founder/Admin only) -->
+      <section id="users-table-panel" class="users-table-panel" style="display: none;">
+        <h2>All Users</h2>
+        <p class="text-muted" style="margin-bottom: 1rem;">View and manage all registered users</p>
+
+        <div class="role-search-row" style="margin-bottom: 1rem;">
+          <input type="text" id="usersSearchInput" placeholder="Search by username, email, or role..." class="role-search-input" />
+          <button class="btn btn-red" id="usersSearchBtn">Search</button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="users-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+            <thead>
+              <tr style="border-bottom:2px solid var(--border);text-align:left;">
+                <th style="padding:0.5rem;">Username</th>
+                <th style="padding:0.5rem;">Email</th>
+                <th style="padding:0.5rem;">XP</th>
+                <th style="padding:0.5rem;">Level</th>
+                <th style="padding:0.5rem;">Primary Role</th>
+                <th style="padding:0.5rem;">Secondary</th>
+                <th style="padding:0.5rem;">Tertiary</th>
+                <th style="padding:0.5rem;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="usersPagination" style="display:flex;justify-content:center;margin-top:1rem;"></div>
       </section>
 
       <!-- Stats -->
