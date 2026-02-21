@@ -1,9 +1,19 @@
 <header class="site-header">
 
-  <!-- Left: Logo -->
-  <div class="logo">
-    <div class="logo-mark"></div>
-    <span class="logo-text">ExamArchive</span>
+  <!-- Left: Hamburger + Logo -->
+  <div class="header-left">
+    <!-- Hamburger -->
+    <button class="menu-btn" aria-label="Menu">
+      <svg class="hamburger-icon" viewBox="0 0 24 24">
+         <line x1="4" y1="8" x2="20" y2="8" />
+         <line x1="4" y1="16" x2="20" y2="16" />
+      </svg>
+    </button>
+
+    <div class="logo">
+      <div class="logo-mark"></div>
+      <span class="logo-text">ExamArchive</span>
+    </div>
   </div>
 
   <!-- Center: Desktop Navigation -->
@@ -12,78 +22,93 @@
     <a class="nav-link" href="/browse.html">Browse</a>
     <a class="nav-link" href="/upload.html">Upload</a>
     <a class="nav-link" href="/about.html">About</a>
+    <a class="nav-link" href="/support.html">Support</a>
     <a class="nav-link" href="/settings.html">Settings</a>
   </nav>
 
   <!-- Right: Actions -->
   <div class="header-actions">
-    
-    <!-- Theme Toggle -->
-    <div class="theme-toggle">
-      <button class="theme-btn" data-theme="light" title="Light">
-        <svg class="icon" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
-          <path d="M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"/>
-        </svg>
-      </button>
 
-      <button class="theme-btn" data-theme="dark" title="Dark">
-        <svg class="icon" viewBox="0 0 24 24">
-          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
-        </svg>
-      </button>
+    <!-- Theme Toggle (Light ↔ Dark) -->
+    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle theme" aria-label="Toggle light/dark theme">
+      <svg class="icon theme-icon-light" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+        <path d="M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"/>
+      </svg>
+      <svg class="icon theme-icon-dark" viewBox="0 0 24 24">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
+      </svg>
+    </button>
 
-      <button class="theme-btn" data-theme="amoled" title="AMOLED">
-        <svg class="icon" viewBox="0 0 24 24">
-          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
-          <path d="M18 5h4M20 3v4"/>
-        </svg>
-      </button>
+    <!-- Profile / Login Trigger -->
+    <button
+      class="avatar-trigger"
+      id="avatarTrigger"
+      type="button"
+      aria-label="User menu"
+    >
+      <div class="avatar-wrap">
+        <div class="avatar-mini" title="Visitor">👤</div>
+      </div>
+    </button>
 
-      <button class="night-btn" title="Night mode">
-        <svg class="icon" viewBox="0 0 24 24">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5
-          1-.9 1.5-2.2 1.5-3.5a6 6 0 0 0-12 0
-          c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6M10 22h4"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Hamburger + Profile Pill -->
-    <div class="header-pill">
-
-      <!-- Hamburger -->
-      <button class="menu-btn" aria-label="Menu">
-        <svg class="hamburger-icon" viewBox="0 0 24 24">
-           <line x1="4" y1="8" x2="20" y2="8" />
-           <line x1="4" y1="16" x2="20" y2="16" />
-        </svg>
-      </button>
-
-      <!-- Profile / Login Trigger (Always visible) -->
-      <button
-        class="avatar-trigger"
-        id="avatarTrigger"
-        type="button"
-        aria-label="User menu"
-      >
-        <div class="avatar-wrap">
-          <div class="avatar-mini" title="Visitor">👤</div>
-        </div>
-      </button>
-
-    </div>
-  </div>
-
-  <!-- Mobile Navigation -->
-  <div class="mobile-nav" id="mobileNav">
-    <a href="/index.html">Home</a>
-    <a href="/browse.html">Browse</a>
-    <a href="/upload.html">Upload</a>
-    <a href="/about.html">About</a>
-    <a href="/settings.html">Settings</a>
   </div>
 
 </header>
+
+<!-- Drawer Overlay -->
+<div class="drawer-overlay" id="drawerOverlay" role="button" aria-label="Close navigation drawer" tabindex="0"></div>
+
+<!-- Slide-out Drawer -->
+<nav class="drawer" id="drawer" aria-label="Main navigation drawer">
+  <div class="drawer-header">
+    <div class="logo">
+      <div class="logo-mark"></div>
+      <span class="logo-text">ExamArchive</span>
+    </div>
+    <button class="drawer-close" id="drawerClose" aria-label="Close menu">
+      <svg class="icon" viewBox="0 0 24 24">
+        <line x1="6" y1="6" x2="18" y2="18"/>
+        <line x1="18" y1="6" x2="6" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <div class="drawer-links">
+    <a href="/index.html" class="drawer-link">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+      Home
+    </a>
+    <a href="/browse.html" class="drawer-link">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      Browse
+    </a>
+    <a href="/upload.html" class="drawer-link">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0-12L8 8m4-4l4 4"/></svg>
+      Upload
+    </a>
+    <a href="/about.html" class="drawer-link">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      About
+    </a>
+    <a href="/support.html" class="drawer-link">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M18 18.72a9.1 9.1 0 003.75-7.6A9.12 9.12 0 0012 2a9.12 9.12 0 00-9.75 9.12A9.1 9.1 0 006 18.72"/><circle cx="12" cy="12" r="4"/></svg>
+      Support
+    </a>
+    <a href="/admin/dashboard/" class="drawer-link drawer-link-admin" id="drawerAdminLink" hidden>
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      Admin
+    </a>
+
+    <div class="drawer-divider"></div>
+
+    <a href="/settings.html" class="drawer-link">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </a>
+    <a href="#" class="drawer-link" id="drawerProfileLink">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </a>
+  </div>
+</nav>

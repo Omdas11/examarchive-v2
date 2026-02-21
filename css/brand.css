@@ -45,7 +45,7 @@ body[data-theme="amoled"] {
    ================================ */
 .avatar-popup,
 .profile-panel,
-.mobile-nav {
+.drawer {
   background: var(--surface);
   color: var(--text);
   border-color: var(--border);
@@ -53,13 +53,7 @@ body[data-theme="amoled"] {
 
 /* ================================
    ACTIVE BUTTON FIX
-   Prevent greyed-out active buttons
    ================================ */
-.theme-btn.active,
-.night-btn.active {
-  opacity: 1;
-}
-
 .btn.active,
 .nav-link.active {
   opacity: 1;

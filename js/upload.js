@@ -144,14 +144,78 @@ function initializeUploadForm() {
   
   const fileInput = document.querySelector('input[type="file"]');
   const fileLabel = document.querySelector('.file-drop');
-  const fileUI = document.querySelector('.file-ui');
+  const fileUI = document.getElementById('fileUI');
   const uploadButton = document.querySelector('.btn-red');
-  const paperCodeInput = document.querySelector('input[type="text"]');
-  const examYearInput = document.querySelector('input[type="number"]');
+  const paperCodeInput = document.getElementById('paperCode');
+  const examYearInput = document.getElementById('examYear');
+  const yearValidationIcon = document.getElementById('yearValidationIcon');
+  const yearHint = document.getElementById('yearHint');
+  const filenamePreview = document.getElementById('filenamePreview');
 
   if (!fileInput || !fileLabel || !uploadButton) {
     console.error('Upload form elements not found');
     return;
+  }
+
+  // --- Year Validation Helper ---
+  function isYearValid(val) {
+    if (!val || val.length === 0) return null; // empty = neutral
+    const year = parseInt(val, 10);
+    return val.length === 4 && year >= 1990 && year <= 2099;
+  }
+
+  // --- Year Validation ---
+  function validateYear() {
+    const val = examYearInput.value.trim();
+    const valid = isYearValid(val);
+    
+    if (valid === null) {
+      yearValidationIcon.textContent = '';
+      yearHint.textContent = '';
+      yearHint.className = 'field-hint year-hint';
+      examYearInput.classList.remove('input-valid', 'input-invalid');
+    } else if (valid) {
+      yearValidationIcon.textContent = '✓';
+      yearValidationIcon.style.color = 'var(--color-success)';
+      yearHint.textContent = '';
+      yearHint.className = 'field-hint year-hint valid';
+      examYearInput.classList.add('input-valid');
+      examYearInput.classList.remove('input-invalid');
+    } else {
+      yearValidationIcon.textContent = '✗';
+      yearValidationIcon.style.color = 'var(--color-error)';
+      yearHint.textContent = 'Enter a valid 4-digit year (1990–2099)';
+      yearHint.className = 'field-hint year-hint invalid';
+      examYearInput.classList.add('input-invalid');
+      examYearInput.classList.remove('input-valid');
+    }
+    updateUploadButtonState();
+    updateFilenamePreview();
+  }
+
+  examYearInput.addEventListener('input', validateYear);
+
+  // --- Filename Preview ---
+  function updateFilenamePreview() {
+    const code = paperCodeInput.value.trim().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '');
+    const year = examYearInput.value.trim();
+    
+    if (code || year) {
+      filenamePreview.style.display = 'block';
+      filenamePreview.textContent = (code || '…') + '-' + (year || '…') + '-';
+    } else {
+      filenamePreview.style.display = 'none';
+    }
+  }
+
+  paperCodeInput.addEventListener('input', updateFilenamePreview);
+  examYearInput.addEventListener('input', updateFilenamePreview);
+
+  // --- Upload button state ---
+  function updateUploadButtonState() {
+    const val = examYearInput.value.trim();
+    const valid = isYearValid(val);
+    uploadButton.disabled = valid === false;
   }
 
   // Handle file selection
@@ -160,28 +224,42 @@ function initializeUploadForm() {
     if (file) {
       selectedFile = file;
       updateFileUI(file, fileUI);
+      fileLabel.classList.add('file-selected');
     }
   });
 
   // Handle drag and drop
+  let dragCounter = 0;
+
   fileLabel.addEventListener('dragover', (e) => {
     e.preventDefault();
-    fileUI.style.borderColor = 'var(--red)';
+  });
+
+  fileLabel.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragCounter++;
+    fileLabel.classList.add('drag-over');
   });
 
   fileLabel.addEventListener('dragleave', () => {
-    fileUI.style.borderColor = 'var(--border)';
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      fileLabel.classList.remove('drag-over');
+    }
   });
 
   fileLabel.addEventListener('drop', (e) => {
     e.preventDefault();
-    fileUI.style.borderColor = 'var(--border)';
+    dragCounter = 0;
+    fileLabel.classList.remove('drag-over');
     
     const file = e.dataTransfer.files[0];
     if (file && file.type === 'application/pdf') {
       selectedFile = file;
       fileInput.files = e.dataTransfer.files;
       updateFileUI(file, fileUI);
+      fileLabel.classList.add('file-selected');
     } else {
       showMessage('Please select a PDF file', 'error');
     }
@@ -262,6 +340,10 @@ function initializeUploadForm() {
         fileInput.value = '';
         selectedFile = null;
         resetFileUI(fileUI);
+        if (filenamePreview) filenamePreview.style.display = 'none';
+        if (yearValidationIcon) yearValidationIcon.textContent = '';
+        if (yearHint) { yearHint.textContent = ''; yearHint.className = 'field-hint year-hint'; }
+        examYearInput.classList.remove('input-valid', 'input-invalid');
         
         // Reload submissions
         setTimeout(() => {
@@ -298,10 +380,17 @@ function updateFileUI(file, fileUI) {
  * Reset file UI to default state
  */
 function resetFileUI(fileUI) {
+  const fileLabel = document.querySelector('.file-drop');
+  if (fileLabel) fileLabel.classList.remove('file-selected');
+  
   fileUI.innerHTML = `
+    <svg class="upload-cloud-icon" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M14 36c-4.42 0-8-3.58-8-8 0-3.7 2.5-6.8 5.9-7.7C12.6 14.5 17.8 10 24 10c7.18 0 13 5.82 13 13 0 .34-.01.67-.04 1H38c3.31 0 6 2.69 6 6s-2.69 6-6 6H14z"/>
+      <path d="M24 22v14M18 28l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
     <strong>Select PDF file</strong>
     <p class="text-muted">
-      Only PDF files · Clear scan preferred · Max size limits may apply
+      Drag &amp; drop or click · PDF only · Clear scan preferred
     </p>
   `;
 }
