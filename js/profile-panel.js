@@ -53,6 +53,29 @@ function getUserBadges(role) {
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects (max 3)
  */
+function getBadgeIcon(label) {
+  const iconMap = {
+    'Founder': '👑',
+    'Admin': '🛡️',
+    'Senior Moderator': '⚡',
+    'Reviewer': '📋',
+    'Contributor': '✨',
+    'Visitor': '👤',
+    'Subject Expert': '🧪',
+    'Paper Analyzer': '📊',
+    'Top Contributor': '🏆',
+    'Early Adopter': '🌟',
+    'Beta Tester': '🔬',
+    'Top Reviewer': '📝',
+    'Content Curator': '📚',
+    'University Lead': '🎓'
+  };
+  for (const [key, icon] of Object.entries(iconMap)) {
+    if (label.startsWith(key)) return icon;
+  }
+  return '🏷️';
+}
+
 async function computeBadges(user) {
   const getUserBadge = window.Roles.getUserBadge;
   const getBadgeColor = window.Roles.getBadgeColor;
@@ -103,20 +126,12 @@ async function computeBadges(user) {
 
   const labels = getUserBadges(roleData).slice(0, 3);
   const badges = labels.map((label) => {
-    if (label === 'Founder') {
-      return {
-        type: 'founder',
-        label,
-        icon: '👑',
-        color: 'var(--color-warning)'
-      };
-    }
-
+    const icon = getBadgeIcon(label);
     const badgeType = label.toLowerCase().replace(/\s+/g, '_');
     return {
       type: badgeType,
       label,
-      icon: '🏷️',
+      icon,
       color: getBadgeColor?.(badgeType) || 'var(--color-muted)'
     };
   });

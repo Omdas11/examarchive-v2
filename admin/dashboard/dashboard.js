@@ -942,6 +942,21 @@ function setupUsersTable() {
   searchInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') loadUsersTable(1, searchInput?.value.trim());
   });
+
+  // Sort handlers
+  document.querySelectorAll('.users-table th[data-sort]').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+      const field = th.dataset.sort;
+      if (usersSortBy === field) {
+        usersSortDir = usersSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        usersSortBy = field;
+        usersSortDir = 'desc';
+      }
+      loadUsersTable(1, document.getElementById('usersSearchInput')?.value.trim());
+    });
+  });
 }
 
 let usersCurrentPage = 1;
@@ -973,7 +988,7 @@ async function loadUsersTable(page, searchQuery) {
 
     if (error) throw error;
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
       if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
@@ -986,18 +1001,27 @@ async function loadUsersTable(page, searchQuery) {
       const tr = document.createElement('tr');
 
       const cells = [
-        u.username || '—',
-        u.email || '—',
-        String(u.xp ?? 0),
-        String(u.level ?? 0),
-        u.primary_role || '—',
-        u.secondary_role || '—',
-        u.tertiary_role || '—'
+        { text: (u.user_id || '—').substring(0, 8) + '…', title: u.user_id || '', style: 'font-size:0.7rem;font-family:monospace;' },
+        { text: u.username || '—' },
+        { text: u.email || '—' },
+        { text: String(u.xp ?? 0) },
+        { text: String(u.level ?? 0) },
+        { text: u.primary_role || '—' },
+        { text: u.secondary_role || '—' },
+        { text: u.tertiary_role || '—' },
+        { text: String(u.streak_count ?? 0) },
+        { text: u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—', style: 'font-size:0.75rem;' }
       ];
 
-      cells.forEach(text => {
+      cells.forEach(cell => {
         const td = document.createElement('td');
-        td.textContent = text;
+        if (typeof cell === 'string') {
+          td.textContent = cell;
+        } else {
+          td.textContent = cell.text;
+          if (cell.title) td.title = cell.title;
+          if (cell.style) td.style.cssText = cell.style;
+        }
         tr.appendChild(td);
       });
 
@@ -1028,7 +1052,7 @@ async function loadUsersTable(page, searchQuery) {
     }
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
   }
 }
 

@@ -136,18 +136,21 @@
           <table class="users-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
             <thead>
               <tr style="border-bottom:2px solid var(--border);text-align:left;">
+                <th style="padding:0.5rem;font-size:0.75rem;">UUID</th>
                 <th style="padding:0.5rem;">Username</th>
                 <th style="padding:0.5rem;">Email</th>
-                <th style="padding:0.5rem;">XP</th>
+                <th style="padding:0.5rem;cursor:pointer;" data-sort="xp">XP ↕</th>
                 <th style="padding:0.5rem;">Level</th>
-                <th style="padding:0.5rem;">Primary Role</th>
+                <th style="padding:0.5rem;cursor:pointer;" data-sort="primary_role">Primary Role ↕</th>
                 <th style="padding:0.5rem;">Secondary</th>
                 <th style="padding:0.5rem;">Tertiary</th>
+                <th style="padding:0.5rem;">Streak</th>
+                <th style="padding:0.5rem;font-size:0.75rem;cursor:pointer;" data-sort="created_at">Created ↕</th>
                 <th style="padding:0.5rem;">Actions</th>
               </tr>
             </thead>
             <tbody id="usersTableBody">
-              <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
+              <tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
