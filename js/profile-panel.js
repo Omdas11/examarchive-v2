@@ -14,104 +14,110 @@ function debug() {
    =============================== */
 
 /**
- * Compute badges for a user using backend-verified roles
- * Badge Slot 1: Primary role badge
- * Badge Slot 2: Founder badge (auto if level=100) OR Contributor (auto if ≥1 upload)
- * Badge Slot 3: Custom badge from roles table
+ * Map role level to display badge label
+ * @param {number} level
+ * @returns {string|null}
+ */
+function mapLevelToRole(level) {
+  if (!Number.isFinite(level)) return null;
+  const roleInfo = window.RoleUtils?.mapRole?.(level) || null;
+  if (!roleInfo?.displayName) return null;
+  return roleInfo.displayName.replace(/^[^\s]+ /, '');
+}
+
+/**
+ * Get deduplicated badge labels for user role data
+ * @param {Object} role
+ * @returns {string[]}
+ */
+function getUserBadges(role) {
+  const badges = new Set();
+
+  if (role?.primary_role) badges.add(role.primary_role);
+  if (role?.secondary_role) badges.add(role.secondary_role);
+  if (role?.tertiary_role) badges.add(role.tertiary_role);
+
+  if (role?.level === 100) badges.add('Founder');
+
+  if (!role?.primary_role) {
+    const levelRole = mapLevelToRole(role?.level);
+    if (levelRole) badges.add(levelRole);
+  }
+
+  return Array.from(badges);
+}
+
+/**
+ * Compute badges for a user using backend-verified roles table data
  * 
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects (max 3)
  */
 async function computeBadges(user) {
   const getUserBadge = window.Roles.getUserBadge;
-  const badges = [];
+  const getBadgeColor = window.Roles.getBadgeColor;
   
-  // Get badge from backend (SINGLE SOURCE OF TRUTH)
+  // Get fallback badge data from backend
   const badgeInfo = await getUserBadge();
-  
-  // Slot 1: Primary role badge
-  badges.push({
-    type: badgeInfo.role,
-    label: badgeInfo.badge,
-    icon: badgeInfo.icon,
-    color: badgeInfo.color
-  });
-  
-  // Slot 2: Founder badge (auto if level=100) or Contributor badge (if has uploads)
+
+  if (!user || !user.id) {
+    return [{
+      type: badgeInfo.role,
+      label: badgeInfo.badge,
+      icon: badgeInfo.icon,
+      color: badgeInfo.color
+    }];
+  }
+
+  let roleData = {
+    level: badgeInfo.level,
+    primary_role: null,
+    secondary_role: null,
+    tertiary_role: null
+  };
+
   if (user && user.id) {
     try {
       const supabase = await window.waitForSupabase();
       if (supabase) {
-        if (badgeInfo.level >= 100) {
-          // Auto Founder badge
-          badges.push({
-            type: 'founder',
-            label: 'Founder',
-            icon: '⭐',
-            color: 'var(--color-warning)'
-          });
-        } else {
-          // Check if user has uploads → Contributor badge
-          const hasContributions = await checkUserContributions(user.id);
-          if (hasContributions) {
-            badges.push({
-              type: 'contributor',
-              label: 'Contributor',
-              icon: '✍️',
-              color: 'var(--color-success)'
-            });
-          }
-        }
-
-        // Slot 3: Custom badge from roles table custom_badges
-        const { data: roleData } = await supabase
+        const { data } = await supabase
           .from('roles')
-          .select('custom_badges, primary_role, secondary_role, tertiary_role')
+          .select('level, primary_role, secondary_role, tertiary_role')
           .eq('user_id', user.id)
           .single();
-
-        if (roleData) {
-          // Use custom_badges array if available
-          const customBadges = roleData.custom_badges || [];
-          if (Array.isArray(customBadges) && customBadges.length > 0 && badges.length < 3) {
-            badges.push({
-              type: 'custom',
-              label: customBadges[0],
-              icon: '🏅',
-              color: 'var(--color-purple, #9c27b0)'
-            });
-          }
+        if (data) {
+          roleData = {
+            level: data.level ?? badgeInfo.level,
+            primary_role: data.primary_role,
+            secondary_role: data.secondary_role,
+            tertiary_role: data.tertiary_role
+          };
         }
       }
     } catch (err) {
       // Silently handle badge fetch errors
     }
   }
-  
-  // Limit to 3 badges
-  return badges.slice(0, 3);
-}
 
-/**
- * Check if user has contributed papers (any upload)
- * @param {string} userId - User ID
- * @returns {boolean} True if user has uploaded papers
- */
-async function checkUserContributions(userId) {
-  try {
-    const supabase = await window.waitForSupabase();
-    if (!supabase) return false;
-    
-    const { count, error } = await supabase
-      .from('submissions')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId);
-    
-    if (error) return false;
-    return (count || 0) > 0;
-  } catch (err) {
-    return false;
-  }
+  const labels = getUserBadges(roleData).slice(0, 3);
+  return labels.map((label) => {
+    if (label === 'Founder') {
+      return {
+        type: 'founder',
+        label,
+        icon: '⭐',
+        color: 'var(--color-warning)'
+      };
+    }
+
+    const badgeType = label.toLowerCase().replace(/\s+/g, '_');
+    return {
+      type: badgeType,
+      label,
+      icon: '🏷️',
+      color: getBadgeColor?.(badgeType) || 'var(--color-muted)'
+    };
+  });
 }
 
 /**
