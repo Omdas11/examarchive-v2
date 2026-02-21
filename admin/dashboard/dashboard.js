@@ -8,6 +8,7 @@ let currentTab = 'pending';
 let currentSubmission = null;
 let allSubmissions = [];
 let userRoleLevel = 0;
+let userPrimaryRoleGlobal = null;
 
 // Check admin access when page loads
 document.addEventListener("DOMContentLoaded", async () => {
@@ -51,6 +52,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     dashboardContent.style.display = 'block';
+
+    // Store primary role globally for UI checks
+    userPrimaryRoleGlobal = userPrimaryRole;
 
     // Initialize dashboard
     initializeDashboard(userPrimaryRole);
@@ -281,16 +285,20 @@ function renderSubmissionCard(submission) {
           <button class="btn btn-outline" data-action="view" data-id="${submission?.id || ''}">
             View Details
           </button>
+          ${['Founder', 'Admin', 'Senior Moderator', 'Reviewer'].includes(userPrimaryRoleGlobal) ? `
           <button class="btn btn-danger" data-action="reject" data-id="${submission?.id || ''}">
             Reject
           </button>
           <button class="btn btn-success" data-action="approve" data-id="${submission?.id || ''}">
             Approve
           </button>
+          ` : ''}
         ` : safeStatus === 'approved' ? `
+          ${['Founder', 'Admin', 'Senior Moderator'].includes(userPrimaryRoleGlobal) ? `
           <button class="btn btn-view" data-action="publish" data-id="${submission?.id || ''}">
             Publish Now
           </button>
+          ` : ''}
         ` : ''}
         ${submission?.storage_path || submission?.approved_path ? `
           <button class="btn btn-outline" data-action="preview" data-id="${submission?.id || ''}">

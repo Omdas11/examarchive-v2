@@ -389,7 +389,7 @@ function renderStreak(streakCount) {
   const activeDays = Math.min(streakCount, days);
   const circles = Array.from({ length: days }, (_, i) => {
     const isActive = i < activeDays;
-    return `<span class="streak-dot${isActive ? ' active' : ''}" aria-label="Day ${i + 1}${isActive ? ' (active)' : ''}"></span>`;
+    return `<span class="streak-dot${isActive ? ' active' : ''}" role="img" aria-label="Day ${i + 1}${isActive ? ' (active)' : ''}"></span>`;
   }).join('');
 
   const fireIcon = streakCount >= 7 ? '<span class="streak-fire" aria-label="Streak on fire!">🔥</span>' : '';

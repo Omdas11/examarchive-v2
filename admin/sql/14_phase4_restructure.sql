@@ -92,7 +92,9 @@ $$;
 -- ============================================
 -- 3. XP BACKFILL FROM PREVIOUS LEVELS
 -- Safely backfill XP for users with 0 XP
--- based on their existing level values
+-- based on their existing level values.
+-- Values correspond to thresholds in calculate_level_from_xp():
+--   level 90 → xp 3000, level 50 → xp 1500, etc.
 -- ============================================
 
 UPDATE roles SET xp = 3000 WHERE xp = 0 AND level = 90;
@@ -252,7 +254,8 @@ BEGIN
     RAISE EXCEPTION 'Insufficient permissions: Founder or Admin role required';
   END IF;
 
-  -- Prevent assigning Founder if one already exists (and it's not the same user)
+  -- Pre-check: prevent assigning Founder if one already exists (and it's not the same user)
+  -- This provides a clear error message before the unique partial index constraint would fail
   IF new_primary_role = 'Founder' THEN
     IF EXISTS (
       SELECT 1 FROM roles

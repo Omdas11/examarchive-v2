@@ -133,7 +133,18 @@
   font-size: 0.9rem;
 }
 
-.field input:focus {
+.field select {
+  padding: 0.6rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  appearance: auto;
+}
+
+.field input:focus,
+.field select:focus {
   outline: none;
   border-color: var(--red);
 }
