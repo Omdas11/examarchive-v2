@@ -393,6 +393,11 @@ body.drawer-open .drawer {
   .menu-btn {
     display: none;
   }
+
+  .drawer,
+  .drawer-overlay {
+    display: none;
+  }
 }
 
 /* ---------- Dark / AMOLED ---------- */

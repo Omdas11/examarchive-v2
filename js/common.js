@@ -254,12 +254,16 @@ document.addEventListener("keydown", (e) => {
 
 // Highlight active drawer link
 function highlightActiveDrawerLink() {
-  const current = window.location.pathname.split("/").pop() || "index.html";
+  const pathname = window.location.pathname;
   document.querySelectorAll(".drawer-link").forEach(link => {
     const href = link.getAttribute("href");
-    if (href && href.endsWith(current)) {
-      link.classList.add("active");
-    }
+    if (!href || href === "#") return;
+    // For directory links (e.g. /admin/dashboard/), check if pathname starts with href
+    // For file links, check exact match or filename match
+    const isActive = href.endsWith("/")
+      ? pathname.startsWith(href)
+      : pathname === href || pathname.endsWith(href.split("/").pop());
+    if (isActive) link.classList.add("active");
   });
 }
 

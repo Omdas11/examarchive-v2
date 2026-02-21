@@ -157,22 +157,24 @@ function initializeUploadForm() {
     return;
   }
 
+  // --- Year Validation Helper ---
+  function isYearValid(val) {
+    if (!val || val.length === 0) return null; // empty = neutral
+    const year = parseInt(val, 10);
+    return val.length === 4 && year >= 1990 && year <= 2099;
+  }
+
   // --- Year Validation ---
   function validateYear() {
     const val = examYearInput.value.trim();
-    if (!val) {
+    const valid = isYearValid(val);
+    
+    if (valid === null) {
       yearValidationIcon.textContent = '';
       yearHint.textContent = '';
       yearHint.className = 'field-hint year-hint';
       examYearInput.classList.remove('input-valid', 'input-invalid');
-      updateUploadButtonState();
-      updateFilenamePreview();
-      return;
-    }
-    const year = parseInt(val, 10);
-    const isValid = val.length === 4 && year >= 1990 && year <= 2099;
-    
-    if (isValid) {
+    } else if (valid) {
       yearValidationIcon.textContent = '✓';
       yearValidationIcon.style.color = 'var(--color-success)';
       yearHint.textContent = '';
@@ -211,11 +213,9 @@ function initializeUploadForm() {
 
   // --- Upload button state ---
   function updateUploadButtonState() {
-    const yearVal = examYearInput.value.trim();
-    const year = parseInt(yearVal, 10);
-    const yearInvalid = yearVal.length > 0 && (yearVal.length !== 4 || year < 1990 || year > 2099);
-    
-    uploadButton.disabled = yearInvalid;
+    const val = examYearInput.value.trim();
+    const valid = isYearValid(val);
+    uploadButton.disabled = valid === false;
   }
 
   // Handle file selection
@@ -229,17 +229,29 @@ function initializeUploadForm() {
   });
 
   // Handle drag and drop
+  let dragCounter = 0;
+
   fileLabel.addEventListener('dragover', (e) => {
     e.preventDefault();
+  });
+
+  fileLabel.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragCounter++;
     fileLabel.classList.add('drag-over');
   });
 
   fileLabel.addEventListener('dragleave', () => {
-    fileLabel.classList.remove('drag-over');
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      fileLabel.classList.remove('drag-over');
+    }
   });
 
   fileLabel.addEventListener('drop', (e) => {
     e.preventDefault();
+    dragCounter = 0;
     fileLabel.classList.remove('drag-over');
     
     const file = e.dataTransfer.files[0];

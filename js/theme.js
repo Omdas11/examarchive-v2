@@ -26,6 +26,7 @@ document.addEventListener("click", (e) => {
   const toggleBtn = e.target.closest("#themeToggleBtn");
   if (toggleBtn) {
     const current = document.body.getAttribute("data-theme") || "light";
+    // Treat amoled as a dark variant — toggle to light; otherwise toggle to dark
     const next = (current === "light") ? "dark" : "light";
     
     document.body.setAttribute("data-theme", next);
