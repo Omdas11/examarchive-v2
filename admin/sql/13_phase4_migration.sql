@@ -186,7 +186,7 @@ $$;
 -- Add RLS policy for vote deletion
 CREATE POLICY "Users can delete own votes"
   ON paper_request_votes FOR DELETE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() IS NOT NULL AND auth.uid() = user_id);
 
 -- ============================================
 -- 9. RPC: Get user upload stats

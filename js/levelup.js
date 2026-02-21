@@ -5,6 +5,10 @@
 // ============================================
 
 (function () {
+  const AUTO_CLOSE_MS = 5000;
+  const FADE_DURATION_MS = 300;
+  const CONFETTI_COUNT = 40;
+
   /**
    * Show level up animation
    * @param {number} newLevel - The new level achieved
@@ -36,16 +40,16 @@
     const closeBtn = modal.querySelector('.levelup-close');
     closeBtn.addEventListener('click', () => {
       modal.classList.remove('show');
-      setTimeout(() => modal.remove(), 300);
+      setTimeout(() => modal.remove(), FADE_DURATION_MS);
     });
 
-    // Auto-close after 5 seconds
+    // Auto-close
     setTimeout(() => {
       if (modal.parentNode) {
         modal.classList.remove('show');
-        setTimeout(() => modal.remove(), 300);
+        setTimeout(() => modal.remove(), FADE_DURATION_MS);
       }
-    }, 5000);
+    }, AUTO_CLOSE_MS);
   }
 
   /**
@@ -53,9 +57,8 @@
    */
   function spawnConfetti() {
     const colors = ['#FFD700', '#FF6F00', '#E040FB', '#00E676', '#2196F3', '#FF1744'];
-    const count = 40;
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < CONFETTI_COUNT; i++) {
       const particle = document.createElement('div');
       particle.className = 'confetti-particle';
       particle.style.background = colors[Math.floor(Math.random() * colors.length)];

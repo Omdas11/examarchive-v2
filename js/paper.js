@@ -71,7 +71,9 @@ async function loadPaper() {
     }
 
     const selected = submissions[0];
-    const subjectCode = selected.paper_code || CODE;
+    // Sanitize subject code to prevent path traversal
+    const rawCode = selected.paper_code || CODE;
+    const subjectCode = rawCode.replace(/[^a-zA-Z0-9_\-]/g, '');
 
     /* ---------- Header ---------- */
     document.getElementById("paperTitle").textContent =

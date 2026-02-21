@@ -174,7 +174,8 @@
     }
 
     // Find the vote button and disable during processing
-    const btn = document.querySelector(`[data-vote-id="${requestId}"]`);
+    const safeId = CSS.escape(requestId);
+    const btn = document.querySelector(`[data-vote-id="${safeId}"]`);
     if (!btn || btn.disabled) return;
     btn.disabled = true;
 
