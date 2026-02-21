@@ -7,12 +7,8 @@
 import { initAuth } from './modules/auth.module.js';
 import { initDebug } from './modules/debug.module.js';
 
-console.log('[APP] Module entry loaded');
-
 // Initialize auth FIRST (this is critical for session restoration)
 await initAuth();
 
 // Initialize debug system
 initDebug();
-
-console.log('[APP] All modules initialized');

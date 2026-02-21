@@ -5,8 +5,8 @@
 // Phase 9.2.8: Fixed Supabase initialization timing
 // ===============================
 
-function debug(msg) {
-  console.log("[profile-panel]", msg);
+function debug() {
+  // Debug logging disabled in production
 }
 
 /* ===============================

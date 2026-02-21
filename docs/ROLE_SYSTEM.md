@@ -1,94 +1,94 @@
 # Role System
 
-## Role Levels
+## Role Levels (Phase 3)
 
 | Level | Role | Access |
 |---|---|---|
-| 0 | Visitor | Browse approved papers only |
-| 10 | Contributor | Upload papers, view own submissions |
-| 80 | Reviewer | Approve/reject submissions, view all submissions |
-| 100 | Admin | Full access, manage users and roles |
+| 0 | Visitor | Browse published papers only |
+| 10 | User | Basic authenticated access |
+| 20 | Contributor | Auto-assigned after first upload |
+| 50 | Reviewer | Can review submissions |
+| 75 | Moderator | Approve or reject pending submissions |
+| 90 | Senior Moderator | Publish approved papers, debug panel |
+| 100 | Founder/Admin | Full access, manage roles, reset counters |
 
 ## How Roles Work
 
 ### Assignment
 
-- New users are **automatically assigned level 10** (Contributor) on signup via a database trigger
+- New users are **automatically assigned level 10** (User) on signup via a database trigger
+- After first upload, users are **auto-promoted to level 20** (Contributor) via `auto_promote_contributor()` trigger
 - Users without a role record default to level **0** (Visitor)
 - Unauthenticated visitors are treated as level **0**
 
+### Extended Role Columns (Phase 3)
+
+The `roles` table now includes:
+- `primary_role` (text) — Primary display role/badge
+- `secondary_role` (text) — Secondary display role/badge
+- `tertiary_role` (text) — Tertiary display role/badge
+- `custom_badges` (jsonb) — Array of custom badge names
+- `updated_at` (timestamptz) — Last role update timestamp
+
 ### Resolution Logic
 
-1. Frontend calls `get_user_role_name(user_id)` RPC function
-2. If no role record exists:
-   - Logged in → defaults to level 10 (Contributor) via auto-assignment trigger
-   - Not logged in → level 0 (Visitor)
-3. Role name is mapped to a display badge in `js/roles.js`
+1. Frontend calls `get_user_role_level(user_id)` RPC function
+2. Level is mapped client-side via `mapRole(level)` in `js/utils/role-utils.js`
+3. Badge display uses the role level as primary badge, plus optional contributor/founder/custom badges
 
 ### Frontend Display
 
-The `mapRole(level)` function in `js/utils/role-utils.js` is the **single source of truth** for role mapping. It evaluates in descending order:
+The `mapRole(level)` function evaluates in descending order:
 
 ```javascript
-if (level >= 100) → Admin
-else if (level >= 80) → Reviewer
-else if (level >= 10) → Contributor
-else → Visitor
+if (level >= 100) → Founder (👑)
+if (level >= 90)  → Senior Moderator (🔰)
+if (level >= 75)  → Moderator (🛡️)
+if (level >= 50)  → Reviewer (📋)
+if (level >= 20)  → Contributor (✍️)
+if (level >= 10)  → User (👤)
+else              → Visitor (👁️)
 ```
 
-| Role | Badge | Icon | Color |
-|---|---|---|---|
-| Admin | Admin | 👑 | var(--color-error) |
-| Reviewer | Reviewer | 🛡️ | var(--color-info) |
-| Contributor | Contributor | ✍️ | var(--color-success) |
-| Visitor | Visitor | 👤 | var(--color-muted) |
+## Badge Display (3 Slots)
 
-## Promoting a User
+| Slot | Badge | Source |
+|---|---|---|
+| 1 | Primary Role | From `mapRole(level)` |
+| 2 | Founder / Contributor | Auto: Founder if level=100, Contributor if ≥1 upload |
+| 3 | Custom Badge | From `custom_badges` column |
 
-To promote a user to Reviewer or Admin, run SQL in the Supabase SQL Editor:
+## Admin Role Management
 
-### Promote to Reviewer (level 80)
+Admins (level ≥ 100) can manage roles from the Admin Dashboard:
 
-```sql
-update roles
-set level = 80
-where user_id = 'USER_UUID_HERE';
-```
+1. Search users by email or UUID
+2. View current level, roles, and badges
+3. Edit level, primary/secondary/tertiary roles, custom badges
+4. Save via `update_user_role()` RPC (level ≥ 100 required)
 
-### Promote to Admin (level 100)
+### RPC Functions
 
 ```sql
-update roles
-set level = 100
-where user_id = 'USER_UUID_HERE';
-```
+-- Update user role (admin only)
+update_user_role(target_user_id, new_level, new_primary_role, new_secondary_role, new_tertiary_role, new_custom_badges)
 
-### Find a User's ID
+-- Search users by email
+search_users_by_email(search_email) → TABLE(user_id, email, display_name, level, ...)
 
-```sql
-select id, email
-from auth.users
-where email = 'user@example.com';
-```
-
-### View All Roles
-
-```sql
-select r.user_id, r.level, u.email
-from roles r
-join auth.users u on r.user_id = u.id
-order by r.level desc;
+-- Get user by UUID
+get_user_role_by_id(target_user_id) → TABLE(user_id, email, display_name, level, ...)
 ```
 
 ## Access Control Summary
 
-| Action | Visitor (0) | Contributor (10) | Reviewer (80) | Admin (100) |
-|---|---|---|---|---|
-| Browse papers | ✅ | ✅ | ✅ | ✅ |
-| Upload papers | ❌ | ✅ | ✅ | ✅ |
-| View own submissions | ❌ | ✅ | ✅ | ✅ |
-| View all submissions | ❌ | ❌ | ✅ | ✅ |
-| Approve/reject | ❌ | ❌ | ✅ | ✅ |
-| Debug panel | ❌ | ❌ | ✅ | ✅ |
-| Manage roles | ❌ | ❌ | ❌ | ✅ |
-| Admin dashboard | ❌ | ❌ | ❌ | ✅ |
+| Action | Visitor (0) | User (10) | Contributor (20) | Reviewer (50) | Moderator (75) | Sr. Mod (90) | Admin (100) |
+|---|---|---|---|---|---|---|---|
+| Browse papers | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Upload papers | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Review submissions | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Approve/reject | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Publish papers | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Debug panel | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Manage roles | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Admin dashboard | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |

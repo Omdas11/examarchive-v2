@@ -33,7 +33,7 @@ User clicks "Sign in with Google"
   → auth:ready event emitted → UI features enabled
 ```
 
-On signup, a database trigger auto-assigns role level 10 (Contributor). If no role row exists, the frontend defaults to level 10.
+On signup, a database trigger auto-assigns role level 10 (User). After first upload, auto-promoted to level 20 (Contributor).
 
 ## Upload Flow
 
@@ -42,14 +42,22 @@ Authenticated user selects PDF
   → getUser() called (fresh, never cached)
   → File uploaded to uploads-temp bucket (private)
   → Submission row inserted: status = "pending"
-  → Reviewer (≥75) approves → status = "approved"
-  → Publisher (≥90) publishes → file copied to uploads-approved → status = "published"
+  → Auto-promotion trigger: level < 20 → level 20 + first_upload achievement
+  → Moderator (≥75) approves → status = "approved"
+  → Senior Moderator (≥90) publishes → status = "published"
   → Paper visible on Browse page
 ```
 
+## Approval Workflow
+
+Approve and Publish are **separate actions** at different role levels:
+- **Approve** (level ≥ 75): Moves file from temp to approved bucket, sets status to "approved"
+- **Publish** (level ≥ 90): Requires approved status, sets status to "published"
+- **Reject** (level ≥ 75): Deletes file, sets status to "rejected"
+
 ## Browse Flow
 
-The Browse page is fully backend-driven. No static `papers.json` is used.
+The Browse page is fully backend-driven. No static JSON is used.
 
 ```
 Page loads
@@ -58,7 +66,12 @@ Page loads
   → Render paper cards with metadata + download link
 ```
 
-Signed URLs are time-limited and generated on the client via the Supabase Storage API.
+## Paper Page
+
+Papers load from the `submissions` table by paper code or ID:
+- Shows title, year, file size, published date
+- Generates signed URLs for PDF access
+- Syllabus, repeated questions, and notes sections are placeholders for future backend data
 
 ## Storage Architecture
 
@@ -67,81 +80,84 @@ Signed URLs are time-limited and generated on the client via the Supabase Storag
 | `uploads-temp` | Private | Holds files during pending/review stage |
 | `uploads-approved` | Public | Holds published papers served to users |
 
-**Storage RLS** and **Database RLS** are separate security layers:
-- Storage RLS controls who can read/write files in each bucket
-- Database RLS controls who can read/write rows in each table
-- Both must pass for any operation to succeed
-
 ## Role System
 
-Roles are numeric levels stored in the `roles` table. The frontend maps levels to display names via `mapRole()` in `js/utils/role-utils.js`.
+7-tier numeric role levels in the `roles` table:
 
-| Level | Role | Access |
+| Level | Role | Key Permissions |
 |---|---|---|
-| 0 | Visitor | Browse approved papers |
-| 10 | Contributor | Upload papers |
-| 75 | Reviewer | Approve/reject submissions |
-| 90 | Publisher | Publish approved papers; debug panel visible |
-| 100 | Admin | Full access; reset counters; full debug logging |
+| 0 | Visitor | Browse only |
+| 10 | User | Basic authenticated access |
+| 20 | Contributor | Auto after first upload |
+| 50 | Reviewer | Review submissions |
+| 75 | Moderator | Approve/reject submissions |
+| 90 | Senior Moderator | Publish papers, debug panel |
+| 100 | Founder/Admin | Full access, manage roles |
 
-The backend never returns role names — only numeric levels. All name mapping happens client-side.
+### Badge System (3 slots)
+1. **Primary Role** — From `mapRole(level)`
+2. **Founder/Contributor** — Auto: Founder if level=100, Contributor if ≥1 upload
+3. **Custom Badge** — From `custom_badges` column
 
-## Visitor Counter
+### Admin Role Management
+Admins (≥100) can search users and edit roles via the Admin Dashboard panel using `update_user_role()` RPC.
 
-1. On page load, check `sessionStorage` for `visited` flag
-2. If not set, call `increment_visit_counter()` RPC
-3. Set `sessionStorage.visited = true` to prevent duplicate counts
-4. Read count from `site_stats` table → display in footer
+## Achievement System
 
-Admins (level 100) can reset the counter.
+Auto-awarded achievements stored in `achievements` table:
+- `first_upload`, `10_uploads`, `first_review`, `first_publish`, `early_user`
+- Triggered by database triggers and RPC functions
+- Displayed as pills in the profile panel
 
-## Debug Panel
+## Paper Bounty Board
 
-The debug panel is an ES module (`js/modules/debug.module.js`), role-gated:
+Users can request papers at `/requests.html`:
+- Create requests (authenticated)
+- Upvote (one per user via `upvote_paper_request()` RPC)
+- Admin mark fulfilled (level ≥ 75)
+- Tables: `paper_requests`, `paper_request_votes`
 
-- **Level < 90:** Panel hidden
-- **Level ≥ 90:** Panel visible, view classified logs
-- **Level ≥ 100:** Full access — export, copy, and clear log buffer
+## Active Users Counter
 
-Errors are auto-classified with tags: `[AUTH]`, `[RLS]`, `[STORAGE]`, `[CLIENT]`.
-
-## Theme System
-
-Themes use CSS custom properties defined in `css/brand.css` and applied via the `data-theme` attribute on `<body>`:
-
-- **Modes:** Light, Dark, AMOLED
-- **Night mode:** Automatic theme switching support
-- **Tokens:** `--bg`, `--text`, `--accent`, `--border`, `--surface`, status colors, avatar colors
-- **Presets:** Named presets (e.g., `red-classic`, `blue-slate`) with variants for each mode
+Footer shows visitors and active users:
+- Visitors: `increment_visit_counter()` RPC, cached in sessionStorage
+- Active: `get_active_user_count()` RPC (last 10 min sign-in)
 
 ## Backend Components
 
 ### Tables
 
-- `roles` — User role levels (keyed by `user_id`)
+- `roles` — User role levels with primary/secondary/tertiary roles and custom badges
 - `submissions` — Uploaded papers with status lifecycle
-- `site_stats` — Visitor counter and site-wide statistics
+- `achievements` — User achievements (auto-awarded)
+- `paper_requests` — Paper bounty board requests
+- `paper_request_votes` — One vote per user per request
+- `site_stats` — Visitor counter
+- `admin_requests` — Admin application requests
 
-### RPC Functions
+### Key RPC Functions
 
-- `get_current_user_role_level()` — Returns the calling user's role level
-- `increment_visit_counter()` — Atomically increments the visit count
-- `is_admin()` — Boolean check for admin access
-
-### Storage Buckets
-
-- `uploads-temp` — Private; authenticated users can upload, read own files
-- `uploads-approved` — Public read; privileged roles can write
+- `get_current_user_role_level()` — Calling user's role level
+- `get_user_role_level(user_id)` — Any user's role level
+- `update_user_role(...)` — Admin-only role update
+- `search_users_by_email(email)` — User search
+- `award_achievement(user_id, type)` — Idempotent achievement award
+- `get_user_achievements(user_id)` — User's achievements
+- `upvote_paper_request(request_id)` — One vote per user
+- `get_active_user_count()` — Active users in last 10 min
+- `increment_visit_counter()` — Atomic visit count
 
 ## Key Design Decisions
 
 1. **No build step** — Deploy by pushing to GitHub Pages
 2. **Backend is source of truth** — Frontend never infers roles; always queries backend
-3. **Singleton pattern** — Single Supabase client via `getSupabase()` from `js/supabase-client.js`
-4. **Fresh auth checks** — `getUser()` called before every database insert, never cached
+3. **Singleton pattern** — Single Supabase client via `getSupabase()`
+4. **Fresh auth checks** — `getUser()` called before every database insert
 5. **RLS enforcement** — All table access controlled by Supabase RLS policies
 6. **Signed URLs** — Time-limited download links for published papers
 7. **Approve ≠ Publish** — Separate actions at different role levels (75 vs 90)
+8. **Auto-promotion** — Database triggers handle role upgrades on user actions
+9. **Idempotent achievements** — `award_achievement()` is safe to call multiple times
 
 ## Folder Structure
 
@@ -150,29 +166,31 @@ Themes use CSS custom properties defined in `css/brand.css` and applied via the 
 ├── index.html              # Home page
 ├── upload.html             # Upload page
 ├── browse.html             # Browse papers (backend-driven)
-├── about.html              # About page (live database stats)
+├── paper.html              # Paper details (backend-driven)
+├── requests.html           # Paper bounty board
+├── about.html              # About page
 ├── settings.html           # User settings
-├── support.html            # Admin application / support
-├── paper.html              # Individual paper view
+├── support.html            # Help & support
 ├── js/
 │   ├── supabase-client.js  # Singleton client factory
 │   ├── auth-controller.js  # Central auth state manager
 │   ├── upload-handler.js   # Storage + submission insert
 │   ├── browse.js           # Browse queries + signed URLs
+│   ├── paper.js            # Paper page (backend-driven)
+│   ├── requests.js         # Paper bounty board
 │   ├── roles.js            # Role → badge display mapping
-│   ├── profile-panel.js    # Profile dropdown UI
+│   ├── profile-panel.js    # Profile panel + badges + achievements
+│   ├── visitor-counter.js  # Visitor + active user counts
 │   ├── modules/
 │   │   └── debug.module.js # Debug panel (ES module, role-gated)
 │   └── utils/
 │       ├── role-utils.js   # mapRole() and role verification
 │       └── supabase-wait.js# Client readiness helper
-├── css/
-│   ├── common.css          # Shared styles
-│   └── brand.css           # Theme tokens and CSS variables
+├── css/                    # Stylesheets
 ├── admin/
-│   ├── sql/                # Database setup scripts (run in order)
-│   └── dashboard/          # Admin dashboard
+│   ├── sql/                # Database migration scripts (01-12)
+│   └── dashboard/          # Admin dashboard + role management
 ├── docs/                   # Documentation
-├── partials/               # Reusable HTML components
-└── assets/                 # Static assets (images, icons)
+├── partials/               # Reusable HTML components (header, footer, profile)
+└── assets/                 # Static assets (images, icons, logos)
 ```
