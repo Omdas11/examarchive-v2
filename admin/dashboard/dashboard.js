@@ -707,7 +707,7 @@ function setupDemoReset() {
     if (!confirmed) return;
 
     const doubleConfirm = confirm(
-      'FINAL CONFIRMATION: This will permanently delete demo submissions. Type OK to proceed.'
+      'FINAL CONFIRMATION: This will permanently delete demo submissions. Click OK to proceed.'
     );
     if (!doubleConfirm) return;
 
