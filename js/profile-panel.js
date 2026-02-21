@@ -570,6 +570,82 @@ function initializeProfilePanel() {
 
     // Sign in button (guest mode)
     if (e.target.id === "profileSignInBtn") {
+      const emailInput = document.getElementById("profileAuthEmail");
+      const passInput = document.getElementById("profileAuthPassword");
+      const errorDiv = document.getElementById("profileAuthError");
+      const signUpBtn = document.getElementById("profileSignUpBtn");
+      const resetBtn = document.getElementById("profileResetBtn");
+
+      if (passInput && passInput.style.display === "none") {
+        const email = emailInput ? emailInput.value.trim() : "";
+        if (!email) {
+          if (errorDiv) { errorDiv.textContent = "Please enter your email."; errorDiv.style.display = "block"; }
+          return;
+        }
+        passInput.style.display = "";
+        if (signUpBtn) signUpBtn.style.display = "";
+        if (resetBtn) resetBtn.style.display = "";
+        e.target.textContent = "Sign In";
+        if (errorDiv) errorDiv.style.display = "none";
+        return;
+      }
+
+      const email = emailInput ? emailInput.value.trim() : "";
+      const password = passInput ? passInput.value : "";
+      if (!email || !password) {
+        if (errorDiv) { errorDiv.textContent = "Please enter email and password."; errorDiv.style.display = "block"; }
+        return;
+      }
+
+      const { error } = await window.AuthController.signInWithPassword(email, password);
+      if (error) {
+        if (errorDiv) { errorDiv.textContent = error.message || "Sign in failed."; errorDiv.style.display = "block"; }
+      } else {
+        closePanel();
+      }
+      return;
+    }
+
+    // Sign up button
+    if (e.target.id === "profileSignUpBtn") {
+      const emailInput = document.getElementById("profileAuthEmail");
+      const passInput = document.getElementById("profileAuthPassword");
+      const errorDiv = document.getElementById("profileAuthError");
+      const email = emailInput ? emailInput.value.trim() : "";
+      const password = passInput ? passInput.value : "";
+      if (!email || !password) {
+        if (errorDiv) { errorDiv.textContent = "Please enter email and password."; errorDiv.style.display = "block"; }
+        return;
+      }
+      const { data, error } = await window.AuthController.signUp(email, password);
+      if (error) {
+        if (errorDiv) { errorDiv.textContent = error.message || "Sign up failed."; errorDiv.style.display = "block"; }
+      } else {
+        if (errorDiv) { errorDiv.textContent = "Check your email to confirm your account."; errorDiv.style.display = "block"; errorDiv.classList.add("auth-success"); }
+      }
+      return;
+    }
+
+    // Reset password button
+    if (e.target.id === "profileResetBtn") {
+      const emailInput = document.getElementById("profileAuthEmail");
+      const errorDiv = document.getElementById("profileAuthError");
+      const email = emailInput ? emailInput.value.trim() : "";
+      if (!email) {
+        if (errorDiv) { errorDiv.textContent = "Please enter your email first."; errorDiv.style.display = "block"; }
+        return;
+      }
+      const { error } = await window.AuthController.resetPassword(email);
+      if (error) {
+        if (errorDiv) { errorDiv.textContent = error.message || "Reset failed."; errorDiv.style.display = "block"; }
+      } else {
+        if (errorDiv) { errorDiv.textContent = "Password reset email sent."; errorDiv.style.display = "block"; errorDiv.classList.add("auth-success"); }
+      }
+      return;
+    }
+
+    // Google sign in button
+    if (e.target.id === "profileGoogleSignInBtn" || e.target.closest("#profileGoogleSignInBtn")) {
       closePanel();
       if (handleSignIn) await handleSignIn();
       return;
@@ -707,10 +783,24 @@ async function renderProfilePanel() {
       <p class="muted">
         Sign in to upload papers and track your progress.
       </p>
-
-      <button id="profileSignInBtn" class="btn btn-primary">
-        Sign in with Google
-      </button>
+      <div class="auth-form" id="profileAuthForm">
+        <input type="email" id="profileAuthEmail" placeholder="Email address" class="auth-input" required />
+        <input type="password" id="profileAuthPassword" placeholder="Password" class="auth-input" style="display:none;" />
+        <div class="auth-error" id="profileAuthError" style="display:none;"></div>
+        <button id="profileSignInBtn" class="btn btn-primary" style="width:100%;">
+          Continue with Email
+        </button>
+        <button id="profileSignUpBtn" class="btn btn-outline" style="display:none;width:100%;">
+          Create Account
+        </button>
+        <button id="profileResetBtn" class="btn btn-link" style="display:none;font-size:0.8rem;">
+          Forgot password?
+        </button>
+        <div class="auth-divider"><span>or</span></div>
+        <button id="profileGoogleSignInBtn" class="btn btn-outline" style="width:100%;">
+          <span style="margin-right:0.4rem;">🔑</span> Sign in with Google
+        </button>
+      </div>
     `;
     
     debug("ℹ️ Profile showing guest state");

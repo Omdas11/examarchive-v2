@@ -315,10 +315,57 @@
   }
 
   /**
+   * Public API - Sign in with email and password
+   */
+  async function signInWithPassword(email, password) {
+    if (!supabaseClient) {
+      return { error: { message: 'Supabase not initialized' } };
+    }
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) return { error };
+      return { data };
+    } catch (err) {
+      return { error: err };
+    }
+  }
+
+  /**
+   * Public API - Sign up with email and password
+   */
+  async function signUp(email, password) {
+    if (!supabaseClient) {
+      return { error: { message: 'Supabase not initialized' } };
+    }
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) return { error };
+      return { data };
+    } catch (err) {
+      return { error: err };
+    }
+  }
+
+  /**
+   * Public API - Send password reset email
+   */
+  async function resetPassword(email) {
+    if (!supabaseClient) {
+      return { error: { message: 'Supabase not initialized' } };
+    }
+    try {
+      const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      });
+      if (error) return { error };
+      return { data };
+    } catch (err) {
+      return { error: err };
+    }
+  }
+
+  /**
    * Public API - Sign in with OAuth
-   * // PHASE 3: Add email + password auth (signInWithPassword)
-   * // PHASE 3: Add profile image upload to Storage bucket 'avatars'
-   * // PHASE 3: Add default fallback avatar for users without profile images
    */
   async function signInWithGoogle() {
     if (!supabaseClient) {
@@ -376,6 +423,9 @@
     requireSession,
     requireRole,
     signInWithGoogle,
+    signInWithPassword,
+    signUp,
+    resetPassword,
     signOut
   };
 
