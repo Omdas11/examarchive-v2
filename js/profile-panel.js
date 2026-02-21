@@ -324,7 +324,7 @@ async function populateProfileStats(user) {
    State tracking for both events
    =============================== */
 if (window.__PROFILE_PANEL_INIT__) {
-  console.warn('[profile-panel] Already initialized, skipping');
+  // Already initialized
 } else {
   window.__PROFILE_PANEL_INIT__ = true;
 }

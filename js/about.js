@@ -117,29 +117,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (systemUpdateEl) {
       systemUpdateEl.textContent = lastCommit ? formatIST(lastCommit) : "—";
     }
-
-    /* Content update from status.json if available */
-    try {
-      const statusRes = await fetch("./data/about/status.json");
-      if (statusRes.ok) {
-        const status = await statusRes.json();
-
-        const papersEl = document.querySelector('[data-stat="papers"]');
-        const pdfsEl = document.querySelector('[data-stat="pdfs"]');
-        const subjectsEl = document.querySelector('[data-stat="subjects"]');
-        const contentUpdateEl = document.querySelector('[data-stat="content-update"]');
-
-        if (papersEl) papersEl.textContent = status.totals?.papers ?? "—";
-        if (pdfsEl) pdfsEl.textContent = status.totals?.pdfs ?? "—";
-        if (subjectsEl) subjectsEl.textContent = status.totals?.subjects ?? "—";
-        if (contentUpdateEl) contentUpdateEl.textContent = formatIST(status.generated_at);
-      }
-    } catch (e) {
-      // status.json is optional - backend stats are primary
-    }
-
   } catch (err) {
-    console.error("❌ About status error:", err);
+    // Silently handle status errors
   }
 
   /* ==================================================
@@ -196,6 +175,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       .forEach(el => observer.observe(el));
 
   } catch (err) {
-    console.error("❌ Timeline render error:", err);
+    // Timeline rendering failed silently
   }
 });
