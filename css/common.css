@@ -60,9 +60,9 @@
   --accent-soft: #fdeaea;
 }
 
-:root[data-accent="blue"] {
-  --accent: #1976d2;
-  --accent-soft: #e3f2fd;
+:root[data-accent="crimson"] {
+  --accent: #c62828;
+  --accent-soft: #fdeaea;
 }
 
 :root[data-accent="green"] {
@@ -94,9 +94,9 @@ body[data-theme="amoled"] {
   --accent: #ff5252;
 }
 
-:root[data-accent="blue"] body[data-theme="dark"],
-:root[data-accent="blue"] body[data-theme="amoled"] {
-  --accent: #42a5f5;
+:root[data-accent="crimson"] body[data-theme="dark"],
+:root[data-accent="crimson"] body[data-theme="amoled"] {
+  --accent: #ef5350;
 }
 
 :root[data-accent="green"] body[data-theme="dark"],
@@ -218,41 +218,41 @@ body[data-theme="amoled"][data-theme-preset="red-classic"] {
   --accent-soft: #1a0000;
 }
 
-/* Blue Slate - Cool Professional */
-body[data-theme-preset="blue-slate"] {
+/* Crimson Dark - Brand Professional */
+body[data-theme-preset="crimson-dark"] {
   /* Light mode */
-  --bg: #f0f4f8;
-  --bg-soft: #e3f2fd;
+  --bg: #faf5f5;
+  --bg-soft: #fdeaea;
   --surface: #ffffff;
-  --text: #0d47a1;
-  --text-muted: #1976d2;
-  --border: #bbdefb;
-  --accent: #1976d2;
-  --accent-soft: #e3f2fd;
+  --text: #4a1010;
+  --text-muted: #b71c1c;
+  --border: #f5c6c6;
+  --accent: #c62828;
+  --accent-soft: #fdeaea;
 }
 
 /* Dark mode */
-body[data-theme="dark"][data-theme-preset="blue-slate"] {
-  --bg: #0a1929;
-  --bg-soft: #0d2340;
-  --surface: #132f4c;
-  --text: #b2d4f7;
-  --text-muted: #7ba7d6;
-  --border: #1e3a5f;
-  --accent: #42a5f5;
-  --accent-soft: #0d2340;
+body[data-theme="dark"][data-theme-preset="crimson-dark"] {
+  --bg: #1a0a0a;
+  --bg-soft: #2d1111;
+  --surface: #3d1515;
+  --text: #f5c6c6;
+  --text-muted: #e57373;
+  --border: #4a1a1a;
+  --accent: #ef5350;
+  --accent-soft: #2d1111;
 }
 
 /* AMOLED mode */
-body[data-theme="amoled"][data-theme-preset="blue-slate"] {
+body[data-theme="amoled"][data-theme-preset="crimson-dark"] {
   --bg: #000000;
   --bg-soft: #000000;
   --surface: #000000;
-  --text: #b2d4f7;
-  --text-muted: #7ba7d6;
-  --border: #1e3a5f;
-  --accent: #42a5f5;
-  --accent-soft: #0a1929;
+  --text: #f5c6c6;
+  --text-muted: #e57373;
+  --border: #4a1a1a;
+  --accent: #ef5350;
+  --accent-soft: #1a0a0a;
 }
 
 /* Green Mint - Fresh Natural */

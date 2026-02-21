@@ -717,7 +717,7 @@ function showMessage(message, type = 'info') {
   const colors = {
     success: '#4CAF50',
     error: '#f44336',
-    info: '#2196F3'
+    info: '#d32f2f'
   };
   messageEl.style.borderLeft = `4px solid ${colors[type] || colors.info}`;
   messageEl.textContent = message;
