@@ -308,6 +308,13 @@ async function populateProfileStats(user) {
       avatarEl.style.borderStyle = 'solid';
     }
 
+    // Check for level up (compare with stored previous level)
+    const prevLevel = parseInt(sessionStorage.getItem('examarchive_prev_level') || '0');
+    if (userLevel > prevLevel && prevLevel > 0 && window.LevelUp?.show) {
+      window.LevelUp.show(userLevel);
+    }
+    sessionStorage.setItem('examarchive_prev_level', String(userLevel));
+
   } catch (err) {
     // Silently handle stats fetch errors
   }

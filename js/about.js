@@ -42,11 +42,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         .select('user_id');
       const uniqueContributors = new Set((contributors || []).map(c => c.user_id)).size;
 
-      // Count pending papers
-      const { count: pendingCount } = await supabase
-        .from('submissions')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
+      // Count total requests
+      const { count: totalRequests } = await supabase
+        .from('paper_requests')
+        .select('*', { count: 'exact', head: true });
 
       // Total uploads
       const { count: totalUploads } = await supabase
@@ -56,15 +55,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Update DOM
       const publishedEl = document.querySelector('[data-stat="published"]');
       const contributorsEl = document.querySelector('[data-stat="contributors"]');
-      const pendingEl = document.querySelector('[data-stat="pending"]');
+      const totalRequestsEl = document.querySelector('[data-stat="total-requests"]');
       const totalUploadsEl = document.querySelector('[data-stat="total-uploads"]');
 
       if (publishedEl) publishedEl.textContent = publishedCount ?? '0';
       if (contributorsEl) contributorsEl.textContent = uniqueContributors || '0';
-      if (pendingEl) pendingEl.textContent = pendingCount ?? '0';
+      if (totalRequestsEl) totalRequestsEl.textContent = totalRequests ?? '0';
       if (totalUploadsEl) totalUploadsEl.textContent = totalUploads ?? '0';
     } catch (err) {
-      console.warn('Could not load live stats:', err);
+      // Silently handle stats loading errors
     }
   }
 

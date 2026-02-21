@@ -1,7 +1,7 @@
 /**
  * ExamArchive v2 — Paper Page
- * Phase 3: Backend-driven paper loading
- * Loads paper from submissions table via paper code or ID
+ * Phase 4: Fully dynamic paper loading with syllabus, RQ, notes, resources
+ * Loads from submissions table + storage buckets via subject_code
  */
 
 const params = new URLSearchParams(window.location.search);
@@ -41,7 +41,6 @@ async function loadPaper() {
     let submissions = [];
 
     if (PAPER_ID) {
-      // Load single paper by ID
       const { data, error } = await supabase
         .from('submissions')
         .select('*')
@@ -56,7 +55,6 @@ async function loadPaper() {
       }
       submissions = [data];
     } else if (CODE) {
-      // Load papers by paper_code
       const { data, error } = await supabase
         .from('submissions')
         .select('*')
@@ -73,6 +71,7 @@ async function loadPaper() {
     }
 
     const selected = submissions[0];
+    const subjectCode = selected.paper_code || CODE;
 
     /* ---------- Header ---------- */
     document.getElementById("paperTitle").textContent =
@@ -142,34 +141,135 @@ async function loadPaper() {
       listEl.appendChild(li);
     }
 
-    /* ---------- Hide syllabus/RQ/notes sections (backend not available) ---------- */
-    const sections = document.querySelectorAll('.paper-section');
-    sections.forEach(section => {
-      const h2 = section.querySelector('h2');
-      if (h2) {
-        const text = h2.textContent.toLowerCase();
-        if (text.includes('syllabus') || text.includes('repeated') || text.includes('notes')) {
-          const content = section.querySelector('.coming-soon, .skeleton-group, #syllabus-container, #repeated-container');
-          if (content) {
-            section.querySelector('.coming-soon')?.removeAttribute('hidden');
-            if (section.querySelector('#syllabus-container')) {
-              section.querySelector('#syllabus-container').innerHTML = '';
-              const noSyllabus = document.getElementById('no-syllabus');
-              if (noSyllabus) noSyllabus.hidden = false;
-            }
-            if (section.querySelector('#repeated-container')) {
-              section.querySelector('#repeated-container').innerHTML =
-                '<p class="coming-soon">Repeated questions will be available soon.</p>';
-            }
-          }
-        }
-      }
-    });
+    /* ---------- Syllabus (dynamic from storage) ---------- */
+    await loadSyllabus(supabase, subjectCode);
+
+    /* ---------- Repeated Questions (dynamic from storage) ---------- */
+    await loadRepeatedQuestions(supabase, subjectCode);
+
+    /* ---------- Notes & Resources (dynamic from storage) ---------- */
+    await loadNotesResources(supabase, subjectCode);
 
   } catch (err) {
     document.querySelector(".paper-page").innerHTML =
       "<p class='coming-soon'>Error loading paper.</p>";
   }
+}
+
+/* ================= SYLLABUS ================= */
+async function loadSyllabus(supabase, subjectCode) {
+  const container = document.getElementById('syllabus-container');
+  const noSyllabus = document.getElementById('no-syllabus');
+  if (!container) return;
+
+  try {
+    // Try to load syllabus from data/syllabus/{code}.json
+    const res = await fetch(`./data/syllabus/${subjectCode}.json`);
+    if (res.ok) {
+      const syllabusData = await res.json();
+      if (syllabusData && (syllabusData.units || syllabusData.topics || syllabusData.content)) {
+        container.innerHTML = renderSyllabusContent(syllabusData);
+        if (noSyllabus) noSyllabus.hidden = true;
+        return;
+      }
+    }
+  } catch {
+    // Not available locally
+  }
+
+  // Fallback: syllabus not available
+  container.innerHTML = '';
+  if (noSyllabus) noSyllabus.hidden = false;
+}
+
+function renderSyllabusContent(data) {
+  if (data.units && Array.isArray(data.units)) {
+    return data.units.map((unit, i) => `
+      <div class="syllabus-unit">
+        <h4>Unit ${i + 1}: ${unit.title || ''}</h4>
+        ${unit.topics ? `<ul>${unit.topics.map(t => `<li>${t}</li>`).join('')}</ul>` : ''}
+      </div>
+    `).join('');
+  }
+  if (data.content) {
+    return `<div class="syllabus-content">${data.content}</div>`;
+  }
+  return '<p class="coming-soon">Syllabus data format not recognized.</p>';
+}
+
+/* ================= REPEATED QUESTIONS ================= */
+async function loadRepeatedQuestions(supabase, subjectCode) {
+  const container = document.getElementById('repeated-container');
+  if (!container) return;
+
+  try {
+    // Try to load from data/repeated-questions/{code}.json
+    const res = await fetch(`./data/repeated-questions/${subjectCode}.json`);
+    if (res.ok) {
+      const rqData = await res.json();
+      if (rqData && Array.isArray(rqData) && rqData.length > 0) {
+        container.innerHTML = rqData.map((q, i) => `
+          <div class="rq-item">
+            <span class="rq-num">${i + 1}.</span>
+            <span class="rq-text">${q.question || q.text || q}</span>
+            ${q.frequency ? `<span class="rq-freq">×${q.frequency}</span>` : ''}
+          </div>
+        `).join('');
+        return;
+      }
+    }
+  } catch {
+    // Not available
+  }
+
+  container.innerHTML = '<p class="coming-soon">No repeated questions available yet.</p>';
+}
+
+/* ================= NOTES & RESOURCES ================= */
+async function loadNotesResources(supabase, subjectCode) {
+  const section = document.querySelector('.paper-section:last-of-type');
+  if (!section) return;
+
+  const skeletonGroup = section.querySelector('.skeleton-group');
+  const comingSoon = section.querySelector('.coming-soon');
+
+  // Try loading notes from storage
+  try {
+    const { data: notesList } = await supabase.storage
+      .from('uploads-approved')
+      .list(`notes/${subjectCode}`, { limit: 10 });
+
+    if (notesList && notesList.length > 0) {
+      if (skeletonGroup) skeletonGroup.style.display = 'none';
+      if (comingSoon) comingSoon.style.display = 'none';
+
+      const notesHtml = [];
+      for (const file of notesList) {
+        const { data: signedData } = await supabase.storage
+          .from('uploads-approved')
+          .createSignedUrl(`notes/${subjectCode}/${file.name}`, 3600);
+
+        notesHtml.push(`
+          <div class="resource-item">
+            <span>📄 ${file.name}</span>
+            <a href="${signedData?.signedUrl || '#'}" target="_blank" class="link-red">Open →</a>
+          </div>
+        `);
+      }
+
+      const notesContainer = document.createElement('div');
+      notesContainer.className = 'notes-list';
+      notesContainer.innerHTML = notesHtml.join('');
+      section.appendChild(notesContainer);
+      return;
+    }
+  } catch {
+    // No notes in storage
+  }
+
+  // Show coming soon state
+  if (skeletonGroup) skeletonGroup.style.display = 'none';
+  if (comingSoon) comingSoon.style.display = 'block';
 }
 
 /* ---------- Init ---------- */
