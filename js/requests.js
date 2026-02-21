@@ -63,7 +63,7 @@
     const description = document.getElementById('reqDescription')?.value.trim();
 
     if (!paperCode || !description) {
-      alert('Please fill in paper code and description.');
+      showRequestMessage('Please fill in paper code and description.', 'error');
       return;
     }
 
@@ -87,7 +87,7 @@
 
       await loadRequests();
     } catch (err) {
-      alert('Failed to submit request: ' + (err.message || 'Unknown error'));
+      showRequestMessage('Failed to submit request: ' + (err.message || 'Unknown error'), 'error');
     }
   }
 
@@ -213,6 +213,22 @@
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  function showRequestMessage(message, type) {
+    const section = document.getElementById('requestFormSection');
+    if (!section) return;
+
+    // Remove existing message
+    const existing = section.querySelector('.request-message');
+    if (existing) existing.remove();
+
+    const el = document.createElement('div');
+    el.className = 'request-message';
+    el.style.cssText = `padding:0.6rem 1rem;border-radius:8px;margin-bottom:0.75rem;font-size:0.85rem;border:1px solid ${type === 'error' ? 'var(--color-error)' : 'var(--color-success)'};color:${type === 'error' ? 'var(--color-error)' : 'var(--color-success)'};background:${type === 'error' ? 'rgba(244,67,54,0.06)' : 'rgba(76,175,80,0.06)'}`;
+    el.textContent = message;
+    section.insertBefore(el, section.firstChild);
+    setTimeout(() => el.remove(), 5000);
   }
 
   // Initialize

@@ -24,7 +24,7 @@ ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
 -- 90  = Senior Moderator (can publish)
 -- 100 = Founder/Admin (full access)
 
-COMMENT ON COLUMN roles.level IS 'Role level: 0=Visitor, 10=User, 20=Contributor, 50=Reviewer, 75=Moderator, 90=SeniorMod, 100=Admin';
+COMMENT ON COLUMN roles.level IS 'Role level: 0=Visitor, 10=User, 20=Contributor, 50=Reviewer, 75=Moderator, 90=Senior Moderator, 100=Admin';
 COMMENT ON COLUMN roles.primary_role IS 'Primary display role/badge';
 COMMENT ON COLUMN roles.secondary_role IS 'Secondary display role/badge';
 COMMENT ON COLUMN roles.tertiary_role IS 'Tertiary display role/badge';
