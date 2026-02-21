@@ -27,6 +27,7 @@ function mapLevelToRole(level) {
 
 /**
  * Get deduplicated badge labels for user role data
+ * Shows primary_role as system role + custom badges as pills
  * @param {Object} role
  * @returns {string[]}
  */
@@ -37,8 +38,7 @@ function getUserBadges(role) {
   if (role?.secondary_role) badges.add(role.secondary_role);
   if (role?.tertiary_role) badges.add(role.tertiary_role);
 
-  if (role?.level === 100) badges.add('Founder');
-
+  // Do NOT auto-add Founder from level — must be set via primary_role
   if (!role?.primary_role) {
     const levelRole = mapLevelToRole(role?.level);
     if (levelRole) badges.add(levelRole);
@@ -73,7 +73,8 @@ async function computeBadges(user) {
     level: badgeInfo.level,
     primary_role: null,
     secondary_role: null,
-    tertiary_role: null
+    tertiary_role: null,
+    custom_badges: []
   };
 
   if (user && user.id) {
@@ -82,7 +83,7 @@ async function computeBadges(user) {
       if (supabase) {
         const { data } = await supabase
           .from('roles')
-          .select('level, primary_role, secondary_role, tertiary_role')
+          .select('level, primary_role, secondary_role, tertiary_role, custom_badges')
           .eq('user_id', user.id)
           .single();
         if (data) {
@@ -90,7 +91,8 @@ async function computeBadges(user) {
             level: data.level ?? badgeInfo.level,
             primary_role: data.primary_role,
             secondary_role: data.secondary_role,
-            tertiary_role: data.tertiary_role
+            tertiary_role: data.tertiary_role,
+            custom_badges: data.custom_badges || []
           };
         }
       }
@@ -100,12 +102,12 @@ async function computeBadges(user) {
   }
 
   const labels = getUserBadges(roleData).slice(0, 3);
-  return labels.map((label) => {
+  const badges = labels.map((label) => {
     if (label === 'Founder') {
       return {
         type: 'founder',
         label,
-        icon: '⭐',
+        icon: '👑',
         color: 'var(--color-warning)'
       };
     }
@@ -118,6 +120,22 @@ async function computeBadges(user) {
       color: getBadgeColor?.(badgeType) || 'var(--color-muted)'
     };
   });
+
+  // Append custom_badges as pill badges
+  if (Array.isArray(roleData.custom_badges)) {
+    roleData.custom_badges.forEach(cb => {
+      if (cb && typeof cb === 'string') {
+        badges.push({
+          type: 'custom',
+          label: cb,
+          icon: '🏅',
+          color: 'var(--color-muted)'
+        });
+      }
+    });
+  }
+
+  return badges;
 }
 
 /**
@@ -190,16 +208,17 @@ async function renderAchievements(userId) {
 }
 
 /* ===============================
-   XP Level Thresholds
+   XP Level Thresholds (Cosmetic Only)
+   XP does NOT control permissions.
    =============================== */
 const XP_LEVELS = [
   { level: 0,   xp: 0,    title: 'Visitor' },
   { level: 5,   xp: 100,  title: 'Explorer' },
   { level: 10,  xp: 300,  title: 'Contributor' },
-  { level: 25,  xp: 800,  title: 'Reviewer' },
-  { level: 50,  xp: 1500, title: 'Senior Moderator' },
-  { level: 90,  xp: 3000, title: 'Admin' },
-  { level: 100, xp: 5000, title: 'Founder' }
+  { level: 25,  xp: 800,  title: 'Veteran' },
+  { level: 50,  xp: 1500, title: 'Senior' },
+  { level: 90,  xp: 3000, title: 'Elite' },
+  { level: 100, xp: 5000, title: 'Legend' }
 ];
 
 /**
@@ -219,13 +238,22 @@ function getXpThresholds(currentXp) {
 }
 
 /**
- * Get level ring gradient color based on level
+ * Get level ring CSS class based on XP tier
+ * Ring color depends on primary_role for system roles,
+ * falls back to XP tier for cosmetic display
  */
-function getLevelRingColor(level) {
-  if (level >= 80) return 'linear-gradient(135deg, #FFD700, #FFA000)';
-  if (level >= 50) return 'linear-gradient(135deg, #9C27B0, #E040FB)';
-  if (level >= 20) return 'linear-gradient(135deg, #1E88E5, #42A5F5)';
-  return 'linear-gradient(135deg, #43A047, #66BB6A)';
+function getLevelRingClass(primaryRole, level) {
+  // System role takes priority
+  if (primaryRole === 'Founder') return 'ring-founder';
+  if (primaryRole === 'Admin') return 'ring-admin';
+  if (primaryRole === 'Senior Moderator') return 'ring-senior-moderator';
+  if (primaryRole === 'Reviewer') return 'ring-reviewer';
+  // Fall back to cosmetic XP tier
+  if (level >= 50) return 'ring-senior';
+  if (level >= 25) return 'ring-veteran';
+  if (level >= 10) return 'ring-contributor';
+  if (level >= 5) return 'ring-explorer';
+  return 'ring-visitor';
 }
 
 /**
@@ -261,7 +289,7 @@ async function populateProfileStats(user) {
     if (approvalPctEl) {
       approvalPctEl.textContent = totalUploads > 0
         ? Math.round((approvedUploads / totalUploads) * 100) + '%'
-        : '—';
+        : '0%';
     }
 
     // Fetch XP info
@@ -271,10 +299,21 @@ async function populateProfileStats(user) {
 
     let userXp = 0;
     let userLevel = 0;
+    let userPrimaryRole = null;
     if (xpData && xpData.length > 0) {
       userXp = xpData[0].xp || 0;
       userLevel = xpData[0].level || 0;
     }
+
+    // Fetch primary_role for ring color
+    try {
+      const { data: roleRow } = await supabase
+        .from('roles')
+        .select('primary_role')
+        .eq('user_id', user.id)
+        .single();
+      if (roleRow) userPrimaryRole = roleRow.primary_role;
+    } catch (_) {}
 
     // Contribution score = XP weighted metric
     if (contributionEl) contributionEl.textContent = userXp;
@@ -299,13 +338,23 @@ async function populateProfileStats(user) {
       }, 100);
     }
 
-    // Update avatar ring color based on level
+    // Update avatar ring color class based on role/level
     const avatarEl = document.getElementById('profileAvatar');
     if (avatarEl) {
-      avatarEl.style.borderImage = getLevelRingColor(userLevel);
-      avatarEl.style.borderImageSlice = '1';
-      avatarEl.style.borderWidth = '4px';
-      avatarEl.style.borderStyle = 'solid';
+      // Remove all previous ring classes
+      avatarEl.className = avatarEl.className.replace(/\bring-\S+/g, '').trim();
+      const ringClass = getLevelRingClass(userPrimaryRole, userLevel);
+      avatarEl.classList.add(ringClass);
+    }
+
+    // Update daily streak
+    try {
+      const { data: streakData } = await supabase.rpc('update_daily_streak');
+      if (streakData && streakData.length > 0) {
+        renderStreak(streakData[0].streak);
+      }
+    } catch (_) {
+      // Streak update is optional
     }
 
     // Check for level up (compare with stored previous level)
@@ -318,6 +367,41 @@ async function populateProfileStats(user) {
   } catch (err) {
     // Silently handle stats fetch errors
   }
+}
+
+/**
+ * Render daily streak visualization in profile panel
+ * Shows 7 small circles, filled = active streak day
+ * @param {number} streakCount - Current streak count
+ */
+function renderStreak(streakCount) {
+  let streakSection = document.querySelector('.profile-streak');
+  if (!streakSection) {
+    streakSection = document.createElement('section');
+    streakSection.className = 'profile-streak';
+    const xpSection = document.querySelector('.profile-xp');
+    if (xpSection) {
+      xpSection.parentNode.insertBefore(streakSection, xpSection.nextSibling);
+    }
+  }
+
+  const days = 7;
+  const activeDays = Math.min(streakCount, days);
+  const circles = Array.from({ length: days }, (_, i) => {
+    const isActive = i < activeDays;
+    return `<span class="streak-dot${isActive ? ' active' : ''}" aria-label="Day ${i + 1}${isActive ? ' (active)' : ''}"></span>`;
+  }).join('');
+
+  const fireIcon = streakCount >= 7 ? '<span class="streak-fire" aria-label="Streak on fire!">🔥</span>' : '';
+
+  streakSection.innerHTML = `
+    <div class="streak-row">
+      ${circles}
+      ${fireIcon}
+    </div>
+    <div class="streak-label">${streakCount} day streak</div>
+  `;
+  streakSection.style.display = 'block';
 }
 
 /* ===============================

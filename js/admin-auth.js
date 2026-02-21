@@ -71,6 +71,7 @@ async function isAdminBackend(userId = null) {
 
 /**
  * Check if current user is admin (convenience wrapper)
+ * Uses primary_role as primary check, falls back to is_current_user_admin RPC
  * @returns {Promise<boolean>}
  */
 async function isCurrentUserAdmin() {
@@ -82,6 +83,21 @@ async function isCurrentUserAdmin() {
       return false;
     }
 
+    // Primary check: use primary_role
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return false;
+
+    const { data: roleData } = await supabase
+      .from('roles')
+      .select('primary_role')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (roleData && (roleData.primary_role === 'Founder' || roleData.primary_role === 'Admin')) {
+      return true;
+    }
+
+    // Fallback: legacy RPC check
     const { data, error } = await supabase.rpc('is_current_user_admin');
     
     if (error) {

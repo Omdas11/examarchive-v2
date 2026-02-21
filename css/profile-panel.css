@@ -74,7 +74,46 @@
   color: var(--avatar-text, #5b2ecc);
 
   background: var(--avatar-bg, radial-gradient(circle at top, #f2efff, #e6e1ff));
-  border: 4px solid var(--avatar-ring, #23a455);
+  border: 4px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+/* --- Gradient Animated Ring Classes --- */
+.profile-avatar.ring-visitor {
+  border-color: #9e9e9e;
+}
+
+.profile-avatar.ring-explorer {
+  border-image: linear-gradient(135deg, #1E88E5, #42A5F5) 1;
+}
+
+.profile-avatar.ring-contributor {
+  border-image: linear-gradient(135deg, #009688, #4DB6AC) 1;
+}
+
+.profile-avatar.ring-veteran,
+.profile-avatar.ring-reviewer {
+  border-image: linear-gradient(135deg, #9C27B0, #CE93D8) 1;
+}
+
+.profile-avatar.ring-senior,
+.profile-avatar.ring-senior-moderator {
+  border-image: linear-gradient(135deg, #F57C00, #FFB74D) 1;
+}
+
+.profile-avatar.ring-admin {
+  border-image: linear-gradient(135deg, #d32f2f, #ff5252) 1;
+}
+
+.profile-avatar.ring-founder {
+  border-image: linear-gradient(135deg, #FFD700, #FFA000, #FFD700) 1;
+  animation: ring-glow 3s ease-in-out infinite;
+}
+
+@keyframes ring-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15) drop-shadow(0 0 4px rgba(255, 215, 0, 0.4)); }
 }
 
 /* Display initials from data attribute */
@@ -130,8 +169,9 @@
 
 .profile-badges {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 0.7rem;
+  gap: 0.5rem;
   margin: 1rem 0 1.2rem;
 }
 
@@ -257,6 +297,59 @@
   display: flex;
   justify-content: center;
   gap: 0.2rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+/* ---------- Daily Streak ---------- */
+
+.profile-streak {
+  margin-bottom: 1rem;
+  padding: 0 0.2rem;
+  text-align: center;
+}
+
+.streak-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.streak-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.streak-dot.active {
+  background: linear-gradient(135deg, #FF5722, #FF9800);
+  transform: scale(1.1);
+  animation: streak-pop 0.4s ease;
+}
+
+@keyframes streak-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+
+.streak-fire {
+  font-size: 1.1rem;
+  margin-left: 0.3rem;
+  animation: fire-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes fire-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.streak-label {
   font-size: 0.7rem;
   color: var(--text-muted);
   margin-top: 0.3rem;
@@ -444,6 +537,11 @@ body[data-theme="amoled"] .stat {
 body[data-theme="dark"] .xp-bar-container,
 body[data-theme="amoled"] .xp-bar-container {
   background: rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme="dark"] .streak-dot,
+body[data-theme="amoled"] .streak-dot {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 body[data-theme="dark"] .achievement-pill,

@@ -7,46 +7,48 @@
 /**
  * Map role level to display name and icon
  * Centralized mapping function - SINGLE SOURCE OF TRUTH
- * Phase 4 XP-based hierarchy:
+ * NOTE: Level is COSMETIC only (from XP). System permissions
+ * are controlled by primary_role, NOT by level.
+ * Phase 4 Restructure XP tiers:
  *   0   = Visitor       (0 XP)
  *   5   = Explorer      (100 XP)
  *   10  = Contributor   (300 XP)
- *   25  = Reviewer      (800 XP)
- *   50  = Senior Mod    (1500 XP)
- *   90  = Admin         (3000 XP)
- *   100 = Founder       (5000 XP)
- * @param {number} level - Role level from database
+ *   25  = Veteran       (800 XP)
+ *   50  = Senior        (1500 XP)
+ *   90  = Elite         (3000 XP)
+ *   100 = Legend         (5000 XP)
+ * @param {number} level - Role level from database (cosmetic)
  * @returns {Object} {name, displayName, icon}
  */
 function mapRole(level) {
   if (level >= 100) {
     return {
-      name: 'admin',
-      displayName: '👑 Founder',
-      icon: '👑',
+      name: 'legend',
+      displayName: '🏆 Legend',
+      icon: '🏆',
       level
     };
   }
   if (level >= 90) {
     return {
-      name: 'admin',
-      displayName: '🔰 Admin',
-      icon: '🔰',
+      name: 'elite',
+      displayName: '⚡ Elite',
+      icon: '⚡',
       level
     };
   }
   if (level >= 50) {
     return {
-      name: 'senior_moderator',
-      displayName: '🛡️ Senior Moderator',
+      name: 'senior',
+      displayName: '🛡️ Senior',
       icon: '🛡️',
       level
     };
   }
   if (level >= 25) {
     return {
-      name: 'reviewer',
-      displayName: '📋 Reviewer',
+      name: 'veteran',
+      displayName: '📋 Veteran',
       icon: '📋',
       level
     };
@@ -115,7 +117,7 @@ async function getCurrentUserRoleLevel() {
 
 /**
  * Get current user's role from database
- * This is the ONLY reliable way to check user role
+ * Uses primary_role as the source of truth for permissions
  * @returns {Promise<string>} Role name: "admin", "reviewer", "contributor", or "guest"
  */
 async function getCurrentUserRole() {
@@ -133,17 +135,22 @@ async function getCurrentUserRole() {
       return "guest";
     }
 
-    // Use backend RPC function to get role (same as AdminAuth)
-    const { data: roleName, error } = await supabase.rpc('get_user_role_name', {
-      user_id_param: session.user.id
-    });
+    // Use primary_role for permission checks
+    const { data, error } = await supabase
+      .from('roles')
+      .select('primary_role')
+      .eq('user_id', session.user.id)
+      .single();
 
-    if (error) {
-      console.warn('[ROLE-UTILS] Error getting role, defaulting to "contributor":', error);
+    if (error || !data || !data.primary_role) {
       return "contributor";
     }
 
-    return roleName ? roleName.toLowerCase() : "contributor";
+    const role = data.primary_role;
+    if (role === 'Founder' || role === 'Admin') return 'admin';
+    if (role === 'Senior Moderator') return 'senior_moderator';
+    if (role === 'Reviewer') return 'reviewer';
+    return 'contributor';
   } catch (err) {
     console.error('[ROLE-UTILS] Error getting user role:', err);
     return "contributor";
@@ -160,12 +167,12 @@ async function isCurrentUserAdmin() {
 }
 
 /**
- * Check if current user has at least reviewer access (level >= 75)
- * @returns {Promise<boolean>} True if user level >= 75
+ * Check if current user has at least reviewer access (via primary_role)
+ * @returns {Promise<boolean>} True if user has reviewer+ role
  */
 async function isCurrentUserReviewer() {
-  const level = await getCurrentUserRoleLevel();
-  return level >= 75;
+  const role = await getCurrentUserRole();
+  return role === 'admin' || role === 'senior_moderator' || role === 'reviewer';
 }
 
 // Expose to window
