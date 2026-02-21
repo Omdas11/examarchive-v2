@@ -442,7 +442,7 @@ body[data-theme="amoled"] .drawer {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--red, #d32f2f);
   animation: loginHintPulse 1.5s ease-in-out infinite;
 }
 

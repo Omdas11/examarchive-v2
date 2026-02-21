@@ -402,6 +402,10 @@ async function renderProfilePanel() {
         </a>
       `}
 
+      <a href="/support.html" class="btn btn-outline">
+        Help & Support
+      </a>
+
       <button id="profileSwitchAccountBtn" class="btn btn-outline">
         Switch Account
       </button>

@@ -385,3 +385,50 @@
   background: var(--bg-soft);
   color: var(--text);
 }
+
+/* ---------- Dark Mode Support ---------- */
+
+body[data-theme="dark"] .profile-panel-card,
+body[data-theme="amoled"] .profile-panel-card {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 30, 30, 0.98),
+    rgba(26, 26, 26, 0.95)
+  );
+  color: var(--text);
+}
+
+body[data-theme="dark"] .stat,
+body[data-theme="amoled"] .stat {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="dark"] .achievement-pill,
+body[data-theme="amoled"] .achievement-pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+body[data-theme="dark"] .badge-admin,
+body[data-theme="amoled"] .badge-admin {
+  background: rgba(255, 82, 82, 0.15);
+  color: #ff8a80;
+}
+
+body[data-theme="dark"] .badge-contributor,
+body[data-theme="amoled"] .badge-contributor {
+  background: rgba(102, 187, 106, 0.15);
+  color: #a5d6a7;
+}
+
+body[data-theme="dark"] .badge-founder,
+body[data-theme="amoled"] .badge-founder {
+  background: rgba(255, 167, 38, 0.15);
+  color: #ffcc80;
+}
+
+body[data-theme="dark"] .badge-custom,
+body[data-theme="amoled"] .badge-custom {
+  background: rgba(206, 147, 216, 0.15);
+  color: #ce93d8;
+}

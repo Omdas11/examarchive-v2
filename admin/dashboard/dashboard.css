@@ -448,3 +448,93 @@
     flex: 1;
   }
 }
+
+/* ---------- Role Management Panel ---------- */
+
+.role-management-panel {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.role-management-panel h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.2rem;
+}
+
+.role-search-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.role-search-input {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-soft, #f5f5f5);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.role-search-results {
+  margin-bottom: 1rem;
+}
+
+.role-search-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.4rem;
+  background: var(--bg-soft, #f8f8f8);
+}
+
+.role-edit-panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  background: var(--bg-soft, #f8f8f8);
+  margin-top: 1rem;
+}
+
+.role-edit-panel h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+}
+
+.role-edit-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.role-field label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.role-field input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface, #fff);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.role-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
