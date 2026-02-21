@@ -53,6 +53,12 @@ function getUserBadges(role) {
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects (max 3)
  */
+/**
+ * Maps a badge label to its emoji icon using partial matching.
+ * Supports parameterized badges like "Subject Expert (Physics)".
+ * @param {string} label - The badge label text
+ * @returns {string} The emoji icon for the badge
+ */
 function getBadgeIcon(label) {
   const iconMap = {
     'Founder': '👑',

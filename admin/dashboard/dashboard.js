@@ -1001,7 +1001,7 @@ async function loadUsersTable(page, searchQuery) {
       const tr = document.createElement('tr');
 
       const cells = [
-        { text: (u.user_id || '—').substring(0, 8) + '…', title: u.user_id || '', style: 'font-size:0.7rem;font-family:monospace;' },
+        { text: u.user_id ? u.user_id.substring(0, 8) + '…' : '—', title: u.user_id || '', style: 'font-size:0.7rem;font-family:monospace;' },
         { text: u.username || '—' },
         { text: u.email || '—' },
         { text: String(u.xp ?? 0) },
