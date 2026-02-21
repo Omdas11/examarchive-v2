@@ -271,7 +271,11 @@ document.addEventListener("click", (e) => {
     closeDrawer();
     setTimeout(() => {
       const avatarTrigger = document.getElementById("avatarTrigger");
-      if (avatarTrigger) avatarTrigger.click();
+      if (avatarTrigger) {
+        // Use focus then click for better screen reader support
+        avatarTrigger.focus();
+        avatarTrigger.click();
+      }
     }, 350);
   }
 });
@@ -295,7 +299,11 @@ function updateAdminDrawerVisibility() {
   
   if (window.RoleUtils?.getCurrentUserRoleLevel) {
     window.RoleUtils.getCurrentUserRoleLevel().then(level => {
-      adminLink.style.display = level >= 75 ? "flex" : "none";
+      if (level >= 75) {
+        adminLink.removeAttribute("hidden");
+      } else {
+        adminLink.setAttribute("hidden", "");
+      }
     });
   }
 }

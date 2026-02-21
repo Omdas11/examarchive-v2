@@ -372,6 +372,10 @@ body.drawer-open .drawer {
   color: var(--color-warning);
 }
 
+.drawer-link-admin[hidden] {
+  display: none;
+}
+
 .drawer-divider {
   height: 1px;
   margin: 0.5rem 0.75rem;

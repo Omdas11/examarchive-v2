@@ -195,7 +195,7 @@ function initializeUploadForm() {
 
   // --- Filename Preview ---
   function updateFilenamePreview() {
-    const code = paperCodeInput.value.trim().replace(/[^a-zA-Z0-9]/g, '_');
+    const code = paperCodeInput.value.trim().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '');
     const year = examYearInput.value.trim();
     
     if (code || year) {
