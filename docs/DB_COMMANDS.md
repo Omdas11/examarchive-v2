@@ -184,8 +184,7 @@ SELECT * FROM add_user_xp('uuid-here', 100);
 ## 🔹 Storage Bucket Structure
 
 ```
-/question-papers/{programme}/{subject_code}/{year}/paper.pdf
-/rq/{subject_code}/rq.json
+/question-papers/{paper_code}/{year}/{filename}.pdf
 /notes/{subject_code}/notes.pdf
 /resources/{subject_code}/resource.pdf
 ```

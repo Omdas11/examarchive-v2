@@ -66,8 +66,8 @@ async function initializeDashboard() {
   // Setup real-time subscriptions
   setupRealtimeSubscriptions();
 
-  // Setup role management panel (level 90+ can access)
-  if (userRoleLevel >= 90) {
+  // Setup role management panel (level 100+ can access, matches update_user_role RPC)
+  if (userRoleLevel >= 100) {
     setupRoleManagement();
   }
 }
@@ -772,26 +772,58 @@ async function searchUsers() {
     }
 
     resultsEl.style.display = 'block';
-    resultsEl.innerHTML = results.map(u => `
-      <div class="role-search-result" data-user-id="${u.user_id}">
-        <div>
-          <strong>${u.display_name || u.email}</strong>
-          ${u.username ? `<span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem;">@${u.username}</span>` : ''}
-          <span class="text-muted" style="font-size:0.8rem;margin-left:0.5rem;">${u.email}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:0.5rem;">
-          <span class="text-muted" style="font-size:0.8rem;">Level: ${u.level} · XP: ${u.xp || 0}</span>
-          <button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.8rem;" data-edit-user="${u.user_id}" data-user-data='${JSON.stringify(u).replace(/'/g, "&#39;")}'>Edit</button>
-        </div>
-      </div>
-    `).join('');
 
-    // Attach edit handlers
-    resultsEl.querySelectorAll('[data-edit-user]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const userData = JSON.parse(btn.dataset.userData);
-        openRoleEditor(userData);
-      });
+    // Escape function to prevent XSS
+    function esc(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    resultsEl.innerHTML = '';
+    results.forEach(u => {
+      const row = document.createElement('div');
+      row.className = 'role-search-result';
+      row.dataset.userId = u.user_id;
+
+      const infoDiv = document.createElement('div');
+      const nameStrong = document.createElement('strong');
+      nameStrong.textContent = u.display_name || u.email;
+      infoDiv.appendChild(nameStrong);
+
+      if (u.username) {
+        const usernameSpan = document.createElement('span');
+        usernameSpan.className = 'text-muted';
+        usernameSpan.style.cssText = 'font-size:0.8rem;margin-left:0.5rem;';
+        usernameSpan.textContent = `@${u.username}`;
+        infoDiv.appendChild(usernameSpan);
+      }
+
+      const emailSpan = document.createElement('span');
+      emailSpan.className = 'text-muted';
+      emailSpan.style.cssText = 'font-size:0.8rem;margin-left:0.5rem;';
+      emailSpan.textContent = u.email;
+      infoDiv.appendChild(emailSpan);
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.style.cssText = 'display:flex;align-items:center;gap:0.5rem;';
+
+      const levelSpan = document.createElement('span');
+      levelSpan.className = 'text-muted';
+      levelSpan.style.fontSize = '0.8rem';
+      levelSpan.textContent = `Level: ${u.level} · XP: ${u.xp || 0}`;
+      actionsDiv.appendChild(levelSpan);
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-outline';
+      editBtn.style.cssText = 'padding:0.3rem 0.6rem;font-size:0.8rem;';
+      editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', () => openRoleEditor(u));
+      actionsDiv.appendChild(editBtn);
+
+      row.appendChild(infoDiv);
+      row.appendChild(actionsDiv);
+      resultsEl.appendChild(row);
     });
 
   } catch (err) {
@@ -825,7 +857,7 @@ function openRoleEditor(userData) {
 }
 
 /**
- * Save role changes (XP-based: updating XP auto-recalculates level)
+ * Save role changes (via update_user_role RPC — level 100+ required by backend)
  */
 async function saveRoleChanges() {
   const userId = document.getElementById('roleEditUserId')?.value;
@@ -843,16 +875,7 @@ async function saveRoleChanges() {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
 
-    // If XP was changed, update XP (level auto-syncs via trigger)
-    if (!isNaN(xp)) {
-      const { error: xpError } = await supabase
-        .from('roles')
-        .update({ xp: xp })
-        .eq('user_id', userId);
-      if (xpError) throw xpError;
-    }
-
-    // Update role metadata
+    // Update role metadata (including XP) via privileged RPC
     const { error } = await supabase.rpc('update_user_role', {
       target_user_id: userId,
       new_level: isNaN(level) ? null : level,

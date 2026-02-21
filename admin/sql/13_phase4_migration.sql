@@ -115,7 +115,14 @@ DECLARE
   prev_level integer;
   updated_xp integer;
   updated_level integer;
+  caller_level integer;
 BEGIN
+  -- Only admins (level >= 100) or service_role can call this
+  SELECT level INTO caller_level FROM roles WHERE user_id = auth.uid();
+  IF caller_level IS NULL OR caller_level < 100 THEN
+    RAISE EXCEPTION 'Insufficient permissions: admin level (>= 100) required';
+  END IF;
+
   SELECT level INTO prev_level FROM roles WHERE user_id = target_user_id;
   IF prev_level IS NULL THEN prev_level := 0; END IF;
 
@@ -139,6 +146,11 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  -- Only allow users to query their own XP info
+  IF target_user_id != auth.uid() THEN
+    RAISE EXCEPTION 'Can only query own XP info';
+  END IF;
+
   RETURN QUERY
   SELECT
     COALESCE(r.xp, 0) AS xp,
@@ -147,7 +159,7 @@ BEGIN
     r.username,
     r.display_name
   FROM roles r
-  WHERE r.user_id = target_user_id;
+  WHERE r.user_id = auth.uid();
 END;
 $$;
 
@@ -184,6 +196,7 @@ END;
 $$;
 
 -- Add RLS policy for vote deletion
+DROP POLICY IF EXISTS "Users can delete own votes" ON paper_request_votes;
 CREATE POLICY "Users can delete own votes"
   ON paper_request_votes FOR DELETE
   USING (auth.uid() IS NOT NULL AND auth.uid() = user_id);
@@ -199,12 +212,17 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  -- Only allow users to query their own upload stats
+  IF target_user_id != auth.uid() THEN
+    RAISE EXCEPTION 'Can only query own upload stats';
+  END IF;
+
   RETURN QUERY
   SELECT
     COUNT(*)::bigint AS total_uploads,
     COUNT(*) FILTER (WHERE status IN ('approved', 'published'))::bigint AS approved_uploads
   FROM submissions
-  WHERE user_id = target_user_id;
+  WHERE user_id = auth.uid();
 END;
 $$;
 
@@ -222,8 +240,8 @@ DECLARE
   caller_level int;
 BEGIN
   SELECT r.level INTO caller_level FROM roles r WHERE r.user_id = auth.uid();
-  IF caller_level IS NULL OR caller_level < 75 THEN
-    RAISE EXCEPTION 'Insufficient permissions';
+  IF caller_level IS NULL OR caller_level < 90 THEN
+    RAISE EXCEPTION 'Insufficient permissions: level >= 90 required';
   END IF;
 
   RETURN QUERY
@@ -231,7 +249,7 @@ BEGIN
     au.id AS user_id,
     au.email::text,
     COALESCE(r.display_name, au.raw_user_meta_data->>'full_name', au.email)::text AS display_name,
-    COALESCE(r.level, 10) AS level,
+    COALESCE(r.level, 0) AS level,
     COALESCE(r.xp, 0) AS xp,
     r.username,
     r.primary_role
@@ -310,7 +328,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION calculate_level_from_xp TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION get_role_title_from_xp TO authenticated, anon;
-GRANT EXECUTE ON FUNCTION add_user_xp TO authenticated;
+GRANT EXECUTE ON FUNCTION add_user_xp TO service_role;
 GRANT EXECUTE ON FUNCTION get_user_xp_info TO authenticated;
 GRANT EXECUTE ON FUNCTION remove_vote TO authenticated;
 GRANT EXECUTE ON FUNCTION get_user_upload_stats TO authenticated;

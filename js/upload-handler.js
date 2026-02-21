@@ -134,7 +134,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     // Demo paper: upload directly to approved bucket, status = approved
     if (isDemo) {
-      const approvedPath = `question-papers/${metadata.paperCode}/${metadata.examYear}/${generatedFilename}`;
+      const approvedPath = `question-papers/${sanitizedCode}/${sanitizedYear}/${generatedFilename}`;
 
       // Copy file to approved bucket
       const { data: tempFile, error: downloadErr } = await supabase.storage

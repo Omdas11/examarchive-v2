@@ -17,12 +17,15 @@
     // Create modal
     const modal = document.createElement('div');
     modal.className = 'levelup-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Level Up notification');
     modal.innerHTML = `
       <div class="levelup-content">
         <div class="levelup-title">LEVEL UP!</div>
         <div class="levelup-subtitle">You reached a new level</div>
-        <div class="levelup-level">${newLevel}</div>
-        <button class="levelup-close">Continue</button>
+        <div class="levelup-level">${parseInt(newLevel, 10)}</div>
+        <button class="levelup-close" aria-label="Close level up notification">Continue</button>
       </div>
     `;
 
@@ -36,19 +39,33 @@
     // Spawn confetti
     spawnConfetti();
 
-    // Close handlers
+    // Focus the close button for keyboard accessibility
     const closeBtn = modal.querySelector('.levelup-close');
-    closeBtn.addEventListener('click', () => {
+    closeBtn.focus();
+
+    // Close handler
+    function closeModal() {
       modal.classList.remove('show');
       setTimeout(() => modal.remove(), FADE_DURATION_MS);
+      document.removeEventListener('keydown', escHandler);
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close on overlay click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
     });
+
+    // Close on Escape key
+    function escHandler(e) {
+      if (e.key === 'Escape') closeModal();
+    }
+    document.addEventListener('keydown', escHandler);
 
     // Auto-close
     setTimeout(() => {
-      if (modal.parentNode) {
-        modal.classList.remove('show');
-        setTimeout(() => modal.remove(), FADE_DURATION_MS);
-      }
+      if (modal.parentNode) closeModal();
     }, AUTO_CLOSE_MS);
   }
 

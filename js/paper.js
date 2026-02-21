@@ -28,6 +28,15 @@ function formatFileSize(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 /* ================= LOAD PAPER FROM BACKEND ================= */
 async function loadPaper() {
   try {
@@ -186,15 +195,21 @@ async function loadSyllabus(supabase, subjectCode) {
 
 function renderSyllabusContent(data) {
   if (data.units && Array.isArray(data.units)) {
-    return data.units.map((unit, i) => `
+    return data.units.map((unit, i) => {
+      const safeTitle = unit.title ? escapeHtml(unit.title) : '';
+      const topicsHtml = unit.topics
+        ? `<ul>${unit.topics.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>`
+        : '';
+      return `
       <div class="syllabus-unit">
-        <h4>Unit ${i + 1}: ${unit.title || ''}</h4>
-        ${unit.topics ? `<ul>${unit.topics.map(t => `<li>${t}</li>`).join('')}</ul>` : ''}
+        <h4>Unit ${i + 1}: ${safeTitle}</h4>
+        ${topicsHtml}
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
   if (data.content) {
-    return `<div class="syllabus-content">${data.content}</div>`;
+    return `<div class="syllabus-content">${escapeHtml(data.content)}</div>`;
   }
   return '<p class="coming-soon">Syllabus data format not recognized.</p>';
 }
@@ -210,13 +225,33 @@ async function loadRepeatedQuestions(supabase, subjectCode) {
     if (res.ok) {
       const rqData = await res.json();
       if (rqData && Array.isArray(rqData) && rqData.length > 0) {
-        container.innerHTML = rqData.map((q, i) => `
-          <div class="rq-item">
-            <span class="rq-num">${i + 1}.</span>
-            <span class="rq-text">${q.question || q.text || q}</span>
-            ${q.frequency ? `<span class="rq-freq">×${q.frequency}</span>` : ''}
-          </div>
-        `).join('');
+        container.innerHTML = '';
+        rqData.forEach((q, i) => {
+          const itemEl = document.createElement('div');
+          itemEl.className = 'rq-item';
+
+          const numEl = document.createElement('span');
+          numEl.className = 'rq-num';
+          numEl.textContent = `${i + 1}.`;
+          itemEl.appendChild(numEl);
+
+          const textEl = document.createElement('span');
+          textEl.className = 'rq-text';
+          const questionText = (q && typeof q === 'object')
+            ? (q.question || q.text || '')
+            : (q != null ? String(q) : '');
+          textEl.textContent = questionText;
+          itemEl.appendChild(textEl);
+
+          if (q && typeof q === 'object' && q.frequency) {
+            const freqEl = document.createElement('span');
+            freqEl.className = 'rq-freq';
+            freqEl.textContent = `×${q.frequency}`;
+            itemEl.appendChild(freqEl);
+          }
+
+          container.appendChild(itemEl);
+        });
         return;
       }
     }
@@ -245,23 +280,38 @@ async function loadNotesResources(supabase, subjectCode) {
       if (skeletonGroup) skeletonGroup.style.display = 'none';
       if (comingSoon) comingSoon.style.display = 'none';
 
-      const notesHtml = [];
-      for (const file of notesList) {
-        const { data: signedData } = await supabase.storage
+      // Generate signed URLs in parallel
+      const signedUrlPromises = notesList.map((file) =>
+        supabase.storage
           .from('uploads-approved')
-          .createSignedUrl(`notes/${subjectCode}/${file.name}`, 3600);
-
-        notesHtml.push(`
-          <div class="resource-item">
-            <span>📄 ${file.name}</span>
-            <a href="${signedData?.signedUrl || '#'}" target="_blank" class="link-red">Open →</a>
-          </div>
-        `);
-      }
+          .createSignedUrl(`notes/${subjectCode}/${file.name}`, 3600)
+      );
+      const signedResults = await Promise.all(signedUrlPromises);
 
       const notesContainer = document.createElement('div');
       notesContainer.className = 'notes-list';
-      notesContainer.innerHTML = notesHtml.join('');
+
+      for (let i = 0; i < notesList.length; i++) {
+        const file = notesList[i];
+        const signedData = signedResults[i]?.data;
+
+        const item = document.createElement('div');
+        item.className = 'resource-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = `📄 ${file.name}`;
+
+        const link = document.createElement('a');
+        link.href = signedData?.signedUrl || '#';
+        link.target = '_blank';
+        link.className = 'link-red';
+        link.textContent = 'Open →';
+
+        item.appendChild(nameSpan);
+        item.appendChild(link);
+        notesContainer.appendChild(item);
+      }
+
       section.appendChild(notesContainer);
       return;
     }
