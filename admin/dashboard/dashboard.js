@@ -97,6 +97,7 @@ async function initializeDashboard(primaryRole) {
   if (primaryRole === 'Founder' || primaryRole === 'Admin') {
     setupRoleManagement();
     setupUsersTable();
+    setupDemoReset();
   }
 }
 
@@ -691,6 +692,45 @@ function setupRealtimeSubscriptions() {
 }
 
 /**
+ * Setup demo data reset button (Founder/Admin only)
+ */
+function setupDemoReset() {
+  const panel = document.getElementById('demo-reset-panel');
+  if (!panel) return;
+  panel.style.display = 'block';
+
+  const resetBtn = document.getElementById('resetDemoDataBtn');
+  resetBtn?.addEventListener('click', async () => {
+    const confirmed = confirm(
+      'Are you sure you want to reset all demo data? This will delete all demo submissions. This action cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    const doubleConfirm = confirm(
+      'FINAL CONFIRMATION: This will permanently delete demo submissions. Type OK to proceed.'
+    );
+    if (!doubleConfirm) return;
+
+    try {
+      const supabase = window.getSupabase ? window.getSupabase() : null;
+      if (!supabase) throw new Error('Supabase not initialized');
+
+      const { error } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('upload_type', 'demo-paper');
+
+      if (error) throw error;
+
+      showMessage('Demo data reset successfully!', 'success');
+      await loadSubmissions();
+    } catch (err) {
+      showMessage('Failed to reset demo data: ' + (err.message || 'Unknown error'), 'error');
+    }
+  });
+}
+
+/**
  * Show message to user
  */
 function showMessage(message, type = 'info') {
@@ -894,6 +934,15 @@ async function saveRoleChanges() {
   const level = parseInt(document.getElementById('roleEditLevel')?.value);
   const xp = parseInt(document.getElementById('roleEditXP')?.value);
   const primaryRole = document.getElementById('roleEditPrimary')?.value.trim() || null;
+
+  // Warn before assigning Founder role
+  if (primaryRole === 'Founder') {
+    const confirmFounder = confirm(
+      'WARNING: There can only be one Founder. If another Founder already exists, this will fail. Continue?'
+    );
+    if (!confirmFounder) return;
+  }
+
   const secondaryRole = document.getElementById('roleEditSecondary')?.value.trim() || null;
   const tertiaryRole = document.getElementById('roleEditTertiary')?.value.trim() || null;
   const badgesStr = document.getElementById('roleEditBadges')?.value.trim();
@@ -918,8 +967,11 @@ async function saveRoleChanges() {
     showMessage('Role updated successfully!', 'success');
     document.getElementById('roleEditPanel').style.display = 'none';
 
-    // Refresh search results
+    // Refresh search results and users table
     await searchUsers();
+    if (document.getElementById('users-table-panel')?.style.display !== 'none') {
+      await loadUsersTable();
+    }
   } catch (err) {
     showMessage('Failed to update role: ' + err.message, 'error');
   }
