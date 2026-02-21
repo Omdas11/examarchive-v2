@@ -19,7 +19,8 @@ function debug() {
  * @returns {string|null}
  */
 function mapLevelToRole(level) {
-  const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : null;
+  if (!Number.isFinite(level)) return null;
+  const roleInfo = window.RoleUtils?.mapRole?.(level) || null;
   if (!roleInfo?.displayName) return null;
   return roleInfo.displayName.replace(/^[^\s]+ /, '');
 }
@@ -86,7 +87,7 @@ async function computeBadges(user) {
           .single();
         if (data) {
           roleData = {
-            level: data.level,
+            level: data.level ?? badgeInfo.level,
             primary_role: data.primary_role,
             secondary_role: data.secondary_role,
             tertiary_role: data.tertiary_role
@@ -109,11 +110,12 @@ async function computeBadges(user) {
       };
     }
 
+    const badgeType = label.toLowerCase().replace(/\s+/g, '_');
     return {
-      type: label.toLowerCase().replace(/\s+/g, '_'),
+      type: badgeType,
       label,
       icon: '🏷️',
-      color: getBadgeColor(label.toLowerCase().replace(/\s+/g, '_'))
+      color: getBadgeColor?.(badgeType) || 'var(--color-muted)'
     };
   });
 }
