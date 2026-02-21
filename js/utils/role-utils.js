@@ -7,6 +7,14 @@
 /**
  * Map role level to display name and icon
  * Centralized mapping function - SINGLE SOURCE OF TRUTH
+ * Phase 3 hierarchy:
+ *   0   = Visitor
+ *   10  = User
+ *   20  = Contributor (auto after first upload)
+ *   50  = Reviewer
+ *   75  = Moderator (can approve)
+ *   90  = Senior Moderator (can publish)
+ *   100 = Founder/Admin (full access)
  * @param {number} level - Role level from database
  * @returns {Object} {name, displayName, icon}
  */
@@ -14,28 +22,36 @@ function mapRole(level) {
   if (level >= 100) {
     return {
       name: 'admin',
-      displayName: '👑 Admin',
+      displayName: '👑 Founder',
       icon: '👑',
       level
     };
   }
   if (level >= 90) {
     return {
-      name: 'publisher',
-      displayName: '📢 Publisher',
-      icon: '📢',
+      name: 'senior_moderator',
+      displayName: '🔰 Senior Moderator',
+      icon: '🔰',
       level
     };
   }
   if (level >= 75) {
     return {
-      name: 'reviewer',
-      displayName: '🛡️ Reviewer',
+      name: 'moderator',
+      displayName: '🛡️ Moderator',
       icon: '🛡️',
       level
     };
   }
-  if (level >= 10) {
+  if (level >= 50) {
+    return {
+      name: 'reviewer',
+      displayName: '📋 Reviewer',
+      icon: '📋',
+      level
+    };
+  }
+  if (level >= 20) {
     return {
       name: 'contributor',
       displayName: '✍️ Contributor',
@@ -43,10 +59,18 @@ function mapRole(level) {
       level
     };
   }
+  if (level >= 10) {
+    return {
+      name: 'user',
+      displayName: '👤 User',
+      icon: '👤',
+      level
+    };
+  }
   return {
     name: 'visitor',
-    displayName: '👤 Visitor',
-    icon: '👤',
+    displayName: '👁️ Visitor',
+    icon: '👁️',
     level
   };
 }

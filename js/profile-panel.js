@@ -15,12 +15,12 @@ function debug(msg) {
 
 /**
  * Compute badges for a user using backend-verified roles
- * Badge Slot 1: Primary role badge (VISITOR/CONTRIBUTOR/REVIEWER/ADMIN)
- * Badge Slot 2: Founder badge (if user_id matches owner)
- * Badge Slot 3: Custom title from roles table (level 90-99)
+ * Badge Slot 1: Primary role badge
+ * Badge Slot 2: Founder badge (auto if level=100) OR Contributor (auto if ≥1 upload)
+ * Badge Slot 3: Custom badge from roles table
  * 
  * @param {Object} user - Supabase user object
- * @returns {Array} Array of badge objects
+ * @returns {Array} Array of badge objects (max 3)
  */
 async function computeBadges(user) {
   const getUserBadge = window.Roles.getUserBadge;
@@ -37,82 +37,79 @@ async function computeBadges(user) {
     color: badgeInfo.color
   });
   
-  // Slot 2: Founder badge (hardcoded owner check)
+  // Slot 2: Founder badge (auto if level=100) or Contributor badge (if has uploads)
   if (user && user.id) {
     try {
       const supabase = await window.waitForSupabase();
       if (supabase) {
-        // Check for founder status (level 100 is admin/owner)
         if (badgeInfo.level >= 100) {
+          // Auto Founder badge
           badges.push({
             type: 'founder',
             label: 'Founder',
             icon: '⭐',
             color: 'var(--color-warning)'
           });
+        } else {
+          // Check if user has uploads → Contributor badge
+          const hasContributions = await checkUserContributions(user.id);
+          if (hasContributions) {
+            badges.push({
+              type: 'contributor',
+              label: 'Contributor',
+              icon: '✍️',
+              color: 'var(--color-success)'
+            });
+          }
         }
 
-        // Slot 3: Custom title for level 90-99
-        if (badgeInfo.level >= 90 && badgeInfo.level < 100) {
-          const { data: roleData } = await supabase
-            .from('roles')
-            .select('role_title')
-            .eq('user_id', user.id)
-            .single();
+        // Slot 3: Custom badge from roles table custom_badges
+        const { data: roleData } = await supabase
+          .from('roles')
+          .select('custom_badges, primary_role, secondary_role, tertiary_role')
+          .eq('user_id', user.id)
+          .single();
 
-          if (roleData?.role_title) {
+        if (roleData) {
+          // Use custom_badges array if available
+          const customBadges = roleData.custom_badges || [];
+          if (Array.isArray(customBadges) && customBadges.length > 0 && badges.length < 3) {
             badges.push({
-              type: 'expert',
-              label: roleData.role_title,
+              type: 'custom',
+              label: customBadges[0],
               icon: '🏅',
-              color: 'var(--color-purple)'
-            });
-          } else {
-            badges.push({
-              type: 'expert',
-              label: 'Subject Expert',
-              icon: '🏅',
-              color: 'var(--color-purple)'
+              color: 'var(--color-purple, #9c27b0)'
             });
           }
         }
       }
     } catch (err) {
-      console.warn('[BADGE] Error fetching additional badges:', err);
+      // Silently handle badge fetch errors
     }
   }
   
-  return badges;
+  // Limit to 3 badges
+  return badges.slice(0, 3);
 }
 
 /**
- * Check if user has contributed papers
+ * Check if user has contributed papers (any upload)
  * @param {string} userId - User ID
  * @returns {boolean} True if user has uploaded papers
  */
 async function checkUserContributions(userId) {
   try {
     const supabase = await window.waitForSupabase();
-    if (!supabase) {
-      console.warn('[profile-panel] Supabase not ready for checkUserContributions');
-      return false;
-    }
+    if (!supabase) return false;
     
-    const { data, error } = await supabase
+    const { count, error } = await supabase
       .from('submissions')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('status', 'published')
-      .limit(1);
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId);
     
-    if (error) {
-      console.error('Error checking contributions:', error);
-      return false;
-    }
-    
-    return data && data.length > 0;
+    if (error) return false;
+    return (count || 0) > 0;
   } catch (err) {
-    console.error('Error in checkUserContributions:', err);
     return false;
   }
 }
@@ -137,6 +134,53 @@ function renderBadges(badges) {
       <span class="badge-label">${badge.label}</span>
     </div>
   `).join("");
+}
+
+/**
+ * Render achievements in the profile panel
+ * @param {string} userId - User ID
+ */
+async function renderAchievements(userId) {
+  try {
+    const supabase = await window.waitForSupabase();
+    if (!supabase) return;
+
+    const { data, error } = await supabase.rpc('get_user_achievements', {
+      target_user_id: userId
+    });
+
+    if (error || !data || data.length === 0) return;
+
+    const achievementLabels = {
+      'first_upload': { label: 'First Upload', icon: '📤' },
+      '10_uploads': { label: '10 Uploads', icon: '🏆' },
+      'first_review': { label: 'First Review', icon: '📝' },
+      'first_publish': { label: 'First Publish', icon: '🌐' },
+      'early_user': { label: 'Early Adopter', icon: '🌟' }
+    };
+
+    // Find or create achievements section
+    let achievementsSection = document.querySelector('.profile-achievements');
+    if (!achievementsSection) {
+      achievementsSection = document.createElement('section');
+      achievementsSection.className = 'profile-achievements';
+      const badgesSection = document.querySelector('.profile-badges');
+      if (badgesSection) {
+        badgesSection.parentNode.insertBefore(achievementsSection, badgesSection.nextSibling);
+      }
+    }
+
+    achievementsSection.style.display = 'flex';
+    achievementsSection.innerHTML = `
+      <h4 style="width:100%;margin:0 0 0.5rem;font-size:0.8rem;color:var(--text-muted);">Achievements</h4>
+      ${data.map(a => {
+        const info = achievementLabels[a.badge_type] || { label: a.badge_type, icon: '🏅' };
+        return `<span class="achievement-pill" title="Earned ${new Date(a.awarded_at).toLocaleDateString()}">${info.icon} ${info.label}</span>`;
+      }).join('')}
+    `;
+  } catch (err) {
+    // Silently fail - achievements are optional
+  }
 }
 
 /* ===============================
@@ -336,6 +380,9 @@ async function renderProfilePanel() {
     // Compute and render badges dynamically
     const badges = await computeBadges(user);
     renderBadges(badges);
+
+    // Load and display achievements
+    await renderAchievements(user.id);
 
     // Show stats
     if (statsSection) statsSection.style.display = "grid";

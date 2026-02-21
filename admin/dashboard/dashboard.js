@@ -270,11 +270,6 @@ function renderSubmissionCard(submission) {
             Approve
           </button>
           ` : ''}
-          ${userRoleLevel >= 90 ? `
-          <button class="btn btn-primary" data-action="approve-publish" data-id="${submission?.id || ''}">
-            Approve & Publish
-          </button>
-          ` : ''}
         ` : safeStatus === 'approved' ? `
           ${userRoleLevel >= 90 ? `
           <button class="btn btn-view" data-action="publish" data-id="${submission?.id || ''}">
@@ -310,8 +305,6 @@ function attachSubmissionListeners() {
         showReviewModal(submission);
       } else if (action === 'approve') {
         await approveSubmission(submission);
-      } else if (action === 'approve-publish') {
-        await approveAndPublishSubmission(submission);
       } else if (action === 'reject') {
         showRejectModal(submission);
       } else if (action === 'publish') {
