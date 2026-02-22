@@ -231,12 +231,12 @@ function updateHeaderAvatar(user) {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (supabase) {
       supabase.from('roles').select('avatar_url').eq('user_id', user.id).single().then(function(res) {
-        applyAvatar(res.data?.avatar_url || avatarUrl);
+        applyAvatar(res.data?.avatar_url || null);
       }).catch(function() {
-        applyAvatar(avatarUrl);
+        applyAvatar(null);
       });
     } else {
-      applyAvatar(avatarUrl);
+      applyAvatar(null);
     }
   } else {
     avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get('user') : '';
