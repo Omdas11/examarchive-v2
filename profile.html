@@ -861,6 +861,9 @@
           if (profileLoaded) return;
 
           profileLoaded = true;
+          if (authSub && authSub.data && authSub.data.subscription) {
+            authSub.data.subscription.unsubscribe();
+          }
           window.debugLog('AUTH', 'Auth state changed: ' + event);
 
           loadProfile(session.user.id).catch(function(err) {
