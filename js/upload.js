@@ -298,6 +298,10 @@ function initializeUploadForm() {
     const programme = document.getElementById('programme')?.value || '';
     const subject = document.getElementById('subject')?.value.trim() || '';
     const paperType = document.getElementById('paperType')?.value || 'main';
+    const semester = document.getElementById('semester')?.value || '';
+    const tagsRaw = document.getElementById('tags')?.value.trim() || '';
+    const tags = tagsRaw ? tagsRaw.split(',').map(function(t) { return t.trim(); }).filter(Boolean) : [];
+    const fileRename = document.getElementById('fileRename')?.value.trim() || '';
 
     // Validate inputs
     if (!paperCode) {
@@ -337,7 +341,10 @@ function initializeUploadForm() {
           stream,
           programme,
           subject,
-          paperType
+          paperType,
+          semester,
+          tags,
+          fileRename
         },
         (progress) => {
           uploadButton.textContent = `Uploading ${progress}%`;
@@ -363,8 +370,14 @@ function initializeUploadForm() {
         examYearInput.classList.remove('input-valid', 'input-invalid');
         const programmeEl = document.getElementById('programme');
         const subjectEl = document.getElementById('subject');
+        const semesterEl = document.getElementById('semester');
+        const tagsEl = document.getElementById('tags');
+        const fileRenameEl = document.getElementById('fileRename');
         if (programmeEl) programmeEl.value = '';
         if (subjectEl) subjectEl.value = '';
+        if (semesterEl) semesterEl.value = '';
+        if (tagsEl) tagsEl.value = '';
+        if (fileRenameEl) fileRenameEl.value = '';
         
         // Reload submissions
         setTimeout(() => {

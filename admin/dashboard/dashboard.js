@@ -302,6 +302,30 @@ function renderSubmissionCard(submission) {
           <strong>Paper Name</strong>
           <span>${escapeHtml(submission?.paper_name || '-')}</span>
         </div>
+        ${submission?.university ? `
+        <div class="detail-item">
+          <strong>University</strong>
+          <span>${escapeHtml(submission.university)}</span>
+        </div>
+        ` : ''}
+        ${submission?.subject ? `
+        <div class="detail-item">
+          <strong>Subject</strong>
+          <span>${escapeHtml(submission.subject)}</span>
+        </div>
+        ` : ''}
+        ${submission?.semester ? `
+        <div class="detail-item">
+          <strong>Semester</strong>
+          <span>${escapeHtml(String(submission.semester))}</span>
+        </div>
+        ` : ''}
+        ${submission?.tags && submission.tags.length ? `
+        <div class="detail-item">
+          <strong>Tags</strong>
+          <span>${submission.tags.map(function(t) { return escapeHtml(t); }).join(', ')}</span>
+        </div>
+        ` : ''}
         ${submission?.storage_path ? `
         <div class="detail-item">
           <strong>Storage Path</strong>
@@ -430,26 +454,54 @@ function setupModal() {
 }
 
 /**
- * Show review modal
+ * Show review modal with metadata editing
  */
 function showReviewModal(submission) {
   currentSubmission = submission;
   const modal = document.getElementById('review-modal');
   const modalInfo = document.getElementById('modal-submission-info');
   const reviewNotes = document.getElementById('review-notes');
+  const modalTitle = document.getElementById('modal-title');
+  const approveBtn = document.getElementById('approve-btn');
 
+  modalTitle.textContent = 'Review Submission';
+  approveBtn.style.display = '';
   reviewNotes.value = '';
+  reviewNotes.placeholder = 'Review notes (optional)...';
 
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
-      <h4 style="margin: 0 0 0.5rem 0;">${submission?.paper_code || 'Unknown'} - ${submission?.year || 'N/A'}</h4>
+      <h4 style="margin: 0 0 0.5rem 0;">${escapeHtml(submission?.paper_code || 'Unknown')} - ${escapeHtml(submission?.year || 'N/A')}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission?.original_filename || 'Unknown'} (${window.UploadHandler?.formatFileSize ? window.UploadHandler.formatFileSize(submission?.file_size ?? 0) : '0 B'})
+        <strong>File:</strong> ${escapeHtml(submission?.original_filename || 'Unknown')} (${window.UploadHandler?.formatFileSize ? window.UploadHandler.formatFileSize(submission?.file_size ?? 0) : '0 B'})
       </p>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
         <strong>Submitted:</strong> ${submission?.created_at ? new Date(submission.created_at).toLocaleString() : 'Unknown'}
       </p>
+      ${submission?.university ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>University:</strong> ' + escapeHtml(submission.university) + '</p>' : ''}
+      ${submission?.subject ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>Subject:</strong> ' + escapeHtml(submission.subject) + '</p>' : ''}
+      ${submission?.semester ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>Semester:</strong> ' + escapeHtml(String(submission.semester)) + '</p>' : ''}
+      ${submission?.tags && submission.tags.length ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>Tags:</strong> ' + submission.tags.map(function(t){return escapeHtml(t);}).join(', ') + '</p>' : ''}
     </div>
+    <details style="margin-bottom:1rem;">
+      <summary style="cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--text);">✏️ Edit Metadata</summary>
+      <div style="padding:0.75rem;background:var(--bg-soft);border-radius:8px;margin-top:0.5rem;">
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Paper Code</strong>
+          <input type="text" id="editPaperCode" value="${escapeHtml(submission?.paper_code || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Year</strong>
+          <input type="number" id="editYear" value="${submission?.year || ''}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Rename File</strong>
+          <input type="text" id="editFilename" value="${escapeHtml(submission?.original_filename || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;margin-top:0.25rem;" onclick="saveMetadataEdit('${submission?.id}')">Save Changes</button>
+      </div>
+    </details>
+    ${submission?.storage_path ? '<div style="margin-bottom:1rem;"><button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;" onclick="previewSubmissionFile(\'' + escapeHtml(submission.id) + '\')">📄 Preview PDF</button></div>' : ''}
   `;
 
   modal.style.display = 'flex';
@@ -769,6 +821,48 @@ function setupDemoReset() {
       showMessage('Failed to reset demo data: ' + (err.message || 'Unknown error'), 'error');
     }
   });
+}
+
+/**
+ * Save metadata edits for a submission (admin review flow)
+ */
+async function saveMetadataEdit(submissionId) {
+  try {
+    var supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    var updates = {};
+    var codeEl = document.getElementById('editPaperCode');
+    var yearEl = document.getElementById('editYear');
+    var filenameEl = document.getElementById('editFilename');
+
+    if (codeEl && codeEl.value.trim()) updates.paper_code = codeEl.value.trim();
+    if (yearEl && yearEl.value) updates.year = parseInt(yearEl.value);
+    if (filenameEl && filenameEl.value.trim()) updates.original_filename = filenameEl.value.trim();
+
+    if (Object.keys(updates).length === 0) {
+      showMessage('No changes to save.', 'info');
+      return;
+    }
+
+    var res = await supabase.from('submissions').update(updates).eq('id', submissionId);
+    if (res.error) throw res.error;
+
+    showMessage('Metadata updated successfully!', 'success');
+    await loadSubmissions();
+  } catch (err) {
+    showMessage('Failed to save: ' + (err.message || 'Unknown error'), 'error');
+  }
+}
+
+/**
+ * Preview PDF for a submission from the review modal
+ */
+async function previewSubmissionFile(submissionId) {
+  var submission = allSubmissions.find(function(s) { return s.id === submissionId; });
+  if (submission) {
+    await previewFile(submission);
+  }
 }
 
 /**

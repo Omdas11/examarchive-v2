@@ -207,17 +207,27 @@ async function handlePaperUpload(file, metadata, onProgress) {
     // Normal paper: create submission with pending status
     debugLog('info', '[SUBMIT] Submission Insert Starting (Pending Review)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
     
+    var submissionData = {
+      paper_code: metadata.paperCode,
+      year: metadata.examYear,
+      storage_path: storagePath,
+      original_filename: metadata.fileRename ? (metadata.fileRename.replace(/[^a-zA-Z0-9_-]/g, '_') + '.pdf') : file.name,
+      file_size: file.size,
+      content_type: file.type || 'application/pdf',
+      status: 'pending'
+    };
+    // Add optional metadata fields if the DB columns exist
+    if (metadata.university) submissionData.university = metadata.university;
+    if (metadata.stream) submissionData.stream = metadata.stream;
+    if (metadata.programme) submissionData.programme = metadata.programme;
+    if (metadata.subject) submissionData.subject = metadata.subject;
+    if (metadata.paperType) submissionData.paper_type = metadata.paperType;
+    if (metadata.semester) submissionData.semester = metadata.semester;
+    if (metadata.tags && metadata.tags.length) submissionData.tags = metadata.tags;
+
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
-      .insert({
-        paper_code: metadata.paperCode,
-        year: metadata.examYear,
-        storage_path: storagePath,
-        original_filename: file.name,
-        file_size: file.size,
-        content_type: file.type || 'application/pdf',
-        status: 'pending'
-      })
+      .insert(submissionData)
       .select()
       .single();
 
