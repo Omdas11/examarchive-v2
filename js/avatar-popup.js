@@ -144,10 +144,9 @@ async function renderAvatarPopup() {
     });
 
     viewProfileBtn?.addEventListener("click", () => {
-      debug("[ACTION] Opening profile panel from avatar popup");
+      debug("[ACTION] Navigating to profile page");
       closeAvatarPopup();
-      const panel = document.querySelector(".profile-panel");
-      panel?.classList.add("open");
+      window.location.href = "/profile.html";
     });
 
     debug(`[OK] Avatar popup updated (logged-in): ${fullName || email || "User"}`);

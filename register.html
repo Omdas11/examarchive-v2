@@ -143,6 +143,26 @@
       color: var(--text-muted);
       margin-top: 0.25rem;
     }
+    .password-input-wrap {
+      position: relative;
+    }
+    .password-input-wrap input {
+      padding-right: 2.5rem;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+    }
+    .password-toggle:hover { color: var(--text); }
   </style>
 </head>
 <body>
@@ -166,13 +186,25 @@
 
       <div class="auth-field">
         <label for="regPassword">Password</label>
-        <input type="password" id="regPassword" placeholder="Choose a password" autocomplete="new-password" />
+        <div class="password-input-wrap">
+          <input type="password" id="regPassword" placeholder="Choose a password" autocomplete="new-password" />
+          <button type="button" class="password-toggle" id="toggleRegPassword" aria-label="Show password" tabindex="-1">
+            <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/><path d="M14.12 14.12a3 3 0 11-4.24-4.24"/></svg>
+          </button>
+        </div>
         <p class="password-hint">Must be at least 6 characters</p>
       </div>
 
       <div class="auth-field">
         <label for="regPasswordConfirm">Confirm Password</label>
-        <input type="password" id="regPasswordConfirm" placeholder="Confirm your password" autocomplete="new-password" />
+        <div class="password-input-wrap">
+          <input type="password" id="regPasswordConfirm" placeholder="Confirm your password" autocomplete="new-password" />
+          <button type="button" class="password-toggle" id="toggleRegPasswordConfirm" aria-label="Show password" tabindex="-1">
+            <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/><path d="M14.12 14.12a3 3 0 11-4.24-4.24"/></svg>
+          </button>
+        </div>
       </div>
 
       <div class="auth-actions">
@@ -278,6 +310,21 @@
       document.getElementById('regPasswordConfirm').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') registerBtn.click();
       });
+
+      // Password visibility toggles
+      function setupPasswordToggle(btnId, inputId) {
+        var btn = document.getElementById(btnId);
+        var input = document.getElementById(inputId);
+        btn.addEventListener('click', function() {
+          var isPassword = input.type === 'password';
+          input.type = isPassword ? 'text' : 'password';
+          btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+          btn.querySelector('.eye-open').style.display = isPassword ? 'none' : '';
+          btn.querySelector('.eye-closed').style.display = isPassword ? '' : 'none';
+        });
+      }
+      setupPasswordToggle('toggleRegPassword', 'regPassword');
+      setupPasswordToggle('toggleRegPasswordConfirm', 'regPasswordConfirm');
 
       googleBtn.addEventListener('click', async function() {
         await window.AuthController.signInWithGoogle();

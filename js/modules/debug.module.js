@@ -175,24 +175,31 @@ class DebugLogger {
         return;
       }
 
-      // Check role level via RPC — only level >= 90 can access debug
-      let roleLevel = 0;
+      // Check access via RPC — use has_admin_access for debug panel
+      let hasAccess = false;
+      let isFounder = false;
       try {
-        const { data: roleLevelData } = await supabase.rpc('get_current_user_role_level');
-        if (roleLevelData !== null) {
-          roleLevel = roleLevelData;
-        }
+        const { data } = await supabase.rpc('has_admin_access', { uid: session.user.id });
+        hasAccess = data === true;
       } catch (err) {
-        console.warn('[DEBUG-LOGGER] Could not fetch role level:', err);
+        // Fallback: check primary_role
+        try {
+          const { data: roleData } = await supabase
+            .from('roles')
+            .select('primary_role')
+            .eq('user_id', session.user.id)
+            .single();
+          if (roleData && ['Founder', 'Admin', 'Senior Moderator'].includes(roleData.primary_role)) {
+            hasAccess = true;
+            isFounder = roleData.primary_role === 'Founder';
+          }
+        } catch (_) {}
       }
 
-      const hasAccess = roleLevel >= 90;
       this.enabled = hasAccess;
-      this.roleLevel = roleLevel;
       
       if (hasAccess) {
-        // Full logging panel for Founder/Admin
-        this.fullAccess = roleLevel >= 100;
+        this.fullAccess = isFounder;
         this.panelVisible = localStorage.getItem('debug-panel-enabled') === 'true';
       }
     } catch (err) {
