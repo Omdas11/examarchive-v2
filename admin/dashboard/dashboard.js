@@ -1006,6 +1006,10 @@ function setupUsersTable() {
         usersSortBy = field;
         usersSortDir = 'desc';
       }
+      // Update aria-sort attributes
+      document.querySelectorAll('.users-table th[data-sort]').forEach(h => {
+        h.setAttribute('aria-sort', h.dataset.sort === usersSortBy ? (usersSortDir === 'asc' ? 'ascending' : 'descending') : 'none');
+      });
       loadUsersTable(1, document.getElementById('usersSearchInput')?.value.trim());
     });
   });

@@ -54,32 +54,12 @@ function getUserBadges(role) {
  * @returns {Array} Array of badge objects (max 3)
  */
 /**
- * Maps a badge label to its emoji icon using partial matching.
- * Supports parameterized badges like "Subject Expert (Physics)".
+ * Get badge icon — delegates to window.Roles.getBadgeIcon (single source of truth)
  * @param {string} label - The badge label text
  * @returns {string} The emoji icon for the badge
  */
 function getBadgeIcon(label) {
-  const iconMap = {
-    'Founder': '👑',
-    'Admin': '🛡️',
-    'Senior Moderator': '⚡',
-    'Reviewer': '📋',
-    'Contributor': '✨',
-    'Visitor': '👤',
-    'Subject Expert': '🧪',
-    'Paper Analyzer': '📊',
-    'Top Contributor': '🏆',
-    'Early Adopter': '🌟',
-    'Beta Tester': '🔬',
-    'Top Reviewer': '📝',
-    'Content Curator': '📚',
-    'University Lead': '🎓'
-  };
-  for (const [key, icon] of Object.entries(iconMap)) {
-    if (label.startsWith(key)) return icon;
-  }
-  return '🏷️';
+  return window.Roles?.getBadgeIcon?.(label) || '🏷️';
 }
 
 async function computeBadges(user) {
@@ -648,7 +628,7 @@ function initializeProfilePanel() {
       if (passInput && passInput.style.display === "none") {
         const email = emailInput ? emailInput.value.trim() : "";
         if (!email) {
-          if (errorDiv) { errorDiv.textContent = "Please enter your email."; errorDiv.style.display = "block"; }
+          if (errorDiv) { errorDiv.textContent = "Please enter your email."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
           return;
         }
         passInput.style.display = "";
@@ -662,13 +642,13 @@ function initializeProfilePanel() {
       const email = emailInput ? emailInput.value.trim() : "";
       const password = passInput ? passInput.value : "";
       if (!email || !password) {
-        if (errorDiv) { errorDiv.textContent = "Please enter email and password."; errorDiv.style.display = "block"; }
+        if (errorDiv) { errorDiv.textContent = "Please enter email and password."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
         return;
       }
 
       const { error } = await window.AuthController.signInWithPassword(email, password);
       if (error) {
-        if (errorDiv) { errorDiv.textContent = error.message || "Sign in failed."; errorDiv.style.display = "block"; }
+        if (errorDiv) { errorDiv.textContent = error.message || "Sign in failed."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
       } else {
         closePanel();
       }
@@ -683,14 +663,14 @@ function initializeProfilePanel() {
       const email = emailInput ? emailInput.value.trim() : "";
       const password = passInput ? passInput.value : "";
       if (!email || !password) {
-        if (errorDiv) { errorDiv.textContent = "Please enter email and password."; errorDiv.style.display = "block"; }
+        if (errorDiv) { errorDiv.textContent = "Please enter email and password."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
         return;
       }
       const { data, error } = await window.AuthController.signUp(email, password);
       if (error) {
-        if (errorDiv) { errorDiv.textContent = error.message || "Sign up failed."; errorDiv.style.display = "block"; }
+        if (errorDiv) { errorDiv.textContent = error.message || "Sign up failed."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
       } else {
-        if (errorDiv) { errorDiv.textContent = "Check your email to confirm your account."; errorDiv.style.display = "block"; errorDiv.classList.add("auth-success"); }
+        if (errorDiv) { errorDiv.textContent = "Check your email to confirm your account."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); errorDiv.classList.add("auth-success"); }
       }
       return;
     }
@@ -701,14 +681,14 @@ function initializeProfilePanel() {
       const errorDiv = document.getElementById("profileAuthError");
       const email = emailInput ? emailInput.value.trim() : "";
       if (!email) {
-        if (errorDiv) { errorDiv.textContent = "Please enter your email first."; errorDiv.style.display = "block"; }
+        if (errorDiv) { errorDiv.textContent = "Please enter your email first."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
         return;
       }
       const { error } = await window.AuthController.resetPassword(email);
       if (error) {
-        if (errorDiv) { errorDiv.textContent = error.message || "Reset failed."; errorDiv.style.display = "block"; }
+        if (errorDiv) { errorDiv.textContent = error.message || "Reset failed."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
       } else {
-        if (errorDiv) { errorDiv.textContent = "Password reset email sent."; errorDiv.style.display = "block"; errorDiv.classList.add("auth-success"); }
+        if (errorDiv) { errorDiv.textContent = "Password reset email sent."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); errorDiv.classList.add("auth-success"); }
       }
       return;
     }

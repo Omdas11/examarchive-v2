@@ -30,18 +30,33 @@ function mapRoleToBadge(role) {
 }
 
 /**
- * Get badge icon for a role
- * @param {string} badgeName - Badge name
+ * Get badge icon for a role or badge name
+ * Comprehensive mapping for all badge types (Phase 4)
+ * @param {string} badgeName - Badge or role name
  * @returns {string} Badge icon emoji
  */
 function getBadgeIcon(badgeName) {
   const icons = {
-    'Admin': '👑',
-    'Reviewer': '🛡️',
-    'Contributor': '✍️',
-    'Visitor': '👤'
+    'Founder': '👑',
+    'Admin': '🛡️',
+    'Senior Moderator': '⚡',
+    'Reviewer': '📋',
+    'Contributor': '✨',
+    'Visitor': '👤',
+    'Subject Expert': '🧪',
+    'Paper Analyzer': '📊',
+    'Top Contributor': '🏆',
+    'Early Adopter': '🌟',
+    'Beta Tester': '🔬',
+    'Top Reviewer': '📝',
+    'Content Curator': '📚',
+    'University Lead': '🎓'
   };
-  return icons[badgeName] || '✓';
+  // Support partial matching (e.g., "Subject Expert (Physics)")
+  for (const [key, icon] of Object.entries(icons)) {
+    if (badgeName && badgeName.startsWith(key)) return icon;
+  }
+  return '🏷️';
 }
 
 /**

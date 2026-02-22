@@ -96,10 +96,12 @@ async function handlePaperUpload(file, metadata, onProgress) {
     const sanitizedYear = String(metadata.examYear).replace(/[^0-9]/g, '');
     const sanitizedUniversity = String(metadata.university || 'unknown').replace(/[^a-zA-Z0-9_-]/g, '_');
     const sanitizedStream = String(metadata.stream || 'general').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const sanitizedProgramme = String(metadata.programme || 'general').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const sanitizedSubject = String(metadata.subject || sanitizedCode).replace(/[^a-zA-Z0-9_-]/g, '_');
     const generatedFilename = `${sanitizedCode}-${sanitizedYear}-${timestamp}.pdf`;
-    // Structured storage path: papers/{university}/{stream}/{subject_code}/{year}/{filename}
+    // Structured storage path: {university}/{stream}/{programme}/{subject}/{year}/{filename}
     const storagePath = metadata.university
-      ? `${sanitizedUniversity}/${sanitizedStream}/${sanitizedCode}/${sanitizedYear}/${generatedFilename}`
+      ? `${sanitizedUniversity}/${sanitizedStream}/${sanitizedProgramme}/${sanitizedSubject}/${sanitizedYear}/${generatedFilename}`
       : `${userId}/${generatedFilename}`;
     const TEMP_BUCKET = 'uploads-temp';
     const isDemo = metadata.uploadType === 'demo-paper';
