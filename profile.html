@@ -335,7 +335,7 @@
       <div class="profile-page-avatar-wrap" id="avatarWrap">
         <div class="profile-page-avatar-ring"></div>
         <div class="profile-page-avatar" id="pageAvatar" data-initials="?"></div>
-        <button class="avatar-upload-btn" id="avatarUploadBtn" title="Change photo">📷</button>
+        <button class="avatar-upload-btn" id="avatarUploadBtn" title="Change photo" aria-label="Change profile photo">📷</button>
         <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/webp" />
       </div>
 
@@ -646,12 +646,15 @@
       document.getElementById('avatarFileInput').addEventListener('change', async function(ev) {
         var file = ev.target.files[0];
         if (!file) return;
-        if (file.size > 2 * 1024 * 1024) {
+        var MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
+        if (file.size > MAX_AVATAR_SIZE) {
           alert('Image must be under 2MB.');
           return;
         }
         try {
-          var filePath = 'avatars/' + user.id + '.png';
+          var ext = file.name.split('.').pop().toLowerCase() || 'png';
+          if (!['png', 'jpg', 'jpeg', 'webp'].includes(ext)) ext = 'png';
+          var filePath = 'avatars/' + user.id + '.' + ext;
           var uploadRes = await supabase.storage
             .from('avatars')
             .upload(filePath, file, { upsert: true, cacheControl: '3600' });
@@ -665,7 +668,7 @@
           avatarEl.style.backgroundImage = 'url(' + publicUrl + ')';
           avatarEl.textContent = '';
         } catch (err) {
-          alert('Upload failed: ' + (err.message || 'Unknown error'));
+          alert('Upload failed: ' + (err.message || 'Please try again'));
         }
       });
 
