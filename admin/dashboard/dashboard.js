@@ -216,11 +216,12 @@ function renderSubmissions() {
 function renderSubmissionCard(submission) {
   const statusClass = `status-${submission?.status || 'pending'}`;
   
+  const SI = window.SvgIcons;
   const statusLabels = {
-    pending: '⏳ Pending Review',
-    approved: '✓ Approved',
-    rejected: '✗ Rejected',
-    published: '🌐 Published'
+    pending: (SI ? SI.inline('hourglass') : '') + ' Pending Review',
+    approved: (SI ? SI.inline('check') : '') + ' Approved',
+    rejected: (SI ? SI.inline('x_mark') : '') + ' Rejected',
+    published: (SI ? SI.inline('globe') : '') + ' Published'
   };
 
   const safeFileSize = (submission?.file_size ?? 0);

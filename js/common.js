@@ -3,7 +3,7 @@
 // GLOBAL UI HELPERS (Theme + Partials + Menu)
 // ============================================
 
-// ⚠️ GRACEFUL DEGRADATION: Log warning instead of throwing
+// GRACEFUL DEGRADATION: Log warning instead of throwing
 if (!window.__APP_BOOTED__) {
   console.warn('[COMMON] Bootstrap not loaded - continuing with degraded functionality');
 }

@@ -335,7 +335,7 @@
       <div class="profile-page-avatar-wrap" id="avatarWrap">
         <div class="profile-page-avatar-ring"></div>
         <div class="profile-page-avatar" id="pageAvatar" data-initials="?"></div>
-        <button class="avatar-upload-btn" id="avatarUploadBtn" title="Change photo" aria-label="Change profile photo">📷</button>
+        <button class="avatar-upload-btn" id="avatarUploadBtn" title="Change photo" aria-label="Change profile photo"><span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></span></button>
         <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/webp" />
       </div>
 
@@ -368,7 +368,7 @@
 
       <!-- Streak -->
       <div class="profile-page-streak" id="pageStreakSection" style="display:none;">
-        <div class="streak-title-row">🔥 Daily Streak</div>
+        <div class="streak-title-row"><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4-2.5 7-6 7-10.5 0-3-1.5-5.5-4-7.5-.8 2-2 3-4 3-1.5 0-2.5-1-3-2.5C6 7 4 10 4 13c0 4.5 3 7.5 8 9z"/></svg></span> Daily Streak</div>
         <div class="streak-circles" id="pageStreakCircles"></div>
         <div class="streak-stats-row" id="pageStreakStats"></div>
       </div>
@@ -418,6 +418,7 @@
   <script src="js/common.js"></script>
   <script src="js/avatar-utils.js"></script>
   <script src="js/utils/role-utils.js"></script>
+  <script src="js/svg-icons.js"></script>
   <script src="js/roles.js"></script>
   <script src="js/admin-auth.js"></script>
   <script src="js/profile-panel.js"></script>
@@ -537,8 +538,8 @@
       badges.forEach(function(b) {
         var span = document.createElement('span');
         span.className = 'profile-page-badge';
-        var icon = window.Roles?.getBadgeIcon?.(b) || '🏷️';
-        span.textContent = icon + ' ' + b;
+        var icon = window.Roles?.getBadgeIcon?.(b) || (window.SvgIcons ? window.SvgIcons.inline('tag') : '');
+        span.innerHTML = icon + ' ' + b;
         badgesEl.appendChild(span);
       });
 
@@ -647,11 +648,13 @@
         var file = ev.target.files[0];
         if (!file) return;
         var MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
+        var statusEl = document.getElementById('usernameStatus');
         if (file.size > MAX_AVATAR_SIZE) {
-          alert('Image must be under 2MB.');
+          if (statusEl) { statusEl.textContent = 'Image must be under 2MB.'; statusEl.style.color = 'var(--color-error)'; }
           return;
         }
         try {
+          if (statusEl) { statusEl.textContent = 'Uploading...'; statusEl.style.color = 'var(--text-muted)'; }
           var ext = file.name.split('.').pop().toLowerCase() || 'png';
           if (!['png', 'jpg', 'jpeg', 'webp'].includes(ext)) ext = 'png';
           var filePath = 'avatars/' + user.id + '.' + ext;
@@ -667,8 +670,10 @@
 
           avatarEl.style.backgroundImage = 'url(' + publicUrl + ')';
           avatarEl.textContent = '';
+          if (statusEl) { statusEl.textContent = 'Photo updated!'; statusEl.style.color = 'var(--color-success)'; }
+          setTimeout(function() { if (statusEl) statusEl.textContent = ''; }, 2000);
         } catch (err) {
-          alert('Upload failed: ' + (err.message || 'Please try again'));
+          if (statusEl) { statusEl.textContent = 'Upload failed: ' + (err.message || 'Please try again'); statusEl.style.color = 'var(--color-error)'; }
         }
       });
 
@@ -691,7 +696,7 @@
       for (var i = 0; i < days; i++) {
         var div = document.createElement('div');
         div.className = 'streak-day' + (i < active ? ' active' : '') + (i === active - 1 && active > 0 ? ' current' : '');
-        div.textContent = i < active ? '✓' : String(i + 1);
+        div.innerHTML = i < active ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : String(i + 1);
         circlesEl.appendChild(div);
       }
 
@@ -701,10 +706,11 @@
         if (milestones[j] > streakCount) { nextMilestone = milestones[j]; break; }
       }
 
+      var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg>';
       statsEl.innerHTML =
         '<div style="text-align:center"><strong>' + streakCount + '</strong><span>Current</span></div>' +
         '<div style="text-align:center"><strong>' + longestStreak + '</strong><span>Best</span></div>' +
-        '<div style="text-align:center"><strong>' + (nextMilestone || '🏆') + '</strong><span>' + (nextMilestone ? 'Next goal' : 'Master') + '</span></div>';
+        '<div style="text-align:center"><strong>' + (nextMilestone || trophySvg) + '</strong><span>' + (nextMilestone ? 'Next goal' : 'Master') + '</span></div>';
     }
   })();
   </script>

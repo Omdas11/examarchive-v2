@@ -46,46 +46,48 @@ function mapRoleToBadge(role) {
  * @returns {string} Badge icon emoji
  */
 function getBadgeIcon(badgeName) {
-  const icons = {
+  var SI = window.SvgIcons;
+  var inline = SI ? SI.inline : null;
+  var icons = {
     // Permission roles (primary_role)
-    'Founder': '👑',
-    'Admin': '🛡️',
-    'Senior Moderator': '⚡',
-    'Moderator': '🔰',
-    'Reviewer': '📋',
-    'Contributor': '✨',
-    'Member': '👤',
-    'Visitor': '👁️',
+    'Founder': inline ? inline('crown') : '',
+    'Admin': inline ? inline('shield') : '',
+    'Senior Moderator': inline ? inline('lightning') : '',
+    'Moderator': inline ? inline('badge') : '',
+    'Reviewer': inline ? inline('clipboard') : '',
+    'Contributor': inline ? inline('sparkles') : '',
+    'Member': inline ? inline('user') : '',
+    'Visitor': inline ? inline('eye') : '',
     // Functional roles — Academic
-    'Subject Expert': '🧪',
-    'Physics Expert': '🧪',
-    'Chemistry Expert': '🧪',
-    'Mathematics Expert': '🧪',
-    'Paper Analyzer': '📊',
-    'Syllabus Architect': '📐',
-    'Question Curator': '📝',
+    'Subject Expert': inline ? inline('flask') : '',
+    'Physics Expert': inline ? inline('flask') : '',
+    'Chemistry Expert': inline ? inline('flask') : '',
+    'Mathematics Expert': inline ? inline('flask') : '',
+    'Paper Analyzer': inline ? inline('chart') : '',
+    'Syllabus Architect': inline ? inline('ruler') : '',
+    'Question Curator': inline ? inline('edit') : '',
     // Functional roles — Technical
-    'UI/UX Designer': '🎨',
-    'Backend Engineer': '⚙️',
-    'Security Auditor': '🔒',
-    'Database Architect': '🗄️',
+    'UI/UX Designer': inline ? inline('palette') : '',
+    'Backend Engineer': inline ? inline('gear') : '',
+    'Security Auditor': inline ? inline('lock') : '',
+    'Database Architect': inline ? inline('database') : '',
     // Functional roles — Community
-    'University Coordinator': '🎓',
-    'University Lead': '🎓',
-    'Campus Ambassador': '📢',
-    'Community Lead': '🤝',
-    'Content Curator': '📚',
+    'University Coordinator': inline ? inline('graduation') : '',
+    'University Lead': inline ? inline('graduation') : '',
+    'Campus Ambassador': inline ? inline('megaphone') : '',
+    'Community Lead': inline ? inline('handshake') : '',
+    'Content Curator': inline ? inline('books') : '',
     // Legacy / general
-    'Top Contributor': '🏆',
-    'Early Adopter': '🌟',
-    'Beta Tester': '🔬',
-    'Top Reviewer': '📝'
+    'Top Contributor': inline ? inline('trophy') : '',
+    'Early Adopter': inline ? inline('star') : '',
+    'Beta Tester': inline ? inline('microscope') : '',
+    'Top Reviewer': inline ? inline('edit') : ''
   };
   // Support partial matching (e.g., "Subject Expert (Physics)")
   for (const [key, icon] of Object.entries(icons)) {
     if (badgeName && badgeName.startsWith(key)) return icon;
   }
-  return '🏷️';
+  return inline ? inline('tag') : '';
 }
 
 /**
@@ -159,7 +161,7 @@ async function getUserBadge() {
       console.error('[BADGE] Error getting role level:', error);
       // Default to contributor if backend fails
       const level = 10;
-      const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };
+      const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: 'Contributor', icon: '' };
       return {
         role: roleInfo.name,
         badge: roleInfo.displayName.replace(/^[^\s]+ /, ''), // Remove icon from display name
@@ -173,7 +175,7 @@ async function getUserBadge() {
     const level = roleLevel !== null && roleLevel !== undefined ? roleLevel : 10;
     
     // Use centralized mapRole function
-    const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };
+    const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: 'Contributor', icon: '' };
     
     return {
       role: roleInfo.name,
@@ -185,7 +187,7 @@ async function getUserBadge() {
   } catch (err) {
     console.error('[BADGE] Error getting user badge:', err);
     const level = 10;
-    const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: '✍️ Contributor', icon: '✍️' };
+    const roleInfo = window.RoleUtils?.mapRole ? window.RoleUtils.mapRole(level) : { name: 'contributor', displayName: 'Contributor', icon: '' };
     return {
       role: roleInfo.name,
       badge: roleInfo.displayName.replace(/^[^\s]+ /, ''),

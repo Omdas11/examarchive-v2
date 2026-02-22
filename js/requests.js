@@ -44,7 +44,7 @@
     if (!currentUser) {
       section.innerHTML = `
         <div class="auth-prompt">
-          <p>🔒 Sign in to create or vote on paper requests</p>
+          <p><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span> Sign in to create or vote on paper requests</p>
         </div>
       `;
       return;
@@ -160,7 +160,7 @@
     return `
       <div class="request-card">
         <div class="request-vote">
-          <button data-vote-id="${req.id}" data-has-voted="${hasVoted}" class="${hasVoted ? 'voted' : ''}" ${!currentUser ? 'disabled' : ''} title="Upvote">${hasVoted ? '✓ Voted' : '▲'}</button>
+          <button data-vote-id="${req.id}" data-has-voted="${hasVoted}" class="${hasVoted ? 'voted' : ''}" ${!currentUser ? 'disabled' : ''} title="Upvote">${hasVoted ? '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Voted' : '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>'}</button>
           <span class="vote-count">${req.votes || 0}</span>
         </div>
         <div class="request-body">
@@ -169,7 +169,7 @@
           <p>${escapeHtml(req.description || '')}</p>
           ${['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(userPrimaryRole) && req.status === 'open' ? `
             <div class="admin-actions">
-              <button data-fulfill-id="${req.id}">✓ Mark Fulfilled</button>
+              <button data-fulfill-id="${req.id}"><span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Mark Fulfilled</button>
             </div>
           ` : ''}
         </div>
@@ -193,14 +193,17 @@
     const countEl = btn.parentElement?.querySelector('.vote-count');
     const prevCount = parseInt(countEl?.textContent || '0');
 
+    var voteCheckSvg = '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Voted';
+    var voteArrowSvg = '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>';
+
     if (hasVoted) {
       btn.classList.remove('voted');
-      btn.textContent = '▲';
+      btn.innerHTML = voteArrowSvg;
       btn.dataset.hasVoted = 'false';
       if (countEl) countEl.textContent = Math.max(0, prevCount - 1);
     } else {
       btn.classList.add('voted');
-      btn.textContent = '✓ Voted';
+      btn.innerHTML = voteCheckSvg;
       btn.dataset.hasVoted = 'true';
       if (countEl) countEl.textContent = prevCount + 1;
     }
@@ -224,12 +227,12 @@
       // Revert optimistic update on error
       if (hasVoted) {
         btn.classList.add('voted');
-        btn.textContent = '✓ Voted';
+        btn.innerHTML = voteCheckSvg;
         btn.dataset.hasVoted = 'true';
         if (countEl) countEl.textContent = prevCount;
       } else {
         btn.classList.remove('voted');
-        btn.textContent = '▲';
+        btn.innerHTML = voteArrowSvg;
         btn.dataset.hasVoted = 'false';
         if (countEl) countEl.textContent = prevCount;
       }

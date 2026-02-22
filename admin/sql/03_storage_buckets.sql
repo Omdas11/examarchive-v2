@@ -21,6 +21,14 @@ REQUIRED BUCKETS:
    - File size limit: 50MB
    - Allowed MIME types: application/pdf
 
+3. avatars
+   - Visibility: public
+   - Purpose: User profile photos
+   - File size limit: 2MB
+   - Allowed MIME types: image/png, image/jpeg, image/webp
+   - Path structure: avatars/{user_id}.{png|jpg|webp}
+   - RLS: Authenticated users can upload/update their own avatar
+
 TO CREATE BUCKETS:
 1. Go to Supabase Dashboard → Storage
 2. Create each bucket with the settings above

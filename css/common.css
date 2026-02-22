@@ -1144,3 +1144,17 @@ body[data-theme="amoled"].glass-enabled .mobile-nav {
   }
 }
 
+/* ================================
+   SVG ICON INLINE
+   ================================ */
+.svg-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 1;
+}
+.svg-icon svg {
+  display: block;
+}
+
