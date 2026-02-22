@@ -109,7 +109,8 @@ async function loadPapers() {
     }
 
     // Map submissions to display format with signed URLs
-    const papers = await Promise.all((data || []).map(async (s) => {
+    // Filter out demo papers — only show real uploads
+    const papers = await Promise.all((data || []).filter(s => !s.is_demo).map(async (s) => {
       const pdfUrl = s.approved_path
         ? await getSignedUrl(supabase, s.approved_path)
         : '#';
@@ -291,7 +292,7 @@ function render() {
   <div class="availability-badges">
     ${
       p.is_demo
-        ? `<span class="availability-badge subtle" style="background: var(--accent-soft); color: var(--accent);">🧪 DEMO PAPER</span>`
+        ? `<span class="availability-badge subtle" style="background: var(--accent-soft); color: var(--accent);">${window.SvgIcons ? window.SvgIcons.inline('flask', {size: 14}) : ''} DEMO PAPER</span>`
         : ""
     }
     ${

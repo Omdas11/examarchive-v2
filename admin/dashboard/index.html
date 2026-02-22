@@ -96,6 +96,7 @@
                 <option value="Visitor">Visitor</option>
                 <option value="Contributor">Contributor</option>
                 <option value="Reviewer">Reviewer</option>
+                <option value="Moderator">Moderator</option>
                 <option value="Senior Moderator">Senior Moderator</option>
                 <option value="Admin">Admin</option>
                 <option value="Founder">Founder (unique)</option>
@@ -138,19 +139,20 @@
               <tr style="border-bottom:2px solid var(--border);text-align:left;">
                 <th style="padding:0.5rem;font-size:0.75rem;">UUID</th>
                 <th style="padding:0.5rem;">Username</th>
-                <th style="padding:0.5rem;">Email</th>
+                <th style="padding:0.5rem;">Display Name</th>
                 <th style="padding:0.5rem;cursor:pointer;" data-sort="xp" role="button" aria-label="Sort by XP" aria-sort="none">XP ↕</th>
                 <th style="padding:0.5rem;">Level</th>
                 <th style="padding:0.5rem;cursor:pointer;" data-sort="primary_role" role="button" aria-label="Sort by Primary Role" aria-sort="none">Primary Role ↕</th>
                 <th style="padding:0.5rem;">Secondary</th>
                 <th style="padding:0.5rem;">Tertiary</th>
                 <th style="padding:0.5rem;">Streak</th>
+                <th style="padding:0.5rem;font-size:0.75rem;">Last Login</th>
                 <th style="padding:0.5rem;font-size:0.75rem;cursor:pointer;" data-sort="created_at" role="button" aria-label="Sort by Created Date" aria-sort="none">Created ↕</th>
                 <th style="padding:0.5rem;">Actions</th>
               </tr>
             </thead>
             <tbody id="usersTableBody">
-              <tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
+              <tr><td colspan="12" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -163,7 +165,7 @@
         <h2>Production Cleanup</h2>
         <p class="text-muted" style="margin-bottom: 1rem;">Reset demo submissions and prepare for real question papers. This action is irreversible.</p>
         <button class="btn btn-danger" id="resetDemoDataBtn" style="background:#d32f2f;color:#fff;border:none;padding:0.6rem 1.2rem;border-radius:8px;cursor:pointer;">
-          🗑️ Reset Demo Data
+          <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></span> Reset Demo Data
         </button>
         <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.8rem;">
           This will delete all demo submissions and reset associated data.
@@ -266,6 +268,7 @@
   <script src="../../js/common.js"></script>
   <script src="../../js/avatar-utils.js"></script>
   <script src="../../js/utils/role-utils.js"></script>
+  <script src="../../js/svg-icons.js"></script>
   <script src="../../js/roles.js"></script>
   <script src="../../js/admin-auth.js"></script>
   <script src="../../js/upload-handler.js"></script>

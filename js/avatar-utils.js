@@ -101,7 +101,7 @@ function updateAvatarElement(avatarEl, user) {
       avatarEl.style.backgroundColor = stringToColor(fullName || email || "User");
     }
   } else {
-    avatarEl.setAttribute("data-initials", "👤");
+    avatarEl.setAttribute("data-initials", "?");
     avatarEl.removeAttribute("data-avatar");
     avatarEl.style.backgroundImage = "none";
     avatarEl.style.backgroundColor = "#888";
@@ -115,7 +115,7 @@ function updateAvatarElement(avatarEl, user) {
 async function handleLogout() {
   const supabase = await waitForSupabaseAvatar();
   if (!supabase) {
-    console.error("[avatar-utils] ❌ Cannot sign out - Supabase not ready");
+    console.error("[avatar-utils] [ERROR] Cannot sign out - Supabase not ready");
     return;
   }
   await supabase.auth.signOut();
@@ -128,7 +128,7 @@ async function handleLogout() {
 async function handleSignIn() {
   const supabase = await waitForSupabaseAvatar();
   if (!supabase) {
-    console.error("[avatar-utils] ❌ Cannot sign in - Supabase not ready");
+    console.error("[avatar-utils] [ERROR] Cannot sign in - Supabase not ready");
     alert("Please wait for the page to fully load and try again.");
     return;
   }
@@ -141,7 +141,7 @@ async function handleSignIn() {
   });
   
   if (error) {
-    console.error("[avatar-utils] ❌ Sign in error:", error.message);
+    console.error("[avatar-utils] [ERROR] Sign in error:", error.message);
   }
 }
 
@@ -151,7 +151,7 @@ async function handleSignIn() {
 async function handleSwitchAccount() {
   const supabase = await waitForSupabaseAvatar();
   if (!supabase) {
-    console.error("[avatar-utils] ❌ Cannot switch account - Supabase not ready");
+    console.error("[avatar-utils] [ERROR] Cannot switch account - Supabase not ready");
     return;
   }
   

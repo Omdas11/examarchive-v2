@@ -299,7 +299,7 @@ async function loadNotesResources(supabase, subjectCode) {
         item.className = 'resource-item';
 
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = `📄 ${file.name}`;
+        nameSpan.innerHTML = (window.SvgIcons ? window.SvgIcons.inline('file') : '') + ' ' + file.name;
 
         const link = document.createElement('a');
         link.href = signedData?.signedUrl || '#';

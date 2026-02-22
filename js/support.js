@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!session) {
     container.innerHTML = `
       <div style="text-align: center; padding: 2rem; background: var(--bg-soft); border-radius: var(--radius-md); border: 1px solid var(--border);">
-        <p style="color: var(--text-muted); margin-bottom: 1rem;">🔒 Sign in to submit an admin application.</p>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">${window.SvgIcons ? window.SvgIcons.inline('lock') : ''} Sign in to submit an admin application.</p>
         <button class="btn btn-primary" onclick="window.AvatarUtils?.handleSignIn()">
           Sign in with Google
         </button>
@@ -43,10 +43,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         const statusContainer = document.getElementById("admin-request-status-container");
         const statusText = document.getElementById("admin-request-status-text");
         if (statusContainer && statusText) {
+          var SI = window.SvgIcons;
           const statusMap = {
-            pending: "⏳ Pending review",
-            approved: "✅ Approved",
-            rejected: "❌ Rejected"
+            pending: (SI ? SI.inline('hourglass') : '') + " Pending review",
+            approved: "Approved",
+            rejected: "Rejected"
           };
           statusText.textContent = statusMap[existingRequest.status] || existingRequest.status;
           statusContainer.style.display = "block";
@@ -120,12 +121,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (error) throw error;
 
-      statusEl.textContent = "✅ Application submitted successfully!";
+      statusEl.textContent = "Application submitted successfully!";
       statusEl.style.display = "block";
       statusEl.style.color = "var(--color-success)";
       form.reset();
     } catch (err) {
-      statusEl.textContent = "❌ " + (err.message || "Failed to submit");
+      statusEl.textContent = (err.message || "Failed to submit");
       statusEl.style.display = "block";
       statusEl.style.color = "var(--color-error)";
     } finally {

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile · ExamArchive</title>
+
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/brand.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/footer.css" />
+  <link rel="stylesheet" href="css/avatar-popup.css" />
+  <link rel="stylesheet" href="css/profile-panel.css" />
+  <link rel="stylesheet" href="css/avatar.css" />
+
+  <meta name="description" content="Your ExamArchive profile" />
+  <meta name="theme-color" content="#d32f2f" />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <style>
+    .profile-page {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .profile-page-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    /* Avatar with animated gradient ring */
+    .profile-page-avatar-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .profile-page-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--text-muted);
+      background-size: cover;
+      background-position: center;
+      border: 4px solid transparent;
+      position: relative;
+      z-index: 1;
+    }
+    .profile-page-avatar-ring {
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      z-index: 0;
+      background: conic-gradient(var(--red), #ff6f61, var(--red));
+      animation: ring-spin 3s linear infinite;
+    }
+    @keyframes ring-spin {
+      to { transform: translateX(-50%) rotate(360deg); }
+    }
+    .ring-founder .profile-page-avatar-ring { background: conic-gradient(#ffd700, #ff8c00, #ffd700); }
+    .ring-admin .profile-page-avatar-ring { background: conic-gradient(#d32f2f, #ff5252, #d32f2f); }
+    .ring-senior-moderator .profile-page-avatar-ring { background: conic-gradient(#ff9800, #ffcc80, #ff9800); }
+    .ring-reviewer .profile-page-avatar-ring { background: conic-gradient(#2196F3, #90caf9, #2196F3); }
+    .ring-senior .profile-page-avatar-ring { background: conic-gradient(#9c27b0, #e040fb, #9c27b0); }
+    .ring-veteran .profile-page-avatar-ring { background: conic-gradient(#00bcd4, #80deea, #00bcd4); }
+    .ring-contributor .profile-page-avatar-ring { background: conic-gradient(#4caf50, #a5d6a7, #4caf50); }
+    .ring-explorer .profile-page-avatar-ring { background: conic-gradient(#607d8b, #b0bec5, #607d8b); }
+    .ring-visitor .profile-page-avatar-ring { background: conic-gradient(#9e9e9e, #e0e0e0, #9e9e9e); animation: none; }
+
+    /* Avatar photo upload */
+    .avatar-upload-btn {
+      position: absolute;
+      bottom: 0;
+      right: calc(50% - 54px);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--red);
+      color: #fff;
+      border: 2px solid var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      z-index: 2;
+    }
+    .avatar-upload-btn:hover { opacity: 0.85; }
+    #avatarFileInput { display: none; }
+
+    /* User info */
+    .profile-page-info {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .profile-page-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+    }
+    .profile-page-username {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin: 0 0 0.25rem;
+    }
+    .profile-page-username:hover { text-decoration: underline; }
+    .profile-page-member-since {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin: 0;
+    }
+
+    /* Username edit */
+    .username-edit-row {
+      display: none;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+    .username-edit-row input {
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-soft);
+      color: var(--text);
+      font-size: 0.85rem;
+      width: 200px;
+    }
+    .username-edit-row input:focus { outline: none; border-color: var(--red); }
+    .username-edit-row button {
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border: none;
+    }
+    .username-save-btn { background: var(--red); color: #fff; }
+    .username-cancel-btn { background: var(--bg-soft); color: var(--text); border: 1px solid var(--border) !important; }
+    .username-status {
+      text-align: center;
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+      min-height: 1.2em;
+    }
+
+    /* Badges */
+    .profile-page-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .profile-page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+    }
+
+    /* XP progress bar */
+    .profile-page-xp {
+      margin-bottom: 1.5rem;
+    }
+    .xp-bar-outer {
+      height: 10px;
+      background: var(--bg-soft);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 0.4rem;
+    }
+    .xp-bar-inner {
+      height: 100%;
+      background: var(--red);
+      border-radius: 5px;
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+    .xp-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Streak circles (Google Play style) */
+    .profile-page-streak {
+      margin-bottom: 1.5rem;
+    }
+    .streak-title-row {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .streak-circles {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .streak-day {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+      background: var(--bg-soft);
+      transition: all 0.3s;
+    }
+    .streak-day.active {
+      border-color: var(--red);
+      background: var(--red);
+      color: #fff;
+    }
+    .streak-day.current {
+      box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.3);
+    }
+    .streak-stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .streak-stats-row strong {
+      display: block;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    /* Stats grid */
+    .profile-page-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .profile-stat strong {
+      display: block;
+      font-size: 1.3rem;
+      color: var(--red);
+    }
+    .profile-stat span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Actions */
+    .profile-page-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .profile-page-actions .btn {
+      text-align: center;
+      text-decoration: none;
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    .profile-page-actions .btn:hover { opacity: 0.85; }
+    .profile-page-actions .btn-red { background: var(--red); color: #fff; }
+    .profile-page-actions .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+    /* Auth wall for non-signed-in users */
+    .profile-auth-wall {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .profile-auth-wall h2 { margin-bottom: 0.5rem; }
+    .profile-auth-wall p { color: var(--text-muted); margin-bottom: 1.5rem; }
+    .profile-auth-wall .btn { display: inline-block; }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      .profile-page-stats { grid-template-columns: repeat(2, 1fr); }
+      .streak-day { width: 34px; height: 34px; font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="profile-page" id="main-content">
+
+    <!-- Loading -->
+    <div id="profile-loading" style="text-align:center;padding:3rem;">
+      <p class="text-muted">Loading profile...</p>
+    </div>
+
+    <!-- Auth Wall (shown when not signed in) -->
+    <div id="profile-auth-wall" class="profile-auth-wall" style="display:none;">
+      <h2>Sign in to view your profile</h2>
+      <p>Access your stats, badges, and settings.</p>
+      <a href="login.html" class="btn btn-red" style="padding:0.65rem 1.5rem;border-radius:8px;background:var(--red);color:#fff;text-decoration:none;font-weight:500;">Sign In</a>
+    </div>
+
+    <!-- Profile Content (shown when signed in) -->
+    <div id="profile-content" class="profile-page-card" style="display:none;">
+
+      <!-- Avatar with gradient ring -->
+      <div class="profile-page-avatar-wrap" id="avatarWrap">
+        <div class="profile-page-avatar-ring"></div>
+        <div class="profile-page-avatar" id="pageAvatar" data-initials="?"></div>
+        <button class="avatar-upload-btn" id="avatarUploadBtn" title="Change photo" aria-label="Change profile photo"><span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></span></button>
+        <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/webp" />
+      </div>
+
+      <!-- User info -->
+      <div class="profile-page-info">
+        <h1 class="profile-page-name" id="pageName">User</h1>
+        <p class="profile-page-username" id="pageUsername" title="Click to edit username">@username</p>
+        <div class="username-edit-row" id="usernameEditRow">
+          <input type="text" id="usernameEditInput" placeholder="New username" maxlength="30" />
+          <button class="username-save-btn" id="usernameSaveBtn">Save</button>
+          <button class="username-cancel-btn" id="usernameCancelBtn">Cancel</button>
+        </div>
+        <p class="username-status" id="usernameStatus"></p>
+        <p class="profile-page-member-since" id="pageMemberSince"></p>
+      </div>
+
+      <!-- Badges -->
+      <div class="profile-page-badges" id="pageBadges"></div>
+
+      <!-- XP Progress -->
+      <div class="profile-page-xp" id="pageXpSection">
+        <div class="xp-bar-outer">
+          <div class="xp-bar-inner" id="pageXpBar"></div>
+        </div>
+        <div class="xp-info">
+          <span><span id="pageXpCurrent">0</span> XP · <span id="pageXpTier">Visitor</span></span>
+          <span id="pageXpNext"></span>
+        </div>
+      </div>
+
+      <!-- Streak -->
+      <div class="profile-page-streak" id="pageStreakSection" style="display:none;">
+        <div class="streak-title-row"><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4-2.5 7-6 7-10.5 0-3-1.5-5.5-4-7.5-.8 2-2 3-4 3-1.5 0-2.5-1-3-2.5C6 7 4 10 4 13c0 4.5 3 7.5 8 9z"/></svg></span> Daily Streak</div>
+        <div class="streak-circles" id="pageStreakCircles"></div>
+        <div class="streak-stats-row" id="pageStreakStats"></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="profile-page-stats" id="pageStats">
+        <div class="profile-stat">
+          <strong id="statUploads">0</strong>
+          <span>Uploads</span>
+        </div>
+        <div class="profile-stat">
+          <strong id="statApproved">0</strong>
+          <span>Approved</span>
+        </div>
+        <div class="profile-stat">
+          <strong id="statApprovalPct">0%</strong>
+          <span>Approval</span>
+        </div>
+        <div class="profile-stat">
+          <strong id="statContribution">0</strong>
+          <span>XP</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="profile-page-actions">
+        <a href="settings.html" class="btn btn-outline">Settings</a>
+        <a href="support.html" class="btn btn-outline">Help & Support</a>
+        <button class="btn btn-outline" id="profileSignOutBtn">Sign Out</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <script src="js/bootstrap.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/core/debug.js"></script>
+  <script type="module" src="js/app.module.js"></script>
+  <script src="js/utils/supabase-wait.js"></script>
+  <script src="js/auth-controller.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/avatar-utils.js"></script>
+  <script src="js/utils/role-utils.js"></script>
+  <script src="js/svg-icons.js"></script>
+  <script src="js/roles.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/profile-panel.js"></script>
+  <script src="js/avatar-popup.js"></script>
+  <script src="js/theme.js"></script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    var XP_LEVELS = [
+      { level: 0, xp: 0, title: 'Visitor' },
+      { level: 5, xp: 100, title: 'Explorer' },
+      { level: 10, xp: 300, title: 'Contributor' },
+      { level: 25, xp: 800, title: 'Veteran' },
+      { level: 50, xp: 1500, title: 'Senior' },
+      { level: 90, xp: 3000, title: 'Elite' },
+      { level: 100, xp: 5000, title: 'Legend' }
+    ];
+
+    function getXpThresholds(currentXp) {
+      var current = XP_LEVELS[0];
+      var next = XP_LEVELS[1];
+      for (var i = XP_LEVELS.length - 1; i >= 0; i--) {
+        if (currentXp >= XP_LEVELS[i].xp) {
+          current = XP_LEVELS[i];
+          next = XP_LEVELS[i + 1] || XP_LEVELS[i];
+          break;
+        }
+      }
+      return { current: current, next: next };
+    }
+
+    function getLevelRingClass(primaryRole, level) {
+      if (primaryRole === 'Founder') return 'ring-founder';
+      if (primaryRole === 'Admin') return 'ring-admin';
+      if (primaryRole === 'Senior Moderator') return 'ring-senior-moderator';
+      if (primaryRole === 'Reviewer') return 'ring-reviewer';
+      if (level >= 50) return 'ring-senior';
+      if (level >= 25) return 'ring-veteran';
+      if (level >= 10) return 'ring-contributor';
+      if (level >= 5) return 'ring-explorer';
+      return 'ring-visitor';
+    }
+
+    window.addEventListener('auth:ready', async function(e) {
+      var loadingEl = document.getElementById('profile-loading');
+      var authWall = document.getElementById('profile-auth-wall');
+      var contentEl = document.getElementById('profile-content');
+
+      if (!e.detail.session) {
+        loadingEl.style.display = 'none';
+        authWall.style.display = 'block';
+        return;
+      }
+
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+
+      var user = e.detail.session.user;
+      var supabase = window.getSupabase ? window.getSupabase() : null;
+      if (!supabase) return;
+
+      // Load role data
+      var roleData = {};
+      try {
+        var res = await supabase
+          .from('roles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        if (res.data) roleData = res.data;
+      } catch (_) {}
+
+      var primaryRole = roleData.primary_role || null;
+      var userXp = roleData.xp || 0;
+      var userLevel = roleData.level || 0;
+      var username = roleData.username || null;
+      var displayName = roleData.display_name || user.user_metadata?.full_name || user.email;
+      var avatarUrl = roleData.avatar_url || user.user_metadata?.avatar_url || null;
+
+      // Set name
+      document.getElementById('pageName').textContent = displayName;
+
+      // Set username
+      var usernameEl = document.getElementById('pageUsername');
+      usernameEl.textContent = username ? '@' + username : 'Set username';
+
+      // Set member since
+      if (user.created_at) {
+        var d = new Date(user.created_at);
+        document.getElementById('pageMemberSince').textContent = 'Member since ' + d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+      }
+
+      // Set avatar
+      var avatarEl = document.getElementById('pageAvatar');
+      if (avatarUrl) {
+        avatarEl.style.backgroundImage = 'url(' + avatarUrl + ')';
+        avatarEl.textContent = '';
+      } else if (window.AvatarUtils?.updateAvatarElement) {
+        window.AvatarUtils.updateAvatarElement(avatarEl, user);
+      }
+
+      // Set ring class
+      var ringClass = getLevelRingClass(primaryRole, userLevel);
+      document.getElementById('avatarWrap').className = 'profile-page-avatar-wrap ' + ringClass;
+
+      // Render badges
+      var badgesEl = document.getElementById('pageBadges');
+      var badges = [];
+      if (primaryRole) badges.push(primaryRole);
+      if (roleData.secondary_role) badges.push(roleData.secondary_role);
+      if (roleData.tertiary_role) badges.push(roleData.tertiary_role);
+      if (Array.isArray(roleData.custom_badges)) {
+        roleData.custom_badges.forEach(function(cb) { if (cb) badges.push(cb); });
+      }
+      badges.forEach(function(b) {
+        var span = document.createElement('span');
+        span.className = 'profile-page-badge';
+        var icon = window.Roles?.getBadgeIcon?.(b) || (window.SvgIcons ? window.SvgIcons.inline('tag') : '');
+        span.innerHTML = icon + ' ' + b;
+        badgesEl.appendChild(span);
+      });
+
+      // XP display - primary_role overrides XP title
+      var thresholds = getXpThresholds(userXp);
+      document.getElementById('pageXpCurrent').textContent = userXp;
+
+      // If Founder, show Founder badge instead of XP tier
+      var tierDisplay = thresholds.current.title;
+      if (primaryRole === 'Founder') {
+        tierDisplay = 'Founder';
+      } else if (primaryRole && ['Admin', 'Senior Moderator', 'Moderator', 'Reviewer'].includes(primaryRole)) {
+        tierDisplay = primaryRole;
+      }
+      document.getElementById('pageXpTier').textContent = tierDisplay;
+
+      if (thresholds.current.xp !== thresholds.next.xp) {
+        document.getElementById('pageXpNext').textContent = 'Next: ' + thresholds.next.title + ' (' + thresholds.next.xp + ' XP)';
+      }
+      var range = thresholds.next.xp - thresholds.current.xp;
+      var progress = range > 0 ? ((userXp - thresholds.current.xp) / range) * 100 : 100;
+      setTimeout(function() {
+        document.getElementById('pageXpBar').style.width = Math.min(100, Math.max(0, progress)) + '%';
+      }, 100);
+
+      // Streak
+      try {
+        var streakRes = await supabase.rpc('update_daily_streak');
+        if (streakRes.data && streakRes.data.length > 0) {
+          var streak = streakRes.data[0].streak || 0;
+          var longestStreak = streakRes.data[0].longest_streak || streak;
+          renderPageStreak(streak, longestStreak);
+        }
+      } catch (_) {}
+
+      // Stats
+      try {
+        var statsRes = await supabase.rpc('get_user_upload_stats', { target_user_id: user.id });
+        if (statsRes.data && statsRes.data.length > 0) {
+          var totalUploads = statsRes.data[0].total_uploads || 0;
+          var approvedUploads = statsRes.data[0].approved_uploads || 0;
+          document.getElementById('statUploads').textContent = totalUploads;
+          document.getElementById('statApproved').textContent = approvedUploads;
+          document.getElementById('statApprovalPct').textContent = totalUploads > 0 ? Math.round((approvedUploads / totalUploads) * 100) + '%' : '0%';
+        }
+      } catch (_) {}
+      document.getElementById('statContribution').textContent = userXp;
+
+      // Username edit
+      usernameEl.addEventListener('click', function() {
+        var editRow = document.getElementById('usernameEditRow');
+        var input = document.getElementById('usernameEditInput');
+        var current = usernameEl.textContent.replace(/^@/, '');
+        input.value = (current === 'Set username') ? '' : current;
+        editRow.style.display = 'flex';
+        input.focus();
+      });
+
+      document.getElementById('usernameCancelBtn').addEventListener('click', function() {
+        document.getElementById('usernameEditRow').style.display = 'none';
+        document.getElementById('usernameStatus').textContent = '';
+      });
+
+      document.getElementById('usernameSaveBtn').addEventListener('click', async function() {
+        var input = document.getElementById('usernameEditInput');
+        var statusEl = document.getElementById('usernameStatus');
+        var newUsername = input.value.trim();
+        if (!newUsername || newUsername.length < 3) {
+          statusEl.textContent = 'Username must be at least 3 characters.';
+          statusEl.style.color = 'var(--color-error)';
+          return;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) {
+          statusEl.textContent = 'Only letters, numbers, and underscores allowed.';
+          statusEl.style.color = 'var(--color-error)';
+          return;
+        }
+        statusEl.textContent = 'Saving...';
+        statusEl.style.color = 'var(--text-muted)';
+        try {
+          var result = await supabase.rpc('set_username', { new_username: newUsername });
+          if (result.error) {
+            statusEl.textContent = result.error.message || 'Username taken or invalid.';
+            statusEl.style.color = 'var(--color-error)';
+          } else {
+            statusEl.textContent = 'Username saved!';
+            statusEl.style.color = 'var(--color-success)';
+            usernameEl.textContent = '@' + newUsername;
+            setTimeout(function() {
+              document.getElementById('usernameEditRow').style.display = 'none';
+              statusEl.textContent = '';
+            }, 1500);
+          }
+        } catch (err) {
+          statusEl.textContent = 'Failed to save username.';
+          statusEl.style.color = 'var(--color-error)';
+        }
+      });
+
+      // Profile photo upload
+      document.getElementById('avatarUploadBtn').addEventListener('click', function() {
+        document.getElementById('avatarFileInput').click();
+      });
+
+      document.getElementById('avatarFileInput').addEventListener('change', async function(ev) {
+        var file = ev.target.files[0];
+        if (!file) return;
+        var MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
+        var statusEl = document.getElementById('usernameStatus');
+        if (file.size > MAX_AVATAR_SIZE) {
+          if (statusEl) { statusEl.textContent = 'Image must be under 2MB.'; statusEl.style.color = 'var(--color-error)'; }
+          return;
+        }
+        try {
+          if (statusEl) { statusEl.textContent = 'Uploading...'; statusEl.style.color = 'var(--text-muted)'; }
+          var ext = file.name.split('.').pop().toLowerCase() || 'png';
+          if (!['png', 'jpg', 'jpeg', 'webp'].includes(ext)) ext = 'png';
+          var filePath = 'avatars/' + user.id + '.' + ext;
+          var uploadRes = await supabase.storage
+            .from('avatars')
+            .upload(filePath, file, { upsert: true, cacheControl: '3600' });
+          if (uploadRes.error) throw uploadRes.error;
+
+          var urlRes = supabase.storage.from('avatars').getPublicUrl(filePath);
+          var publicUrl = urlRes.data.publicUrl + '?t=' + Date.now();
+
+          await supabase.from('roles').update({ avatar_url: publicUrl }).eq('user_id', user.id);
+
+          avatarEl.style.backgroundImage = 'url(' + publicUrl + ')';
+          avatarEl.textContent = '';
+          if (statusEl) { statusEl.textContent = 'Photo updated!'; statusEl.style.color = 'var(--color-success)'; }
+          setTimeout(function() { if (statusEl) statusEl.textContent = ''; }, 2000);
+        } catch (err) {
+          if (statusEl) { statusEl.textContent = 'Upload failed: ' + (err.message || 'Please try again'); statusEl.style.color = 'var(--color-error)'; }
+        }
+      });
+
+      // Sign out
+      document.getElementById('profileSignOutBtn').addEventListener('click', async function() {
+        await window.AuthController.signOut();
+        window.location.href = 'index.html';
+      });
+    });
+
+    function renderPageStreak(streakCount, longestStreak) {
+      var section = document.getElementById('pageStreakSection');
+      var circlesEl = document.getElementById('pageStreakCircles');
+      var statsEl = document.getElementById('pageStreakStats');
+      section.style.display = 'block';
+
+      var days = 7;
+      var active = Math.min(streakCount, days);
+      circlesEl.innerHTML = '';
+      for (var i = 0; i < days; i++) {
+        var div = document.createElement('div');
+        div.className = 'streak-day' + (i < active ? ' active' : '') + (i === active - 1 && active > 0 ? ' current' : '');
+        div.innerHTML = i < active ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : String(i + 1);
+        circlesEl.appendChild(div);
+      }
+
+      var milestones = [7, 14, 30, 60, 100];
+      var nextMilestone = null;
+      for (var j = 0; j < milestones.length; j++) {
+        if (milestones[j] > streakCount) { nextMilestone = milestones[j]; break; }
+      }
+
+      var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg>';
+      statsEl.innerHTML =
+        '<div style="text-align:center"><strong>' + streakCount + '</strong><span>Current</span></div>' +
+        '<div style="text-align:center"><strong>' + longestStreak + '</strong><span>Best</span></div>' +
+        '<div style="text-align:center"><strong>' + (nextMilestone || trophySvg) + '</strong><span>' + (nextMilestone ? 'Next goal' : 'Master') + '</span></div>';
+    }
+  })();
+  </script>
+
+</body>
+</html>

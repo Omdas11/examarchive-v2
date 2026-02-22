@@ -182,14 +182,14 @@ function initializeUploadForm() {
       yearHint.className = 'field-hint year-hint';
       examYearInput.classList.remove('input-valid', 'input-invalid');
     } else if (valid) {
-      yearValidationIcon.textContent = '✓';
+      yearValidationIcon.innerHTML = window.SvgIcons ? window.SvgIcons.get('check', {size: 14}) : '';
       yearValidationIcon.style.color = 'var(--color-success)';
       yearHint.textContent = '';
       yearHint.className = 'field-hint year-hint valid';
       examYearInput.classList.add('input-valid');
       examYearInput.classList.remove('input-invalid');
     } else {
-      yearValidationIcon.textContent = '✗';
+      yearValidationIcon.innerHTML = window.SvgIcons ? window.SvgIcons.get('x_mark', {size: 14}) : '';
       yearValidationIcon.style.color = 'var(--color-error)';
       yearHint.textContent = 'Enter a valid 4-digit year (1990–2099)';
       yearHint.className = 'field-hint year-hint invalid';
@@ -349,7 +349,7 @@ function initializeUploadForm() {
         showMessage(result.message, 'success');
         
         // Show success animation
-        uploadButton.textContent = '✅ Uploaded!';
+        uploadButton.innerHTML = (window.SvgIcons ? window.SvgIcons.inline('check') : '') + ' Uploaded!';
         
         // Reset form
         paperCodeInput.value = '';
@@ -392,7 +392,7 @@ function updateFileUI(file, fileUI) {
   const size = formatFileSize(file.size);
   const fileType = file.type === 'application/pdf' ? 'PDF' : file.type || 'Unknown';
   fileUI.innerHTML = `
-    <strong>✓ ${file.name}</strong>
+    <strong>${window.SvgIcons ? window.SvgIcons.inline('check') : ''} ${file.name}</strong>
     <p class="text-muted">${size} · ${fileType} · Ready to upload</p>
   `;
 }
@@ -503,10 +503,11 @@ function renderSubmission(submission) {
     rejected: 'var(--color-error)'
   };
 
+  var SI = window.SvgIcons;
   const statusText = {
-    pending: '⏳ Pending Review',
-    approved: '✓ Approved',
-    rejected: '✗ Rejected'
+    pending: (SI ? SI.inline('hourglass', {size: 14}) : '') + ' Pending Review',
+    approved: (SI ? SI.inline('check', {size: 14}) : '') + ' Approved',
+    rejected: (SI ? SI.inline('x_mark', {size: 14}) : '') + ' Rejected'
   };
 
   return `

@@ -18,42 +18,45 @@
     return;
   }
 
+  var SI = window.SvgIcons;
+  var gi = function(n) { return SI ? SI.inline(n) : ''; };
+
   const steps = [
     {
-      title: 'Welcome to ExamArchive! 👋',
+      title: 'Welcome to ExamArchive!',
       text: 'Let us show you around. This quick guide will help you get started.',
       target: null,
-      icon: '🏠'
+      icon: gi('home')
     },
     {
       title: 'Search for Papers',
       text: 'Use the search bar to find question papers by code, subject, or year. You can also filter by paper type.',
       target: '.home-search',
-      icon: '🔍'
+      icon: gi('search')
     },
     {
       title: 'Quick Access',
       text: 'Jump straight to papers by Subject, University, or Year using these shortcuts.',
       target: '.quick-access',
-      icon: '⚡'
+      icon: gi('lightning')
     },
     {
       title: 'Your Profile',
       text: 'Click your avatar to sign in, view your profile, track XP, and manage your account.',
       target: '#avatarTrigger',
-      icon: '👤'
+      icon: gi('user')
     },
     {
       title: 'Upload Papers',
       text: 'Go to the Upload page to contribute question papers. Sign in first, then fill in the paper details and upload your PDF.',
       target: 'a[href="upload.html"]',
-      icon: '📤'
+      icon: gi('upload')
     },
     {
       title: 'Browse Collection',
       text: 'Browse all available papers, filter by stream, and download what you need. Start exploring!',
       target: 'a[href="browse.html"]',
-      icon: '📚'
+      icon: gi('books')
     }
   ];
 

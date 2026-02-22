@@ -242,8 +242,8 @@ async function renderSettings() {
 
     // Settings page is accessible to all authenticated users
     // Only specific sections (requiresAdmin) are restricted
-    // Debug panel requires level >= 90
-    const isAdmin = (roleInfo.level || 0) >= 90;
+    // Use primary_role for admin check, not level
+    const isAdmin = await (window.AdminAuth?.isCurrentUserAdmin?.() || Promise.resolve(false));
 
     if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
 
@@ -283,7 +283,7 @@ function renderSignedOutMessage(container) {
 
   const icon = document.createElement('div');
   icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
-  icon.textContent = '🔒';
+  icon.innerHTML = window.SvgIcons ? window.SvgIcons.get('lock', {size: 48}) : '';
 
   const heading = document.createElement('h2');
   heading.style.marginBottom = '1rem';
@@ -321,7 +321,7 @@ function renderAccessDenied(container) {
 
   const icon = document.createElement('div');
   icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
-  icon.textContent = '⛔';
+  icon.innerHTML = window.SvgIcons ? window.SvgIcons.get('no_entry', {size: 48}) : '';
 
   const heading = document.createElement('h2');
   heading.style.marginBottom = '1rem';
@@ -357,7 +357,7 @@ function renderErrorMessage(container, title, message) {
 
   const icon = document.createElement('div');
   icon.style.cssText = 'font-size: 3rem; margin-bottom: 1rem;';
-  icon.textContent = '⚠️';
+  icon.innerHTML = window.SvgIcons ? window.SvgIcons.get('warning', {size: 48}) : '';
 
   const heading = document.createElement('h2');
   heading.style.marginBottom = '1rem';
@@ -1124,7 +1124,7 @@ function attachEventListeners() {
           resetDemoBtn.textContent = "Reset Demo Data";
         }, 2000);
       } catch (err) {
-        console.error("❌ Error resetting demo data:", err);
+        console.error("[ERROR] Error resetting demo data:", err);
         alert("Failed to reset demo data: " + err.message);
         resetDemoBtn.disabled = false;
         resetDemoBtn.textContent = "Reset Demo Data";
@@ -1176,12 +1176,12 @@ function attachEventListeners() {
 
         if (error) throw error;
 
-        statusEl.textContent = "✅ Application submitted successfully!";
+        statusEl.textContent = "Application submitted successfully!";
         statusEl.style.display = "block";
         statusEl.style.color = "var(--color-success)";
         adminForm.reset();
       } catch (err) {
-        statusEl.textContent = "❌ " + (err.message || "Failed to submit");
+        statusEl.textContent = (err.message || "Failed to submit");
         statusEl.style.display = "block";
         statusEl.style.color = "var(--color-error)";
       } finally {

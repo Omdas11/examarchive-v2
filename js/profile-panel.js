@@ -59,7 +59,7 @@ function getUserBadges(role) {
  * @returns {string} The emoji icon for the badge
  */
 function getBadgeIcon(label) {
-  return window.Roles?.getBadgeIcon?.(label) || '🏷️';
+  return window.Roles?.getBadgeIcon?.(label) || (window.SvgIcons ? window.SvgIcons.inline('tag') : '');
 }
 
 async function computeBadges(user) {
@@ -129,7 +129,7 @@ async function computeBadges(user) {
         badges.push({
           type: 'custom',
           label: cb,
-          icon: '🏅',
+          icon: window.SvgIcons ? window.SvgIcons.inline('medal') : '',
           color: 'var(--color-muted)'
         });
       }
@@ -194,12 +194,13 @@ async function renderAchievements(userId) {
 
     if (error || !data || data.length === 0) return;
 
+    const SI = window.SvgIcons;
     const achievementLabels = {
-      'first_upload': { label: 'First Upload', icon: '📤' },
-      '10_uploads': { label: '10 Uploads', icon: '🏆' },
-      'first_review': { label: 'First Review', icon: '📝' },
-      'first_publish': { label: 'First Publish', icon: '🌐' },
-      'early_user': { label: 'Early Adopter', icon: '🌟' }
+      'first_upload': { label: 'First Upload', icon: SI ? SI.inline('upload') : '' },
+      '10_uploads': { label: '10 Uploads', icon: SI ? SI.inline('trophy') : '' },
+      'first_review': { label: 'First Review', icon: SI ? SI.inline('edit') : '' },
+      'first_publish': { label: 'First Publish', icon: SI ? SI.inline('globe') : '' },
+      'early_user': { label: 'Early Adopter', icon: SI ? SI.inline('star') : '' }
     };
 
     // Find or create achievements section
@@ -217,7 +218,7 @@ async function renderAchievements(userId) {
     achievementsSection.innerHTML = `
       <h4 style="width:100%;margin:0 0 0.5rem;font-size:0.8rem;color:var(--text-muted);">Achievements</h4>
       ${data.map(a => {
-        const info = achievementLabels[a.badge_type] || { label: a.badge_type, icon: '🏅' };
+        const info = achievementLabels[a.badge_type] || { label: a.badge_type, icon: SI ? SI.inline('medal') : '' };
         return `<span class="achievement-pill" title="Earned ${new Date(a.awarded_at).toLocaleDateString()}">${info.icon} ${info.label}</span>`;
       }).join('')}
     `;
@@ -350,7 +351,17 @@ async function populateProfileStats(user) {
     const xpCurrentTierEl = document.getElementById('xpCurrentTier');
     const xpNextTierEl = document.getElementById('xpNextTier');
     const xpNextInfoEl = document.getElementById('xpNextInfo');
-    if (xpCurrentTierEl) xpCurrentTierEl.textContent = current.title;
+
+    // primary_role overrides cosmetic XP title display
+    if (xpCurrentTierEl) {
+      if (userPrimaryRole === 'Founder') {
+        xpCurrentTierEl.textContent = 'Founder';
+      } else if (userPrimaryRole && ['Admin', 'Senior Moderator', 'Moderator', 'Reviewer'].includes(userPrimaryRole)) {
+        xpCurrentTierEl.textContent = userPrimaryRole;
+      } else {
+        xpCurrentTierEl.textContent = current.title;
+      }
+    }
     if (xpNextEl) xpNextEl.textContent = next.xp;
     if (xpNextTierEl) xpNextTierEl.textContent = next.title;
     if (xpNextInfoEl) {
@@ -429,7 +440,7 @@ function renderStreak(streakCount, longestStreak) {
   headerDiv.className = 'streak-header';
   const headerLabel = document.createElement('span');
   headerLabel.className = 'streak-title';
-  headerLabel.textContent = '🔥 Daily Streak';
+  headerLabel.innerHTML = (window.SvgIcons ? window.SvgIcons.inline('fire') : '') + ' Daily Streak';
   headerDiv.appendChild(headerLabel);
   streakSection.appendChild(headerDiv);
 
@@ -447,7 +458,7 @@ function renderStreak(streakCount, longestStreak) {
 
     const inner = document.createElement('span');
     inner.className = 'streak-circle-inner';
-    inner.textContent = isActive ? '✓' : String(i + 1);
+    inner.innerHTML = isActive ? (window.SvgIcons ? window.SvgIcons.get('check') : '&#10003;') : String(i + 1);
     circle.appendChild(inner);
     rowDiv.appendChild(circle);
   }
@@ -482,7 +493,7 @@ function renderStreak(streakCount, longestStreak) {
   const milestoneDiv = document.createElement('div');
   milestoneDiv.className = 'streak-stat';
   const milestoneVal = document.createElement('strong');
-  milestoneVal.textContent = nextMilestone ? String(nextMilestone) : '🏆';
+  milestoneVal.innerHTML = nextMilestone ? String(nextMilestone) : (window.SvgIcons ? window.SvgIcons.get('trophy') : '&#9733;');
   const milestoneLabel = document.createElement('span');
   milestoneLabel.textContent = nextMilestone ? 'Next goal' : 'Master';
   milestoneDiv.appendChild(milestoneVal);
@@ -527,24 +538,24 @@ function initializeProfilePanel() {
   const switchAccountModal = document.getElementById("switch-account-modal");
 
   if (!panel) {
-    debug("❌ profile panel NOT found");
+    debug("[ERROR] profile panel NOT found");
     return;
   }
 
-  debug("✅ profile panel DOM ready, attaching handlers");
+  debug("[OK] profile panel DOM ready, attaching handlers");
 
   function openPanel() {
     panel.classList.add("open");
     panel.setAttribute("aria-hidden", "false");
     // CRITICAL: Always refresh profile when opening to ensure latest auth state
     renderProfilePanel();
-    debug("🟢 profile panel opened");
+    debug("[OPEN] profile panel opened");
   }
 
   function closePanel() {
     panel.classList.remove("open");
     panel.setAttribute("aria-hidden", "true");
-    debug("🔴 profile panel closed");
+    debug("[CLOSE] profile panel closed");
   }
 
   function openSwitchAccountModal() {
@@ -560,14 +571,14 @@ function initializeProfilePanel() {
     
     switchAccountModal.classList.add("open");
     switchAccountModal.setAttribute("aria-hidden", "false");
-    debug("🟢 switch account modal opened");
+    debug("[OPEN] switch account modal opened");
   }
 
   function closeSwitchAccountModal() {
     if (!switchAccountModal) return;
     switchAccountModal.classList.remove("open");
     switchAccountModal.setAttribute("aria-hidden", "true");
-    debug("🔴 switch account modal closed");
+    debug("[CLOSE] switch account modal closed");
   }
 
   // Close panel on backdrop click
@@ -765,7 +776,7 @@ function initializeProfilePanel() {
   });
 
   clickHandlerAttached = true;
-  debug("✅ profile panel handlers attached");
+  debug("[OK] profile panel handlers attached");
 
   // Render profile panel immediately with current session
   renderProfilePanel();
@@ -881,7 +892,7 @@ async function renderProfilePanel() {
       </button>
     `;
 
-    debug(`✅ Profile updated (logged-in): ${fullName || email || "User"}`);
+    debug(`[OK] Profile updated (logged-in): ${fullName || email || "User"}`);
   } else {
     // Guest state
     nameEl.textContent = "Guest";
@@ -921,12 +932,12 @@ async function renderProfilePanel() {
         </button>
         <div class="auth-divider"><span>or</span></div>
         <button id="profileGoogleSignInBtn" class="btn btn-outline" style="width:100%;">
-          <span style="margin-right:0.4rem;">🔑</span> Sign in with Google
+          ${window.SvgIcons ? '<span class="svg-icon" style="margin-right:0.4rem;">' + window.SvgIcons.get('lock') + '</span>' : ''} Sign in with Google
         </button>
       </div>
     `;
     
-    debug("ℹ️ Profile showing guest state");
+    debug("[INFO] Profile showing guest state");
   }
 }
 
@@ -934,7 +945,7 @@ async function renderProfilePanel() {
    Listen for header loaded
    =============================== */
 document.addEventListener("header:loaded", () => {
-  debug("✅ header loaded");
+  debug("[OK] header loaded");
   profilePanelHeaderLoaded = true;
   initializeProfilePanel();
 });
@@ -943,7 +954,7 @@ document.addEventListener("header:loaded", () => {
    Listen for profile panel loaded
    =============================== */
 document.addEventListener("profile-panel:loaded", () => {
-  debug("✅ profile panel loaded");
+  debug("[OK] profile panel loaded");
   profilePanelLoaded = true;
   initializeProfilePanel();
 });
@@ -952,6 +963,6 @@ document.addEventListener("profile-panel:loaded", () => {
    Listen for auth changes - Use centralized event
    =============================== */
 window.addEventListener('auth-state-changed', () => {
-  debug("🔔 Auth state changed, re-rendering profile panel");
+  debug("[EVENT] Auth state changed, re-rendering profile panel");
   renderProfilePanel();
 });

@@ -412,7 +412,7 @@ body[data-theme-preset="glass-light"] {
   --text: #111111;
   --text-muted: #666666;
   --border: rgba(224, 224, 224, 0.5);
-  --accent: #1976d2;
+  --accent: #d32f2f;
   --accent-soft: rgba(227, 242, 253, 0.8);
 }
 
@@ -431,8 +431,8 @@ body[data-theme="dark"][data-theme-preset="glass-light"] {
   --text: #eaeaea;
   --text-muted: #aaaaaa;
   --border: rgba(42, 42, 42, 0.5);
-  --accent: #42a5f5;
-  --accent-soft: rgba(13, 35, 64, 0.8);
+  --accent: #ef5350;
+  --accent-soft: rgba(64, 13, 13, 0.8);
 }
 
 body[data-theme="dark"][data-theme-preset="glass-light"] .card,
@@ -450,8 +450,8 @@ body[data-theme="amoled"][data-theme-preset="glass-light"] {
   --text: #ffffff;
   --text-muted: #bbbbbb;
   --border: rgba(26, 26, 26, 0.5);
-  --accent: #42a5f5;
-  --accent-soft: rgba(13, 35, 64, 0.8);
+  --accent: #ef5350;
+  --accent-soft: rgba(64, 13, 13, 0.8);
 }
 
 body[data-theme="amoled"][data-theme-preset="glass-light"] .card,
@@ -470,8 +470,8 @@ body[data-theme-preset="glass-dark"] {
   --text: #eaeaea;
   --text-muted: #aaaaaa;
   --border: rgba(42, 42, 42, 0.5);
-  --accent: #42a5f5;
-  --accent-soft: rgba(13, 35, 64, 0.8);
+  --accent: #ef5350;
+  --accent-soft: rgba(64, 13, 13, 0.8);
 }
 
 body[data-theme-preset="glass-dark"] .card,
@@ -489,8 +489,8 @@ body[data-theme="dark"][data-theme-preset="glass-dark"] {
   --text: #eaeaea;
   --text-muted: #aaaaaa;
   --border: rgba(42, 42, 42, 0.5);
-  --accent: #42a5f5;
-  --accent-soft: rgba(13, 35, 64, 0.8);
+  --accent: #ef5350;
+  --accent-soft: rgba(64, 13, 13, 0.8);
 }
 
 body[data-theme="dark"][data-theme-preset="glass-dark"] .card,
@@ -508,8 +508,8 @@ body[data-theme="amoled"][data-theme-preset="glass-dark"] {
   --text: #ffffff;
   --text-muted: #bbbbbb;
   --border: rgba(26, 26, 26, 0.5);
-  --accent: #42a5f5;
-  --accent-soft: rgba(13, 35, 64, 0.8);
+  --accent: #ef5350;
+  --accent-soft: rgba(64, 13, 13, 0.8);
 }
 
 body[data-theme="amoled"][data-theme-preset="glass-dark"] .card,
@@ -1142,5 +1142,19 @@ body[data-theme="amoled"].glass-enabled .mobile-nav {
   body.glass-enabled .card::before {
     display: none;
   }
+}
+
+/* ================================
+   SVG ICON INLINE
+   ================================ */
+.svg-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 1;
+}
+.svg-icon svg {
+  display: block;
 }
 

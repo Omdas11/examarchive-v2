@@ -27,11 +27,11 @@ function initializeAvatarPopup() {
   const avatarTrigger = document.querySelector(".avatar-trigger");
 
   if (!popup) {
-    debug("❌ avatar popup NOT found");
+    debug("[ERROR] avatar popup NOT found");
     return;
   }
 
-  debug("✅ avatar popup DOM ready");
+  debug("[OK] avatar popup DOM ready");
 
   // Toggle avatar popup on avatar button click
   avatarTrigger?.addEventListener("click", (e) => {
@@ -46,7 +46,7 @@ function initializeAvatarPopup() {
     
     popup.classList.toggle("open");
     renderAvatarPopup();
-    debug("🔄 Avatar popup toggled");
+    debug("[TOGGLE] Avatar popup toggled");
   });
 
   // Close on click outside
@@ -144,16 +144,16 @@ async function renderAvatarPopup() {
     });
 
     viewProfileBtn?.addEventListener("click", () => {
-      debug("👉 Opening profile panel from avatar popup");
+      debug("[ACTION] Opening profile panel from avatar popup");
       closeAvatarPopup();
       const panel = document.querySelector(".profile-panel");
       panel?.classList.add("open");
     });
 
-    debug(`✅ Avatar popup updated (logged-in): ${fullName || email || "User"}`);
+    debug(`[OK] Avatar popup updated (logged-in): ${fullName || email || "User"}`);
   } else {
     // Guest state
-    nameEl.textContent = "👤 Visitor";
+    nameEl.innerHTML = (window.SvgIcons ? window.SvgIcons.inline('user') : '') + " Visitor";
     usernameEl.textContent = "Not signed in";
     
     // Update avatar for guest
@@ -169,12 +169,12 @@ async function renderAvatarPopup() {
     // Attach event listener to dynamically created element
     const signInBtn = document.getElementById("avatarSignInBtn");
     signInBtn?.addEventListener("click", async () => {
-      debug("👉 Sign in with Google clicked from avatar popup");
+      debug("[ACTION] Sign in with Google clicked from avatar popup");
       closeAvatarPopup();
       await handleSignIn();
     });
     
-    debug("ℹ️ Avatar popup updated (guest)");
+    debug("[INFO] Avatar popup updated (guest)");
   }
 }
 
@@ -190,7 +190,7 @@ function closeAvatarPopup() {
    Listen for avatar loaded
    =============================== */
 document.addEventListener("avatar:loaded", () => {
-  debug("✅ avatar loaded event received");
+  debug("[OK] avatar loaded event received");
   initializeAvatarPopup();
 });
 
@@ -198,7 +198,7 @@ document.addEventListener("avatar:loaded", () => {
    Listen for header loaded
    =============================== */
 document.addEventListener("header:loaded", () => {
-  debug("✅ header loaded event received");
+  debug("[OK] header loaded event received");
   avatarPopupHeaderLoaded = true;
   initializeAvatarPopup();
 });
@@ -234,7 +234,7 @@ function updateHeaderAvatar(user) {
       avatarMini.style.backgroundColor = color;
     }
   } else {
-    avatarMini.textContent = "👤";
+    avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get('user') : '';
     avatarMini.style.backgroundImage = "none";
     avatarMini.style.backgroundColor = "";
     avatarMini.title = "Visitor";
@@ -254,7 +254,7 @@ document.addEventListener('app:ready', () => {
   if (!supabase) return;
 
   supabase.auth.onAuthStateChange(() => {
-    debug("🔔 Auth state changed, re-rendering avatar popup");
+    debug("[EVENT] Auth state changed, re-rendering avatar popup");
     renderAvatarPopup();
   });
 });

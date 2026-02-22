@@ -44,7 +44,7 @@
     if (!currentUser) {
       section.innerHTML = `
         <div class="auth-prompt">
-          <p>🔒 Sign in to create or vote on paper requests</p>
+          <p>${window.SvgIcons ? window.SvgIcons.inline('lock') : ''} Sign in to create or vote on paper requests</p>
         </div>
       `;
       return;
@@ -160,7 +160,7 @@
     return `
       <div class="request-card">
         <div class="request-vote">
-          <button data-vote-id="${req.id}" data-has-voted="${hasVoted}" class="${hasVoted ? 'voted' : ''}" ${!currentUser ? 'disabled' : ''} title="Upvote">${hasVoted ? '✓ Voted' : '▲'}</button>
+          <button data-vote-id="${req.id}" data-has-voted="${hasVoted}" class="${hasVoted ? 'voted' : ''}" ${!currentUser ? 'disabled' : ''} title="Upvote">${hasVoted ? (window.SvgIcons ? window.SvgIcons.inline('check', {size: 14}) : '') + ' Voted' : (window.SvgIcons ? window.SvgIcons.inline('arrow_up', {size: 14}) : '')}</button>
           <span class="vote-count">${req.votes || 0}</span>
         </div>
         <div class="request-body">
@@ -169,7 +169,7 @@
           <p>${escapeHtml(req.description || '')}</p>
           ${['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(userPrimaryRole) && req.status === 'open' ? `
             <div class="admin-actions">
-              <button data-fulfill-id="${req.id}">✓ Mark Fulfilled</button>
+              <button data-fulfill-id="${req.id}">${window.SvgIcons ? window.SvgIcons.inline('check', {size: 14}) : ''} Mark Fulfilled</button>
             </div>
           ` : ''}
         </div>
@@ -193,14 +193,17 @@
     const countEl = btn.parentElement?.querySelector('.vote-count');
     const prevCount = parseInt(countEl?.textContent || '0');
 
+    var voteCheckSvg = (window.SvgIcons ? window.SvgIcons.inline('check', {size: 14}) : '') + ' Voted';
+    var voteArrowSvg = window.SvgIcons ? window.SvgIcons.inline('arrow_up', {size: 14}) : '';
+
     if (hasVoted) {
       btn.classList.remove('voted');
-      btn.textContent = '▲';
+      btn.innerHTML = voteArrowSvg;
       btn.dataset.hasVoted = 'false';
       if (countEl) countEl.textContent = Math.max(0, prevCount - 1);
     } else {
       btn.classList.add('voted');
-      btn.textContent = '✓ Voted';
+      btn.innerHTML = voteCheckSvg;
       btn.dataset.hasVoted = 'true';
       if (countEl) countEl.textContent = prevCount + 1;
     }
@@ -224,12 +227,12 @@
       // Revert optimistic update on error
       if (hasVoted) {
         btn.classList.add('voted');
-        btn.textContent = '✓ Voted';
+        btn.innerHTML = voteCheckSvg;
         btn.dataset.hasVoted = 'true';
         if (countEl) countEl.textContent = prevCount;
       } else {
         btn.classList.remove('voted');
-        btn.textContent = '▲';
+        btn.innerHTML = voteArrowSvg;
         btn.dataset.hasVoted = 'false';
         if (countEl) countEl.textContent = prevCount;
       }
@@ -239,7 +242,7 @@
   }
 
   async function handleFulfill(requestId) {
-    if (userRoleLevel < 75) return;
+    if (!['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(userPrimaryRole)) return;
 
     try {
       const supabase = await window.waitForSupabase();

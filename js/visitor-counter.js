@@ -111,8 +111,8 @@
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session) return;
 
-      const { data: roleLevel } = await supabase.rpc('get_my_role_level');
-      if (roleLevel >= 100) {
+      const isAdmin = await (window.AdminAuth?.isCurrentUserAdmin?.() || Promise.resolve(false));
+      if (isAdmin) {
         const el = document.getElementById('footerStats');
         if (!el || el.querySelector('.reset-counter-btn')) return;
 
