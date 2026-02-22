@@ -167,7 +167,7 @@ function renderBadges(badges) {
     const iconSpan = document.createElement('span');
     iconSpan.className = 'badge-icon';
     iconSpan.setAttribute('aria-hidden', 'true');
-    iconSpan.textContent = badge.icon || '';
+    iconSpan.innerHTML = badge.icon || '';
 
     const labelSpan = document.createElement('span');
     labelSpan.className = 'badge-label';
