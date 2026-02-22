@@ -538,7 +538,7 @@
       return 'ring-visitor';
     }
 
-    async function loadProfile(userId) {
+    async function loadProfile(userId, user) {
       window.debugLog('SYSTEM', 'loadProfile triggered');
 
       var loadingEl = document.getElementById('profile-loading');
@@ -548,35 +548,25 @@
       var supabase = window.getSupabase ? window.getSupabase() : null;
       if (!supabase) return;
 
-      var sessionResult = await supabase.auth.getSession();
-      if (!sessionResult.data || !sessionResult.data.session) {
-        window.debugLog('AUTH', 'No active session yet');
+      window.debugLog('AUTH', 'User ID: ' + userId);
+
+      var roleRes = await supabase
+        .from('roles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      var roleData = roleRes.data;
+      if (roleRes.error) {
+        window.debugLog('ERROR', roleRes.error.message);
+      }
+
+      if (!roleData) {
+        window.debugLog('WARNING', 'No role data available for user');
         loadingEl.style.display = 'none';
-        authWall.style.display = 'block';
+        contentEl.style.display = 'block';
+        safeSetAvatar(null, 'U');
         return;
-      }
-
-      var user = sessionResult.data.session.user;
-
-      window.debugLog('AUTH', 'User ID: ' + user.id);
-
-      // Load role data BEFORE rendering UI (with retry for avatar_url)
-      var roleData = {};
-      for (var attempt = 1; attempt <= 3; attempt++) {
-        try {
-          var res = await supabase
-            .from('roles')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
-          if (res.data) roleData = res.data;
-        } catch (_) {}
-        window.debugLog('SYSTEM', 'Attempt ' + attempt + ' avatar_url: ' + roleData.avatar_url);
-        if (roleData.avatar_url) break;
-        if (attempt < 3) await new Promise(function(resolve) { setTimeout(resolve, 500); });
-      }
-      if (!roleData.avatar_url) {
-        window.debugLog('WARNING', 'Avatar still null after retries');
       }
 
       loadingEl.style.display = 'none';
@@ -651,7 +641,7 @@
         var achRes = await supabase
           .from('achievements')
           .select('*')
-          .eq('user_id', user.id);
+          .eq('user_id', userId);
         if (achRes.data && achRes.data.length > 0) {
           achievementsEl.style.display = 'flex';
           var label = document.createElement('div');
@@ -856,17 +846,22 @@
     document.addEventListener('DOMContentLoaded', function() {
       var profileLoaded = false;
       var supabase = window.getSupabase ? window.getSupabase() : null;
+      var profileLoadingEl = document.getElementById('profile-loading');
+      var profileAuthWall = document.getElementById('profile-auth-wall');
       if (supabase) {
         var authSub = supabase.auth.onAuthStateChange(async function(event, session) {
-          if (!session || !session.user) return;
-          if (profileLoaded) return;
+          window.debugLog('AUTH', 'Auth event: ' + event);
 
-          profileLoaded = true;
-          window.debugLog('AUTH', 'Auth state changed: ' + event);
-
-          loadProfile(session.user.id).catch(function(err) {
-            window.debugLog('ERROR', 'loadProfile error on auth change: ' + (err && err.message || err));
-          });
+          if (event === 'INITIAL_SESSION' && session && session.user && !profileLoaded) {
+            profileLoaded = true;
+            window.debugLog('SYSTEM', 'Loading profile after INITIAL_SESSION');
+            loadProfile(session.user.id, session.user).catch(function(err) {
+              window.debugLog('ERROR', 'loadProfile error on auth change: ' + (err && err.message || err));
+            });
+          } else if (event === 'INITIAL_SESSION' && (!session || !session.user)) {
+            if (profileLoadingEl) profileLoadingEl.style.display = 'none';
+            if (profileAuthWall) profileAuthWall.style.display = 'block';
+          }
         });
         // Clean up listener on page unload
         window.addEventListener('beforeunload', function() {
