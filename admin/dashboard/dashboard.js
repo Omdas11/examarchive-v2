@@ -1119,10 +1119,6 @@ async function loadUsersTable(page, searchQuery) {
         if ((role === 'Founder' || role === 'Admin') && userPrimaryRoleGlobal !== 'Founder') {
           opt.disabled = true;
         }
-        // Admin cannot assign Founder
-        if (role === 'Founder' && userPrimaryRoleGlobal === 'Admin') {
-          opt.disabled = true;
-        }
         roleSelect.appendChild(opt);
       });
       roleSelect.value = u.primary_role || 'Visitor';

@@ -524,6 +524,7 @@
         usernameEl.style.cursor = 'not-allowed';
         usernameEl.style.textDecoration = 'none';
         usernameEl.title = 'Username can be changed once every 30 days';
+        usernameEl.setAttribute('aria-disabled', 'true');
       }
       if (user.created_at) {
         var d = new Date(user.created_at);
