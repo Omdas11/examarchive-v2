@@ -462,7 +462,6 @@
     'use strict';
 
     var currentAvatarUrl = null;
-    var profileInitialized = false;
 
     var XP_LEVELS = [
       { level: 0, xp: 0, title: 'Visitor' },
@@ -539,12 +538,7 @@
       return 'ring-visitor';
     }
 
-    async function loadProfile() {
-      if (profileInitialized) {
-        window.debugLog('INFO', 'loadProfile skipped (already initialized)');
-        return;
-      }
-
+    async function loadProfile(userId) {
       window.debugLog('INFO', 'loadProfile started');
 
       var loadingEl = document.getElementById('profile-loading');
@@ -572,7 +566,7 @@
         var res = await supabase
           .from('roles')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .single();
         if (res.data) roleData = res.data;
       } catch (_) {}
@@ -796,7 +790,8 @@
       });
 
       // Profile photo upload
-      document.getElementById('avatarUploadBtn').addEventListener('click', function() {
+      document.getElementById('avatarUploadBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
         document.getElementById('avatarFileInput').click();
       });
 
@@ -847,26 +842,23 @@
         window.location.href = 'index.html';
       });
 
-      profileInitialized = true;
       window.debugLog('INFO', 'loadProfile completed');
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      loadProfile().catch(function(err) {
-        window.debugLog('ERROR', 'loadProfile error: ' + (err && err.message || err));
-      });
-
-      // Also listen for auth state changes to handle late session restoration
+      var profileLoaded = false;
       var supabase = window.getSupabase ? window.getSupabase() : null;
       if (supabase) {
-        var authSub = supabase.auth.onAuthStateChange(function(event, session) {
+        var authSub = supabase.auth.onAuthStateChange(async function(event, session) {
+          if (!session || !session.user) return;
+          if (profileLoaded) return;
+
+          profileLoaded = true;
           window.debugLog('AUTH', 'Auth state changed: ' + event);
-          if (session && session.user && (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION')) {
-            profileInitialized = false;
-            loadProfile().catch(function(err) {
-              window.debugLog('ERROR', 'loadProfile error on auth change: ' + (err && err.message || err));
-            });
-          }
+
+          loadProfile(session.user.id).catch(function(err) {
+            window.debugLog('ERROR', 'loadProfile error on auth change: ' + (err && err.message || err));
+          });
         });
         // Clean up listener on page unload
         window.addEventListener('beforeunload', function() {
