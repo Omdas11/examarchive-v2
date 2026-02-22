@@ -53,6 +53,15 @@ function getUserBadges(role) {
  * @param {Object} user - Supabase user object
  * @returns {Array} Array of badge objects (max 3)
  */
+/**
+ * Get badge icon — delegates to window.Roles.getBadgeIcon (single source of truth)
+ * @param {string} label - The badge label text
+ * @returns {string} The emoji icon for the badge
+ */
+function getBadgeIcon(label) {
+  return window.Roles?.getBadgeIcon?.(label) || '🏷️';
+}
+
 async function computeBadges(user) {
   const getUserBadge = window.Roles.getUserBadge;
   const getBadgeColor = window.Roles.getBadgeColor;
@@ -103,20 +112,12 @@ async function computeBadges(user) {
 
   const labels = getUserBadges(roleData).slice(0, 3);
   const badges = labels.map((label) => {
-    if (label === 'Founder') {
-      return {
-        type: 'founder',
-        label,
-        icon: '👑',
-        color: 'var(--color-warning)'
-      };
-    }
-
+    const icon = getBadgeIcon(label);
     const badgeType = label.toLowerCase().replace(/\s+/g, '_');
     return {
       type: badgeType,
       label,
-      icon: '🏷️',
+      icon,
       color: getBadgeColor?.(badgeType) || 'var(--color-muted)'
     };
   });
@@ -346,7 +347,15 @@ async function populateProfileStats(user) {
 
     const { current, next } = getXpThresholds(userXp);
     if (xpCurrentEl) xpCurrentEl.textContent = userXp;
+    const xpCurrentTierEl = document.getElementById('xpCurrentTier');
+    const xpNextTierEl = document.getElementById('xpNextTier');
+    const xpNextInfoEl = document.getElementById('xpNextInfo');
+    if (xpCurrentTierEl) xpCurrentTierEl.textContent = current.title;
     if (xpNextEl) xpNextEl.textContent = next.xp;
+    if (xpNextTierEl) xpNextTierEl.textContent = next.title;
+    if (xpNextInfoEl) {
+      xpNextInfoEl.style.display = (current.xp !== next.xp) ? 'block' : 'none';
+    }
 
     if (xpBarFill) {
       const range = next.xp - current.xp;
@@ -369,7 +378,7 @@ async function populateProfileStats(user) {
     try {
       const { data: streakData } = await supabase.rpc('update_daily_streak');
       if (streakData && streakData.length > 0) {
-        renderStreak(streakData[0].streak);
+        renderStreak(streakData[0].streak, streakData[0].longest_streak);
       }
     } catch (_) {
       // Streak update is optional
@@ -389,10 +398,11 @@ async function populateProfileStats(user) {
 
 /**
  * Render daily streak visualization in profile panel
- * Shows 7 small circles, filled = active streak day
+ * Shows 7 large circles with day numbers/checkmarks, stats, and next milestone
  * @param {number} streakCount - Current streak count
+ * @param {number} [longestStreak] - Longest streak (optional, falls back to streakCount)
  */
-function renderStreak(streakCount) {
+function renderStreak(streakCount, longestStreak) {
   let streakSection = document.querySelector('.profile-streak');
   if (!streakSection) {
     streakSection = document.createElement('section');
@@ -403,47 +413,86 @@ function renderStreak(streakCount) {
     }
   }
 
-  // Normalize streakCount to a non-negative finite number
   let normalizedStreak = Number.isFinite(streakCount) ? streakCount : 0;
   if (normalizedStreak < 0) normalizedStreak = 0;
+  let normalizedLongest = Number.isFinite(longestStreak) ? longestStreak : normalizedStreak;
 
   const days = 7;
   const activeDays = Math.min(normalizedStreak, days);
 
-  // Clear previous content safely
   while (streakSection.firstChild) {
     streakSection.removeChild(streakSection.firstChild);
   }
 
-  // Build streak row with dots
+  // Streak header
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'streak-header';
+  const headerLabel = document.createElement('span');
+  headerLabel.className = 'streak-title';
+  headerLabel.textContent = '🔥 Daily Streak';
+  headerDiv.appendChild(headerLabel);
+  streakSection.appendChild(headerDiv);
+
+  // Build streak row with large circles
   const rowDiv = document.createElement('div');
   rowDiv.className = 'streak-row';
 
   for (let i = 0; i < days; i++) {
     const isActive = i < activeDays;
-    const dot = document.createElement('span');
-    dot.className = 'streak-dot' + (isActive ? ' active' : '');
-    dot.setAttribute('role', 'img');
-    dot.setAttribute('aria-label', 'Day ' + (i + 1) + (isActive ? ' (active)' : ''));
-    rowDiv.appendChild(dot);
-  }
+    const isCurrent = i === activeDays - 1 && activeDays > 0;
+    const circle = document.createElement('div');
+    circle.className = 'streak-circle' + (isActive ? ' active' : '') + (isCurrent ? ' current' : '');
+    circle.setAttribute('role', 'img');
+    circle.setAttribute('aria-label', 'Day ' + (i + 1) + (isActive ? ' (completed)' : ''));
 
-  // Fire icon when streak >= 7
-  if (normalizedStreak >= 7) {
-    const fireSpan = document.createElement('span');
-    fireSpan.className = 'streak-fire';
-    fireSpan.setAttribute('aria-label', 'Streak on fire!');
-    fireSpan.textContent = '🔥';
-    rowDiv.appendChild(fireSpan);
+    const inner = document.createElement('span');
+    inner.className = 'streak-circle-inner';
+    inner.textContent = isActive ? '✓' : String(i + 1);
+    circle.appendChild(inner);
+    rowDiv.appendChild(circle);
   }
-
-  // Streak label
-  const labelDiv = document.createElement('div');
-  labelDiv.className = 'streak-label';
-  labelDiv.textContent = normalizedStreak + ' day streak';
 
   streakSection.appendChild(rowDiv);
-  streakSection.appendChild(labelDiv);
+
+  // Stats row
+  const statsDiv = document.createElement('div');
+  statsDiv.className = 'streak-stats';
+
+  const currentDiv = document.createElement('div');
+  currentDiv.className = 'streak-stat';
+  const currentVal = document.createElement('strong');
+  currentVal.textContent = normalizedStreak;
+  const currentLabel = document.createElement('span');
+  currentLabel.textContent = 'Current';
+  currentDiv.appendChild(currentVal);
+  currentDiv.appendChild(currentLabel);
+
+  const longestDiv = document.createElement('div');
+  longestDiv.className = 'streak-stat';
+  const longestVal = document.createElement('strong');
+  longestVal.textContent = normalizedLongest;
+  const longestLabel = document.createElement('span');
+  longestLabel.textContent = 'Best';
+  longestDiv.appendChild(longestVal);
+  longestDiv.appendChild(longestLabel);
+
+  // Next milestone
+  const milestones = [7, 14, 30, 60, 100];
+  let nextMilestone = milestones.find(m => m > normalizedStreak) || null;
+  const milestoneDiv = document.createElement('div');
+  milestoneDiv.className = 'streak-stat';
+  const milestoneVal = document.createElement('strong');
+  milestoneVal.textContent = nextMilestone ? String(nextMilestone) : '🏆';
+  const milestoneLabel = document.createElement('span');
+  milestoneLabel.textContent = nextMilestone ? 'Next goal' : 'Master';
+  milestoneDiv.appendChild(milestoneVal);
+  milestoneDiv.appendChild(milestoneLabel);
+
+  statsDiv.appendChild(currentDiv);
+  statsDiv.appendChild(longestDiv);
+  statsDiv.appendChild(milestoneDiv);
+  streakSection.appendChild(statsDiv);
+
   streakSection.style.display = 'block';
 }
 
@@ -568,8 +617,139 @@ function initializeProfilePanel() {
       return;
     }
 
+    // Username click — show edit form
+    if (e.target.closest(".profile-username")) {
+      const editDiv = document.getElementById("profileUsernameEdit");
+      const usernameInput = document.getElementById("profileUsernameInput");
+      if (editDiv && usernameInput) {
+        const current = e.target.textContent.replace(/^@/, '');
+        usernameInput.value = (current === 'Signed in' || current === 'Not signed in') ? '' : current;
+        editDiv.style.display = "block";
+        usernameInput.focus();
+      }
+      return;
+    }
+
+    // Username cancel
+    if (e.target.id === "profileUsernameCancel") {
+      const editDiv = document.getElementById("profileUsernameEdit");
+      if (editDiv) editDiv.style.display = "none";
+      return;
+    }
+
+    // Username save
+    if (e.target.id === "profileUsernameSave") {
+      const usernameInput = document.getElementById("profileUsernameInput");
+      const statusEl = document.getElementById("profileUsernameStatus");
+      const newUsername = usernameInput ? usernameInput.value.trim() : '';
+      if (!newUsername || newUsername.length < 3) {
+        if (statusEl) { statusEl.textContent = 'Username must be at least 3 characters.'; statusEl.style.color = 'var(--color-error)'; }
+        return;
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) {
+        if (statusEl) { statusEl.textContent = 'Only letters, numbers, and underscores allowed.'; statusEl.style.color = 'var(--color-error)'; }
+        return;
+      }
+      try {
+        if (statusEl) { statusEl.textContent = 'Saving...'; statusEl.style.color = 'var(--text-muted)'; }
+        const supabase = await window.waitForSupabase();
+        const { error } = await supabase.rpc('set_username', { new_username: newUsername });
+        if (error) {
+          if (statusEl) { statusEl.textContent = error.message || 'Username taken or invalid.'; statusEl.style.color = 'var(--color-error)'; }
+        } else {
+          if (statusEl) { statusEl.textContent = 'Username saved!'; statusEl.style.color = 'var(--color-success)'; }
+          const usernameEl = document.querySelector(".profile-panel .profile-username");
+          if (usernameEl) usernameEl.textContent = '@' + newUsername;
+          setTimeout(() => {
+            const editDiv = document.getElementById("profileUsernameEdit");
+            if (editDiv) editDiv.style.display = "none";
+            if (statusEl) statusEl.textContent = '';
+          }, 1500);
+        }
+      } catch (err) {
+        if (statusEl) { statusEl.textContent = 'Failed to save username.'; statusEl.style.color = 'var(--color-error)'; }
+      }
+      return;
+    }
+
     // Sign in button (guest mode)
     if (e.target.id === "profileSignInBtn") {
+      const emailInput = document.getElementById("profileAuthEmail");
+      const passInput = document.getElementById("profileAuthPassword");
+      const errorDiv = document.getElementById("profileAuthError");
+      const signUpBtn = document.getElementById("profileSignUpBtn");
+      const resetBtn = document.getElementById("profileResetBtn");
+
+      if (passInput && passInput.style.display === "none") {
+        const email = emailInput ? emailInput.value.trim() : "";
+        if (!email) {
+          if (errorDiv) { errorDiv.textContent = "Please enter your email."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
+          return;
+        }
+        passInput.style.display = "";
+        if (signUpBtn) signUpBtn.style.display = "";
+        if (resetBtn) resetBtn.style.display = "";
+        e.target.textContent = "Sign In";
+        if (errorDiv) errorDiv.style.display = "none";
+        return;
+      }
+
+      const email = emailInput ? emailInput.value.trim() : "";
+      const password = passInput ? passInput.value : "";
+      if (!email || !password) {
+        if (errorDiv) { errorDiv.textContent = "Please enter email and password."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
+        return;
+      }
+
+      const { error } = await window.AuthController.signInWithPassword(email, password);
+      if (error) {
+        if (errorDiv) { errorDiv.textContent = error.message || "Sign in failed."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
+      } else {
+        closePanel();
+      }
+      return;
+    }
+
+    // Sign up button
+    if (e.target.id === "profileSignUpBtn") {
+      const emailInput = document.getElementById("profileAuthEmail");
+      const passInput = document.getElementById("profileAuthPassword");
+      const errorDiv = document.getElementById("profileAuthError");
+      const email = emailInput ? emailInput.value.trim() : "";
+      const password = passInput ? passInput.value : "";
+      if (!email || !password) {
+        if (errorDiv) { errorDiv.textContent = "Please enter email and password."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
+        return;
+      }
+      const { data, error } = await window.AuthController.signUp(email, password);
+      if (error) {
+        if (errorDiv) { errorDiv.textContent = error.message || "Sign up failed."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
+      } else {
+        if (errorDiv) { errorDiv.textContent = "Check your email to confirm your account."; errorDiv.style.display = "block"; errorDiv.classList.add("auth-success"); }
+      }
+      return;
+    }
+
+    // Reset password button
+    if (e.target.id === "profileResetBtn") {
+      const emailInput = document.getElementById("profileAuthEmail");
+      const errorDiv = document.getElementById("profileAuthError");
+      const email = emailInput ? emailInput.value.trim() : "";
+      if (!email) {
+        if (errorDiv) { errorDiv.textContent = "Please enter your email first."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
+        return;
+      }
+      const { error } = await window.AuthController.resetPassword(email);
+      if (error) {
+        if (errorDiv) { errorDiv.textContent = error.message || "Reset failed."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
+      } else {
+        if (errorDiv) { errorDiv.textContent = "Password reset email sent."; errorDiv.style.display = "block"; errorDiv.classList.add("auth-success"); }
+      }
+      return;
+    }
+
+    // Google sign in button
+    if (e.target.id === "profileGoogleSignInBtn" || e.target.closest("#profileGoogleSignInBtn")) {
       closePanel();
       if (handleSignIn) await handleSignIn();
       return;
@@ -629,6 +809,25 @@ async function renderProfilePanel() {
       nameEl.textContent = "User";
       usernameEl.textContent = "Signed in";
     }
+
+    // Fetch and display custom username from roles table
+    try {
+      const supabase = await window.waitForSupabase();
+      if (supabase) {
+        const { data: roleRow } = await supabase
+          .from('roles')
+          .select('username')
+          .eq('user_id', user.id)
+          .single();
+        if (roleRow && roleRow.username) {
+          usernameEl.textContent = '@' + roleRow.username;
+        }
+      }
+    } catch (_) { /* username fetch optional */ }
+
+    // Make username clickable to edit
+    usernameEl.style.cursor = 'pointer';
+    usernameEl.title = 'Click to edit username';
 
     // Show "Member since" from created_at
     const memberSinceEl = document.querySelector(".profile-member-since");
@@ -707,10 +906,24 @@ async function renderProfilePanel() {
       <p class="muted">
         Sign in to upload papers and track your progress.
       </p>
-
-      <button id="profileSignInBtn" class="btn btn-primary">
-        Sign in with Google
-      </button>
+      <div class="auth-form" id="profileAuthForm">
+        <input type="email" id="profileAuthEmail" placeholder="Email address" class="auth-input" required />
+        <input type="password" id="profileAuthPassword" placeholder="Password" class="auth-input" style="display:none;" />
+        <div class="auth-error" id="profileAuthError" style="display:none;"></div>
+        <button id="profileSignInBtn" class="btn btn-primary" style="width:100%;">
+          Continue with Email
+        </button>
+        <button id="profileSignUpBtn" class="btn btn-outline" style="display:none;width:100%;">
+          Create Account
+        </button>
+        <button id="profileResetBtn" class="btn btn-link" style="display:none;font-size:0.8rem;">
+          Forgot password?
+        </button>
+        <div class="auth-divider"><span>or</span></div>
+        <button id="profileGoogleSignInBtn" class="btn btn-outline" style="width:100%;">
+          <span style="margin-right:0.4rem;">🔑</span> Sign in with Google
+        </button>
+      </div>
     `;
     
     debug("ℹ️ Profile showing guest state");

@@ -1,60 +1,61 @@
 // js/tutorial.js
 // ============================================
-// FIRST VISIT TUTORIAL
-// Shows welcome modal on first visit
-// Uses localStorage to track seen state
+// GUIDED TUTORIAL WALKTHROUGH
+// Multi-step walkthrough that highlights UI elements
+// Uses localStorage to track completion
 // ============================================
 
 (function () {
   const TUTORIAL_KEY = 'examarchive_tutorial_seen';
+  const TUTORIAL_VERSION = '2'; // Increment to re-show tutorial on major updates
 
-  if (localStorage.getItem(TUTORIAL_KEY) === 'true') {
+  if (localStorage.getItem(TUTORIAL_KEY) === TUTORIAL_VERSION) {
     return;
   }
 
-  function createTutorialModal() {
-    const overlay = document.createElement('div');
-    overlay.className = 'tutorial-overlay';
-    overlay.id = 'tutorial-overlay';
+  const steps = [
+    {
+      title: 'Welcome to ExamArchive! 👋',
+      text: 'Let us show you around. This quick guide will help you get started.',
+      target: null,
+      icon: '🏠'
+    },
+    {
+      title: 'Search for Papers',
+      text: 'Use the search bar to find question papers by code, subject, or year. You can also filter by paper type.',
+      target: '.home-search',
+      icon: '🔍'
+    },
+    {
+      title: 'Quick Access',
+      text: 'Jump straight to papers by Subject, University, or Year using these shortcuts.',
+      target: '.quick-access',
+      icon: '⚡'
+    },
+    {
+      title: 'Your Profile',
+      text: 'Click your avatar to sign in, view your profile, track XP, and manage your account.',
+      target: '#avatarTrigger',
+      icon: '👤'
+    },
+    {
+      title: 'Upload Papers',
+      text: 'Go to the Upload page to contribute question papers. Sign in first, then fill in the paper details and upload your PDF.',
+      target: 'a[href="upload.html"]',
+      icon: '📤'
+    },
+    {
+      title: 'Browse Collection',
+      text: 'Browse all available papers, filter by stream, and download what you need. Start exploring!',
+      target: 'a[href="browse.html"]',
+      icon: '📚'
+    }
+  ];
 
-    overlay.innerHTML = `
-      <div class="tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
-        <div class="tutorial-header">
-          <h2 id="tutorial-title">👋 Welcome to ExamArchive!</h2>
-          <button class="tutorial-close" id="tutorial-close" aria-label="Close tutorial">✕</button>
-        </div>
-        <div class="tutorial-body">
-          <div class="tutorial-step">
-            <span class="tutorial-step-icon">🔐</span>
-            <div>
-              <strong>Sign in with Google</strong>
-              <p>Sign in to upload papers and track your contributions.</p>
-            </div>
-          </div>
-          <div class="tutorial-step">
-            <span class="tutorial-step-icon">📤</span>
-            <div>
-              <strong>Upload Papers</strong>
-              <p>Upload question papers as PDFs. They'll be reviewed before publishing.</p>
-            </div>
-          </div>
-          <div class="tutorial-step">
-            <span class="tutorial-step-icon">📚</span>
-            <div>
-              <strong>Browse Papers</strong>
-              <p>Search and filter previous year question papers by subject, year, and stream.</p>
-            </div>
-          </div>
-        </div>
-        <div class="tutorial-footer">
-          <button class="btn btn-primary" id="tutorial-got-it">Got it!</button>
-          <button class="btn btn-outline" id="tutorial-skip">Skip</button>
-        </div>
-      </div>
-    `;
+  let currentStep = 0;
 
-    document.body.appendChild(overlay);
-
+  function createTutorialUI() {
+    // Create styles
     const style = document.createElement('style');
     style.id = 'tutorial-styles';
     style.textContent = `
@@ -62,101 +63,232 @@
         position: fixed;
         inset: 0;
         z-index: 99999;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(3px);
         animation: tutorialFadeIn 0.3s ease;
       }
       @keyframes tutorialFadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
       }
-      .tutorial-modal {
+      .tutorial-tooltip {
+        position: fixed;
+        z-index: 100000;
         background: var(--surface, #fff);
-        border-radius: 16px;
-        max-width: 440px;
-        width: 100%;
-        padding: 1.5rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        border-radius: 14px;
+        max-width: 360px;
+        width: calc(100vw - 2rem);
+        padding: 1.25rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         color: var(--text, #333);
+        animation: tooltipPop 0.3s ease;
       }
-      .tutorial-header {
+      @keyframes tooltipPop {
+        from { opacity: 0; transform: translateY(10px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .tutorial-tooltip-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+      }
+      .tutorial-tooltip-icon {
+        font-size: 1.3rem;
+        flex-shrink: 0;
+      }
+      .tutorial-tooltip-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      .tutorial-tooltip-text {
+        font-size: 0.85rem;
+        color: var(--text-muted, #666);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+      .tutorial-tooltip-footer {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
       }
-      .tutorial-header h2 {
-        font-size: 1.2rem;
-        margin: 0;
+      .tutorial-tooltip-progress {
+        font-size: 0.75rem;
+        color: var(--text-muted, #999);
       }
-      .tutorial-close {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        color: var(--text-muted, #666);
-        padding: 4px 8px;
-        border-radius: 6px;
-      }
-      .tutorial-close:hover {
-        background: rgba(0,0,0,0.05);
-      }
-      .tutorial-body {
+      .tutorial-tooltip-actions {
         display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        gap: 0.5rem;
       }
-      .tutorial-step {
-        display: flex;
-        gap: 0.8rem;
-        align-items: flex-start;
-      }
-      .tutorial-step-icon {
-        font-size: 1.5rem;
-        flex-shrink: 0;
-        width: 2rem;
-        text-align: center;
-      }
-      .tutorial-step strong {
-        display: block;
-        margin-bottom: 0.2rem;
-      }
-      .tutorial-step p {
-        font-size: 0.85rem;
-        color: var(--text-muted, #666);
-        margin: 0;
-        line-height: 1.4;
-      }
-      .tutorial-footer {
-        display: flex;
-        gap: 0.75rem;
-        justify-content: flex-end;
+      .tutorial-highlight {
+        position: relative;
+        z-index: 99999 !important;
+        box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.4), 0 0 20px rgba(211, 47, 47, 0.15) !important;
+        border-radius: 8px !important;
+        transition: box-shadow 0.3s ease;
       }
     `;
     document.head.appendChild(style);
 
-    function dismiss() {
-      localStorage.setItem(TUTORIAL_KEY, 'true');
-      overlay.remove();
-      style.remove();
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'tutorial-overlay';
+    overlay.id = 'tutorial-overlay';
+    document.body.appendChild(overlay);
+
+    // Create tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tutorial-tooltip';
+    tooltip.id = 'tutorial-tooltip';
+    tooltip.setAttribute('role', 'dialog');
+    tooltip.setAttribute('aria-modal', 'true');
+    document.body.appendChild(tooltip);
+
+    overlay.addEventListener('click', dismiss);
+
+    showStep(0);
+  }
+
+  function showStep(index) {
+    currentStep = index;
+    const step = steps[index];
+    const tooltip = document.getElementById('tutorial-tooltip');
+    if (!tooltip) return;
+
+    // Remove previous highlight
+    document.querySelectorAll('.tutorial-highlight').forEach(el => {
+      el.classList.remove('tutorial-highlight');
+    });
+
+    // Highlight target element
+    let targetEl = null;
+    if (step.target) {
+      targetEl = document.querySelector(step.target);
+      if (targetEl) {
+        targetEl.classList.add('tutorial-highlight');
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
-    document.getElementById('tutorial-got-it').addEventListener('click', dismiss);
-    document.getElementById('tutorial-skip').addEventListener('click', dismiss);
-    document.getElementById('tutorial-close').addEventListener('click', dismiss);
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) dismiss();
+    // Build tooltip content using DOM APIs
+    tooltip.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'tutorial-tooltip-header';
+    const icon = document.createElement('span');
+    icon.className = 'tutorial-tooltip-icon';
+    icon.textContent = step.icon;
+    const title = document.createElement('h3');
+    title.className = 'tutorial-tooltip-title';
+    title.textContent = step.title;
+    header.appendChild(icon);
+    header.appendChild(title);
+
+    const text = document.createElement('p');
+    text.className = 'tutorial-tooltip-text';
+    text.textContent = step.text;
+
+    const footer = document.createElement('div');
+    footer.className = 'tutorial-tooltip-footer';
+
+    const progress = document.createElement('span');
+    progress.className = 'tutorial-tooltip-progress';
+    progress.textContent = (index + 1) + ' of ' + steps.length;
+
+    const actions = document.createElement('div');
+    actions.className = 'tutorial-tooltip-actions';
+
+    if (index > 0) {
+      const backBtn = document.createElement('button');
+      backBtn.className = 'btn btn-outline';
+      backBtn.textContent = 'Back';
+      backBtn.style.cssText = 'font-size:0.8rem;padding:0.3rem 0.7rem;';
+      backBtn.addEventListener('click', () => showStep(index - 1));
+      actions.appendChild(backBtn);
+    }
+
+    const skipBtn = document.createElement('button');
+    skipBtn.className = 'btn btn-outline';
+    skipBtn.textContent = 'Skip';
+    skipBtn.style.cssText = 'font-size:0.8rem;padding:0.3rem 0.7rem;';
+    skipBtn.addEventListener('click', dismiss);
+    actions.appendChild(skipBtn);
+
+    if (index < steps.length - 1) {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-red';
+      nextBtn.textContent = 'Next';
+      nextBtn.style.cssText = 'font-size:0.8rem;padding:0.3rem 0.7rem;';
+      nextBtn.addEventListener('click', () => showStep(index + 1));
+      actions.appendChild(nextBtn);
+    } else {
+      const doneBtn = document.createElement('button');
+      doneBtn.className = 'btn btn-red';
+      doneBtn.textContent = "Let's go!";
+      doneBtn.style.cssText = 'font-size:0.8rem;padding:0.3rem 0.7rem;';
+      doneBtn.addEventListener('click', dismiss);
+      actions.appendChild(doneBtn);
+    }
+
+    footer.appendChild(progress);
+    footer.appendChild(actions);
+
+    tooltip.appendChild(header);
+    tooltip.appendChild(text);
+    tooltip.appendChild(footer);
+
+    // Position tooltip relative to target
+    positionTooltip(tooltip, targetEl);
+  }
+
+  function positionTooltip(tooltip, targetEl) {
+    if (!targetEl) {
+      // Center on screen
+      tooltip.style.left = '50%';
+      tooltip.style.top = '50%';
+      tooltip.style.transform = 'translate(-50%, -50%)';
+      return;
+    }
+
+    tooltip.style.transform = '';
+    const rect = targetEl.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const margin = 12;
+
+    let top = rect.bottom + margin;
+    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+    // Ensure tooltip stays in viewport
+    if (top + tooltipRect.height > window.innerHeight - margin) {
+      top = rect.top - tooltipRect.height - margin;
+    }
+    if (left < margin) left = margin;
+    if (left + tooltipRect.width > window.innerWidth - margin) {
+      left = window.innerWidth - tooltipRect.width - margin;
+    }
+
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+  }
+
+  function dismiss() {
+    localStorage.setItem(TUTORIAL_KEY, TUTORIAL_VERSION);
+    document.querySelectorAll('.tutorial-highlight').forEach(el => {
+      el.classList.remove('tutorial-highlight');
     });
+    const overlay = document.getElementById('tutorial-overlay');
+    const tooltip = document.getElementById('tutorial-tooltip');
+    const style = document.getElementById('tutorial-styles');
+    if (overlay) overlay.remove();
+    if (tooltip) tooltip.remove();
+    if (style) style.remove();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', createTutorialModal);
+    document.addEventListener('DOMContentLoaded', createTutorialUI);
   } else {
-    createTutorialModal();
+    // Small delay to let page elements render
+    setTimeout(createTutorialUI, 500);
   }
 })();

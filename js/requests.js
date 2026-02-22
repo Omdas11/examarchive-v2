@@ -7,6 +7,7 @@
 (function () {
   let currentUser = null;
   let userRoleLevel = 0;
+  let userPrimaryRole = null;
 
   async function init() {
     try {
@@ -18,6 +19,15 @@
 
       if (currentUser) {
         userRoleLevel = await (window.RoleUtils?.getCurrentUserRoleLevel?.() || Promise.resolve(0));
+        // Fetch primary_role for permission checks
+        try {
+          const { data: roleData } = await supabase
+            .from('roles')
+            .select('primary_role')
+            .eq('user_id', currentUser.id)
+            .single();
+          userPrimaryRole = roleData?.primary_role || null;
+        } catch (_) { /* optional */ }
       }
 
       renderFormSection();
@@ -157,7 +167,7 @@
           <h3>${escapeHtml(req.paper_code || 'Unknown')}${req.year ? ' — ' + req.year : ''}</h3>
           <p class="request-meta">${dateStr} · <span class="request-status ${statusClass}">${statusClass}</span></p>
           <p>${escapeHtml(req.description || '')}</p>
-          ${userRoleLevel >= 75 && req.status === 'open' ? `
+          ${['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(userPrimaryRole) && req.status === 'open' ? `
             <div class="admin-actions">
               <button data-fulfill-id="${req.id}">✓ Mark Fulfilled</button>
             </div>

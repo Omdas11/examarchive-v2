@@ -118,7 +118,7 @@ async function getCurrentUserRoleLevel() {
 /**
  * Get current user's role from database
  * Uses primary_role as the source of truth for permissions
- * @returns {Promise<string>} Role name: "admin", "reviewer", "contributor", or "guest"
+ * @returns {Promise<string>} Role name: "admin", "senior_moderator", "moderator", "reviewer", "contributor", "member", or "visitor"
  */
 async function getCurrentUserRole() {
   try {
@@ -149,8 +149,10 @@ async function getCurrentUserRole() {
     const role = data.primary_role;
     if (role === 'Founder' || role === 'Admin') return 'admin';
     if (role === 'Senior Moderator') return 'senior_moderator';
+    if (role === 'Moderator') return 'moderator';
     if (role === 'Reviewer') return 'reviewer';
     if (role === 'Contributor') return 'contributor';
+    if (role === 'Member') return 'member';
     return 'visitor';
   } catch (err) {
     console.error('[ROLE-UTILS] Error getting user role:', err);
@@ -169,11 +171,12 @@ async function isCurrentUserAdmin() {
 
 /**
  * Check if current user has at least reviewer access (via primary_role)
+ * Includes: admin, senior_moderator, moderator, reviewer
  * @returns {Promise<boolean>} True if user has reviewer+ role
  */
 async function isCurrentUserReviewer() {
   const role = await getCurrentUserRole();
-  return role === 'admin' || role === 'senior_moderator' || role === 'reviewer';
+  return role === 'admin' || role === 'senior_moderator' || role === 'moderator' || role === 'reviewer';
 }
 
 // Expose to window

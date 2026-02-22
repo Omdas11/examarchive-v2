@@ -93,7 +93,7 @@ async function isCurrentUserAdmin() {
       .eq('user_id', session.user.id)
       .single();
 
-    if (roleData && (roleData.primary_role === 'Founder' || roleData.primary_role === 'Admin')) {
+    if (roleData && ['Founder', 'Admin', 'Senior Moderator'].includes(roleData.primary_role)) {
       return true;
     }
 

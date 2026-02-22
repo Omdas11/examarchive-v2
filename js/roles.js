@@ -16,12 +16,20 @@
  */
 function mapRoleToBadge(role) {
   switch (role) {
+    case 'founder':
+      return 'Founder';
     case 'admin':
       return 'Admin';
+    case 'senior_moderator':
+      return 'Senior Moderator';
+    case 'moderator':
+      return 'Moderator';
     case 'reviewer':
       return 'Reviewer';
     case 'contributor':
       return 'Contributor';
+    case 'member':
+      return 'Member';
     case 'visitor':
       return 'Visitor';
     default:
@@ -30,18 +38,54 @@ function mapRoleToBadge(role) {
 }
 
 /**
- * Get badge icon for a role
- * @param {string} badgeName - Badge name
+ * Get badge icon for a role, functional role, or badge name
+ * Comprehensive mapping for all badge types (Phase 4)
+ * Covers: permission roles, functional roles (academic/technical/community),
+ * and achievement badges.
+ * @param {string} badgeName - Badge or role name
  * @returns {string} Badge icon emoji
  */
 function getBadgeIcon(badgeName) {
   const icons = {
-    'Admin': '👑',
-    'Reviewer': '🛡️',
-    'Contributor': '✍️',
-    'Visitor': '👤'
+    // Permission roles (primary_role)
+    'Founder': '👑',
+    'Admin': '🛡️',
+    'Senior Moderator': '⚡',
+    'Moderator': '🔰',
+    'Reviewer': '📋',
+    'Contributor': '✨',
+    'Member': '👤',
+    'Visitor': '👁️',
+    // Functional roles — Academic
+    'Subject Expert': '🧪',
+    'Physics Expert': '🧪',
+    'Chemistry Expert': '🧪',
+    'Mathematics Expert': '🧪',
+    'Paper Analyzer': '📊',
+    'Syllabus Architect': '📐',
+    'Question Curator': '📝',
+    // Functional roles — Technical
+    'UI/UX Designer': '🎨',
+    'Backend Engineer': '⚙️',
+    'Security Auditor': '🔒',
+    'Database Architect': '🗄️',
+    // Functional roles — Community
+    'University Coordinator': '🎓',
+    'University Lead': '🎓',
+    'Campus Ambassador': '📢',
+    'Community Lead': '🤝',
+    'Content Curator': '📚',
+    // Legacy / general
+    'Top Contributor': '🏆',
+    'Early Adopter': '🌟',
+    'Beta Tester': '🔬',
+    'Top Reviewer': '📝'
   };
-  return icons[badgeName] || '✓';
+  // Support partial matching (e.g., "Subject Expert (Physics)")
+  for (const [key, icon] of Object.entries(icons)) {
+    if (badgeName && badgeName.startsWith(key)) return icon;
+  }
+  return '🏷️';
 }
 
 /**
@@ -57,6 +101,7 @@ function getBadgeColor(role) {
     'moderator': 'var(--color-info)',
     'reviewer': 'var(--color-info)',
     'contributor': 'var(--color-success)',
+    'member': 'var(--color-muted)',
     'user': 'var(--color-muted)',
     'visitor': 'var(--color-muted)',
     // Cosmetic XP tier names
@@ -64,7 +109,9 @@ function getBadgeColor(role) {
     'elite': 'var(--color-error)',
     'senior': 'var(--color-warning)',
     'veteran': 'var(--color-info)',
-    'explorer': 'var(--color-info)'
+    'explorer': 'var(--color-info)',
+    // Custom/functional
+    'custom': 'var(--color-muted)'
   };
   return colors[role] || 'var(--color-muted)';
 }

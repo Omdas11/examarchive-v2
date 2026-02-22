@@ -1,94 +1,84 @@
-# Role System
+# Role System (Phase 4)
 
-## Role Levels (Phase 3)
+> **See [docs/roles.md](roles.md) for the complete role architecture reference.**
 
-| Level | Role | Access |
-|---|---|---|
-| 0 | Visitor | Browse published papers only |
-| 10 | User | Basic authenticated access |
-| 20 | Contributor | Auto-assigned after first upload |
-| 50 | Reviewer | Can review submissions |
-| 75 | Moderator | Approve or reject pending submissions |
-| 90 | Senior Moderator | Publish approved papers, debug panel |
-| 100 | Founder/Admin | Full access, manage roles, reset counters |
+## Three Separate Systems
 
-## How Roles Work
+ExamArchive separates three independent concepts:
 
-### Assignment
+| System | Storage | Purpose | Grants Permissions? |
+|--------|---------|---------|---------------------|
+| **Permission Role** | `roles.primary_role` | Access control | ✅ YES — the ONLY source |
+| **Functional Roles** | `roles.secondary_role`, `tertiary_role`, `custom_badges[]` | Display badges | ❌ NO |
+| **Achievement Badges** | `achievements` table | Gamification | ❌ NO |
 
-- New users are **automatically assigned level 10** (User) on signup via a database trigger
-- After first upload, users are **auto-promoted to level 20** (Contributor) via `auto_promote_contributor()` trigger
-- Users without a role record default to level **0** (Visitor)
-- Unauthenticated visitors are treated as level **0**
+## Permission Role Hierarchy (primary_role)
 
-### Extended Role Columns (Phase 3)
+All authorization checks use `primary_role` exclusively. XP and level are cosmetic only.
 
-The `roles` table now includes:
-- `primary_role` (text) — Primary display role/badge
-- `secondary_role` (text) — Secondary display role/badge
-- `tertiary_role` (text) — Tertiary display role/badge
-- `custom_badges` (jsonb) — Array of custom badge names
-- `updated_at` (timestamptz) — Last role update timestamp
+| Tier | Role | Dashboard | Manage Users | Approve | Review | Upload |
+|------|------|-----------|-------------|---------|--------|--------|
+| 0 | **Founder** (unique) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 1 | **Admin** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 2 | **Senior Moderator** | ✅ | ❌ | ✅ | ✅ | ✅ |
+| 3 | **Moderator** | ❌ | ❌ | ✅ | ✅ | ✅ |
+| 4 | **Reviewer** | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 5 | **Contributor** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| 6 | **Member** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| 7 | **Visitor** | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-### Resolution Logic
+## XP Tiers (Cosmetic Only)
 
-1. Frontend calls `get_user_role_level(user_id)` RPC function
-2. Level is mapped client-side via `mapRole(level)` in `js/utils/role-utils.js`
-3. Badge display uses the role level as primary badge, plus optional contributor/founder/custom badges
+| XP | Title | Level |
+|----|-------|-------|
+| 0 | Visitor | 0 |
+| 100 | Explorer | 5 |
+| 300 | Contributor | 10 |
+| 800 | Veteran | 25 |
+| 1500 | Senior | 50 |
+| 3000 | Elite | 90 |
+| 5000 | Legend | 100 |
 
-### Frontend Display
+⚠️ These XP tiers **never** affect `primary_role` or grant permissions.
 
-The `mapRole(level)` function evaluates in descending order:
+## Authorization Pattern
 
 ```javascript
-if (level >= 100) → Founder (👑)
-if (level >= 90)  → Senior Moderator (🔰)
-if (level >= 75)  → Moderator (🛡️)
-if (level >= 50)  → Reviewer (📋)
-if (level >= 20)  → Contributor (✍️)
-if (level >= 10)  → User (👤)
-else              → Visitor (👁️)
+// ✅ CORRECT — check primary_role only
+if (['Founder', 'Admin', 'Senior Moderator'].includes(primary_role)) {
+  // Grant dashboard access
+}
+
+// ❌ WRONG — never use XP or level for permission checks
+if (level >= 90) { /* NEVER */ }
 ```
 
-## Badge Display (3 Slots)
+## Role Assignment
 
-| Slot | Badge | Source |
-|---|---|---|
-| 1 | Primary Role | From `mapRole(level)` |
-| 2 | Founder / Contributor | Auto: Founder if level=100, Contributor if ≥1 upload |
-| 3 | Custom Badge | From `custom_badges` column |
+- **Manual only**: Founder/Admin assign roles via Admin Dashboard or `update_user_role()` RPC
+- **Exception**: `Contributor` is auto-assigned on first upload via database trigger
+- **Founder is unique**: enforced by `idx_unique_founder` partial index
 
-## Admin Role Management
-
-Admins (level ≥ 100) can manage roles from the Admin Dashboard:
-
-1. Search users by email or UUID
-2. View current level, roles, and badges
-3. Edit level, primary/secondary/tertiary roles, custom badges
-4. Save via `update_user_role()` RPC (level ≥ 100 required)
-
-### RPC Functions
+## Role Table Schema
 
 ```sql
--- Update user role (admin only)
-update_user_role(target_user_id, new_level, new_primary_role, new_secondary_role, new_tertiary_role, new_custom_badges)
-
--- Search users by email
-search_users_by_email(search_email) → TABLE(user_id, email, display_name, level, ...)
-
--- Get user by UUID
-get_user_role_by_id(target_user_id) → TABLE(user_id, email, display_name, level, ...)
+roles (
+  user_id UUID PRIMARY KEY,
+  primary_role TEXT DEFAULT 'Visitor',   -- Permission control
+  secondary_role TEXT,                    -- Functional badge
+  tertiary_role TEXT,                     -- Functional badge
+  custom_badges JSONB DEFAULT '[]',      -- Additional badges array
+  xp INTEGER DEFAULT 0,                  -- Cosmetic only
+  level INTEGER DEFAULT 0,               -- Cosmetic only
+  ...
+)
 ```
 
-## Access Control Summary
+## Key RPCs
 
-| Action | Visitor (0) | User (10) | Contributor (20) | Reviewer (50) | Moderator (75) | Sr. Mod (90) | Admin (100) |
-|---|---|---|---|---|---|---|---|
-| Browse papers | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Upload papers | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Review submissions | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Approve/reject | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Publish papers | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Debug panel | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Manage roles | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Admin dashboard | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| RPC | Required Role | Purpose |
+|-----|--------------|---------|
+| `update_user_role()` | Founder/Admin | Change any user's role |
+| `has_admin_access()` | — | Check if user has Founder/Admin primary_role |
+| `has_moderator_access()` | — | Check if user has Sr. Mod+ primary_role |
+| `has_reviewer_access()` | — | Check if user has Reviewer+ primary_role |

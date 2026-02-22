@@ -97,6 +97,7 @@ async function initializeDashboard(primaryRole) {
   if (primaryRole === 'Founder' || primaryRole === 'Admin') {
     setupRoleManagement();
     setupUsersTable();
+    setupDemoReset();
   }
 }
 
@@ -297,7 +298,7 @@ function renderSubmissionCard(submission) {
           <button class="btn btn-outline" data-action="view" data-id="${submission?.id || ''}">
             View Details
           </button>
-          ${['Founder', 'Admin', 'Senior Moderator', 'Reviewer'].includes(userPrimaryRoleGlobal) ? `
+          ${['Founder', 'Admin', 'Senior Moderator', 'Moderator', 'Reviewer'].includes(userPrimaryRoleGlobal) ? `
           <button class="btn btn-danger" data-action="reject" data-id="${submission?.id || ''}">
             Reject
           </button>
@@ -691,6 +692,45 @@ function setupRealtimeSubscriptions() {
 }
 
 /**
+ * Setup demo data reset button (Founder/Admin only)
+ */
+function setupDemoReset() {
+  const panel = document.getElementById('demo-reset-panel');
+  if (!panel) return;
+  panel.style.display = 'block';
+
+  const resetBtn = document.getElementById('resetDemoDataBtn');
+  resetBtn?.addEventListener('click', async () => {
+    const confirmed = confirm(
+      'Are you sure you want to reset all demo data? This will delete all demo submissions. This action cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    const doubleConfirm = confirm(
+      'FINAL CONFIRMATION: This will permanently delete demo submissions. Click OK to proceed.'
+    );
+    if (!doubleConfirm) return;
+
+    try {
+      const supabase = window.getSupabase ? window.getSupabase() : null;
+      if (!supabase) throw new Error('Supabase not initialized');
+
+      const { error } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('upload_type', 'demo-paper');
+
+      if (error) throw error;
+
+      showMessage('Demo data reset successfully!', 'success');
+      await loadSubmissions();
+    } catch (err) {
+      showMessage('Failed to reset demo data: ' + (err.message || 'Unknown error'), 'error');
+    }
+  });
+}
+
+/**
  * Show message to user
  */
 function showMessage(message, type = 'info') {
@@ -717,7 +757,7 @@ function showMessage(message, type = 'info') {
   const colors = {
     success: '#4CAF50',
     error: '#f44336',
-    info: '#2196F3'
+    info: '#d32f2f'
   };
   messageEl.style.borderLeft = `4px solid ${colors[type] || colors.info}`;
   messageEl.textContent = message;
@@ -894,6 +934,15 @@ async function saveRoleChanges() {
   const level = parseInt(document.getElementById('roleEditLevel')?.value);
   const xp = parseInt(document.getElementById('roleEditXP')?.value);
   const primaryRole = document.getElementById('roleEditPrimary')?.value.trim() || null;
+
+  // Warn before assigning Founder role
+  if (primaryRole === 'Founder') {
+    const confirmFounder = confirm(
+      'WARNING: There can only be one Founder. If another Founder already exists, this will fail. Continue?'
+    );
+    if (!confirmFounder) return;
+  }
+
   const secondaryRole = document.getElementById('roleEditSecondary')?.value.trim() || null;
   const tertiaryRole = document.getElementById('roleEditTertiary')?.value.trim() || null;
   const badgesStr = document.getElementById('roleEditBadges')?.value.trim();
@@ -918,8 +967,11 @@ async function saveRoleChanges() {
     showMessage('Role updated successfully!', 'success');
     document.getElementById('roleEditPanel').style.display = 'none';
 
-    // Refresh search results
+    // Refresh search results and users table
     await searchUsers();
+    if (document.getElementById('users-table-panel')?.style.display !== 'none') {
+      await loadUsersTable();
+    }
   } catch (err) {
     showMessage('Failed to update role: ' + err.message, 'error');
   }
@@ -941,6 +993,25 @@ function setupUsersTable() {
   searchBtn?.addEventListener('click', () => loadUsersTable(1, searchInput?.value.trim()));
   searchInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') loadUsersTable(1, searchInput?.value.trim());
+  });
+
+  // Sort handlers
+  document.querySelectorAll('.users-table th[data-sort]').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+      const field = th.dataset.sort;
+      if (usersSortBy === field) {
+        usersSortDir = usersSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        usersSortBy = field;
+        usersSortDir = 'desc';
+      }
+      // Update aria-sort attributes
+      document.querySelectorAll('.users-table th[data-sort]').forEach(h => {
+        h.setAttribute('aria-sort', h.dataset.sort === usersSortBy ? (usersSortDir === 'asc' ? 'ascending' : 'descending') : 'none');
+      });
+      loadUsersTable(1, document.getElementById('usersSearchInput')?.value.trim());
+    });
   });
 }
 
@@ -973,7 +1044,7 @@ async function loadUsersTable(page, searchQuery) {
 
     if (error) throw error;
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
       if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
@@ -986,18 +1057,27 @@ async function loadUsersTable(page, searchQuery) {
       const tr = document.createElement('tr');
 
       const cells = [
-        u.username || '—',
-        u.email || '—',
-        String(u.xp ?? 0),
-        String(u.level ?? 0),
-        u.primary_role || '—',
-        u.secondary_role || '—',
-        u.tertiary_role || '—'
+        { text: u.user_id ? u.user_id.substring(0, 8) + '…' : '—', title: u.user_id || '', style: 'font-size:0.7rem;font-family:monospace;' },
+        { text: u.username || '—' },
+        { text: u.email || '—' },
+        { text: String(u.xp ?? 0) },
+        { text: String(u.level ?? 0) },
+        { text: u.primary_role || '—' },
+        { text: u.secondary_role || '—' },
+        { text: u.tertiary_role || '—' },
+        { text: String(u.streak_count ?? 0) },
+        { text: u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—', style: 'font-size:0.75rem;' }
       ];
 
-      cells.forEach(text => {
+      cells.forEach(cell => {
         const td = document.createElement('td');
-        td.textContent = text;
+        if (typeof cell === 'string') {
+          td.textContent = cell;
+        } else {
+          td.textContent = cell.text;
+          if (cell.title) td.title = cell.title;
+          if (cell.style) td.style.cssText = cell.style;
+        }
         tr.appendChild(td);
       });
 
@@ -1028,7 +1108,7 @@ async function loadUsersTable(page, searchQuery) {
     }
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
   }
 }
 

@@ -53,24 +53,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Disable the upload form for unauthenticated users.
- * Shows the form but disables inputs; upload button triggers sign-in popup.
+ * Shows auth wall and hides the upload form sections.
  */
 function disableUploadForm() {
-  // Disable all form inputs
-  document.querySelectorAll('.upload-card input, .upload-card select').forEach(el => {
-    el.disabled = true;
+  // Show auth wall
+  const authWall = document.getElementById('upload-auth-wall');
+  if (authWall) authWall.style.display = 'block';
+
+  // Hide upload form sections
+  document.querySelectorAll('.upload-type-selector, .upload-card, .upload-info').forEach(el => {
+    el.style.display = 'none';
   });
-  
-  // Disable type selector inputs
-  document.querySelectorAll('.upload-type-selector input').forEach(el => {
-    el.disabled = true;
-  });
-  
-  // Replace upload button behavior
-  const uploadButton = document.querySelector('.upload-submit .btn-red');
-  if (uploadButton) {
-    uploadButton.textContent = 'Sign in to Upload';
-    uploadButton.addEventListener('click', handleSignInClick);
+
+  // Attach sign-in button handler
+  const signInBtn = document.getElementById('uploadSignInBtn');
+  if (signInBtn) {
+    signInBtn.addEventListener('click', handleSignInClick);
   }
 }
 
@@ -78,6 +76,15 @@ function disableUploadForm() {
  * Enable the upload form for authenticated users.
  */
 function enableUploadForm() {
+  // Hide auth wall
+  const authWall = document.getElementById('upload-auth-wall');
+  if (authWall) authWall.style.display = 'none';
+
+  // Show upload form sections
+  document.querySelectorAll('.upload-type-selector, .upload-card, .upload-info').forEach(el => {
+    el.style.display = '';
+  });
+
   // Enable all form inputs
   document.querySelectorAll('.upload-card input').forEach(el => {
     el.disabled = false;
@@ -288,6 +295,8 @@ function initializeUploadForm() {
     const examYear = parseInt(examYearInput.value);
     const university = document.getElementById('university')?.value || '';
     const stream = document.getElementById('stream')?.value || '';
+    const programme = document.getElementById('programme')?.value || '';
+    const subject = document.getElementById('subject')?.value.trim() || '';
     const paperType = document.getElementById('paperType')?.value || 'main';
 
     // Validate inputs
@@ -326,6 +335,8 @@ function initializeUploadForm() {
           uploadType: selectedUploadType,
           university,
           stream,
+          programme,
+          subject,
           paperType
         },
         (progress) => {
@@ -350,6 +361,10 @@ function initializeUploadForm() {
         if (yearValidationIcon) yearValidationIcon.textContent = '';
         if (yearHint) { yearHint.textContent = ''; yearHint.className = 'field-hint year-hint'; }
         examYearInput.classList.remove('input-valid', 'input-invalid');
+        const programmeEl = document.getElementById('programme');
+        const subjectEl = document.getElementById('subject');
+        if (programmeEl) programmeEl.value = '';
+        if (subjectEl) subjectEl.value = '';
         
         // Reload submissions
         setTimeout(() => {
