@@ -128,13 +128,13 @@
         display: flex;
         gap: 0.5rem;
       }
-      .tutorial-highlight {
-        position: relative;
-        z-index: 99999 !important;
-        box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.4), 0 0 20px rgba(211, 47, 47, 0.15) !important;
-        border-radius: 8px !important;
-        transition: box-shadow 0.3s ease;
+      .tutorial-highlight-clone {
+        position: fixed;
+        z-index: 99999;
+        box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.4), 0 0 20px rgba(211, 47, 47, 0.15);
+        border-radius: 8px;
         pointer-events: none;
+        transition: box-shadow 0.3s ease;
       }
     `;
     document.head.appendChild(style);
@@ -164,18 +164,26 @@
     const tooltip = document.getElementById('tutorial-tooltip');
     if (!tooltip) return;
 
-    // Remove previous highlight
-    document.querySelectorAll('.tutorial-highlight').forEach(el => {
-      el.classList.remove('tutorial-highlight');
-    });
+    // Remove previous highlight clone
+    const oldClone = document.getElementById('tutorial-highlight-clone');
+    if (oldClone) oldClone.remove();
 
-    // Highlight target element
+    // Highlight target element using a clone overlay on body
     let targetEl = null;
     if (step.target) {
       targetEl = document.querySelector(step.target);
       if (targetEl) {
-        targetEl.classList.add('tutorial-highlight');
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Create a fixed-position highlight overlay matching the target's rect
+        const clone = document.createElement('div');
+        clone.id = 'tutorial-highlight-clone';
+        clone.className = 'tutorial-highlight-clone';
+        const rect = targetEl.getBoundingClientRect();
+        clone.style.left = rect.left + 'px';
+        clone.style.top = rect.top + 'px';
+        clone.style.width = rect.width + 'px';
+        clone.style.height = rect.height + 'px';
+        document.body.appendChild(clone);
       }
     }
 
@@ -286,15 +294,14 @@
     } catch (e) {
       // localStorage unavailable
     }
-    document.querySelectorAll('.tutorial-highlight').forEach(el => {
-      el.classList.remove('tutorial-highlight');
-    });
     const overlay = document.getElementById('tutorial-overlay');
     const tooltip = document.getElementById('tutorial-tooltip');
     const style = document.getElementById('tutorial-styles');
+    const highlightClone = document.getElementById('tutorial-highlight-clone');
     if (overlay) overlay.remove();
     if (tooltip) tooltip.remove();
     if (style) style.remove();
+    if (highlightClone) highlightClone.remove();
   }
 
   if (document.readyState === 'loading') {

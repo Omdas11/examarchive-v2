@@ -115,7 +115,7 @@ WHERE user_id = 'YOUR-USER-UUID-HERE';
    - **Submission stats and tabs** (Pending, Approved, All)
 
 If you see "Access Denied" instead:
-- Verify your `primary_role` is set to `Founder` or `Admin` in the `roles` table
+- Verify your `primary_role` is set to `Founder`, `Admin`, or `Senior Moderator` in the `roles` table
 - Hard refresh the page (cached session may have stale data)
 - Check browser console for errors
 
@@ -250,7 +250,7 @@ SELECT update_user_role(
 
 ## Security Notes
 
-- **Frontend never decides admin status** — all checks go through backend RPCs
+- **Backend is the security boundary** — RLS policies and `SECURITY DEFINER` RPCs enforce all access control. The frontend reads `primary_role` from the `roles` table for UI gating (show/hide admin links), but the database is the authority and rejects unauthorized operations regardless of frontend state.
 - **XP cannot escalate permissions** — XP is cosmetic only, `primary_role` is the sole authority
 - **RLS policies enforce access** — even if someone bypasses the frontend, the database rejects unauthorized operations
 - **Founder uniqueness** — enforced by unique partial index, not just application logic
