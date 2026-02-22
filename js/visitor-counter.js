@@ -99,7 +99,7 @@
     }
     el.textContent = parts.join(' · ');
 
-    // Show admin reset button if user has level >= 100
+    // Show admin reset button if user has admin access
     showAdminResetButton();
   }
 

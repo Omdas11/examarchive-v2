@@ -33,9 +33,9 @@ function initializeAvatarPopup() {
 
   debug("[OK] avatar popup DOM ready");
 
-  // Toggle avatar popup on avatar button click
+  // Avatar click navigates directly to profile (logged-in) or login (guest)
   avatarTrigger?.addEventListener("click", (e) => {
-    e.stopPropagation(); // Prevent event bubbling
+    e.stopPropagation();
     
     // Close mobile menu if open
     const mobileNav = document.getElementById("mobileNav");
@@ -44,22 +44,15 @@ function initializeAvatarPopup() {
       document.body.classList.remove("menu-open");
     }
     
-    popup.classList.toggle("open");
-    renderAvatarPopup();
-    debug("[TOGGLE] Avatar popup toggled");
-  });
-
-  // Close on click outside
-  document.addEventListener("click", (e) => {
-    if (!popup.contains(e.target) && !avatarTrigger?.contains(e.target)) {
-      closeAvatarPopup();
+    const session = window.AuthController?.getSession?.() || window.App?.session;
+    if (session?.user) {
+      window.location.href = "/profile.html";
+    } else {
+      window.location.href = "/login.html";
     }
   });
 
   avatarPopupLoaded = true;
-
-  // Initial render
-  renderAvatarPopup();
 }
 
 /* ===============================
@@ -144,10 +137,9 @@ async function renderAvatarPopup() {
     });
 
     viewProfileBtn?.addEventListener("click", () => {
-      debug("[ACTION] Opening profile panel from avatar popup");
+      debug("[ACTION] Navigating to profile page");
       closeAvatarPopup();
-      const panel = document.querySelector(".profile-panel");
-      panel?.classList.add("open");
+      window.location.href = "/profile.html";
     });
 
     debug(`[OK] Avatar popup updated (logged-in): ${fullName || email || "User"}`);

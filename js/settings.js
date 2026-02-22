@@ -225,27 +225,16 @@ async function renderSettings() {
       return;
     }
 
-    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.AUTH, 'Session verified, checking user role...', { userId: session.user.id });
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.AUTH, 'Session verified', { userId: session.user.id });
 
     const user = session.user;
-    
-    // Backend role verification - MANDATORY before rendering settings
-    const roleInfo = await window.AdminAuth.getUserRoleBackend(user.id);
-    
-    if (!roleInfo) {
-      if (window.Debug) window.Debug.logError(window.Debug.DebugModule.ROLE, 'Failed to retrieve user role from backend');
-      renderErrorMessage(container, 'Error Loading Settings', 'Unable to verify your permissions. Please try refreshing the page.');
-      return;
-    }
-
-    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.ROLE, 'User role verified', { role: roleInfo.name, level: roleInfo.level });
 
     // Settings page is accessible to all authenticated users
     // Only specific sections (requiresAdmin) are restricted
     // Use primary_role for admin check, not level
     const isAdmin = await (window.AdminAuth?.isCurrentUserAdmin?.() || Promise.resolve(false));
 
-    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
+    if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user');
 
     container.innerHTML = "";
 

@@ -148,6 +148,26 @@
       text-decoration: none;
     }
     .forgot-link a:hover { text-decoration: underline; }
+    .password-input-wrap {
+      position: relative;
+    }
+    .password-input-wrap input {
+      padding-right: 2.5rem;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+    }
+    .password-toggle:hover { color: var(--text); }
   </style>
 </head>
 <body>
@@ -171,7 +191,13 @@
 
       <div class="auth-field">
         <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" />
+        <div class="password-input-wrap">
+          <input type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" />
+          <button type="button" class="password-toggle" id="toggleLoginPassword" aria-label="Show password" tabindex="-1">
+            <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/><path d="M14.12 14.12a3 3 0 11-4.24-4.24"/></svg>
+          </button>
+        </div>
       </div>
 
       <div class="forgot-link">
@@ -271,6 +297,17 @@
 
       googleBtn.addEventListener('click', async function() {
         await window.AuthController.signInWithGoogle();
+      });
+
+      // Password visibility toggle
+      var togglePwdBtn = document.getElementById('toggleLoginPassword');
+      var pwdInput = document.getElementById('loginPassword');
+      togglePwdBtn.addEventListener('click', function() {
+        var isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        togglePwdBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        togglePwdBtn.querySelector('.eye-open').style.display = isPassword ? 'none' : '';
+        togglePwdBtn.querySelector('.eye-closed').style.display = isPassword ? '' : 'none';
       });
 
       forgotLink.addEventListener('click', async function(e) {

@@ -497,8 +497,21 @@
       var userXp = roleData.xp || 0;
       var userLevel = roleData.level || 0;
       var username = roleData.username || null;
+      var usernameUpdatedAt = roleData.username_updated_at || null;
       var displayName = roleData.display_name || user.user_metadata?.full_name || user.email;
       var avatarUrl = roleData.avatar_url || user.user_metadata?.avatar_url || null;
+
+      // Check username change cooldown
+      var usernameCooldownActive = false;
+      var usernameCooldownDaysLeft = 0;
+      if (usernameUpdatedAt) {
+        var lastUpdate = new Date(usernameUpdatedAt);
+        var daysSince = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
+        if (daysSince < 30) {
+          usernameCooldownActive = true;
+          usernameCooldownDaysLeft = Math.ceil(30 - daysSince);
+        }
+      }
 
       // Set name
       document.getElementById('pageName').textContent = displayName;
@@ -507,7 +520,12 @@
       var usernameEl = document.getElementById('pageUsername');
       usernameEl.textContent = username ? '@' + username : 'Set username';
 
-      // Set member since
+      if (usernameCooldownActive) {
+        usernameEl.style.cursor = 'not-allowed';
+        usernameEl.style.textDecoration = 'none';
+        usernameEl.title = 'Username can be changed once every 30 days';
+        usernameEl.setAttribute('aria-disabled', 'true');
+      }
       if (user.created_at) {
         var d = new Date(user.created_at);
         document.getElementById('pageMemberSince').textContent = 'Member since ' + d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
@@ -589,7 +607,14 @@
       document.getElementById('statContribution').textContent = userXp;
 
       // Username edit
+      if (usernameCooldownActive) {
+        var statusEl = document.getElementById('usernameStatus');
+        statusEl.textContent = 'Username can be changed once every 30 days. (' + usernameCooldownDaysLeft + ' days left)';
+        statusEl.style.color = 'var(--text-muted)';
+      }
+
       usernameEl.addEventListener('click', function() {
+        if (usernameCooldownActive) return;
         var editRow = document.getElementById('usernameEditRow');
         var input = document.getElementById('usernameEditInput');
         var current = usernameEl.textContent.replace(/^@/, '');
@@ -620,7 +645,7 @@
         statusEl.textContent = 'Saving...';
         statusEl.style.color = 'var(--text-muted)';
         try {
-          var result = await supabase.rpc('set_username', { new_username: newUsername });
+          var result = await supabase.rpc('update_username_secure', { new_username: newUsername });
           if (result.error) {
             statusEl.textContent = result.error.message || 'Username taken or invalid.';
             statusEl.style.color = 'var(--color-error)';

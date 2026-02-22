@@ -276,7 +276,7 @@ function render() {
   count.textContent = `Showing ${view.length} papers`;
 
   if (!view.length) {
-    list.innerHTML = `<p class="empty">No papers found for the selected filters.</p>`;
+    list.innerHTML = `<p class="empty">Be the first to upload a paper.</p>`;
     return;
   }
 
