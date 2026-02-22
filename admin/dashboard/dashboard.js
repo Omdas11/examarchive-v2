@@ -498,11 +498,25 @@ function showReviewModal(submission) {
           <strong>Rename File</strong>
           <input type="text" id="editFilename" value="${escapeHtml(submission?.original_filename || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
         </label>
-        <button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;margin-top:0.25rem;" onclick="saveMetadataEdit('${submission?.id}')">Save Changes</button>
+        <button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;margin-top:0.25rem;" data-save-meta="${escapeHtml(submission?.id || '')}">Save Changes</button>
       </div>
     </details>
-    ${submission?.storage_path ? '<div style="margin-bottom:1rem;"><button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;" onclick="previewSubmissionFile(\'' + escapeHtml(submission.id) + '\')">📄 Preview PDF</button></div>' : ''}
+    ${submission?.storage_path ? '<div style="margin-bottom:1rem;"><button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;" data-preview-file="' + escapeHtml(submission.id) + '">📄 Preview PDF</button></div>' : ''}
   `;
+
+  // Attach event listeners programmatically instead of inline onclick
+  var saveBtn = modalInfo.querySelector('[data-save-meta]');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      saveMetadataEdit(saveBtn.dataset.saveMeta);
+    });
+  }
+  var previewBtn = modalInfo.querySelector('[data-preview-file]');
+  if (previewBtn) {
+    previewBtn.addEventListener('click', function() {
+      previewSubmissionFile(previewBtn.dataset.previewFile);
+    });
+  }
 
   modal.style.display = 'flex';
 }

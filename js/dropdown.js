@@ -16,6 +16,7 @@
   function createDropdown(selectEl) {
     if (!selectEl || selectEl.dataset.eaDropdown === 'true') return null;
     selectEl.dataset.eaDropdown = 'true';
+    ensureGlobalListener();
 
     var options = Array.from(selectEl.options);
     var wrapper = document.createElement('div');
@@ -159,13 +160,6 @@
       }
     });
 
-    // Close on outside click
-    document.addEventListener('click', function(e) {
-      if (!wrapper.contains(e.target)) {
-        closeMenu();
-      }
-    });
-
     // Insert DOM
     selectEl.style.display = 'none';
     selectEl.parentNode.insertBefore(wrapper, selectEl);
@@ -189,6 +183,22 @@
       setValue: function(val) { selectValue(val); },
       refresh: function() { buildOptions(); updateDisplay(); }
     };
+  }
+
+  // Single delegated document click listener for all dropdowns
+  var globalListenerAttached = false;
+  function ensureGlobalListener() {
+    if (globalListenerAttached) return;
+    globalListenerAttached = true;
+    document.addEventListener('click', function(e) {
+      document.querySelectorAll('.ea-dropdown.open').forEach(function(dd) {
+        if (!dd.contains(e.target)) {
+          dd.classList.remove('open');
+          var trig = dd.querySelector('.ea-dropdown-trigger');
+          if (trig) trig.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
   }
 
   /**

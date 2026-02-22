@@ -263,7 +263,7 @@ Type "help" for available commands.</div>
               showConfirm('Reset User XP', 'Enter the user UUID to reset their XP to 0.', true, 'User UUID', async function(uuid) {
                 if (!uuid) return;
                 try {
-                  var res = await supabase.rpc('add_user_xp', { target_user_id: uuid, xp_amount: -99999 });
+                  var res = await supabase.from('roles').update({ xp: 0, level: 0 }).eq('user_id', uuid);
                   if (res.error) throw res.error;
                   showToast('XP reset for ' + uuid, 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
@@ -307,9 +307,9 @@ Type "help" for available commands.</div>
               showConfirm('⚠️ RESET ENTIRE DATABASE', 'Type "RESET ALL" to confirm. This deletes ALL submissions, achievements, and resets all XP.', true, 'Type RESET ALL', async function(val) {
                 if (val !== 'RESET ALL') { showToast('Confirmation text did not match.', 'error'); return; }
                 try {
-                  await supabase.from('submissions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-                  await supabase.from('achievements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-                  await supabase.from('roles').update({ xp: 0, streak_count: 0, last_login_date: null }).neq('user_id', '00000000-0000-0000-0000-000000000000');
+                  await supabase.from('submissions').delete().not('id', 'is', null);
+                  await supabase.from('achievements').delete().not('id', 'is', null);
+                  await supabase.from('roles').update({ xp: 0, level: 0, streak_count: 0, last_login_date: null }).not('user_id', 'is', null);
                   showToast('Database reset complete.', 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
               });
