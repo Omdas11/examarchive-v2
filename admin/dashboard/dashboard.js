@@ -298,7 +298,7 @@ function renderSubmissionCard(submission) {
           <button class="btn btn-outline" data-action="view" data-id="${submission?.id || ''}">
             View Details
           </button>
-          ${['Founder', 'Admin', 'Senior Moderator', 'Reviewer'].includes(userPrimaryRoleGlobal) ? `
+          ${['Founder', 'Admin', 'Senior Moderator', 'Moderator', 'Reviewer'].includes(userPrimaryRoleGlobal) ? `
           <button class="btn btn-danger" data-action="reject" data-id="${submission?.id || ''}">
             Reject
           </button>
@@ -307,7 +307,7 @@ function renderSubmissionCard(submission) {
           </button>
           ` : ''}
         ` : safeStatus === 'approved' ? `
-          ${['Founder', 'Admin', 'Senior Moderator'].includes(userPrimaryRoleGlobal) ? `
+          ${['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(userPrimaryRoleGlobal) ? `
           <button class="btn btn-view" data-action="publish" data-id="${submission?.id || ''}">
             Publish Now
           </button>

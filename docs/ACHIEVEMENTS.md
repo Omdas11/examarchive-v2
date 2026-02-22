@@ -1,8 +1,17 @@
 # Achievement System
 
-## Overview
+> Achievements are **cosmetic only**. They do NOT grant permissions.  
+> See [docs/roles.md](roles.md) for the full role architecture.
 
-ExamArchive awards achievements automatically based on user actions. Achievements are displayed as pills in the profile panel.
+## Separation from Roles
+
+| System | Storage | Source | Grants Permissions? |
+|--------|---------|--------|---------------------|
+| Permission Role | `roles.primary_role` | Manual assignment | ✅ YES |
+| Functional Roles | `roles.custom_badges[]` | Manual assignment | ❌ NO |
+| **Achievement Badges** | **`achievements` table** | **Auto-earned** | **❌ NO** |
+
+Achievements are stored in a **separate table** from roles and are **never** used for authorization checks.
 
 ## Database Schema
 
@@ -17,12 +26,34 @@ CREATE TABLE achievements (
 
 ## Achievement Types
 
+### Upload Milestones
 | Badge Type | Display Name | Trigger | Icon |
 |------------|-------------|---------|------|
-| `first_upload` | First Upload | User submits their first paper | 📤 |
-| `10_uploads` | 10 Uploads | User reaches 10 submissions | 🏆 |
-| `first_review` | First Review | User reviews their first submission | 📝 |
-| `first_publish` | First Publish | User publishes their first paper | 🌐 |
+| `first_upload` | First Upload | First paper submission | 📤 |
+| `10_uploads` | 10 Uploads | 10 paper submissions | 🏆 |
+| `100_uploads` | 100 Uploads | 100 paper submissions | 💎 |
+
+### Review Milestones
+| Badge Type | Display Name | Trigger | Icon |
+|------------|-------------|---------|------|
+| `first_review` | First Review | First submission review | 📝 |
+| `first_publish` | First Publish | First paper published | 🌐 |
+
+### Streak Milestones
+| Badge Type | Display Name | Trigger | Icon |
+|------------|-------------|---------|------|
+| `7_day_streak` | 7-Day Streak | 7 consecutive daily logins | 🔥 |
+| `30_day_streak` | 30-Day Streak | 30 consecutive daily logins | ⚡ |
+
+### Quality Milestones
+| Badge Type | Display Name | Trigger | Icon |
+|------------|-------------|---------|------|
+| `approval_90` | 90% Approval | 90%+ approval rate (min 10 uploads) | ✅ |
+| `top_contributor` | Top Contributor | Monthly top uploader | 🥇 |
+
+### Special
+| Badge Type | Display Name | Trigger | Icon |
+|------------|-------------|---------|------|
 | `early_user` | Early Adopter | Among the first 10 registered users | 🌟 |
 
 ## Auto-Award Mechanism
@@ -53,6 +84,7 @@ Achievements are rendered in the profile panel (`js/profile-panel.js`) as small 
   <h4>Achievements</h4>
   <span class="achievement-pill">📤 First Upload</span>
   <span class="achievement-pill">🏆 10 Uploads</span>
+  <span class="achievement-pill">🔥 7-Day Streak</span>
 </section>
 ```
 
@@ -61,6 +93,6 @@ The section is inserted after the badges section and only shown when the user ha
 ## Security
 
 - RLS enabled: users can view their own achievements
-- Admins (level ≥75) can view all achievements
-- Users can insert their own achievements
+- Admins (via primary_role) can view all achievements
 - `award_achievement()` is SECURITY DEFINER — runs with elevated privileges for idempotent inserts
+- Achievements **never** affect `primary_role` or system permissions

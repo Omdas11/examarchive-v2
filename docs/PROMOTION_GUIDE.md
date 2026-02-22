@@ -1,17 +1,21 @@
 # ExamArchive — Role Promotion Guide
 
+> **See [docs/roles.md](roles.md) for the complete role architecture reference.**
+
 ## Role Hierarchy
 
 ExamArchive uses a **role-based permission system** where `primary_role` controls all access.
 
-| Role | Access Level | Description |
-|------|-------------|-------------|
-| **Founder** | Full access | Unique role (only one user). Full control over all features. |
-| **Admin** | Full management | Can manage users, roles, submissions, and access dashboard. |
-| **Senior Moderator** | Dashboard access | Can review submissions and access admin dashboard. |
-| **Reviewer** | Review access | Can review and approve/reject submissions. |
-| **Contributor** | Upload access | Can upload papers. Auto-assigned on first upload. |
-| **Visitor** | Read-only | Default role for all new users. Can browse and download. |
+| Tier | Role | Access Level | Description |
+|------|------|-------------|-------------|
+| 0 | **Founder** | Full access | Unique role (only one user). Full control over all features. |
+| 1 | **Admin** | Full management | Can manage users, roles, submissions, and access dashboard. |
+| 2 | **Senior Moderator** | Dashboard access | Can review submissions and access admin dashboard. |
+| 3 | **Moderator** | Approve access | Can review and approve/reject submissions. No dashboard. |
+| 4 | **Reviewer** | Review access | Can review submissions only. Cannot approve/publish. |
+| 5 | **Contributor** | Upload access | Can upload papers. Auto-assigned on first upload. |
+| 6 | **Member** | Authenticated | Normal authenticated user. Can browse and download. |
+| 7 | **Visitor** | Read-only | Not signed in. Can browse published papers only. |
 
 ## XP System (Cosmetic Only)
 
@@ -98,6 +102,30 @@ SELECT user_id, primary_role, username, xp
 FROM roles
 WHERE primary_role IN ('Founder', 'Admin', 'Senior Moderator');
 ```
+
+## Promotion Rules
+
+1. **Manual only** — promotions are Founder/Admin controlled
+2. **Never triggered by XP** — XP is cosmetic only, cannot escalate `primary_role`
+3. **Founder is unique** — only one Founder allowed (enforced by unique partial index)
+4. **Only Founder can assign Admin** — Admins cannot promote others to Admin
+5. **Auto-promotion exception** — `Contributor` is auto-assigned on first upload via database trigger
+6. **Demotion allowed** — Founder/Admin can demote any non-Founder user
+
+## Functional Roles (Non-Permission Badges)
+
+In addition to `primary_role`, users can have functional roles that describe their expertise.
+These are stored in `secondary_role`, `tertiary_role`, and `custom_badges[]` and **never grant permissions**.
+
+### Academic
+- Physics Expert 🧪, Chemistry Expert 🧪, Mathematics Expert 🧪
+- Paper Analyzer 📊, Syllabus Architect 📐, Question Curator 📝
+
+### Technical
+- UI/UX Designer 🎨, Backend Engineer ⚙️, Security Auditor 🔒, Database Architect 🗄️
+
+### Community
+- University Coordinator 🎓, Campus Ambassador 📢, Community Lead 🤝, Content Curator 📚
 
 ## Important Rules
 
