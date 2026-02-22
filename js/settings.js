@@ -242,8 +242,8 @@ async function renderSettings() {
 
     // Settings page is accessible to all authenticated users
     // Only specific sections (requiresAdmin) are restricted
-    // Debug panel requires level >= 90
-    const isAdmin = (roleInfo.level || 0) >= 90;
+    // Use primary_role for admin check, not level
+    const isAdmin = await (window.AdminAuth?.isCurrentUserAdmin?.() || Promise.resolve(false));
 
     if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Rendering settings UI for authenticated user', { role: roleInfo.name });
 

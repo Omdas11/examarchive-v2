@@ -7,7 +7,6 @@
 let currentTab = 'pending';
 let currentSubmission = null;
 let allSubmissions = [];
-let userRoleLevel = 0;
 let userPrimaryRoleGlobal = null;
 
 /**
@@ -442,7 +441,7 @@ function showRejectModal(submission) {
 
 /**
  * Approve submission (move file, set status to approved)
- * Level 75+ can approve
+ * Reviewer+ (via primary_role) can approve
  */
 async function approveSubmission(submission, notes = '') {
   try {
@@ -489,7 +488,7 @@ async function approveSubmission(submission, notes = '') {
     // Clean up temp file
     await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
 
-    showMessage('Submission approved! Awaiting publish by level 90+ admin.', 'success');
+    showMessage('Submission approved! Awaiting publish by Senior Moderator+ admin.', 'success');
     
     // Reload submissions
     await loadSubmissions();
@@ -502,7 +501,7 @@ async function approveSubmission(submission, notes = '') {
 
 /**
  * Approve and publish in one step
- * Level 90+ can approve & publish
+ * Senior Moderator+ (via primary_role) can approve & publish
  */
 async function approveAndPublishSubmission(submission, notes = '') {
   try {
@@ -769,7 +768,7 @@ function showMessage(message, type = 'info') {
 }
 
 /**
- * Setup role management panel (Admin level 100+ only)
+ * Setup role management panel (Founder/Admin only)
  */
 function setupRoleManagement() {
   const panel = document.getElementById('role-management-panel');

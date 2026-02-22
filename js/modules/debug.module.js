@@ -191,7 +191,7 @@ class DebugLogger {
       this.roleLevel = roleLevel;
       
       if (hasAccess) {
-        // Full logging panel for level >= 100
+        // Full logging panel for Founder/Admin
         this.fullAccess = roleLevel >= 100;
         this.panelVisible = localStorage.getItem('debug-panel-enabled') === 'true';
       }

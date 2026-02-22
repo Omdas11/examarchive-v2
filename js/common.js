@@ -265,28 +265,14 @@ function highlightActiveDrawerLink() {
   });
 }
 
-// Profile link in drawer opens avatar trigger
-document.addEventListener("click", (e) => {
-  const profileLink = e.target.closest("#drawerProfileLink");
-  if (profileLink) {
-    e.preventDefault();
-    closeDrawer();
-    setTimeout(() => {
-      const avatarTrigger = document.getElementById("avatarTrigger");
-      if (avatarTrigger) {
-        // Use focus then click for better screen reader support
-        avatarTrigger.focus();
-        avatarTrigger.click();
-      }
-    }, 350);
-  }
-});
+// Profile link in drawer navigates to profile page
+// (no longer opens popup — profile.html is now a dedicated page)
 
 /* ===============================
    Admin drawer link visibility
    =============================== */
 function initAdminDrawerLink() {
-  // Show admin link for users with role level >= 75
+  // Show admin link for users with admin role (via primary_role)
   window.addEventListener('auth:ready', () => {
     updateAdminDrawerVisibility();
   });
