@@ -725,7 +725,7 @@ function initializeProfilePanel() {
       if (error) {
         if (errorDiv) { errorDiv.textContent = error.message || "Sign up failed."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
       } else {
-        if (errorDiv) { errorDiv.textContent = "Check your email to confirm your account."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); errorDiv.classList.add("auth-success"); }
+        if (errorDiv) { errorDiv.textContent = "Check your email to confirm your account."; errorDiv.style.display = "block"; errorDiv.classList.add("auth-success"); }
       }
       return;
     }
@@ -743,7 +743,7 @@ function initializeProfilePanel() {
       if (error) {
         if (errorDiv) { errorDiv.textContent = error.message || "Reset failed."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); }
       } else {
-        if (errorDiv) { errorDiv.textContent = "Password reset email sent."; errorDiv.style.display = "block"; errorDiv.classList.remove("auth-success"); errorDiv.classList.add("auth-success"); }
+        if (errorDiv) { errorDiv.textContent = "Password reset email sent."; errorDiv.style.display = "block"; errorDiv.classList.add("auth-success"); }
       }
       return;
     }
