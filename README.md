@@ -116,7 +116,7 @@ Users can request papers they need at `/requests.html`:
 
 ### Backend is the Security Boundary
 
-RLS policies and `SECURITY DEFINER` RPCs enforce all access control. The frontend reads `primary_role` from the `roles` table for UI gating (show/hide admin features), but the database is the authority and rejects unauthorized operations regardless of frontend state.
+RLS policies and `SECURITY DEFINER` RPCs enforce all access control at the database level. The frontend reads `primary_role` for UI gating only. See [PHASE4_SETUP.md](docs/PHASE4_SETUP.md#security-notes) for full security details.
 
 ### Client Singleton
 All code uses `getSupabase()` from `js/supabase-client.js`. Never create Supabase clients directly.

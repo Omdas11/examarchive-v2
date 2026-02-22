@@ -58,6 +58,17 @@
   ];
 
   let currentStep = 0;
+  let currentTargetEl = null;
+
+  function updateHighlightPosition() {
+    const clone = document.getElementById('tutorial-highlight-clone');
+    if (!clone || !currentTargetEl) return;
+    const rect = currentTargetEl.getBoundingClientRect();
+    clone.style.left = rect.left + 'px';
+    clone.style.top = rect.top + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+  }
 
   function createTutorialUI() {
     // Create styles
@@ -155,6 +166,9 @@
 
     overlay.addEventListener('click', dismiss);
 
+    window.addEventListener('scroll', updateHighlightPosition, true);
+    window.addEventListener('resize', updateHighlightPosition);
+
     showStep(0);
   }
 
@@ -170,9 +184,11 @@
 
     // Highlight target element using a clone overlay on body
     let targetEl = null;
+    currentTargetEl = null;
     if (step.target) {
       targetEl = document.querySelector(step.target);
       if (targetEl) {
+        currentTargetEl = targetEl;
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         // Create a fixed-position highlight overlay matching the target's rect
         const clone = document.createElement('div');
@@ -294,6 +310,9 @@
     } catch (e) {
       // localStorage unavailable
     }
+    window.removeEventListener('scroll', updateHighlightPosition, true);
+    window.removeEventListener('resize', updateHighlightPosition);
+    currentTargetEl = null;
     const overlay = document.getElementById('tutorial-overlay');
     const tooltip = document.getElementById('tutorial-tooltip');
     const style = document.getElementById('tutorial-styles');
