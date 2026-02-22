@@ -1269,16 +1269,9 @@ async function loadUsersTable(page, searchQuery) {
             return;
           }
 
-          // Admin cannot assign Founder
-          if (newRole === 'Founder' && userPrimaryRoleGlobal === 'Admin') {
-            showMessage('Admin cannot assign Founder role.', 'error');
-            selectEl.value = oldRole;
-            return;
-          }
-
           // Confirmation modal
-          var confirmMsg = 'Change role of ' + (u.display_name || u.username || 'this user') + ' from "' + oldRole + '" to "' + newRole + '"?';
-          if (!confirm(confirmMsg)) {
+          var userName = u.display_name || u.username || 'this user';
+          if (!confirm(`Change role of ${userName} from "${oldRole}" to "${newRole}"?`)) {
             selectEl.value = oldRole;
             return;
           }
