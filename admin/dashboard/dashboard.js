@@ -307,7 +307,7 @@ function renderSubmissionCard(submission) {
           </button>
           ` : ''}
         ` : safeStatus === 'approved' ? `
-          ${['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(userPrimaryRoleGlobal) ? `
+          ${['Founder', 'Admin', 'Senior Moderator'].includes(userPrimaryRoleGlobal) ? `
           <button class="btn btn-view" data-action="publish" data-id="${submission?.id || ''}">
             Publish Now
           </button>

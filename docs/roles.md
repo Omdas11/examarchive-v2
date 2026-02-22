@@ -23,7 +23,7 @@ ExamArchive uses three independent systems that must never be conflated:
 
 ### B) Functional Roles — Responsibility Badges
 
-- Stored in `roles.secondary_role`, `roles.tertiary_role`, and `roles.custom_badges` (JSONB array)
+- Stored in `roles.secondary_role`, `roles.tertiary_role`, and `roles.custom_badges[]` (JSONB array)
 - Describes expertise and responsibilities (e.g., "Physics Expert", "UI/UX Designer")
 - Displayed on profile as badge pills
 - Do NOT grant any permissions
