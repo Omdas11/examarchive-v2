@@ -105,10 +105,10 @@ function friendlyMessage(module, level, message) {
   }
   
   // Add clear separation markers for storage vs submission (avoid double-prefix)
-  if (!message.startsWith('[STORAGE]') && (message.includes('[STORAGE]') || message.includes('📤 Storage'))) {
+  if (!message.startsWith('[STORAGE]') && (message.includes('[STORAGE]') || message.includes('[UPLOAD] Storage'))) {
     return `[STORAGE] ${message}`;
   }
-  if (!message.startsWith('[SUBMISSION]') && (message.includes('[SUBMISSION]') || message.includes('📝 Submission'))) {
+  if (!message.startsWith('[SUBMISSION]') && (message.includes('[SUBMISSION]') || message.includes('[SUBMIT] Submission'))) {
     return `[SUBMISSION] ${message}`;
   }
   
@@ -262,9 +262,9 @@ class DebugLogger {
 
   _getIcon(level) {
     switch (level) {
-      case DebugLevel.INFO: return 'ℹ️';
-      case DebugLevel.WARN: return '⚠️';
-      case DebugLevel.ERROR: return '❌';
+      case DebugLevel.INFO: return '[i]';
+      case DebugLevel.WARN: return '[!]';
+      case DebugLevel.ERROR: return '[x]';
       default: return '•';
     }
   }
@@ -422,16 +422,16 @@ class DebugPanel {
     this.panel.innerHTML = `
       <div class="debug-panel-header">
         <div class="debug-panel-title">
-          <span class="debug-panel-icon">🐛</span>
+          <span class="debug-panel-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0"/><path d="M12 9V3"/><path d="M12 21v-6"/><path d="M9 12H3"/><path d="M21 12h-6"/><path d="M5.6 5.6l2.5 2.5"/><path d="M15.9 15.9l2.5 2.5"/><path d="M5.6 18.4l2.5-2.5"/><path d="M15.9 8.1l2.5-2.5"/></svg></span>
           <span class="debug-panel-text">Debug</span>
           <span class="debug-panel-badge" id="debug-log-count">0</span>
         </div>
         <div class="debug-panel-actions">
-          <button class="debug-panel-btn" id="debug-export-btn" title="Export logs">💾</button>
-          <button class="debug-panel-btn" id="debug-copy-btn" title="Copy logs">📋</button>
-          <button class="debug-panel-btn" id="debug-clear-btn" title="Clear logs">🗑️</button>
-          <button class="debug-panel-btn" id="debug-toggle-btn" title="Expand/Collapse">▲</button>
-          <button class="debug-panel-btn" id="debug-close-btn" title="Close panel">✕</button>
+          <button class="debug-panel-btn" id="debug-export-btn" title="Export logs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          <button class="debug-panel-btn" id="debug-copy-btn" title="Copy logs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+          <button class="debug-panel-btn" id="debug-clear-btn" title="Clear logs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+          <button class="debug-panel-btn" id="debug-toggle-btn" title="Expand/Collapse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
+          <button class="debug-panel-btn" id="debug-close-btn" title="Close panel"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
       </div>
       <div class="debug-panel-body">
@@ -690,7 +690,11 @@ class DebugPanel {
       }).join('\n');
       navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('debug-copy-btn');
-        if (btn) { btn.textContent = '✓'; setTimeout(() => { btn.textContent = '📋'; }, 1500); }
+        if (btn) {
+          var copySvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          setTimeout(function() { btn.innerHTML = copySvg; }, 1500);
+        }
       }).catch(() => {});
     });
 

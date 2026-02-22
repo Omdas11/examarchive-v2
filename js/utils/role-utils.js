@@ -21,58 +21,60 @@
  * @returns {Object} {name, displayName, icon}
  */
 function mapRole(level) {
+  var SI = window.SvgIcons;
+  var gi = function(n) { return SI ? SI.inline(n) : ''; };
   if (level >= 100) {
     return {
       name: 'legend',
-      displayName: '🏆 Legend',
-      icon: '🏆',
+      displayName: gi('trophy') + ' Legend',
+      icon: gi('trophy'),
       level
     };
   }
   if (level >= 90) {
     return {
       name: 'elite',
-      displayName: '⚡ Elite',
-      icon: '⚡',
+      displayName: gi('lightning') + ' Elite',
+      icon: gi('lightning'),
       level
     };
   }
   if (level >= 50) {
     return {
       name: 'senior',
-      displayName: '🛡️ Senior',
-      icon: '🛡️',
+      displayName: gi('shield') + ' Senior',
+      icon: gi('shield'),
       level
     };
   }
   if (level >= 25) {
     return {
       name: 'veteran',
-      displayName: '📋 Veteran',
-      icon: '📋',
+      displayName: gi('clipboard') + ' Veteran',
+      icon: gi('clipboard'),
       level
     };
   }
   if (level >= 10) {
     return {
       name: 'contributor',
-      displayName: '✍️ Contributor',
-      icon: '✍️',
+      displayName: gi('sparkles') + ' Contributor',
+      icon: gi('sparkles'),
       level
     };
   }
   if (level >= 5) {
     return {
       name: 'explorer',
-      displayName: '🔍 Explorer',
-      icon: '🔍',
+      displayName: gi('eye') + ' Explorer',
+      icon: gi('eye'),
       level
     };
   }
   return {
     name: 'visitor',
-    displayName: '👁️ Visitor',
-    icon: '👁️',
+    displayName: gi('eye') + ' Visitor',
+    icon: gi('eye'),
     level
   };
 }

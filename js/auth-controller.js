@@ -181,7 +181,7 @@
     `;
     notification.innerHTML = `
       <div style="display: flex; align-items: start; gap: 0.75rem;">
-        <span style="font-size: 1.5rem;">⚠️</span>
+        <span style="font-size: 1.5rem;">${window.SvgIcons ? window.SvgIcons.get('warning', {size: 24}) : ''}</span>
         <div>
           <strong style="display: block; margin-bottom: 0.25rem; color: var(--text, #000);">
             Sign In Error

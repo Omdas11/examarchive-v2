@@ -107,7 +107,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     const isDemo = metadata.uploadType === 'demo-paper';
 
     // Upload to temp bucket
-    debugLog('info', '📤 Storage Upload Starting', { bucket: TEMP_BUCKET, path: storagePath });
+    debugLog('info', '[UPLOAD] Storage Upload Starting', { bucket: TEMP_BUCKET, path: storagePath });
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(TEMP_BUCKET)
@@ -137,7 +137,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     if (onProgress) onProgress(100);
-    debugLog('info', '✅ Storage Upload Complete', { path: uploadData?.path || storagePath });
+    debugLog('info', '[OK] Storage Upload Complete', { path: uploadData?.path || storagePath });
 
     // Demo paper: upload directly to approved bucket, status = approved
     if (isDemo) {
@@ -164,7 +164,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       }
 
       // Create submission record with approved status
-      debugLog('info', '📝 Submission Insert Starting (Demo Paper)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
+      debugLog('info', '[SUBMIT] Submission Insert Starting (Demo Paper)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
       
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
@@ -193,7 +193,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
         throw submissionError;
       }
 
-      debugLog('info', '✅ Submission Insert Complete (Demo Paper)', { submissionId: submission.id });
+      debugLog('info', '[OK] Submission Insert Complete (Demo Paper)', { submissionId: submission.id });
 
       debugLog('info', 'Demo paper uploaded and approved — visible in Browse');
       return {
@@ -205,7 +205,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     }
 
     // Normal paper: create submission with pending status
-    debugLog('info', '📝 Submission Insert Starting (Pending Review)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
+    debugLog('info', '[SUBMIT] Submission Insert Starting (Pending Review)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
     
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
@@ -235,7 +235,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       throw submissionError;
     }
 
-    debugLog('info', '✅ Submission Insert Complete (Pending Review)', { submissionId: submission.id });
+    debugLog('info', '[OK] Submission Insert Complete (Pending Review)', { submissionId: submission.id });
 
     debugLog('info', 'Upload successful — pending review');
     return {
