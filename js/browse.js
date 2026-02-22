@@ -292,7 +292,7 @@ function render() {
   <div class="availability-badges">
     ${
       p.is_demo
-        ? `<span class="availability-badge subtle" style="background: var(--accent-soft); color: var(--accent);"><span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 8.5a2 2 0 001.7 3h10.6a2 2 0 001.7-3L14 9V3"/></svg></span> DEMO PAPER</span>`
+        ? `<span class="availability-badge subtle" style="background: var(--accent-soft); color: var(--accent);">${window.SvgIcons ? window.SvgIcons.inline('flask', {size: 14}) : ''} DEMO PAPER</span>`
         : ""
     }
     ${

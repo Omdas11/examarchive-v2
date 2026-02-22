@@ -44,7 +44,7 @@
     if (!currentUser) {
       section.innerHTML = `
         <div class="auth-prompt">
-          <p><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span> Sign in to create or vote on paper requests</p>
+          <p>${window.SvgIcons ? window.SvgIcons.inline('lock') : ''} Sign in to create or vote on paper requests</p>
         </div>
       `;
       return;
@@ -160,7 +160,7 @@
     return `
       <div class="request-card">
         <div class="request-vote">
-          <button data-vote-id="${req.id}" data-has-voted="${hasVoted}" class="${hasVoted ? 'voted' : ''}" ${!currentUser ? 'disabled' : ''} title="Upvote">${hasVoted ? '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Voted' : '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>'}</button>
+          <button data-vote-id="${req.id}" data-has-voted="${hasVoted}" class="${hasVoted ? 'voted' : ''}" ${!currentUser ? 'disabled' : ''} title="Upvote">${hasVoted ? (window.SvgIcons ? window.SvgIcons.inline('check', {size: 14}) : '') + ' Voted' : (window.SvgIcons ? window.SvgIcons.inline('arrow_up', {size: 14}) : '')}</button>
           <span class="vote-count">${req.votes || 0}</span>
         </div>
         <div class="request-body">
@@ -169,7 +169,7 @@
           <p>${escapeHtml(req.description || '')}</p>
           ${['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(userPrimaryRole) && req.status === 'open' ? `
             <div class="admin-actions">
-              <button data-fulfill-id="${req.id}"><span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Mark Fulfilled</button>
+              <button data-fulfill-id="${req.id}">${window.SvgIcons ? window.SvgIcons.inline('check', {size: 14}) : ''} Mark Fulfilled</button>
             </div>
           ` : ''}
         </div>
@@ -193,8 +193,8 @@
     const countEl = btn.parentElement?.querySelector('.vote-count');
     const prevCount = parseInt(countEl?.textContent || '0');
 
-    var voteCheckSvg = '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Voted';
-    var voteArrowSvg = '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>';
+    var voteCheckSvg = (window.SvgIcons ? window.SvgIcons.inline('check', {size: 14}) : '') + ' Voted';
+    var voteArrowSvg = window.SvgIcons ? window.SvgIcons.inline('arrow_up', {size: 14}) : '';
 
     if (hasVoted) {
       btn.classList.remove('voted');

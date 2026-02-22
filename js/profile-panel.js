@@ -932,7 +932,7 @@ async function renderProfilePanel() {
         </button>
         <div class="auth-divider"><span>or</span></div>
         <button id="profileGoogleSignInBtn" class="btn btn-outline" style="width:100%;">
-          <span class="svg-icon" aria-hidden="true" style="margin-right:0.4rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span> Sign in with Google
+          ${window.SvgIcons ? '<span class="svg-icon" style="margin-right:0.4rem;">' + window.SvgIcons.get('lock') + '</span>' : ''} Sign in with Google
         </button>
       </div>
     `;
