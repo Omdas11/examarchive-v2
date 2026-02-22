@@ -484,6 +484,16 @@
       return { current: current, next: next };
     }
 
+    function syncHeaderAvatar(url) {
+      var headerMini = document.querySelector('.avatar-mini');
+      if (headerMini && url) {
+        headerMini.textContent = '';
+        headerMini.style.backgroundImage = 'url(' + url + ')';
+        headerMini.style.backgroundSize = 'cover';
+        headerMini.style.backgroundPosition = 'center';
+      }
+    }
+
     function getLevelRingClass(primaryRole, level) {
       if (primaryRole === 'Founder') return 'ring-founder';
       if (primaryRole === 'Admin') return 'ring-admin';
@@ -573,15 +583,7 @@
       }
 
       // Sync header avatar with roles.avatar_url
-      if (avatarUrl) {
-        var headerMini = document.querySelector('.avatar-mini');
-        if (headerMini) {
-          headerMini.textContent = '';
-          headerMini.style.backgroundImage = 'url(' + avatarUrl + ')';
-          headerMini.style.backgroundSize = 'cover';
-          headerMini.style.backgroundPosition = 'center';
-        }
-      }
+      syncHeaderAvatar(avatarUrl);
 
       // Set ring class
       var ringClass = getLevelRingClass(primaryRole, userLevel);
@@ -792,13 +794,7 @@
           avatarEl.textContent = '';
 
           // Sync header avatar
-          var headerMini = document.querySelector('.avatar-mini');
-          if (headerMini) {
-            headerMini.textContent = '';
-            headerMini.style.backgroundImage = 'url(' + publicUrl + ')';
-            headerMini.style.backgroundSize = 'cover';
-            headerMini.style.backgroundPosition = 'center';
-          }
+          syncHeaderAvatar(publicUrl);
           if (statusEl) { statusEl.textContent = 'Photo updated!'; statusEl.style.color = 'var(--color-success)'; }
           setTimeout(function() { if (statusEl) statusEl.textContent = ''; }, 2000);
         } catch (err) {

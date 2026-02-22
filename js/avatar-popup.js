@@ -208,34 +208,10 @@ function updateHeaderAvatar(user) {
     const avatarUrl = user.user_metadata?.avatar_url;
     const initial = fullName ? fullName[0].toUpperCase() : email ? email[0].toUpperCase() : "U";
 
-    // Try to get roles avatar_url (uploaded avatar takes priority)
-    const supabase = window.getSupabase ? window.getSupabase() : null;
-    if (supabase) {
-      supabase.from('roles').select('avatar_url').eq('user_id', user.id).single().then(function(res) {
-        const rolesAvatarUrl = res.data?.avatar_url;
-        const finalUrl = rolesAvatarUrl || avatarUrl;
-        const sanitizedUrl = window.AvatarUtils?.sanitizeAvatarUrl
-          ? window.AvatarUtils.sanitizeAvatarUrl(finalUrl)
-          : finalUrl;
-        if (sanitizedUrl) {
-          avatarMini.textContent = "";
-          avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
-          avatarMini.style.backgroundSize = "cover";
-          avatarMini.style.backgroundPosition = "center";
-        } else {
-          avatarMini.textContent = initial;
-          avatarMini.style.backgroundImage = "none";
-          const color = window.AvatarUtils?.stringToColor
-            ? window.AvatarUtils.stringToColor(fullName || email || "User")
-            : "var(--avatar-bg)";
-          avatarMini.style.backgroundColor = color;
-        }
-      });
-    } else {
+    function applyAvatar(url) {
       const sanitizedUrl = window.AvatarUtils?.sanitizeAvatarUrl
-        ? window.AvatarUtils.sanitizeAvatarUrl(avatarUrl)
-        : avatarUrl;
-
+        ? window.AvatarUtils.sanitizeAvatarUrl(url)
+        : url;
       if (sanitizedUrl) {
         avatarMini.textContent = "";
         avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
@@ -249,6 +225,18 @@ function updateHeaderAvatar(user) {
           : "var(--avatar-bg)";
         avatarMini.style.backgroundColor = color;
       }
+    }
+
+    // Try to get roles avatar_url (uploaded avatar takes priority)
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (supabase) {
+      supabase.from('roles').select('avatar_url').eq('user_id', user.id).single().then(function(res) {
+        applyAvatar(res.data?.avatar_url || avatarUrl);
+      }).catch(function() {
+        applyAvatar(avatarUrl);
+      });
+    } else {
+      applyAvatar(avatarUrl);
     }
   } else {
     avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get('user') : '';
