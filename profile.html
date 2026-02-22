@@ -541,7 +541,7 @@
       var username = roleData.username || null;
       var usernameUpdatedAt = roleData.username_updated_at || null;
       var displayName = roleData.display_name || user.user_metadata?.full_name || user.email;
-      var avatarUrl = roleData.avatar_url || user.user_metadata?.avatar_url || null;
+      var avatarUrl = roleData.avatar_url || null;
 
       // Check username change cooldown
       var usernameCooldownActive = false;
@@ -573,13 +573,18 @@
         document.getElementById('pageMemberSince').textContent = 'Member since ' + d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
       }
 
-      // Set avatar
+      // Set avatar — source is roles.avatar_url only
       var avatarEl = document.getElementById('pageAvatar');
       if (avatarUrl) {
         avatarEl.style.backgroundImage = 'url(' + avatarUrl + ')';
         avatarEl.textContent = '';
-      } else if (window.AvatarUtils?.updateAvatarElement) {
-        window.AvatarUtils.updateAvatarElement(avatarEl, user);
+      } else {
+        avatarEl.style.backgroundImage = 'none';
+        var initial = (displayName && displayName.length > 0) ? displayName[0].toUpperCase() : ((username && username.length > 0) ? username[0].toUpperCase() : 'U');
+        avatarEl.textContent = initial;
+        if (window.AvatarUtils?.stringToColor) {
+          avatarEl.style.backgroundColor = window.AvatarUtils.stringToColor(displayName || username || 'User');
+        }
       }
 
       // Sync header avatar with roles.avatar_url
