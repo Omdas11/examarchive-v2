@@ -506,20 +506,22 @@
       return 'ring-visitor';
     }
 
-    window.addEventListener('auth:ready', async function(e) {
+    async function loadProfile() {
       var loadingEl = document.getElementById('profile-loading');
       var authWall = document.getElementById('profile-auth-wall');
       var contentEl = document.getElementById('profile-content');
 
-      if (!e.detail.session) {
+      var supabase = window.getSupabase ? window.getSupabase() : null;
+      if (!supabase) return;
+
+      var authResult = await supabase.auth.getUser();
+      if (authResult.error || !authResult.data.user) {
         loadingEl.style.display = 'none';
         authWall.style.display = 'block';
         return;
       }
 
-      var user = e.detail.session.user;
-      var supabase = window.getSupabase ? window.getSupabase() : null;
-      if (!supabase) return;
+      var user = authResult.data.user;
 
       // Load role data BEFORE rendering UI
       var roleData = {};
@@ -784,7 +786,13 @@
         }
         try {
           if (statusEl) { statusEl.textContent = 'Uploading...'; statusEl.style.color = 'var(--text-muted)'; }
-          var filePath = user.id + '/avatar.png';
+          var freshAuth = await supabase.auth.getUser();
+          if (freshAuth.error || !freshAuth.data.user) {
+            if (statusEl) { statusEl.textContent = 'Session expired. Please reload.'; statusEl.style.color = 'var(--color-error)'; }
+            return;
+          }
+          var currentUserId = freshAuth.data.user.id;
+          var filePath = currentUserId + '/avatar.png';
           var uploadRes = await supabase.storage
             .from('avatars')
             .upload(filePath, file, { upsert: true, cacheControl: '3600' });
@@ -793,7 +801,7 @@
           var urlRes = supabase.storage.from('avatars').getPublicUrl(filePath);
           var publicUrl = urlRes.data.publicUrl + '?t=' + Date.now();
 
-          await supabase.from('roles').update({ avatar_url: publicUrl }).eq('user_id', user.id);
+          await supabase.from('roles').update({ avatar_url: publicUrl }).eq('user_id', currentUserId);
 
           avatarEl.style.backgroundImage = 'url(' + publicUrl + ')';
           avatarEl.textContent = '';
@@ -811,6 +819,12 @@
       document.getElementById('profileSignOutBtn').addEventListener('click', async function() {
         await window.AuthController.signOut();
         window.location.href = 'index.html';
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProfile().catch(function(err) {
+        console.error('[Profile] loadProfile error:', err);
       });
     });
 
