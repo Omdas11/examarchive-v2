@@ -462,7 +462,6 @@
     'use strict';
 
     var currentAvatarUrl = null;
-    var profileInitialized = false;
 
     var XP_LEVELS = [
       { level: 0, xp: 0, title: 'Visitor' },
@@ -540,11 +539,6 @@
     }
 
     async function loadProfile(userId) {
-      if (profileInitialized) {
-        window.debugLog('INFO', 'loadProfile skipped (already initialized)');
-        return;
-      }
-
       window.debugLog('INFO', 'loadProfile started');
 
       var loadingEl = document.getElementById('profile-loading');
@@ -848,7 +842,6 @@
         window.location.href = 'index.html';
       });
 
-      profileInitialized = true;
       window.debugLog('INFO', 'loadProfile completed');
     }
 
@@ -861,9 +854,6 @@
           if (profileLoaded) return;
 
           profileLoaded = true;
-          if (authSub && authSub.data && authSub.data.subscription) {
-            authSub.data.subscription.unsubscribe();
-          }
           window.debugLog('AUTH', 'Auth state changed: ' + event);
 
           loadProfile(session.user.id).catch(function(err) {
