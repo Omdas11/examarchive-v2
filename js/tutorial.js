@@ -9,7 +9,12 @@
   const TUTORIAL_KEY = 'examarchive_tutorial_seen';
   const TUTORIAL_VERSION = '2'; // Increment to re-show tutorial on major updates
 
-  if (localStorage.getItem(TUTORIAL_KEY) === TUTORIAL_VERSION) {
+  try {
+    if (localStorage.getItem(TUTORIAL_KEY) === TUTORIAL_VERSION) {
+      return;
+    }
+  } catch (e) {
+    // localStorage unavailable (private browsing, etc.)
     return;
   }
 
@@ -62,10 +67,12 @@
       .tutorial-overlay {
         position: fixed;
         inset: 0;
-        z-index: 99999;
+        z-index: 99998;
         background: rgba(0, 0, 0, 0.45);
         backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
         animation: tutorialFadeIn 0.3s ease;
+        pointer-events: auto;
       }
       @keyframes tutorialFadeIn {
         from { opacity: 0; }
@@ -127,6 +134,7 @@
         box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.4), 0 0 20px rgba(211, 47, 47, 0.15) !important;
         border-radius: 8px !important;
         transition: box-shadow 0.3s ease;
+        pointer-events: none;
       }
     `;
     document.head.appendChild(style);
@@ -273,7 +281,11 @@
   }
 
   function dismiss() {
-    localStorage.setItem(TUTORIAL_KEY, TUTORIAL_VERSION);
+    try {
+      localStorage.setItem(TUTORIAL_KEY, TUTORIAL_VERSION);
+    } catch (e) {
+      // localStorage unavailable
+    }
     document.querySelectorAll('.tutorial-highlight').forEach(el => {
       el.classList.remove('tutorial-highlight');
     });

@@ -34,6 +34,8 @@ const SUPABASE_ANON_KEY = 'your-anon-key';
 
 In the Supabase SQL Editor, run these scripts **in order**:
 
+**Core Setup (Phase 1–2):**
+
 1. `admin/sql/01_profiles_table.sql`
 2. `admin/sql/02_submissions_table.sql`
 3. `admin/sql/03_storage_buckets.sql`
@@ -41,6 +43,21 @@ In the Supabase SQL Editor, run these scripts **in order**:
 5. `admin/sql/05_roles_system.sql`
 6. `admin/sql/06_approved_papers.sql`
 7. `admin/sql/07_add_approved_path_column.sql`
+
+**Phase 2–3 Migrations:**
+
+8. `admin/sql/08_submission_fields_migration.sql`
+9. `admin/sql/09_fix_submissions_rls.sql`
+10. `admin/sql/10_cleanup_duplicate_policies.sql`
+11. `admin/sql/11_phase2_migration.sql`
+12. `admin/sql/12_phase3_migration.sql`
+
+**Phase 4 Migrations (role system, XP, admin dashboard):**
+
+13. `admin/sql/13_phase4_migration.sql` — XP system, username, level auto-calc, search RPCs
+14. `admin/sql/14_phase4_restructure.sql` — Decouple XP from permissions, founder uniqueness, daily streak, role-based access control
+
+> **Important:** Scripts must be run in order. Phase 4 scripts depend on columns and functions created in earlier migrations. See [PHASE4_SETUP.md](PHASE4_SETUP.md) for detailed Phase 4 setup instructions.
 
 ### 4. Configure Auth
 
