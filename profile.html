@@ -461,6 +461,9 @@
   (function() {
     'use strict';
 
+    var currentAvatarUrl = null;
+    var profileInitialized = false;
+
     var XP_LEVELS = [
       { level: 0, xp: 0, title: 'Visitor' },
       { level: 5, xp: 100, title: 'Explorer' },
@@ -494,6 +497,36 @@
       }
     }
 
+    function safeSetAvatar(url, displayName, username) {
+      var avatarEl = document.getElementById('pageAvatar');
+      if (!avatarEl) return;
+
+      window.debugLog('INFO', 'safeSetAvatar() called');
+      window.debugLog('INFO', 'Incoming avatar_url: ' + url);
+
+      var sanitizedUrl = (window.AvatarUtils && window.AvatarUtils.sanitizeAvatarUrl) ? window.AvatarUtils.sanitizeAvatarUrl(url) : url;
+      if (sanitizedUrl && typeof sanitizedUrl === 'string' && sanitizedUrl.startsWith('http')) {
+        currentAvatarUrl = sanitizedUrl;
+        avatarEl.style.backgroundImage = 'url(' + sanitizedUrl + ')';
+        avatarEl.textContent = '';
+        syncHeaderAvatar(sanitizedUrl);
+        window.debugLog('INFO', 'Real avatar applied');
+        return;
+      }
+
+      if (!currentAvatarUrl) {
+        avatarEl.style.backgroundImage = 'none';
+        var initial = (displayName && displayName.length > 0) ? displayName[0].toUpperCase() : ((username && username.length > 0) ? username[0].toUpperCase() : 'U');
+        avatarEl.textContent = initial;
+        if (window.AvatarUtils && window.AvatarUtils.stringToColor) {
+          avatarEl.style.backgroundColor = window.AvatarUtils.stringToColor(displayName || username || 'User');
+        }
+        window.debugLog('INFO', 'Fallback avatar applied');
+      } else {
+        window.debugLog('INFO', 'Fallback prevented (real avatar exists)');
+      }
+    }
+
     function getLevelRingClass(primaryRole, level) {
       if (primaryRole === 'Founder') return 'ring-founder';
       if (primaryRole === 'Admin') return 'ring-admin';
@@ -507,6 +540,13 @@
     }
 
     async function loadProfile() {
+      if (profileInitialized) {
+        window.debugLog('INFO', 'loadProfile skipped (already initialized)');
+        return;
+      }
+
+      window.debugLog('INFO', 'loadProfile started');
+
       var loadingEl = document.getElementById('profile-loading');
       var authWall = document.getElementById('profile-auth-wall');
       var contentEl = document.getElementById('profile-content');
@@ -516,13 +556,15 @@
 
       var sessionResult = await supabase.auth.getSession();
       if (!sessionResult.data || !sessionResult.data.session) {
-        console.log('[Profile] No active session yet.');
+        window.debugLog('AUTH', 'No active session yet');
         loadingEl.style.display = 'none';
         authWall.style.display = 'block';
         return;
       }
 
       var user = sessionResult.data.session.user;
+
+      window.debugLog('AUTH', 'User ID: ' + user.id);
 
       // Load role data BEFORE rendering UI
       var roleData = {};
@@ -545,7 +587,7 @@
       var usernameUpdatedAt = roleData.username_updated_at || null;
       var displayName = roleData.display_name || user.user_metadata?.full_name || user.email;
       var avatarUrl = roleData.avatar_url || null;
-      console.log('[Profile] Avatar URL from roles:', avatarUrl);
+      window.debugLog('INFO', 'Fetched avatar_url: ' + avatarUrl);
 
       // Check username change cooldown
       var usernameCooldownActive = false;
@@ -577,22 +619,8 @@
         document.getElementById('pageMemberSince').textContent = 'Member since ' + d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
       }
 
-      // Set avatar — source is roles.avatar_url only
-      var avatarEl = document.getElementById('pageAvatar');
-      if (avatarUrl) {
-        avatarEl.style.backgroundImage = 'url(' + avatarUrl + ')';
-        avatarEl.textContent = '';
-      } else {
-        avatarEl.style.backgroundImage = 'none';
-        var initial = (displayName && displayName.length > 0) ? displayName[0].toUpperCase() : ((username && username.length > 0) ? username[0].toUpperCase() : 'U');
-        avatarEl.textContent = initial;
-        if (window.AvatarUtils?.stringToColor) {
-          avatarEl.style.backgroundColor = window.AvatarUtils.stringToColor(displayName || username || 'User');
-        }
-      }
-
-      // Sync header avatar with roles.avatar_url
-      syncHeaderAvatar(avatarUrl);
+      // Set avatar via safeSetAvatar (prevents fallback overwrite)
+      safeSetAvatar(avatarUrl, displayName, username);
 
       // Set ring class
       var ringClass = getLevelRingClass(primaryRole, userLevel);
@@ -805,11 +833,7 @@
 
           await supabase.from('roles').update({ avatar_url: publicUrl }).eq('user_id', currentUserId);
 
-          avatarEl.style.backgroundImage = 'url(' + publicUrl + ')';
-          avatarEl.textContent = '';
-
-          // Sync header avatar
-          syncHeaderAvatar(publicUrl);
+          safeSetAvatar(publicUrl, null, null);
           if (statusEl) { statusEl.textContent = 'Photo updated!'; statusEl.style.color = 'var(--color-success)'; }
           setTimeout(function() { if (statusEl) statusEl.textContent = ''; }, 2000);
         } catch (err) {
@@ -822,21 +846,25 @@
         await window.AuthController.signOut();
         window.location.href = 'index.html';
       });
+
+      profileInitialized = true;
+      window.debugLog('INFO', 'loadProfile completed');
     }
 
     document.addEventListener('DOMContentLoaded', function() {
       loadProfile().catch(function(err) {
-        console.error('[Profile] loadProfile error:', err);
+        window.debugLog('ERROR', 'loadProfile error: ' + (err && err.message || err));
       });
 
       // Also listen for auth state changes to handle late session restoration
       var supabase = window.getSupabase ? window.getSupabase() : null;
       if (supabase) {
         var authSub = supabase.auth.onAuthStateChange(function(event, session) {
+          window.debugLog('AUTH', 'Auth state changed: ' + event);
           if (session && session.user && (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION')) {
-            console.log('[Profile] Auth state changed (' + event + '), reloading profile');
+            profileInitialized = false;
             loadProfile().catch(function(err) {
-              console.error('[Profile] loadProfile error on auth change:', err);
+              window.debugLog('ERROR', 'loadProfile error on auth change: ' + (err && err.message || err));
             });
           }
         });
