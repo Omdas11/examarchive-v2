@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Stats · ExamArchive</title>
+  
+  <!-- Global styles -->
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/profile-panel.css">
+  <link rel="stylesheet" href="../css/avatar-popup.css">
+  <link rel="stylesheet" href="../css/avatar.css">
+  
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#d32f2f" />
+
+  <style>
+    .stats-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+    .stats-page h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .stats-page .subtitle { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; text-align: center; }
+    .stat-card .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text); display: block; }
+    .stat-card .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; display: block; }
+    .stat-card .stat-value.loading { color: var(--text-muted); font-size: 1rem; }
+
+    .charts-section { margin-bottom: 2rem; }
+    .charts-section h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+    .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .chart-card h3 { font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text); }
+    .chart-canvas { width: 100%; height: 200px; position: relative; }
+
+    .bar-chart { display: flex; align-items: flex-end; gap: 2px; height: 160px; padding-top: 10px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+    .bar { width: 100%; min-width: 6px; max-width: 24px; border-radius: 3px 3px 0 0; transition: height 0.5s ease; }
+    .bar-label { font-size: 0.55rem; color: var(--text-muted); margin-top: 4px; writing-mode: vertical-lr; transform: rotate(180deg); max-height: 30px; overflow: hidden; }
+
+    .access-denied, .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; text-align: center; }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: #d32f2f; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tier-badge { display: inline-block; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+    .tier-badge.free { background: #4CAF5022; color: #4CAF50; }
+    .tier-badge.warning { background: #FF980022; color: #FF9800; }
+    .tier-badge.danger { background: #f4433622; color: #f44336; }
+
+    @media (max-width: 640px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .chart-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="stats-page" id="main-content">
+
+    <!-- Loading -->
+    <div id="stats-loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading stats...</p>
+    </div>
+
+    <!-- Access Denied -->
+    <div id="stats-denied" class="access-denied" style="display: none;">
+      <h2>🔒 Access Denied</h2>
+      <p class="text-muted">Senior Moderator+ role required to view stats.</p>
+      <a href="../index.html" class="btn btn-red" style="margin-top:1rem;">Go Home</a>
+    </div>
+
+    <!-- Stats Content -->
+    <div id="stats-content" style="display: none;">
+
+      <h1>📊 Platform Statistics</h1>
+      <p class="subtitle">Real-time metrics from the ExamArchive database</p>
+
+      <!-- Metric Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value loading" id="s-total-users">—</span>
+          <span class="stat-label">Total Users</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value loading" id="s-total-uploads">—</span>
+          <span class="stat-label">Total Uploads</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value loading" id="s-approved">—</span>
+          <span class="stat-label">Approved</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value loading" id="s-pending">—</span>
+          <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value loading" id="s-rejected">—</span>
+          <span class="stat-label">Rejected</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value loading" id="s-active-7d">—</span>
+          <span class="stat-label">Active (7 days)</span>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-section">
+        <h2>Activity (Last 30 Days)</h2>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3>Uploads per Day</h3>
+            <div class="chart-canvas">
+              <div class="bar-chart" id="chart-uploads"></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3>Approvals per Day</h3>
+            <div class="chart-canvas">
+              <div class="bar-chart" id="chart-approvals"></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3>New Users per Day</h3>
+            <div class="chart-canvas">
+              <div class="bar-chart" id="chart-users"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="footer"></div>
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <script type="module" src="../js/app.module.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/avatar-utils.js"></script>
+  <script src="../js/utils/role-utils.js"></script>
+  <script src="../js/svg-icons.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/admin-auth.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/core/auth-ready.js"></script>
+  <script src="../js/core/debug.js"></script>
+  <script src="../js/profile-panel.js"></script>
+  <script src="../js/avatar-popup.js"></script>
+  <script src="../js/theme.js"></script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      var loading = document.getElementById('stats-loading');
+      var denied = document.getElementById('stats-denied');
+      var content = document.getElementById('stats-content');
+
+      try {
+        var supabase = window.getSupabase ? window.getSupabase() : null;
+        if (!supabase) {
+          supabase = window.waitForSupabase ? await window.waitForSupabase() : null;
+        }
+        if (!supabase) { showDenied(); return; }
+
+        var sessionRes = await supabase.auth.getSession();
+        var session = sessionRes.data.session;
+        if (!session) { showDenied(); return; }
+
+        var roleRes = await supabase.from('roles').select('primary_role').eq('user_id', session.user.id).single();
+        var role = roleRes.data ? roleRes.data.primary_role : null;
+        if (!role || !['Founder', 'Admin', 'Senior Moderator'].includes(role)) {
+          showDenied();
+          return;
+        }
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+        loadStats(supabase);
+
+      } catch (err) {
+        console.error('[STATS] Access check failed:', err);
+        showDenied();
+      }
+
+      function showDenied() {
+        loading.style.display = 'none';
+        denied.style.display = 'flex';
+      }
+    });
+
+    async function loadStats(supabase) {
+      // Total Users
+      var usersRes = await supabase.from('roles').select('*', { count: 'exact', head: true });
+      setText('s-total-users', usersRes.count || 0);
+
+      // Total Uploads
+      var uploadsRes = await supabase.from('submissions').select('*', { count: 'exact', head: true });
+      setText('s-total-uploads', uploadsRes.count || 0);
+
+      // Approved
+      var approvedRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).in('status', ['approved', 'published']);
+      setText('s-approved', approvedRes.count || 0);
+
+      // Pending
+      var pendingRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+      setText('s-pending', pendingRes.count || 0);
+
+      // Rejected
+      var rejectedRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'rejected');
+      setText('s-rejected', rejectedRes.count || 0);
+
+      // Active users (logged in within 7 days)
+      var sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      var activeRes = await supabase.from('roles').select('*', { count: 'exact', head: true }).gte('last_login_date', sevenDaysAgo.toISOString().split('T')[0]);
+      setText('s-active-7d', activeRes.count || 0);
+
+      // Load charts
+      loadCharts(supabase);
+    }
+
+    async function loadCharts(supabase) {
+      var thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      var sinceDate = thirtyDaysAgo.toISOString();
+
+      // Uploads per day
+      var uploadsData = await supabase.from('submissions').select('created_at').gte('created_at', sinceDate);
+      renderBarChart('chart-uploads', groupByDay(uploadsData.data || [], 'created_at'), '#d32f2f');
+
+      // Approvals per day
+      var approvalsData = await supabase.from('submissions').select('reviewed_at').in('status', ['approved', 'published']).gte('reviewed_at', sinceDate);
+      renderBarChart('chart-approvals', groupByDay(approvalsData.data || [], 'reviewed_at'), '#4CAF50');
+
+      // New users per day (using roles.created_at or approximate with updated_at)
+      var usersData = await supabase.from('roles').select('user_id, last_login_date').gte('last_login_date', thirtyDaysAgo.toISOString().split('T')[0]);
+      renderBarChart('chart-users', groupByDay(usersData.data || [], 'last_login_date'), '#2196F3');
+    }
+
+    function groupByDay(data, field) {
+      var counts = {};
+      var today = new Date();
+      // Initialize last 30 days
+      for (var i = 29; i >= 0; i--) {
+        var d = new Date(today);
+        d.setDate(d.getDate() - i);
+        var key = d.toISOString().split('T')[0];
+        counts[key] = 0;
+      }
+      // Count
+      data.forEach(function(item) {
+        if (!item[field]) return;
+        var key = new Date(item[field]).toISOString().split('T')[0];
+        if (counts[key] !== undefined) counts[key]++;
+      });
+      return counts;
+    }
+
+    function renderBarChart(elementId, data, color) {
+      var container = document.getElementById(elementId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      var values = Object.values(data);
+      var keys = Object.keys(data);
+      var max = Math.max.apply(null, values.concat([1]));
+
+      keys.forEach(function(key, i) {
+        var val = values[i];
+        var pct = (val / max) * 100;
+        var col = document.createElement('div');
+        col.className = 'bar-col';
+        col.title = key + ': ' + val;
+
+        var bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = Math.max(pct, 2) + '%';
+        bar.style.background = val > 0 ? color : 'var(--border)';
+        col.appendChild(bar);
+
+        // Show label every 5th day
+        if (i % 5 === 0) {
+          var label = document.createElement('div');
+          label.className = 'bar-label';
+          label.textContent = key.slice(5); // MM-DD
+          col.appendChild(label);
+        }
+        container.appendChild(col);
+      });
+    }
+
+    function setText(id, val) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.textContent = val;
+        el.classList.remove('loading');
+      }
+    }
+  })();
+  </script>
+</body>
+</html>

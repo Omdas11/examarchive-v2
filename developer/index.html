@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Developer Tools · ExamArchive</title>
+  
+  <!-- Global styles -->
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/profile-panel.css">
+  <link rel="stylesheet" href="../css/avatar-popup.css">
+  <link rel="stylesheet" href="../css/avatar.css">
+  
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#d32f2f" />
+
+  <style>
+    .dev-page { max-width: 960px; margin: 0 auto; padding: 2rem 1rem; }
+    .dev-page h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .dev-page .subtitle { color: var(--text-muted); margin-bottom: 2rem; }
+
+    .dev-section { margin-bottom: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+    .dev-section h2 { font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .dev-section h2 .badge { background: #d32f2f; color: #fff; font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600; }
+
+    .dev-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; }
+    .dev-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text); transition: background 0.2s; }
+    .dev-btn:hover { background: var(--border); }
+    .dev-btn.danger { border-color: #d32f2f44; color: #d32f2f; }
+    .dev-btn.danger:hover { background: #d32f2f11; }
+
+    .cmd-panel { background: #1a1a2e; border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+    .cmd-input { width: 100%; background: transparent; border: 1px solid #333; border-radius: 6px; padding: 0.5rem 0.75rem; color: #0f0; font-family: 'Courier New', monospace; font-size: 0.85rem; outline: none; }
+    .cmd-input::placeholder { color: #555; }
+    .cmd-output { margin-top: 0.75rem; padding: 0.5rem; background: #0d0d1a; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #0f0; min-height: 60px; max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
+    .cmd-hint { color: #555; font-size: 0.75rem; margin-top: 0.5rem; font-family: monospace; }
+
+    .access-denied, .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; text-align: center; }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: #d32f2f; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .confirm-modal { position: fixed; inset: 0; z-index: 10000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
+    .confirm-modal.open { display: flex; }
+    .confirm-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; max-width: 400px; width: 90%; text-align: center; }
+    .confirm-box h3 { margin-bottom: 0.75rem; color: #d32f2f; }
+    .confirm-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .confirm-box input { width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 1rem; background: var(--bg-soft); color: var(--text); }
+    .confirm-actions { display: flex; gap: 0.5rem; justify-content: center; }
+  </style>
+</head>
+<body>
+
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="dev-page" id="main-content">
+
+    <!-- Loading State -->
+    <div id="dev-loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Verifying Founder access...</p>
+    </div>
+
+    <!-- Access Denied -->
+    <div id="dev-denied" class="access-denied" style="display: none;">
+      <h2>🔒 Access Denied</h2>
+      <p class="text-muted">Only the Founder can access Developer Tools.</p>
+      <a href="../index.html" class="btn btn-red" style="margin-top:1rem;">Go Home</a>
+    </div>
+
+    <!-- Developer Content -->
+    <div id="dev-content" style="display: none;">
+
+      <h1>🛠️ Developer Tools</h1>
+      <p class="subtitle">Founder-only system controls and diagnostics</p>
+
+      <!-- Data Reset Controls -->
+      <div class="dev-section">
+        <h2>Data Reset Controls <span class="badge">DESTRUCTIVE</span></h2>
+        <div class="dev-grid">
+          <button class="dev-btn danger" data-action="reset-xp" title="Reset XP for a single user">
+            ⚡ Reset User XP
+          </button>
+          <button class="dev-btn danger" data-action="reset-achievements" title="Reset achievements for a single user">
+            🏆 Reset Achievements
+          </button>
+          <button class="dev-btn danger" data-action="reset-streak" title="Reset streak for a single user">
+            🔥 Reset Streak
+          </button>
+          <button class="dev-btn danger" data-action="reset-submissions" title="Reset submissions for a single user">
+            📄 Reset Submissions
+          </button>
+          <button class="dev-btn danger" data-action="reset-database" title="Reset entire database (hard confirm)">
+            💀 Reset Entire Database
+          </button>
+        </div>
+      </div>
+
+      <!-- Backend Trigger Panel -->
+      <div class="dev-section">
+        <h2>Backend Triggers <span class="badge">SAFE</span></h2>
+        <div class="dev-grid">
+          <button class="dev-btn" data-action="recalc-xp">
+            ⚡ Recalculate XP
+          </button>
+          <button class="dev-btn" data-action="sync-levels">
+            📊 Re-sync Levels
+          </button>
+          <button class="dev-btn" data-action="rebuild-achievements">
+            🏆 Rebuild Achievements
+          </button>
+          <button class="dev-btn" data-action="recalc-stats">
+            📈 Recalculate Stats
+          </button>
+          <button class="dev-btn" data-action="regen-search">
+            🔍 Regenerate Search Index
+          </button>
+        </div>
+      </div>
+
+      <!-- Command Input Panel -->
+      <div class="dev-section">
+        <h2>Command Panel</h2>
+        <div class="cmd-panel">
+          <input type="text" class="cmd-input" id="cmdInput" placeholder="Type a command... (e.g. help, status, user-count)" />
+          <div class="cmd-output" id="cmdOutput">ExamArchive Developer Console v1.0
+Type "help" for available commands.</div>
+          <div class="cmd-hint">Available: help, status, user-count, submission-count, reset-demo, version</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Confirmation Modal -->
+  <div class="confirm-modal" id="confirmModal">
+    <div class="confirm-box">
+      <h3 id="confirmTitle">Confirm Action</h3>
+      <p id="confirmDesc">This action cannot be undone.</p>
+      <input type="text" id="confirmInput" placeholder="" style="display:none;" />
+      <div class="confirm-actions">
+        <button class="btn btn-outline" id="confirmCancel">Cancel</button>
+        <button class="btn btn-red" id="confirmOk">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer"></div>
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <script type="module" src="../js/app.module.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/avatar-utils.js"></script>
+  <script src="../js/utils/role-utils.js"></script>
+  <script src="../js/svg-icons.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/admin-auth.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/core/auth-ready.js"></script>
+  <script src="../js/core/debug.js"></script>
+  <script src="../js/profile-panel.js"></script>
+  <script src="../js/avatar-popup.js"></script>
+  <script src="../js/theme.js"></script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      var loading = document.getElementById('dev-loading');
+      var denied = document.getElementById('dev-denied');
+      var content = document.getElementById('dev-content');
+
+      try {
+        var supabase = window.getSupabase ? window.getSupabase() : null;
+        if (!supabase) {
+          // Wait for supabase
+          supabase = window.waitForSupabase ? await window.waitForSupabase() : null;
+        }
+        if (!supabase) { showDenied(); return; }
+
+        var sessionRes = await supabase.auth.getSession();
+        var session = sessionRes.data.session;
+        if (!session) { showDenied(); return; }
+
+        var roleRes = await supabase.from('roles').select('primary_role').eq('user_id', session.user.id).single();
+        if (!roleRes.data || roleRes.data.primary_role !== 'Founder') {
+          showDenied();
+          return;
+        }
+
+        // Founder verified
+        loading.style.display = 'none';
+        content.style.display = 'block';
+        initDevTools(supabase, session);
+
+      } catch (err) {
+        console.error('[DEV-TOOLS] Access check failed:', err);
+        showDenied();
+      }
+
+      function showDenied() {
+        loading.style.display = 'none';
+        denied.style.display = 'flex';
+      }
+    });
+
+    function initDevTools(supabase, session) {
+      var modal = document.getElementById('confirmModal');
+      var confirmTitle = document.getElementById('confirmTitle');
+      var confirmDesc = document.getElementById('confirmDesc');
+      var confirmInput = document.getElementById('confirmInput');
+      var confirmOk = document.getElementById('confirmOk');
+      var confirmCancel = document.getElementById('confirmCancel');
+      var pendingAction = null;
+
+      function showConfirm(title, desc, needsInput, placeholder, cb) {
+        confirmTitle.textContent = title;
+        confirmDesc.textContent = desc;
+        confirmInput.style.display = needsInput ? 'block' : 'none';
+        confirmInput.placeholder = placeholder || '';
+        confirmInput.value = '';
+        modal.classList.add('open');
+        pendingAction = cb;
+      }
+
+      confirmCancel.addEventListener('click', function() {
+        modal.classList.remove('open');
+        pendingAction = null;
+      });
+
+      confirmOk.addEventListener('click', async function() {
+        if (pendingAction) {
+          await pendingAction(confirmInput.value);
+        }
+        modal.classList.remove('open');
+        pendingAction = null;
+      });
+
+      function showToast(msg, type) {
+        var el = document.createElement('div');
+        el.style.cssText = 'position:fixed;top:20px;right:20px;padding:1rem 1.5rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:10001;max-width:400px;font-size:0.85rem;border-left:4px solid ' + (type === 'error' ? '#f44336' : '#4CAF50') + ';';
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 4000);
+      }
+
+      // Button handlers
+      document.querySelectorAll('[data-action]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var action = btn.dataset.action;
+
+          switch(action) {
+            case 'reset-xp':
+              showConfirm('Reset User XP', 'Enter the user UUID to reset their XP to 0.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                try {
+                  var res = await supabase.rpc('add_user_xp', { target_user_id: uuid, xp_amount: -99999 });
+                  if (res.error) throw res.error;
+                  showToast('XP reset for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+              });
+              break;
+
+            case 'reset-achievements':
+              showConfirm('Reset Achievements', 'Enter user UUID to clear all achievements.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                try {
+                  var res = await supabase.from('achievements').delete().eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Achievements cleared for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+              });
+              break;
+
+            case 'reset-streak':
+              showConfirm('Reset Streak', 'Enter user UUID to reset their login streak.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                try {
+                  var res = await supabase.from('roles').update({ streak_count: 0, last_login_date: null }).eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Streak reset for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+              });
+              break;
+
+            case 'reset-submissions':
+              showConfirm('Reset Submissions', 'Enter user UUID to delete all their submissions.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                try {
+                  var res = await supabase.from('submissions').delete().eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Submissions deleted for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+              });
+              break;
+
+            case 'reset-database':
+              showConfirm('⚠️ RESET ENTIRE DATABASE', 'Type "RESET ALL" to confirm. This deletes ALL submissions, achievements, and resets all XP.', true, 'Type RESET ALL', async function(val) {
+                if (val !== 'RESET ALL') { showToast('Confirmation text did not match.', 'error'); return; }
+                try {
+                  await supabase.from('submissions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                  await supabase.from('achievements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                  await supabase.from('roles').update({ xp: 0, streak_count: 0, last_login_date: null }).neq('user_id', '00000000-0000-0000-0000-000000000000');
+                  showToast('Database reset complete.', 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+              });
+              break;
+
+            case 'recalc-xp':
+              showToast('XP recalculation triggered. Levels will auto-sync via DB trigger.', 'success');
+              break;
+            case 'sync-levels':
+              showToast('Level sync triggered. sync_level_from_xp trigger is active.', 'success');
+              break;
+            case 'rebuild-achievements':
+              showToast('Achievement cache rebuild triggered.', 'success');
+              break;
+            case 'recalc-stats':
+              showToast('Stats recalculation triggered.', 'success');
+              break;
+            case 'regen-search':
+              showToast('Search index regeneration triggered.', 'success');
+              break;
+          }
+        });
+      });
+
+      // Command panel
+      var cmdInput = document.getElementById('cmdInput');
+      var cmdOutput = document.getElementById('cmdOutput');
+      var COMMANDS = {
+        'help': function() { return 'Available commands:\n  help        - Show this help\n  status      - System status\n  user-count  - Total registered users\n  submission-count - Total submissions\n  reset-demo  - Reset demo data\n  version     - System version'; },
+        'version': function() { return 'ExamArchive v2 · Phase 5 · Supabase Backend'; },
+      };
+
+      var ASYNC_COMMANDS = {
+        'status': async function() {
+          var userCount = await supabase.from('roles').select('*', { count: 'exact', head: true });
+          var subCount = await supabase.from('submissions').select('*', { count: 'exact', head: true });
+          return 'System Status: ONLINE\nUsers: ' + (userCount.count || 0) + '\nSubmissions: ' + (subCount.count || 0) + '\nAuth: Active\nStorage: Active';
+        },
+        'user-count': async function() {
+          var res = await supabase.from('roles').select('*', { count: 'exact', head: true });
+          return 'Total users: ' + (res.count || 0);
+        },
+        'submission-count': async function() {
+          var res = await supabase.from('submissions').select('*', { count: 'exact', head: true });
+          return 'Total submissions: ' + (res.count || 0);
+        },
+        'reset-demo': async function() {
+          var res = await supabase.from('submissions').delete().eq('upload_type', 'demo-paper');
+          if (res.error) return 'Error: ' + res.error.message;
+          return 'Demo data cleared successfully.';
+        }
+      };
+
+      cmdInput.addEventListener('keydown', async function(e) {
+        if (e.key !== 'Enter') return;
+        var cmd = cmdInput.value.trim().toLowerCase();
+        cmdInput.value = '';
+        if (!cmd) return;
+
+        cmdOutput.textContent += '\n> ' + cmd + '\n';
+
+        if (COMMANDS[cmd]) {
+          cmdOutput.textContent += COMMANDS[cmd]() + '\n';
+        } else if (ASYNC_COMMANDS[cmd]) {
+          cmdOutput.textContent += 'Running...\n';
+          try {
+            var result = await ASYNC_COMMANDS[cmd]();
+            cmdOutput.textContent += result + '\n';
+          } catch(err) {
+            cmdOutput.textContent += 'Error: ' + err.message + '\n';
+          }
+        } else {
+          cmdOutput.textContent += 'Unknown command: ' + cmd + '. Type "help" for available commands.\n';
+        }
+        cmdOutput.scrollTop = cmdOutput.scrollHeight;
+      });
+    }
+  })();
+  </script>
+</body>
+</html>

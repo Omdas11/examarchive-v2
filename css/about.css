@@ -462,3 +462,101 @@
   border-left: 3px solid var(--text-muted);
   opacity: 0.7;
 }
+
+/* ==================================================
+   HOW IT WORKS
+   ================================================== */
+
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.how-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+}
+
+.how-step {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0 auto 0.75rem;
+}
+
+.how-card h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.how-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+@media (min-width: 768px) {
+  .how-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ==================================================
+   ROLE TABLE
+   ================================================== */
+
+.role-table-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.role-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.role-table th,
+.role-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.role-table th {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==================================================
+   CONTRIBUTE SECTION
+   ================================================== */
+
+.about-contribute ul {
+  padding-left: 1.2rem;
+}
+
+.about-contribute li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.about-system-status {
+  margin-bottom: 2rem;
+}
