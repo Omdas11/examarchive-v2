@@ -78,6 +78,9 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Initialize dashboard
  */
 async function initializeDashboard(primaryRole) {
+  // Setup main tab switching (Submissions / Users)
+  setupMainTabs(primaryRole);
+
   // Setup tab switching
   setupTabs();
   
@@ -93,16 +96,53 @@ async function initializeDashboard(primaryRole) {
   // Setup role management panel (Founder/Admin only via primary_role)
   if (primaryRole === 'Founder' || primaryRole === 'Admin') {
     setupRoleManagement();
-    setupUsersTable();
     setupDemoReset();
   }
+
+  // Setup users table if user has admin access (checked via RPC)
+  var hasAdmin = await window.AdminAuth.isCurrentUserAdmin();
+  if (hasAdmin) {
+    setupUsersTable();
+  } else {
+    // Hide Users tab if user doesn't have admin access
+    var usersTab = document.getElementById('mainTabUsers');
+    if (usersTab) usersTab.style.display = 'none';
+  }
+}
+
+/**
+ * Setup main tab switching (Submissions / Users)
+ */
+function setupMainTabs(primaryRole) {
+  var mainTabBtns = document.querySelectorAll('[data-main-tab]');
+  var submissionsPanel = document.getElementById('submissions-panel');
+  var usersPanel = document.getElementById('users-panel');
+
+  mainTabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tab = btn.dataset.mainTab;
+
+      // Update active state
+      mainTabBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      // Toggle panels
+      if (tab === 'users') {
+        if (submissionsPanel) submissionsPanel.style.display = 'none';
+        if (usersPanel) usersPanel.style.display = 'block';
+      } else {
+        if (submissionsPanel) submissionsPanel.style.display = 'block';
+        if (usersPanel) usersPanel.style.display = 'none';
+      }
+    });
+  });
 }
 
 /**
  * Setup tab switching
  */
 function setupTabs() {
-  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabBtns = document.querySelectorAll('.tab-btn[data-tab]');
   
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1064,13 +1104,16 @@ async function loadUsersTable(page, searchQuery) {
 
     if (error) throw error;
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
       if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
 
     const totalCount = data[0]?.total_count || 0;
     const totalPages = Math.ceil(totalCount / 25);
+
+    // Check admin access via RPC for promote dropdown visibility
+    const canPromote = await window.AdminAuth.isCurrentUserAdmin();
 
     tbody.innerHTML = '';
     data.forEach(u => {
@@ -1089,9 +1132,10 @@ async function loadUsersTable(page, searchQuery) {
       avatarTd.appendChild(avatarDiv);
       tr.appendChild(avatarTd);
 
+      // Display Name, Username, XP, Level cells
       const cells = [
-        { text: u.username || '—' },
         { text: u.display_name || '—' },
+        { text: u.username || '—' },
         { text: String(u.xp ?? 0) },
         { text: String(u.level ?? 0) }
       ];
@@ -1100,83 +1144,64 @@ async function loadUsersTable(page, searchQuery) {
         const td = document.createElement('td');
         td.style.cssText = 'padding:0.5rem;';
         td.textContent = cell.text;
-        if (cell.title) td.title = cell.title;
-        if (cell.style) td.style.cssText += cell.style;
         tr.appendChild(td);
       });
 
-      // Primary Role dropdown cell
+      // Primary Role text cell
       const roleTd = document.createElement('td');
       roleTd.style.cssText = 'padding:0.5rem;';
-      const roleSelect = document.createElement('select');
-      roleSelect.style.cssText = 'padding:0.2rem 0.4rem;font-size:0.8rem;border:1px solid var(--border);border-radius:4px;background:var(--bg-soft);color:var(--text);';
-      const roleOptions = ['Visitor', 'Contributor', 'Reviewer', 'Moderator', 'Senior Moderator', 'Admin', 'Founder'];
-      roleOptions.forEach(role => {
-        const opt = document.createElement('option');
-        opt.value = role;
-        opt.textContent = role;
-        // Only Founder can assign Founder or Admin
-        if ((role === 'Founder' || role === 'Admin') && userPrimaryRoleGlobal !== 'Founder') {
-          opt.disabled = true;
-        }
-        roleSelect.appendChild(opt);
-      });
-      roleSelect.value = u.primary_role || 'Visitor';
-      roleSelect.addEventListener('change', async function() {
-        const newRole = this.value;
-        // Enforce: only Founder can promote to Admin
-        if (newRole === 'Admin' && userPrimaryRoleGlobal !== 'Founder') {
-          showMessage('Only the Founder can promote users to Admin.', 'error');
-          this.value = u.primary_role || 'Visitor';
-          return;
-        }
-        if (newRole === 'Founder' && userPrimaryRoleGlobal !== 'Founder') {
-          showMessage('Only the Founder can assign the Founder role.', 'error');
-          this.value = u.primary_role || 'Visitor';
-          return;
-        }
-        try {
-          const supabase = window.getSupabase ? window.getSupabase() : null;
-          if (!supabase) throw new Error('Supabase not initialized');
-          const { error } = await supabase.rpc('update_user_role_secure', {
-            uid: u.user_id,
-            new_role: newRole
-          });
-          if (error) throw error;
-          u.primary_role = newRole;
-          showMessage('Role updated to ' + newRole, 'success');
-        } catch (err) {
-          showMessage('Failed: ' + (err.message || 'Unknown error'), 'error');
-          this.value = u.primary_role || 'Visitor';
-        }
-      });
-      roleTd.appendChild(roleSelect);
+      roleTd.textContent = u.primary_role || 'Visitor';
       tr.appendChild(roleTd);
 
-      // Remaining cells
-      const remainingCells = [
-        { text: String(u.streak_count ?? 0) },
-        { text: u.last_login_date ? new Date(u.last_login_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—', style: 'font-size:0.75rem;' }
-      ];
-
-      remainingCells.forEach(cell => {
-        const td = document.createElement('td');
-        td.style.cssText = 'padding:0.5rem;';
-        td.textContent = cell.text;
-        if (cell.style) td.style.cssText += cell.style;
-        tr.appendChild(td);
-      });
-
-      // Actions cell
-      const actionsTd = document.createElement('td');
-      actionsTd.style.cssText = 'padding:0.5rem;';
-      const editBtn = document.createElement('button');
-      editBtn.className = 'btn btn-outline';
-      editBtn.style.cssText = 'padding:0.2rem 0.5rem;font-size:0.75rem;';
-      editBtn.textContent = 'Edit';
-      editBtn.addEventListener('click', () => openRoleEditor(u));
-      actionsTd.appendChild(editBtn);
-      tr.appendChild(actionsTd);
+      // Promote column — dropdown only if has_admin_access() returns true
+      const promoteTd = document.createElement('td');
+      promoteTd.style.cssText = 'padding:0.5rem;';
+      if (canPromote) {
+        const roleSelect = document.createElement('select');
+        roleSelect.style.cssText = 'padding:0.2rem 0.4rem;font-size:0.8rem;border:1px solid var(--border);border-radius:4px;background:var(--bg-soft);color:var(--text);';
+        // Founder must NOT be assignable
+        const roleOptions = ['Visitor', 'Explorer', 'Contributor', 'Moderator', 'Admin'];
+        roleOptions.forEach(role => {
+          const opt = document.createElement('option');
+          opt.value = role;
+          opt.textContent = role;
+          roleSelect.appendChild(opt);
+        });
+        roleSelect.value = u.primary_role || 'Visitor';
+        // If current value isn't in the options, add it as disabled
+        if (roleSelect.value !== (u.primary_role || 'Visitor')) {
+          const currentOpt = document.createElement('option');
+          currentOpt.value = u.primary_role;
+          currentOpt.textContent = u.primary_role;
+          currentOpt.disabled = true;
+          roleSelect.insertBefore(currentOpt, roleSelect.firstChild);
+          roleSelect.value = u.primary_role;
+        }
+        roleSelect.addEventListener('change', async function() {
+          const newRole = this.value;
+          try {
+            const supabase = window.getSupabase ? window.getSupabase() : null;
+            if (!supabase) throw new Error('Supabase not initialized');
+            const { error } = await supabase.rpc('promote_user', {
+              target_user: u.user_id,
+              new_primary_role: newRole
+            });
+            if (error) throw error;
+            u.primary_role = newRole;
+            roleTd.textContent = newRole;
+            showMessage('Role updated to ' + newRole, 'success');
+            // Re-fetch users table
+            await loadUsersTable(usersCurrentPage, document.getElementById('usersSearchInput')?.value.trim());
+          } catch (err) {
+            showMessage('Failed: ' + (err.message || 'Unknown error'), 'error');
+            this.value = u.primary_role || 'Visitor';
+          }
+        });
+        promoteTd.appendChild(roleSelect);
+      } else {
+        promoteTd.textContent = '—';
+      }
+      tr.appendChild(promoteTd);
 
       tbody.appendChild(tr);
     });

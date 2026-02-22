@@ -62,7 +62,14 @@
         <p class="text-muted">Review and manage submissions</p>
       </section>
 
-      <!-- Role Management Panel (Founder/Admin only) -->
+      <!-- Main Tab Navigation -->
+      <section class="dashboard-tabs" id="mainTabsSection">
+        <button class="tab-btn active" data-main-tab="submissions" id="mainTabSubmissions">Submissions</button>
+        <button class="tab-btn" data-main-tab="users" id="mainTabUsers">Users</button>
+      </section>
+
+      <!-- Submissions Panel -->
+      <div id="submissions-panel">
       <section id="role-management-panel" class="role-management-panel" style="display: none;">
         <h2>Role Management</h2>
         <p class="text-muted" style="margin-bottom: 1rem;">Search and manage user roles (Founder/Admin only)</p>
@@ -123,40 +130,6 @@
         </div>
       </section>
 
-      <!-- Users Table (Founder/Admin only) -->
-      <section id="users-table-panel" class="users-table-panel" style="display: none;">
-        <h2>All Users</h2>
-        <p class="text-muted" style="margin-bottom: 1rem;">View and manage all registered users</p>
-
-        <div class="role-search-row" style="margin-bottom: 1rem;">
-          <input type="text" id="usersSearchInput" placeholder="Search by username, email, or role..." class="role-search-input" />
-          <button class="btn btn-red" id="usersSearchBtn">Search</button>
-        </div>
-
-        <div style="overflow-x: auto;">
-          <table class="users-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-            <thead>
-              <tr style="border-bottom:2px solid var(--border);text-align:left;">
-                <th style="padding:0.5rem;width:36px;"></th>
-                <th style="padding:0.5rem;">Username</th>
-                <th style="padding:0.5rem;">Display Name</th>
-                <th style="padding:0.5rem;cursor:pointer;" data-sort="xp" role="button" aria-label="Sort by XP" aria-sort="none">XP ↕</th>
-                <th style="padding:0.5rem;">Level</th>
-                <th style="padding:0.5rem;cursor:pointer;" data-sort="primary_role" role="button" aria-label="Sort by Primary Role" aria-sort="none">Primary Role ↕</th>
-                <th style="padding:0.5rem;">Streak</th>
-                <th style="padding:0.5rem;font-size:0.75rem;">Last Login</th>
-                <th style="padding:0.5rem;">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="usersTableBody">
-              <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div id="usersPagination" style="display:flex;justify-content:center;margin-top:1rem;"></div>
-      </section>
-
       <!-- Demo Data Reset (Founder/Admin only) -->
       <section id="demo-reset-panel" class="demo-reset-panel" style="display: none;">
         <h2>Production Cleanup</h2>
@@ -213,7 +186,43 @@
         </div>
       </section>
 
-    </div>
+      </div><!-- end submissions-panel -->
+
+      <!-- Users Panel (shown when Users tab is active) -->
+      <div id="users-panel" style="display: none;">
+        <section id="users-table-panel" class="users-table-panel" style="display: none;">
+          <h2>All Users</h2>
+          <p class="text-muted" style="margin-bottom: 1rem;">View and manage all registered users</p>
+
+          <div class="role-search-row" style="margin-bottom: 1rem;">
+            <input type="text" id="usersSearchInput" placeholder="Search by username, email, or role..." class="role-search-input" />
+            <button class="btn btn-red" id="usersSearchBtn">Search</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="users-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+              <thead>
+                <tr style="border-bottom:2px solid var(--border);text-align:left;">
+                  <th style="padding:0.5rem;width:36px;"></th>
+                  <th style="padding:0.5rem;">Display Name</th>
+                  <th style="padding:0.5rem;">Username</th>
+                  <th style="padding:0.5rem;cursor:pointer;" data-sort="xp" role="button" aria-label="Sort by XP" aria-sort="none">XP ↕</th>
+                  <th style="padding:0.5rem;">Level</th>
+                  <th style="padding:0.5rem;cursor:pointer;" data-sort="primary_role" role="button" aria-label="Sort by Primary Role" aria-sort="none">Primary Role ↕</th>
+                  <th style="padding:0.5rem;">Promote</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="usersPagination" style="display:flex;justify-content:center;margin-top:1rem;"></div>
+        </section>
+      </div>
+
+    </div><!-- end dashboard-content -->
 
   </main>
 
