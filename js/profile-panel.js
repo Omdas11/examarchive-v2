@@ -617,6 +617,61 @@ function initializeProfilePanel() {
       return;
     }
 
+    // Username click — show edit form
+    if (e.target.closest(".profile-username")) {
+      const editDiv = document.getElementById("profileUsernameEdit");
+      const usernameInput = document.getElementById("profileUsernameInput");
+      if (editDiv && usernameInput) {
+        const current = e.target.textContent.replace(/^@/, '');
+        usernameInput.value = (current === 'Signed in' || current === 'Not signed in') ? '' : current;
+        editDiv.style.display = "block";
+        usernameInput.focus();
+      }
+      return;
+    }
+
+    // Username cancel
+    if (e.target.id === "profileUsernameCancel") {
+      const editDiv = document.getElementById("profileUsernameEdit");
+      if (editDiv) editDiv.style.display = "none";
+      return;
+    }
+
+    // Username save
+    if (e.target.id === "profileUsernameSave") {
+      const usernameInput = document.getElementById("profileUsernameInput");
+      const statusEl = document.getElementById("profileUsernameStatus");
+      const newUsername = usernameInput ? usernameInput.value.trim() : '';
+      if (!newUsername || newUsername.length < 3) {
+        if (statusEl) { statusEl.textContent = 'Username must be at least 3 characters.'; statusEl.style.color = 'var(--color-error)'; }
+        return;
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) {
+        if (statusEl) { statusEl.textContent = 'Only letters, numbers, and underscores allowed.'; statusEl.style.color = 'var(--color-error)'; }
+        return;
+      }
+      try {
+        if (statusEl) { statusEl.textContent = 'Saving...'; statusEl.style.color = 'var(--text-muted)'; }
+        const supabase = await window.waitForSupabase();
+        const { error } = await supabase.rpc('set_username', { new_username: newUsername });
+        if (error) {
+          if (statusEl) { statusEl.textContent = error.message || 'Username taken or invalid.'; statusEl.style.color = 'var(--color-error)'; }
+        } else {
+          if (statusEl) { statusEl.textContent = 'Username saved!'; statusEl.style.color = 'var(--color-success)'; }
+          const usernameEl = document.querySelector(".profile-panel .profile-username");
+          if (usernameEl) usernameEl.textContent = '@' + newUsername;
+          setTimeout(() => {
+            const editDiv = document.getElementById("profileUsernameEdit");
+            if (editDiv) editDiv.style.display = "none";
+            if (statusEl) statusEl.textContent = '';
+          }, 1500);
+        }
+      } catch (err) {
+        if (statusEl) { statusEl.textContent = 'Failed to save username.'; statusEl.style.color = 'var(--color-error)'; }
+      }
+      return;
+    }
+
     // Sign in button (guest mode)
     if (e.target.id === "profileSignInBtn") {
       const emailInput = document.getElementById("profileAuthEmail");
@@ -754,6 +809,25 @@ async function renderProfilePanel() {
       nameEl.textContent = "User";
       usernameEl.textContent = "Signed in";
     }
+
+    // Fetch and display custom username from roles table
+    try {
+      const supabase = await window.waitForSupabase();
+      if (supabase) {
+        const { data: roleRow } = await supabase
+          .from('roles')
+          .select('username')
+          .eq('user_id', user.id)
+          .single();
+        if (roleRow && roleRow.username) {
+          usernameEl.textContent = '@' + roleRow.username;
+        }
+      }
+    } catch (_) { /* username fetch optional */ }
+
+    // Make username clickable to edit
+    usernameEl.style.cursor = 'pointer';
+    usernameEl.title = 'Click to edit username';
 
     // Show "Member since" from created_at
     const memberSinceEl = document.querySelector(".profile-member-since");
