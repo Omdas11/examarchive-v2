@@ -817,7 +817,7 @@ async function renderProfilePanel() {
       nameEl.textContent = email;
       usernameEl.textContent = "Signed in";
     } else {
-      nameEl.textContent = "User";
+      nameEl.textContent = "Account";
       usernameEl.textContent = "Signed in";
     }
 

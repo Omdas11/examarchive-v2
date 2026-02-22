@@ -213,7 +213,7 @@
     header.className = 'tutorial-tooltip-header';
     const icon = document.createElement('span');
     icon.className = 'tutorial-tooltip-icon';
-    icon.textContent = step.icon;
+    icon.innerHTML = step.icon;
     const title = document.createElement('h3');
     title.className = 'tutorial-tooltip-title';
     title.textContent = step.title;

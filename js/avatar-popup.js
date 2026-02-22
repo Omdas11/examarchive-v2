@@ -95,7 +95,7 @@ async function renderAvatarPopup() {
       nameEl.textContent = email;
       usernameEl.textContent = "Signed in";
     } else {
-      nameEl.textContent = "User";
+      nameEl.textContent = "Account";
       usernameEl.textContent = "Signed in";
     }
 
@@ -208,22 +208,35 @@ function updateHeaderAvatar(user) {
     const avatarUrl = user.user_metadata?.avatar_url;
     const initial = fullName ? fullName[0].toUpperCase() : email ? email[0].toUpperCase() : "U";
 
-    const sanitizedUrl = window.AvatarUtils?.sanitizeAvatarUrl
-      ? window.AvatarUtils.sanitizeAvatarUrl(avatarUrl)
-      : avatarUrl;
+    function applyAvatar(url) {
+      const sanitizedUrl = window.AvatarUtils?.sanitizeAvatarUrl
+        ? window.AvatarUtils.sanitizeAvatarUrl(url)
+        : url;
+      if (sanitizedUrl) {
+        avatarMini.textContent = "";
+        avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
+        avatarMini.style.backgroundSize = "cover";
+        avatarMini.style.backgroundPosition = "center";
+      } else {
+        avatarMini.textContent = initial;
+        avatarMini.style.backgroundImage = "none";
+        const color = window.AvatarUtils?.stringToColor
+          ? window.AvatarUtils.stringToColor(fullName || email || "User")
+          : "var(--avatar-bg)";
+        avatarMini.style.backgroundColor = color;
+      }
+    }
 
-    if (sanitizedUrl) {
-      avatarMini.textContent = "";
-      avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
-      avatarMini.style.backgroundSize = "cover";
-      avatarMini.style.backgroundPosition = "center";
+    // Try to get roles avatar_url (uploaded avatar takes priority)
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (supabase) {
+      supabase.from('roles').select('avatar_url').eq('user_id', user.id).single().then(function(res) {
+        applyAvatar(res.data?.avatar_url || avatarUrl);
+      }).catch(function() {
+        applyAvatar(avatarUrl);
+      });
     } else {
-      avatarMini.textContent = initial;
-      avatarMini.style.backgroundImage = "none";
-      const color = window.AvatarUtils?.stringToColor
-        ? window.AvatarUtils.stringToColor(fullName || email || "User")
-        : "var(--avatar-bg)";
-      avatarMini.style.backgroundColor = color;
+      applyAvatar(avatarUrl);
     }
   } else {
     avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get('user') : '';
