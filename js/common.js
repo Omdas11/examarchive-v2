@@ -299,9 +299,10 @@ function updateAdminDrawerVisibility() {
   const adminLink = document.getElementById("drawerAdminLink");
   if (!adminLink) return;
   
-  if (window.RoleUtils?.getCurrentUserRoleLevel) {
-    window.RoleUtils.getCurrentUserRoleLevel().then(level => {
-      if (level >= 75) {
+  // Use primary_role for permission check — never use level
+  if (window.AdminAuth?.isCurrentUserAdmin) {
+    window.AdminAuth.isCurrentUserAdmin().then(isAdmin => {
+      if (isAdmin) {
         adminLink.removeAttribute("hidden");
       } else {
         adminLink.setAttribute("hidden", "");
