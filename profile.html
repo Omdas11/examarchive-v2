@@ -37,6 +37,24 @@
       margin-bottom: 1.5rem;
       position: relative;
     }
+    .profile-page-avatar-wrap::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: linear-gradient(270deg, #ff3b3b, #ff8c42, #ff3b3b);
+      background-size: 400% 400%;
+      animation: gradientSpin 6s linear infinite;
+      z-index: 0;
+    }
+    @keyframes gradientSpin {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 400% 50%; }
+    }
     .profile-page-avatar {
       width: 100px;
       height: 100px;
@@ -56,28 +74,26 @@
     }
     .profile-page-avatar-ring {
       position: absolute;
-      top: -4px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       width: 108px;
       height: 108px;
       border-radius: 50%;
       z-index: 0;
-      background: conic-gradient(var(--red), #ff6f61, var(--red));
-      animation: ring-spin 3s linear infinite;
     }
-    @keyframes ring-spin {
-      to { transform: translateX(-50%) rotate(360deg); }
-    }
-    .ring-founder .profile-page-avatar-ring { background: conic-gradient(#ffd700, #ff8c00, #ffd700); }
-    .ring-admin .profile-page-avatar-ring { background: conic-gradient(#d32f2f, #ff5252, #d32f2f); }
-    .ring-senior-moderator .profile-page-avatar-ring { background: conic-gradient(#ff9800, #ffcc80, #ff9800); }
-    .ring-reviewer .profile-page-avatar-ring { background: conic-gradient(#2196F3, #90caf9, #2196F3); }
-    .ring-senior .profile-page-avatar-ring { background: conic-gradient(#9c27b0, #e040fb, #9c27b0); }
-    .ring-veteran .profile-page-avatar-ring { background: conic-gradient(#00bcd4, #80deea, #00bcd4); }
-    .ring-contributor .profile-page-avatar-ring { background: conic-gradient(#4caf50, #a5d6a7, #4caf50); }
-    .ring-explorer .profile-page-avatar-ring { background: conic-gradient(#607d8b, #b0bec5, #607d8b); }
+    .ring-founder .profile-page-avatar-ring { background: conic-gradient(#ffd700, #ff8c00, #ffd700); animation: ring-spin 3s linear infinite; }
+    .ring-admin .profile-page-avatar-ring { background: conic-gradient(#d32f2f, #ff5252, #d32f2f); animation: ring-spin 3s linear infinite; }
+    .ring-senior-moderator .profile-page-avatar-ring { background: conic-gradient(#ff9800, #ffcc80, #ff9800); animation: ring-spin 3s linear infinite; }
+    .ring-reviewer .profile-page-avatar-ring { background: conic-gradient(#2196F3, #90caf9, #2196F3); animation: ring-spin 3s linear infinite; }
+    .ring-senior .profile-page-avatar-ring { background: conic-gradient(#9c27b0, #e040fb, #9c27b0); animation: ring-spin 3s linear infinite; }
+    .ring-veteran .profile-page-avatar-ring { background: conic-gradient(#00bcd4, #80deea, #00bcd4); animation: ring-spin 3s linear infinite; }
+    .ring-contributor .profile-page-avatar-ring { background: none; }
+    .ring-explorer .profile-page-avatar-ring { background: conic-gradient(#607d8b, #b0bec5, #607d8b); animation: ring-spin 3s linear infinite; }
     .ring-visitor .profile-page-avatar-ring { background: conic-gradient(#9e9e9e, #e0e0e0, #9e9e9e); animation: none; }
+    @keyframes ring-spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
 
     /* Avatar photo upload */
     .avatar-upload-btn {
@@ -354,7 +370,7 @@
 
       <!-- User info -->
       <div class="profile-page-info">
-        <h1 class="profile-page-name" id="pageName">User</h1>
+        <h1 class="profile-page-name" id="pageName"></h1>
         <p class="profile-page-username" id="pageUsername" title="Click to edit username">@username</p>
         <div class="username-edit-row" id="usernameEditRow">
           <input type="text" id="usernameEditInput" placeholder="New username" maxlength="30" />
@@ -491,14 +507,11 @@
         return;
       }
 
-      loadingEl.style.display = 'none';
-      contentEl.style.display = 'block';
-
       var user = e.detail.session.user;
       var supabase = window.getSupabase ? window.getSupabase() : null;
       if (!supabase) return;
 
-      // Load role data
+      // Load role data BEFORE rendering UI
       var roleData = {};
       try {
         var res = await supabase
@@ -508,6 +521,9 @@
           .single();
         if (res.data) roleData = res.data;
       } catch (_) {}
+
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
 
       var primaryRole = roleData.primary_role || null;
       var userXp = roleData.xp || 0;
@@ -554,6 +570,17 @@
         avatarEl.textContent = '';
       } else if (window.AvatarUtils?.updateAvatarElement) {
         window.AvatarUtils.updateAvatarElement(avatarEl, user);
+      }
+
+      // Sync header avatar with roles.avatar_url
+      if (avatarUrl) {
+        var headerMini = document.querySelector('.avatar-mini');
+        if (headerMini) {
+          headerMini.textContent = '';
+          headerMini.style.backgroundImage = 'url(' + avatarUrl + ')';
+          headerMini.style.backgroundSize = 'cover';
+          headerMini.style.backgroundPosition = 'center';
+        }
       }
 
       // Set ring class
@@ -763,6 +790,15 @@
 
           avatarEl.style.backgroundImage = 'url(' + publicUrl + ')';
           avatarEl.textContent = '';
+
+          // Sync header avatar
+          var headerMini = document.querySelector('.avatar-mini');
+          if (headerMini) {
+            headerMini.textContent = '';
+            headerMini.style.backgroundImage = 'url(' + publicUrl + ')';
+            headerMini.style.backgroundSize = 'cover';
+            headerMini.style.backgroundPosition = 'center';
+          }
           if (statusEl) { statusEl.textContent = 'Photo updated!'; statusEl.style.color = 'var(--color-success)'; }
           setTimeout(function() { if (statusEl) statusEl.textContent = ''; }, 2000);
         } catch (err) {
