@@ -70,23 +70,30 @@ async function isAdminBackend(userId = null) {
 }
 
 /**
- * Check if current user is admin (convenience wrapper)
- * Uses primary_role as primary check, falls back to is_current_user_admin RPC
+ * Check if current user has admin access via RPC
+ * Uses has_admin_access RPC, falls back to primary_role check
  * @returns {Promise<boolean>}
  */
 async function isCurrentUserAdmin() {
   try {
-    // Wait for Supabase to be ready
     const supabase = await waitForSupabaseAdmin();
     if (!supabase) {
       console.error('[ADMIN-AUTH] Supabase not initialized');
       return false;
     }
 
-    // Primary check: use primary_role
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return false;
 
+    // Primary check: use has_admin_access RPC
+    try {
+      const { data, error } = await supabase.rpc('has_admin_access', {
+        uid: session.user.id
+      });
+      if (!error && typeof data === 'boolean') return data;
+    } catch (_) { /* RPC may not exist yet, fall back */ }
+
+    // Fallback: check primary_role directly
     const { data: roleData } = await supabase
       .from('roles')
       .select('primary_role')
@@ -97,17 +104,48 @@ async function isCurrentUserAdmin() {
       return true;
     }
 
-    // Fallback: legacy RPC check
-    const { data, error } = await supabase.rpc('is_current_user_admin');
-    
-    if (error) {
-      console.error('[ADMIN-AUTH] Error calling is_current_user_admin():', error);
-      return false;
-    }
-
-    return data === true;
+    return false;
   } catch (err) {
     console.error('[ADMIN-AUTH] Exception in isCurrentUserAdmin():', err);
+    return false;
+  }
+}
+
+/**
+ * Check if current user has moderator access via RPC
+ * Uses has_moderator_access RPC, falls back to primary_role check
+ * @returns {Promise<boolean>}
+ */
+async function hasModeratorAccess() {
+  try {
+    const supabase = await waitForSupabaseAdmin();
+    if (!supabase) return false;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return false;
+
+    // Primary check: use has_moderator_access RPC
+    try {
+      const { data, error } = await supabase.rpc('has_moderator_access', {
+        uid: session.user.id
+      });
+      if (!error && typeof data === 'boolean') return data;
+    } catch (_) { /* RPC may not exist yet, fall back */ }
+
+    // Fallback: check primary_role directly
+    const { data: roleData } = await supabase
+      .from('roles')
+      .select('primary_role')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (roleData && ['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(roleData.primary_role)) {
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    console.error('[ADMIN-AUTH] Exception in hasModeratorAccess():', err);
     return false;
   }
 }
@@ -205,6 +243,7 @@ async function assignRole(targetUserId, roleName) {
 window.AdminAuth = {
   isAdminBackend,
   isCurrentUserAdmin,
+  hasModeratorAccess,
   getUserRoleBackend,
   assignRole
 };

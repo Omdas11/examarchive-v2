@@ -29,14 +29,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const dashboardContent = document.getElementById('dashboard-content');
 
   try {
+    // Use RPC-based admin access check
     const hasAdminAccess = await window.AdminAuth.isCurrentUserAdmin();
     
     // Hide loading state
     loadingState.style.display = 'none';
 
-    // Check primary_role for dashboard access (Founder, Admin, Senior Moderator)
+    // Get primary_role for UI decisions
     const supabase = window.getSupabase ? window.getSupabase() : null;
-    let roleAccess = false;
     let userPrimaryRole = null;
     if (supabase) {
       try {
@@ -44,21 +44,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (session) {
           const { data: roleData } = await supabase
             .from('roles')
-            .select('primary_role, level')
+            .select('primary_role')
             .eq('user_id', session.user.id)
             .single();
           if (roleData) {
             userPrimaryRole = roleData.primary_role;
-            userRoleLevel = roleData.level || 0;
-            roleAccess = ['Founder', 'Admin', 'Senior Moderator'].includes(userPrimaryRole);
           }
         }
       } catch (e) {
-        userRoleLevel = 0;
+        // ignore
       }
     }
     
-    if (!hasAdminAccess && !roleAccess) {
+    if (!hasAdminAccess) {
       accessDenied.style.display = 'flex';
       return;
     }
@@ -921,6 +919,22 @@ function openRoleEditor(userData) {
   const badges = userData.custom_badges || [];
   document.getElementById('roleEditBadges').value = Array.isArray(badges) ? badges.join(', ') : '';
 
+  // Enforce promotion hierarchy in dropdown
+  const roleSelect = document.getElementById('roleEditPrimary');
+  if (roleSelect) {
+    const founderOption = roleSelect.querySelector('option[value="Founder"]');
+    const adminOption = roleSelect.querySelector('option[value="Admin"]');
+
+    // Only Founder can promote to Founder or Admin
+    if (userPrimaryRoleGlobal !== 'Founder') {
+      if (founderOption) founderOption.disabled = true;
+      if (adminOption) adminOption.disabled = true;
+    } else {
+      if (founderOption) founderOption.disabled = false;
+      if (adminOption) adminOption.disabled = false;
+    }
+  }
+
   editPanel.style.display = 'block';
 }
 
@@ -941,6 +955,12 @@ async function saveRoleChanges() {
       'WARNING: There can only be one Founder. If another Founder already exists, this will fail. Continue?'
     );
     if (!confirmFounder) return;
+  }
+
+  // Enforce: only Founder can promote to Admin
+  if (primaryRole === 'Admin' && userPrimaryRoleGlobal !== 'Founder') {
+    showMessage('Only the Founder can promote users to Admin.', 'error');
+    return;
   }
 
   const secondaryRole = document.getElementById('roleEditSecondary')?.value.trim() || null;
@@ -1044,7 +1064,7 @@ async function loadUsersTable(page, searchQuery) {
 
     if (error) throw error;
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
       if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
@@ -1059,13 +1079,14 @@ async function loadUsersTable(page, searchQuery) {
       const cells = [
         { text: u.user_id ? u.user_id.substring(0, 8) + '…' : '—', title: u.user_id || '', style: 'font-size:0.7rem;font-family:monospace;' },
         { text: u.username || '—' },
-        { text: u.email || '—' },
+        { text: u.display_name || '—' },
         { text: String(u.xp ?? 0) },
         { text: String(u.level ?? 0) },
         { text: u.primary_role || '—' },
         { text: u.secondary_role || '—' },
         { text: u.tertiary_role || '—' },
         { text: String(u.streak_count ?? 0) },
+        { text: u.last_login_date ? new Date(u.last_login_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—', style: 'font-size:0.75rem;' },
         { text: u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—', style: 'font-size:0.75rem;' }
       ];
 
@@ -1108,7 +1129,7 @@ async function loadUsersTable(page, searchQuery) {
     }
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="11" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
   }
 }
 

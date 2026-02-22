@@ -350,7 +350,17 @@ async function populateProfileStats(user) {
     const xpCurrentTierEl = document.getElementById('xpCurrentTier');
     const xpNextTierEl = document.getElementById('xpNextTier');
     const xpNextInfoEl = document.getElementById('xpNextInfo');
-    if (xpCurrentTierEl) xpCurrentTierEl.textContent = current.title;
+
+    // primary_role overrides cosmetic XP title display
+    if (xpCurrentTierEl) {
+      if (userPrimaryRole === 'Founder') {
+        xpCurrentTierEl.textContent = 'Founder';
+      } else if (userPrimaryRole && ['Admin', 'Senior Moderator', 'Moderator', 'Reviewer'].includes(userPrimaryRole)) {
+        xpCurrentTierEl.textContent = userPrimaryRole;
+      } else {
+        xpCurrentTierEl.textContent = current.title;
+      }
+    }
     if (xpNextEl) xpNextEl.textContent = next.xp;
     if (xpNextTierEl) xpNextTierEl.textContent = next.title;
     if (xpNextInfoEl) {

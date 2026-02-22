@@ -239,7 +239,7 @@
   }
 
   async function handleFulfill(requestId) {
-    if (userRoleLevel < 75) return;
+    if (!['Founder', 'Admin', 'Senior Moderator', 'Moderator'].includes(userPrimaryRole)) return;
 
     try {
       const supabase = await window.waitForSupabase();
