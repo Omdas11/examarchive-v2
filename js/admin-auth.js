@@ -88,7 +88,7 @@ async function isCurrentUserAdmin() {
     // Primary check: use has_admin_access RPC
     try {
       const { data, error } = await supabase.rpc('has_admin_access', {
-        uid: session.user.id
+        check_user_id: session.user.id
       });
       if (!error && typeof data === 'boolean') return data;
     } catch (_) { /* RPC may not exist yet, fall back */ }
@@ -127,7 +127,7 @@ async function hasModeratorAccess() {
     // Primary check: use has_moderator_access RPC
     try {
       const { data, error } = await supabase.rpc('has_moderator_access', {
-        uid: session.user.id
+        check_user_id: session.user.id
       });
       if (!error && typeof data === 'boolean') return data;
     } catch (_) { /* RPC may not exist yet, fall back */ }

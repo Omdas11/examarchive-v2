@@ -103,11 +103,11 @@ async function initializeDashboard(primaryRole) {
     setupDemoReset();
   }
 
-  // Setup users table if user has admin access (using cached result)
-  if (currentUserIsAdmin) {
+  // Users tab: Founder/Admin only — Senior Moderator cannot see Users tab
+  if (primaryRole === 'Founder' || primaryRole === 'Admin') {
     setupUsersTable();
   } else {
-    // Hide Users tab if user doesn't have admin access
+    // Hide Users tab for Senior Moderator and others
     var usersTab = document.getElementById('mainTabUsers');
     if (usersTab) usersTab.style.display = 'none';
   }
@@ -1107,7 +1107,7 @@ async function loadUsersTable(page, searchQuery) {
 
     if (error) throw error;
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
       if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
@@ -1116,7 +1116,8 @@ async function loadUsersTable(page, searchQuery) {
     const totalPages = Math.ceil(totalCount / 25);
 
     // Reuse cached admin access result for promote dropdown visibility
-    const canPromote = currentUserIsAdmin;
+    // Senior Moderators should NOT see promotion controls
+    const canPromote = currentUserIsAdmin && ['Founder', 'Admin'].includes(userPrimaryRoleGlobal);
 
     tbody.innerHTML = '';
     data.forEach(u => {
@@ -1135,26 +1136,89 @@ async function loadUsersTable(page, searchQuery) {
       avatarTd.appendChild(avatarDiv);
       tr.appendChild(avatarTd);
 
-      // Display Name, Username, XP, Level cells
-      const cells = [
-        { text: u.display_name || '—' },
-        { text: u.username || '—' },
-        { text: String(u.xp ?? 0) },
-        { text: String(u.level ?? 0) }
-      ];
+      // Display Name cell
+      var nameTd = document.createElement('td');
+      nameTd.style.cssText = 'padding:0.5rem;';
+      nameTd.textContent = u.display_name || '—';
+      tr.appendChild(nameTd);
 
-      cells.forEach(cell => {
-        const td = document.createElement('td');
-        td.style.cssText = 'padding:0.5rem;';
-        td.textContent = cell.text;
-        tr.appendChild(td);
-      });
+      // UUID cell
+      var uuidTd = document.createElement('td');
+      uuidTd.style.cssText = 'padding:0.5rem;font-size:0.65rem;font-family:monospace;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      uuidTd.textContent = u.user_id || '—';
+      uuidTd.title = u.user_id || '';
+      tr.appendChild(uuidTd);
+
+      // Username cell
+      var usernameTd = document.createElement('td');
+      usernameTd.style.cssText = 'padding:0.5rem;';
+      usernameTd.textContent = u.username || '—';
+      tr.appendChild(usernameTd);
+
+      // XP cell
+      var xpTd = document.createElement('td');
+      xpTd.style.cssText = 'padding:0.5rem;';
+      xpTd.textContent = String(u.xp ?? 0);
+      tr.appendChild(xpTd);
+
+      // Level cell
+      var levelTd = document.createElement('td');
+      levelTd.style.cssText = 'padding:0.5rem;';
+      levelTd.textContent = String(u.level ?? 0);
+      tr.appendChild(levelTd);
 
       // Primary Role text cell
       const roleTd = document.createElement('td');
-      roleTd.style.cssText = 'padding:0.5rem;';
+      roleTd.style.cssText = 'padding:0.5rem;font-weight:600;';
       roleTd.textContent = u.primary_role || 'Visitor';
       tr.appendChild(roleTd);
+
+      // Secondary Role cell
+      var secTd = document.createElement('td');
+      secTd.style.cssText = 'padding:0.5rem;font-size:0.8rem;';
+      secTd.textContent = u.secondary_role || '—';
+      tr.appendChild(secTd);
+
+      // Tertiary Role cell
+      var terTd = document.createElement('td');
+      terTd.style.cssText = 'padding:0.5rem;font-size:0.8rem;';
+      terTd.textContent = u.tertiary_role || '—';
+      tr.appendChild(terTd);
+
+      // Custom Badges cell
+      var badgesTd = document.createElement('td');
+      badgesTd.style.cssText = 'padding:0.5rem;font-size:0.75rem;';
+      var badges = u.custom_badges;
+      if (badges && Array.isArray(badges) && badges.length > 0) {
+        badgesTd.textContent = badges.join(', ');
+      } else {
+        badgesTd.textContent = '—';
+      }
+      tr.appendChild(badgesTd);
+
+      // Uploads count cell
+      var uploadsTd = document.createElement('td');
+      uploadsTd.style.cssText = 'padding:0.5rem;text-align:center;';
+      uploadsTd.textContent = String(u.uploads_count ?? 0);
+      tr.appendChild(uploadsTd);
+
+      // Approved count cell
+      var approvedTd = document.createElement('td');
+      approvedTd.style.cssText = 'padding:0.5rem;text-align:center;';
+      approvedTd.textContent = String(u.approved_count ?? 0);
+      tr.appendChild(approvedTd);
+
+      // Rejected count cell
+      var rejectedTd = document.createElement('td');
+      rejectedTd.style.cssText = 'padding:0.5rem;text-align:center;';
+      rejectedTd.textContent = String(u.rejected_count ?? 0);
+      tr.appendChild(rejectedTd);
+
+      // Last Login cell
+      var loginTd = document.createElement('td');
+      loginTd.style.cssText = 'padding:0.5rem;font-size:0.75rem;';
+      loginTd.textContent = u.last_login_date ? new Date(u.last_login_date).toLocaleDateString() : '—';
+      tr.appendChild(loginTd);
 
       // Promote column — dropdown only if has_admin_access() returns true
       const promoteTd = document.createElement('td');
@@ -1162,8 +1226,8 @@ async function loadUsersTable(page, searchQuery) {
       if (canPromote) {
         const roleSelect = document.createElement('select');
         roleSelect.style.cssText = 'padding:0.2rem 0.4rem;font-size:0.8rem;border:1px solid var(--border);border-radius:4px;background:var(--bg-soft);color:var(--text);';
-        // Founder must NOT be assignable
-        const roleOptions = ['Visitor', 'Explorer', 'Contributor', 'Moderator', 'Admin'];
+        // Founder must NOT be assignable from dropdown; Senior Moderator cannot assign roles
+        const roleOptions = ['Visitor', 'Explorer', 'Contributor', 'Moderator', 'Senior Moderator', 'Admin'];
         roleOptions.forEach(role => {
           const opt = document.createElement('option');
           opt.value = role;
@@ -1182,11 +1246,48 @@ async function loadUsersTable(page, searchQuery) {
         }
         roleSelect.addEventListener('change', async function() {
           const newRole = this.value;
+          const oldRole = u.primary_role || 'Visitor';
+          const selectEl = this;
+
+          // Prevent self-demotion of Founder
+          if (oldRole === 'Founder' && newRole !== 'Founder') {
+            const supabase2 = window.getSupabase ? window.getSupabase() : null;
+            if (supabase2) {
+              const { data: { session: s2 } } = await supabase2.auth.getSession();
+              if (s2 && s2.user.id === u.user_id) {
+                showMessage('Founder cannot demote themselves.', 'error');
+                selectEl.value = oldRole;
+                return;
+              }
+            }
+          }
+
+          // Only Founder can assign Founder
+          if (newRole === 'Founder' && userPrimaryRoleGlobal !== 'Founder') {
+            showMessage('Only Founder can assign the Founder role.', 'error');
+            selectEl.value = oldRole;
+            return;
+          }
+
+          // Admin cannot assign Founder
+          if (newRole === 'Founder' && userPrimaryRoleGlobal === 'Admin') {
+            showMessage('Admin cannot assign Founder role.', 'error');
+            selectEl.value = oldRole;
+            return;
+          }
+
+          // Confirmation modal
+          var confirmMsg = 'Change role of ' + (u.display_name || u.username || 'this user') + ' from "' + oldRole + '" to "' + newRole + '"?';
+          if (!confirm(confirmMsg)) {
+            selectEl.value = oldRole;
+            return;
+          }
+
           try {
             const supabase = window.getSupabase ? window.getSupabase() : null;
             if (!supabase) throw new Error('Supabase not initialized');
-            const { error } = await supabase.rpc('promote_user', {
-              target_user: u.user_id,
+            const { error } = await supabase.rpc('update_user_role', {
+              target_user_id: u.user_id,
               new_primary_role: newRole
             });
             if (error) throw error;
@@ -1197,7 +1298,7 @@ async function loadUsersTable(page, searchQuery) {
             await loadUsersTable(usersCurrentPage, document.getElementById('usersSearchInput')?.value.trim());
           } catch (err) {
             showMessage('Failed: ' + (err.message || 'Unknown error'), 'error');
-            this.value = u.primary_role || 'Visitor';
+            selectEl.value = oldRole;
           }
         });
         promoteTd.appendChild(roleSelect);
@@ -1223,7 +1324,7 @@ async function loadUsersTable(page, searchQuery) {
     }
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="9" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="15" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
   }
 }
 

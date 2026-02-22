@@ -198,6 +198,8 @@ document.addEventListener("header:loaded", () => {
 /* ===============================
    Update header avatar-mini with user's profile image or initials
    =============================== */
+let headerAvatarFetchInProgress = false;
+
 function updateHeaderAvatar(user) {
   const avatarMini = document.querySelector(".avatar-mini");
   if (!avatarMini) return;
@@ -205,7 +207,7 @@ function updateHeaderAvatar(user) {
   if (user) {
     const fullName = user.user_metadata?.full_name;
     const email = user.email;
-    const avatarUrl = user.user_metadata?.avatar_url;
+    const oauthAvatarUrl = user.user_metadata?.avatar_url;
     const initial = fullName ? fullName[0].toUpperCase() : email ? email[0].toUpperCase() : "U";
 
     function applyAvatar(url) {
@@ -217,31 +219,46 @@ function updateHeaderAvatar(user) {
         avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
         avatarMini.style.backgroundSize = "cover";
         avatarMini.style.backgroundPosition = "center";
+        avatarMini.style.backgroundColor = "";
+        avatarMini.classList.remove("avatar-shimmer");
       } else {
         avatarMini.textContent = initial;
         avatarMini.style.backgroundImage = "none";
-        const color = window.AvatarUtils?.stringToColor
-          ? window.AvatarUtils.stringToColor(fullName || email || "User")
-          : "var(--avatar-bg)";
-        avatarMini.style.backgroundColor = color;
+        avatarMini.style.backgroundColor = "";
+        avatarMini.classList.remove("avatar-shimmer");
       }
     }
 
-    // Try to get roles avatar_url (uploaded avatar takes priority)
+    // Show shimmer while loading
+    avatarMini.textContent = "";
+    avatarMini.classList.add("avatar-shimmer");
+
+    // Prevent duplicate fetches
+    if (headerAvatarFetchInProgress) return;
+    headerAvatarFetchInProgress = true;
+
+    // Fetch avatar_url from roles table (uploaded avatar takes priority)
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (supabase) {
       supabase.from('roles').select('avatar_url').eq('user_id', user.id).single().then(function(res) {
-        applyAvatar(res.data?.avatar_url || null);
+        headerAvatarFetchInProgress = false;
+        var rolesAvatar = res.data?.avatar_url || null;
+        // Priority: roles avatar_url > OAuth avatar_url > initial fallback
+        applyAvatar(rolesAvatar || oauthAvatarUrl || null);
       }).catch(function() {
-        applyAvatar(null);
+        headerAvatarFetchInProgress = false;
+        // Fallback to OAuth avatar if roles fetch fails
+        applyAvatar(oauthAvatarUrl || null);
       });
     } else {
-      applyAvatar(null);
+      headerAvatarFetchInProgress = false;
+      applyAvatar(oauthAvatarUrl || null);
     }
   } else {
     avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get('user') : '';
     avatarMini.style.backgroundImage = "none";
     avatarMini.style.backgroundColor = "";
+    avatarMini.classList.remove("avatar-shimmer");
     avatarMini.title = "Visitor";
   }
 }

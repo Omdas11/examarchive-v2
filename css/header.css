@@ -211,6 +211,18 @@ body[data-theme="amoled"] .theme-icon-light { display: none; }
   place-items: center;
 }
 
+/* Loading shimmer for avatar */
+.avatar-mini.avatar-shimmer {
+  background: linear-gradient(90deg, var(--avatar-bg) 25%, var(--bg-soft, #e0e0e0) 50%, var(--avatar-bg) 75%);
+  background-size: 200% 100%;
+  animation: avatar-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes avatar-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* ---------- Hamburger ---------- */
 .menu-btn {
   width: 32px;

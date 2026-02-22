@@ -376,6 +376,10 @@ RETURNS TABLE(
   tertiary_role text,
   custom_badges jsonb,
   streak_count integer,
+  last_login_date date,
+  uploads_count bigint,
+  approved_count bigint,
+  rejected_count bigint,
   created_at timestamptz,
   total_count bigint
 )
@@ -421,6 +425,10 @@ BEGIN
     r.tertiary_role,
     COALESCE(r.custom_badges, '[]'::jsonb) AS custom_badges,
     COALESCE(r.streak_count, 0) AS streak_count,
+    r.last_login_date,
+    COALESCE((SELECT COUNT(*) FROM submissions s WHERE s.user_id = au.id), 0) AS uploads_count,
+    COALESCE((SELECT COUNT(*) FROM submissions s WHERE s.user_id = au.id AND s.status IN ('approved', 'published')), 0) AS approved_count,
+    COALESCE((SELECT COUNT(*) FROM submissions s WHERE s.user_id = au.id AND s.status = 'rejected'), 0) AS rejected_count,
     au.created_at,
     total AS total_count
   FROM auth.users au
