@@ -514,14 +514,15 @@
       var supabase = window.getSupabase ? window.getSupabase() : null;
       if (!supabase) return;
 
-      var authResult = await supabase.auth.getUser();
-      if (authResult.error || !authResult.data.user) {
+      var sessionResult = await supabase.auth.getSession();
+      if (!sessionResult.data || !sessionResult.data.session) {
+        console.log('[Profile] No active session yet.');
         loadingEl.style.display = 'none';
         authWall.style.display = 'block';
         return;
       }
 
-      var user = authResult.data.user;
+      var user = sessionResult.data.session.user;
 
       // Load role data BEFORE rendering UI
       var roleData = {};
@@ -544,6 +545,7 @@
       var usernameUpdatedAt = roleData.username_updated_at || null;
       var displayName = roleData.display_name || user.user_metadata?.full_name || user.email;
       var avatarUrl = roleData.avatar_url || null;
+      console.log('[Profile] Avatar URL from roles:', avatarUrl);
 
       // Check username change cooldown
       var usernameCooldownActive = false;
@@ -826,6 +828,25 @@
       loadProfile().catch(function(err) {
         console.error('[Profile] loadProfile error:', err);
       });
+
+      // Also listen for auth state changes to handle late session restoration
+      var supabase = window.getSupabase ? window.getSupabase() : null;
+      if (supabase) {
+        var authSub = supabase.auth.onAuthStateChange(function(event, session) {
+          if (session && session.user && (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION')) {
+            console.log('[Profile] Auth state changed (' + event + '), reloading profile');
+            loadProfile().catch(function(err) {
+              console.error('[Profile] loadProfile error on auth change:', err);
+            });
+          }
+        });
+        // Clean up listener on page unload
+        window.addEventListener('beforeunload', function() {
+          if (authSub && authSub.data && authSub.data.subscription) {
+            authSub.data.subscription.unsubscribe();
+          }
+        });
+      }
     });
 
     function renderPageStreak(streakCount, longestStreak) {
