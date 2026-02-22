@@ -8,6 +8,7 @@ let currentTab = 'pending';
 let currentSubmission = null;
 let allSubmissions = [];
 let userPrimaryRoleGlobal = null;
+let currentUserIsAdmin = false;
 
 /**
  * Escape HTML special characters to prevent XSS
@@ -78,6 +79,9 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Initialize dashboard
  */
 async function initializeDashboard(primaryRole) {
+  // Cache admin access result for reuse across the dashboard
+  currentUserIsAdmin = await window.AdminAuth.isCurrentUserAdmin();
+
   // Setup main tab switching (Submissions / Users)
   setupMainTabs(primaryRole);
 
@@ -99,9 +103,8 @@ async function initializeDashboard(primaryRole) {
     setupDemoReset();
   }
 
-  // Setup users table if user has admin access (checked via RPC)
-  var hasAdmin = await window.AdminAuth.isCurrentUserAdmin();
-  if (hasAdmin) {
+  // Setup users table if user has admin access (using cached result)
+  if (currentUserIsAdmin) {
     setupUsersTable();
   } else {
     // Hide Users tab if user doesn't have admin access
@@ -1112,8 +1115,8 @@ async function loadUsersTable(page, searchQuery) {
     const totalCount = data[0]?.total_count || 0;
     const totalPages = Math.ceil(totalCount / 25);
 
-    // Check admin access via RPC for promote dropdown visibility
-    const canPromote = await window.AdminAuth.isCurrentUserAdmin();
+    // Reuse cached admin access result for promote dropdown visibility
+    const canPromote = currentUserIsAdmin;
 
     tbody.innerHTML = '';
     data.forEach(u => {

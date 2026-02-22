@@ -603,21 +603,26 @@
             var span = document.createElement('span');
             span.className = 'profile-page-badge';
             span.title = a.awarded_at ? 'Earned ' + new Date(a.awarded_at).toLocaleDateString() : '';
-            span.innerHTML = info.icon + ' ' + info.label;
+            if (info.icon) {
+              var iconWrapper = document.createElement('span');
+              iconWrapper.innerHTML = info.icon;
+              span.appendChild(iconWrapper);
+            }
+            span.appendChild(document.createTextNode((info.icon ? ' ' : '') + info.label));
             achievementsEl.appendChild(span);
           });
         } else {
           achievementsEl.style.display = 'flex';
           var noMsg = document.createElement('p');
           noMsg.className = 'no-badges-msg';
-          noMsg.textContent = 'No badges earned yet';
+          noMsg.textContent = 'No achievements yet';
           achievementsEl.appendChild(noMsg);
         }
       } catch (_) {
         achievementsEl.style.display = 'flex';
         var noMsg = document.createElement('p');
         noMsg.className = 'no-badges-msg';
-        noMsg.textContent = 'No badges earned yet';
+        noMsg.textContent = 'No achievements yet';
         achievementsEl.appendChild(noMsg);
       }
 
@@ -733,7 +738,12 @@
         var file = ev.target.files[0];
         if (!file) return;
         var MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
+        var allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
         var statusEl = document.getElementById('usernameStatus');
+        if (!allowedTypes.includes(file.type)) {
+          if (statusEl) { statusEl.textContent = 'Only PNG, JPG, WEBP allowed.'; statusEl.style.color = 'var(--color-error)'; }
+          return;
+        }
         if (file.size > MAX_AVATAR_SIZE) {
           if (statusEl) { statusEl.textContent = 'Image must be under 2MB.'; statusEl.style.color = 'var(--color-error)'; }
           return;
