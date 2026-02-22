@@ -1064,7 +1064,7 @@ async function loadUsersTable(page, searchQuery) {
 
     if (error) throw error;
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
       if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
@@ -1076,34 +1076,104 @@ async function loadUsersTable(page, searchQuery) {
     data.forEach(u => {
       const tr = document.createElement('tr');
 
+      // Avatar cell
+      const avatarTd = document.createElement('td');
+      avatarTd.style.cssText = 'padding:0.5rem;';
+      const avatarDiv = document.createElement('div');
+      avatarDiv.style.cssText = 'width:28px;height:28px;border-radius:50%;background:var(--text-muted);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600;background-size:cover;background-position:center;';
+      if (u.avatar_url) {
+        avatarDiv.style.backgroundImage = 'url(' + u.avatar_url + ')';
+      } else {
+        avatarDiv.textContent = (u.display_name || u.username || '?')[0].toUpperCase();
+      }
+      avatarTd.appendChild(avatarDiv);
+      tr.appendChild(avatarTd);
+
       const cells = [
-        { text: u.user_id ? u.user_id.substring(0, 8) + '…' : '—', title: u.user_id || '', style: 'font-size:0.7rem;font-family:monospace;' },
         { text: u.username || '—' },
         { text: u.display_name || '—' },
         { text: String(u.xp ?? 0) },
-        { text: String(u.level ?? 0) },
-        { text: u.primary_role || '—' },
-        { text: u.secondary_role || '—' },
-        { text: u.tertiary_role || '—' },
-        { text: String(u.streak_count ?? 0) },
-        { text: u.last_login_date ? new Date(u.last_login_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—', style: 'font-size:0.75rem;' },
-        { text: u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—', style: 'font-size:0.75rem;' }
+        { text: String(u.level ?? 0) }
       ];
 
       cells.forEach(cell => {
         const td = document.createElement('td');
-        if (typeof cell === 'string') {
-          td.textContent = cell;
-        } else {
-          td.textContent = cell.text;
-          if (cell.title) td.title = cell.title;
-          if (cell.style) td.style.cssText = cell.style;
+        td.style.cssText = 'padding:0.5rem;';
+        td.textContent = cell.text;
+        if (cell.title) td.title = cell.title;
+        if (cell.style) td.style.cssText += cell.style;
+        tr.appendChild(td);
+      });
+
+      // Primary Role dropdown cell
+      const roleTd = document.createElement('td');
+      roleTd.style.cssText = 'padding:0.5rem;';
+      const roleSelect = document.createElement('select');
+      roleSelect.style.cssText = 'padding:0.2rem 0.4rem;font-size:0.8rem;border:1px solid var(--border);border-radius:4px;background:var(--bg-soft);color:var(--text);';
+      const roleOptions = ['Visitor', 'Contributor', 'Reviewer', 'Moderator', 'Senior Moderator', 'Admin', 'Founder'];
+      roleOptions.forEach(role => {
+        const opt = document.createElement('option');
+        opt.value = role;
+        opt.textContent = role;
+        // Only Founder can assign Founder or Admin
+        if ((role === 'Founder' || role === 'Admin') && userPrimaryRoleGlobal !== 'Founder') {
+          opt.disabled = true;
         }
+        // Admin cannot assign Founder
+        if (role === 'Founder' && userPrimaryRoleGlobal === 'Admin') {
+          opt.disabled = true;
+        }
+        roleSelect.appendChild(opt);
+      });
+      roleSelect.value = u.primary_role || 'Visitor';
+      roleSelect.addEventListener('change', async function() {
+        const newRole = this.value;
+        // Enforce: only Founder can promote to Admin
+        if (newRole === 'Admin' && userPrimaryRoleGlobal !== 'Founder') {
+          showMessage('Only the Founder can promote users to Admin.', 'error');
+          this.value = u.primary_role || 'Visitor';
+          return;
+        }
+        if (newRole === 'Founder' && userPrimaryRoleGlobal !== 'Founder') {
+          showMessage('Only the Founder can assign the Founder role.', 'error');
+          this.value = u.primary_role || 'Visitor';
+          return;
+        }
+        try {
+          const supabase = window.getSupabase ? window.getSupabase() : null;
+          if (!supabase) throw new Error('Supabase not initialized');
+          const { error } = await supabase.rpc('update_user_role_secure', {
+            uid: u.user_id,
+            new_role: newRole
+          });
+          if (error) throw error;
+          u.primary_role = newRole;
+          showMessage('Role updated to ' + newRole, 'success');
+        } catch (err) {
+          showMessage('Failed: ' + (err.message || 'Unknown error'), 'error');
+          this.value = u.primary_role || 'Visitor';
+        }
+      });
+      roleTd.appendChild(roleSelect);
+      tr.appendChild(roleTd);
+
+      // Remaining cells
+      const remainingCells = [
+        { text: String(u.streak_count ?? 0) },
+        { text: u.last_login_date ? new Date(u.last_login_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—', style: 'font-size:0.75rem;' }
+      ];
+
+      remainingCells.forEach(cell => {
+        const td = document.createElement('td');
+        td.style.cssText = 'padding:0.5rem;';
+        td.textContent = cell.text;
+        if (cell.style) td.style.cssText += cell.style;
         tr.appendChild(td);
       });
 
       // Actions cell
       const actionsTd = document.createElement('td');
+      actionsTd.style.cssText = 'padding:0.5rem;';
       const editBtn = document.createElement('button');
       editBtn.className = 'btn btn-outline';
       editBtn.style.cssText = 'padding:0.2rem 0.5rem;font-size:0.75rem;';
@@ -1129,7 +1199,7 @@ async function loadUsersTable(page, searchQuery) {
     }
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="12" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
   }
 }
 

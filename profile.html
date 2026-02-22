@@ -501,6 +501,18 @@
       var displayName = roleData.display_name || user.user_metadata?.full_name || user.email;
       var avatarUrl = roleData.avatar_url || user.user_metadata?.avatar_url || null;
 
+      // Check username change cooldown
+      var usernameCooldownActive = false;
+      var usernameCooldownDaysLeft = 0;
+      if (usernameUpdatedAt) {
+        var lastUpdate = new Date(usernameUpdatedAt);
+        var daysSince = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
+        if (daysSince < 30) {
+          usernameCooldownActive = true;
+          usernameCooldownDaysLeft = Math.ceil(30 - daysSince);
+        }
+      }
+
       // Set name
       document.getElementById('pageName').textContent = displayName;
 
@@ -594,17 +606,10 @@
       document.getElementById('statContribution').textContent = userXp;
 
       // Username edit
-      var usernameCooldownActive = false;
-      if (usernameUpdatedAt) {
-        var lastUpdate = new Date(usernameUpdatedAt);
-        var daysSince = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
-        if (daysSince < 30) {
-          usernameCooldownActive = true;
-          var daysLeft = Math.ceil(30 - daysSince);
-          var statusEl = document.getElementById('usernameStatus');
-          statusEl.textContent = 'Username can be changed once every 30 days. (' + daysLeft + ' days left)';
-          statusEl.style.color = 'var(--text-muted)';
-        }
+      if (usernameCooldownActive) {
+        var statusEl = document.getElementById('usernameStatus');
+        statusEl.textContent = 'Username can be changed once every 30 days. (' + usernameCooldownDaysLeft + ' days left)';
+        statusEl.style.color = 'var(--text-muted)';
       }
 
       usernameEl.addEventListener('click', function() {
