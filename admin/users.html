@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>User Management · ExamArchive</title>
+  
+  <!-- Global styles -->
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/profile-panel.css">
+  <link rel="stylesheet" href="../css/avatar-popup.css">
+  <link rel="stylesheet" href="../css/avatar.css">
+  
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#d32f2f" />
+
+  <style>
+    .users-page { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+    .users-page h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .users-page .subtitle { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
+
+    .users-toolbar { display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .users-toolbar input[type="text"] { flex: 1; min-width: 200px; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); color: var(--text); font-size: 0.85rem; }
+    .users-toolbar select { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); color: var(--text); font-size: 0.85rem; }
+
+    .users-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+    .users-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .users-table th, .users-table td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .users-table th { background: var(--bg-soft); font-weight: 600; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
+    .users-table th:hover { color: var(--text); }
+    .users-table th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+    .users-table th.sorted .sort-arrow { opacity: 1; }
+    .users-table tr:hover { background: var(--bg-soft); }
+    .users-table td.uuid { font-family: monospace; font-size: 0.7rem; color: var(--text-muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+
+    .role-select { padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); color: var(--text); font-size: 0.8rem; cursor: pointer; }
+    .role-select:focus { outline: 2px solid #d32f2f; outline-offset: 1px; }
+
+    .access-denied, .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; text-align: center; }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: #d32f2f; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .confirm-modal { position: fixed; inset: 0; z-index: 10000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
+    .confirm-modal.open { display: flex; }
+    .confirm-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; max-width: 420px; width: 90%; text-align: center; }
+    .confirm-box h3 { margin-bottom: 0.5rem; }
+    .confirm-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .confirm-actions { display: flex; gap: 0.5rem; justify-content: center; }
+    .confirm-actions button { padding: 0.5rem 1.25rem; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 0.85rem; }
+    .confirm-actions .btn-cancel { background: var(--bg-soft); color: var(--text); }
+    .confirm-actions .btn-confirm { background: #d32f2f; color: #fff; border-color: #d32f2f; }
+
+    .toast { position: fixed; top: 20px; right: 20px; padding: 0.75rem 1.25rem; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10001; max-width: 400px; font-size: 0.85rem; animation: fadeIn 0.3s ease; }
+    .toast.success { border-left: 4px solid #4CAF50; }
+    .toast.error { border-left: 4px solid #f44336; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .no-results { padding: 2rem; text-align: center; color: var(--text-muted); }
+
+    @media (max-width: 768px) {
+      .users-table { font-size: 0.75rem; }
+      .users-table th, .users-table td { padding: 0.4rem 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="users-page" id="main-content">
+
+    <!-- Loading -->
+    <div id="users-loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Verifying admin access...</p>
+    </div>
+
+    <!-- Access Denied -->
+    <div id="users-denied" class="access-denied" style="display: none;">
+      <h2>🔒 Access Denied</h2>
+      <p class="text-muted">Only Founder and Admin roles can access User Management.</p>
+      <a href="../index.html" class="btn btn-red" style="margin-top:1rem;">Go Home</a>
+    </div>
+
+    <!-- Users Content -->
+    <div id="users-content" style="display: none;">
+
+      <h1>👥 User Management</h1>
+      <p class="subtitle">View and manage all platform users</p>
+
+      <div class="users-toolbar">
+        <input type="text" id="userSearch" placeholder="Search by name, username, or UUID..." />
+        <select id="sortBy">
+          <option value="display_name">Sort by Name</option>
+          <option value="xp">Sort by XP</option>
+          <option value="primary_role">Sort by Role</option>
+          <option value="uploads">Sort by Uploads</option>
+          <option value="last_login_date">Sort by Last Login</option>
+        </select>
+        <select id="sortDir">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+      </div>
+
+      <div class="users-table-wrap">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Display Name</th>
+              <th>Username</th>
+              <th>UUID</th>
+              <th>XP <span class="sort-arrow">↕</span></th>
+              <th>Level</th>
+              <th>Role <span class="sort-arrow">↕</span></th>
+              <th>Uploads</th>
+              <th>Approved</th>
+              <th>Rejected</th>
+              <th>Last Login</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+          </tbody>
+        </table>
+        <div id="noResults" class="no-results" style="display:none;">No users found.</div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Confirmation Modal -->
+  <div class="confirm-modal" id="confirmModal">
+    <div class="confirm-box">
+      <h3 id="confirmTitle">Confirm Role Change</h3>
+      <p id="confirmDesc"></p>
+      <div class="confirm-actions">
+        <button class="btn-cancel" id="confirmCancel">Cancel</button>
+        <button class="btn-confirm" id="confirmOk">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer"></div>
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <script type="module" src="../js/app.module.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/avatar-utils.js"></script>
+  <script src="../js/utils/role-utils.js"></script>
+  <script src="../js/svg-icons.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/admin-auth.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/core/auth-ready.js"></script>
+  <script src="../js/core/debug.js"></script>
+  <script src="../js/profile-panel.js"></script>
+  <script src="../js/avatar-popup.js"></script>
+  <script src="../js/theme.js"></script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    var allUsers = [];
+    var currentUserRole = null;
+    var supabaseClient = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      var loading = document.getElementById('users-loading');
+      var denied = document.getElementById('users-denied');
+      var content = document.getElementById('users-content');
+
+      try {
+        var supabase = window.getSupabase ? window.getSupabase() : null;
+        if (!supabase) {
+          supabase = window.waitForSupabase ? await window.waitForSupabase() : null;
+        }
+        if (!supabase) { showDenied(); return; }
+        supabaseClient = supabase;
+
+        var sessionRes = await supabase.auth.getSession();
+        var session = sessionRes.data.session;
+        if (!session) { showDenied(); return; }
+
+        var roleRes = await supabase.from('roles').select('primary_role').eq('user_id', session.user.id).single();
+        var role = roleRes.data ? roleRes.data.primary_role : null;
+
+        if (!role || !['Founder', 'Admin'].includes(role)) {
+          showDenied();
+          return;
+        }
+
+        currentUserRole = role;
+        loading.style.display = 'none';
+        content.style.display = 'block';
+        await loadUsers(supabase);
+        initToolbar();
+
+      } catch (err) {
+        console.error('[USERS] Access check failed:', err);
+        showDenied();
+      }
+
+      function showDenied() {
+        loading.style.display = 'none';
+        denied.style.display = 'flex';
+      }
+    });
+
+    async function loadUsers(supabase) {
+      try {
+        var res = await supabase.rpc('list_all_users_full');
+        if (res.error) throw res.error;
+        allUsers = res.data || [];
+        renderTable(allUsers);
+      } catch (err) {
+        // Fallback: direct table query
+        try {
+          var fallback = await supabase.from('roles').select('user_id, display_name, username, xp, level, primary_role, secondary_role, tertiary_role, custom_badges, last_login_date');
+          if (fallback.error) throw fallback.error;
+          allUsers = (fallback.data || []).map(function(r) {
+            return Object.assign({}, r, { uploads: 0, approved: 0, rejected: 0 });
+          });
+          renderTable(allUsers);
+        } catch (err2) {
+          showToast('Failed to load users: ' + (err2.message || err.message), 'error');
+        }
+      }
+    }
+
+    function renderTable(users) {
+      var tbody = document.getElementById('usersTableBody');
+      var noResults = document.getElementById('noResults');
+      tbody.innerHTML = '';
+
+      if (!users || users.length === 0) {
+        noResults.style.display = 'block';
+        return;
+      }
+      noResults.style.display = 'none';
+
+      var roles = ['Visitor', 'Explorer', 'Contributor', 'Reviewer', 'Moderator', 'Senior Moderator', 'Admin', 'Founder'];
+
+      users.forEach(function(u) {
+        var tr = document.createElement('tr');
+        tr.setAttribute('data-user-id', u.user_id);
+
+        tr.innerHTML =
+          '<td>' + escapeHtml(u.display_name || '—') + '</td>' +
+          '<td>' + escapeHtml(u.username ? '@' + u.username : '—') + '</td>' +
+          '<td class="uuid" title="' + escapeHtml(u.user_id) + '">' + escapeHtml(u.user_id ? u.user_id.substring(0, 8) + '…' : '—') + '</td>' +
+          '<td>' + (u.xp || 0) + '</td>' +
+          '<td>' + (u.level || 0) + '</td>' +
+          '<td class="role-cell"></td>' +
+          '<td>' + (u.uploads || 0) + '</td>' +
+          '<td>' + (u.approved || 0) + '</td>' +
+          '<td>' + (u.rejected || 0) + '</td>' +
+          '<td>' + (u.last_login_date || '—') + '</td>';
+
+        // Role dropdown
+        var roleCell = tr.querySelector('.role-cell');
+        var select = document.createElement('select');
+        select.className = 'role-select';
+        select.setAttribute('data-user-id', u.user_id);
+        select.setAttribute('data-original-role', u.primary_role || 'Visitor');
+
+        roles.forEach(function(r) {
+          // Only Founder can see Founder option
+          if (r === 'Founder' && currentUserRole !== 'Founder') return;
+          var opt = document.createElement('option');
+          opt.value = r;
+          opt.textContent = r;
+          if (r === (u.primary_role || 'Visitor')) opt.selected = true;
+          select.appendChild(opt);
+        });
+
+        select.addEventListener('change', function() {
+          var newRole = select.value;
+          var originalRole = select.getAttribute('data-original-role');
+          var userId = select.getAttribute('data-user-id');
+          if (newRole === originalRole) return;
+          showConfirm(userId, u.display_name || u.username || userId, originalRole, newRole, select);
+        });
+
+        roleCell.appendChild(select);
+        tbody.appendChild(tr);
+      });
+    }
+
+    function showConfirm(userId, userName, oldRole, newRole, selectEl) {
+      var modal = document.getElementById('confirmModal');
+      var title = document.getElementById('confirmTitle');
+      var desc = document.getElementById('confirmDesc');
+      var okBtn = document.getElementById('confirmOk');
+      var cancelBtn = document.getElementById('confirmCancel');
+
+      title.textContent = 'Confirm Role Change';
+      desc.textContent = 'Change ' + userName + ' from "' + oldRole + '" to "' + newRole + '"?';
+      modal.classList.add('open');
+
+      function cleanup() {
+        okBtn.removeEventListener('click', onConfirm);
+        cancelBtn.removeEventListener('click', onCancel);
+        modal.classList.remove('open');
+      }
+
+      function onCancel() {
+        selectEl.value = selectEl.getAttribute('data-original-role');
+        cleanup();
+      }
+
+      async function onConfirm() {
+        cleanup();
+        try {
+          var res = await supabaseClient.rpc('update_user_role', {
+            target_user: userId,
+            new_role: newRole
+          });
+          if (res.error) throw res.error;
+
+          // Update local data and UI
+          selectEl.setAttribute('data-original-role', newRole);
+          for (var i = 0; i < allUsers.length; i++) {
+            if (allUsers[i].user_id === userId) {
+              allUsers[i].primary_role = newRole;
+              break;
+            }
+          }
+          showToast('Role updated: ' + userName + ' → ' + newRole, 'success');
+        } catch (err) {
+          selectEl.value = selectEl.getAttribute('data-original-role');
+          showToast('Failed: ' + (err.message || 'Unknown error'), 'error');
+        }
+      }
+
+      okBtn.addEventListener('click', onConfirm);
+      cancelBtn.addEventListener('click', onCancel);
+    }
+
+    function initToolbar() {
+      var searchInput = document.getElementById('userSearch');
+      var sortBySelect = document.getElementById('sortBy');
+      var sortDirSelect = document.getElementById('sortDir');
+
+      searchInput.addEventListener('input', filterAndSort);
+      sortBySelect.addEventListener('change', filterAndSort);
+      sortDirSelect.addEventListener('change', filterAndSort);
+    }
+
+    function filterAndSort() {
+      var query = document.getElementById('userSearch').value.toLowerCase().trim();
+      var sortBy = document.getElementById('sortBy').value;
+      var sortDir = document.getElementById('sortDir').value;
+
+      var filtered = allUsers.filter(function(u) {
+        if (!query) return true;
+        return (
+          (u.display_name && u.display_name.toLowerCase().includes(query)) ||
+          (u.username && u.username.toLowerCase().includes(query)) ||
+          (u.user_id && u.user_id.toLowerCase().includes(query)) ||
+          (u.primary_role && u.primary_role.toLowerCase().includes(query))
+        );
+      });
+
+      filtered.sort(function(a, b) {
+        var valA = a[sortBy];
+        var valB = b[sortBy];
+        if (valA == null) valA = '';
+        if (valB == null) valB = '';
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return sortDir === 'asc' ? valA - valB : valB - valA;
+        }
+        valA = String(valA).toLowerCase();
+        valB = String(valB).toLowerCase();
+        if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+        if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      renderTable(filtered);
+    }
+
+    function showToast(msg, type) {
+      var el = document.createElement('div');
+      el.className = 'toast ' + type;
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(function() { el.remove(); }, 4000);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  })();
+  </script>
+</body>
+</html>

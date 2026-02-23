@@ -262,68 +262,90 @@ Type "help" for available commands.</div>
             case 'reset-xp':
               showConfirm('Reset User XP', 'Enter the user UUID to reset their XP to 0.', true, 'User UUID', async function(uuid) {
                 if (!uuid) return;
+                btn.disabled = true;
                 try {
-                  var res = await supabase.from('roles').update({ xp: 0, level: 0 }).eq('user_id', uuid);
+                  var res = await supabase.rpc('reset_user_xp', { target: uuid });
                   if (res.error) throw res.error;
                   showToast('XP reset for ' + uuid, 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
               });
               break;
 
             case 'reset-achievements':
               showConfirm('Reset Achievements', 'Enter user UUID to clear all achievements.', true, 'User UUID', async function(uuid) {
                 if (!uuid) return;
+                btn.disabled = true;
                 try {
-                  var res = await supabase.from('achievements').delete().eq('user_id', uuid);
+                  var res = await supabase.rpc('reset_achievements', { target: uuid });
                   if (res.error) throw res.error;
                   showToast('Achievements cleared for ' + uuid, 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
               });
               break;
 
             case 'reset-streak':
               showConfirm('Reset Streak', 'Enter user UUID to reset their login streak.', true, 'User UUID', async function(uuid) {
                 if (!uuid) return;
+                btn.disabled = true;
                 try {
-                  var res = await supabase.from('roles').update({ streak_count: 0, last_login_date: null }).eq('user_id', uuid);
+                  var res = await supabase.rpc('reset_streak', { target: uuid });
                   if (res.error) throw res.error;
                   showToast('Streak reset for ' + uuid, 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
               });
               break;
 
             case 'reset-submissions':
               showConfirm('Reset Submissions', 'Enter user UUID to delete all their submissions.', true, 'User UUID', async function(uuid) {
                 if (!uuid) return;
+                btn.disabled = true;
                 try {
-                  var res = await supabase.from('submissions').delete().eq('user_id', uuid);
+                  var res = await supabase.rpc('reset_submissions', { target: uuid });
                   if (res.error) throw res.error;
                   showToast('Submissions deleted for ' + uuid, 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
               });
               break;
 
             case 'reset-database':
               showConfirm('⚠️ RESET ENTIRE DATABASE', 'Type "RESET ALL" to confirm. This deletes ALL submissions, achievements, and resets all XP.', true, 'Type RESET ALL', async function(val) {
                 if (val !== 'RESET ALL') { showToast('Confirmation text did not match.', 'error'); return; }
+                btn.disabled = true;
                 try {
                   await supabase.from('submissions').delete().not('id', 'is', null);
                   await supabase.from('achievements').delete().not('id', 'is', null);
                   await supabase.from('roles').update({ xp: 0, level: 0, streak_count: 0, last_login_date: null }).not('user_id', 'is', null);
                   showToast('Database reset complete.', 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
               });
               break;
 
             case 'recalc-xp':
-              showToast('XP recalculation triggered. Levels will auto-sync via DB trigger.', 'success');
-              break;
             case 'sync-levels':
-              showToast('Level sync triggered. sync_level_from_xp trigger is active.', 'success');
+              btn.disabled = true;
+              try {
+                var res = await supabase.rpc('recalc_levels');
+                if (res.error) throw res.error;
+                showToast('Levels recalculated from XP successfully.', 'success');
+              } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+              finally { btn.disabled = false; }
               break;
+
             case 'rebuild-achievements':
-              showToast('Achievement cache rebuild triggered.', 'success');
+              btn.disabled = true;
+              try {
+                var res = await supabase.rpc('rebuild_achievements');
+                if (res.error) throw res.error;
+                showToast('Achievements rebuilt successfully.', 'success');
+              } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+              finally { btn.disabled = false; }
               break;
+
             case 'recalc-stats':
               showToast('Stats recalculation triggered.', 'success');
               break;
