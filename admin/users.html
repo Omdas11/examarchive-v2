@@ -625,7 +625,13 @@
         );
       });
 
+      var ROLE_ORDER = { 'Founder': 6, 'Admin': 5, 'Senior Moderator': 4, 'Moderator': 3, 'Reviewer': 2, 'Visitor': 1 };
       filtered.sort(function(a, b) {
+        if (sortBy === 'primary_role') {
+          var rankA = ROLE_ORDER[a.primary_role] || 0;
+          var rankB = ROLE_ORDER[b.primary_role] || 0;
+          return sortDir === 'asc' ? rankA - rankB : rankB - rankA;
+        }
         var valA = a[sortBy];
         var valB = b[sortBy];
         if (valA == null) valA = '';

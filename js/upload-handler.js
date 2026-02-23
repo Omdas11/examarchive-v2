@@ -169,6 +169,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
         .insert({
+          user_id: userId,
           paper_code: metadata.paperCode,
           year: metadata.examYear,
           storage_path: storagePath,
@@ -208,6 +209,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     debugLog('info', '[SUBMIT] Submission Insert Starting (Pending Review)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
     
     var submissionData = {
+      user_id: userId,
       paper_code: metadata.paperCode,
       year: metadata.examYear,
       storage_path: storagePath,

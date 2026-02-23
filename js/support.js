@@ -71,7 +71,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             rejected: "Rejected",
             closed: "Closed"
           };
-          statusText.textContent = statusMap[existingRequest.status] || existingRequest.status;
+          var statusHtml = statusMap[existingRequest.status];
+          if (statusHtml !== undefined) {
+            statusText.innerHTML = statusHtml;
+          } else {
+            statusText.textContent = existingRequest.status || '';
+          }
           statusContainer.style.display = "block";
         }
       }
