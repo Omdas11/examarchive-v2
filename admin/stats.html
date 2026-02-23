@@ -245,9 +245,9 @@
       var approvalsData = await supabase.from('submissions').select('reviewed_at').in('status', ['approved', 'published']).gte('reviewed_at', sinceDate);
       renderBarChart('chart-approvals', groupByDay(approvalsData.data || [], 'reviewed_at'), '#4CAF50');
 
-      // New users per day (using roles.created_at or approximate with updated_at)
-      var usersData = await supabase.from('roles').select('user_id, last_login_date').gte('last_login_date', thirtyDaysAgo.toISOString().split('T')[0]);
-      renderBarChart('chart-users', groupByDay(usersData.data || [], 'last_login_date'), '#2196F3');
+      // New users per day (using roles.created_at)
+      var usersData = await supabase.from('roles').select('user_id, created_at').gte('created_at', sinceDate);
+      renderBarChart('chart-users', groupByDay(usersData.data || [], 'created_at'), '#2196F3');
     }
 
     function groupByDay(data, field) {
