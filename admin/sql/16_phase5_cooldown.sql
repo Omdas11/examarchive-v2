@@ -56,7 +56,9 @@ BEGIN
 
   IF last_change IS NOT NULL AND (NOW() - last_change) < (cooldown_hours || ' hours')::interval THEN
     time_remaining := (last_change + (cooldown_hours || ' hours')::interval) - NOW();
-    RAISE EXCEPTION 'Cooldown active. % hours remaining.', EXTRACT(EPOCH FROM time_remaining) / 3600;
+    RAISE EXCEPTION 'Cooldown active. Approximately % hour(s) and % minute(s) remaining.',
+      FLOOR(EXTRACT(EPOCH FROM time_remaining) / 3600),
+      FLOOR(MOD(EXTRACT(EPOCH FROM time_remaining), 3600) / 60);
   END IF;
 
   -- Prevent non-Founder from assigning Founder role

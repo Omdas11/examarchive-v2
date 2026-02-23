@@ -204,7 +204,7 @@ Type "help" for available commands.</div>
       var verifyTimeout = setTimeout(function() {
         if (loading.style.display !== 'none') {
           loading.style.display = 'none';
-          denied.querySelector('h2').innerHTML = window.SvgIcons ? window.SvgIcons.inline('lock') + ' Verification Timeout' : 'Verification Timeout';
+          denied.querySelector('h2').textContent = 'Verification Timeout';
           denied.querySelector('p').textContent = 'Could not verify Founder access. Please check your connection and try again.';
           denied.style.display = 'flex';
         }
