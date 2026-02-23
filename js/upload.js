@@ -152,7 +152,7 @@ function initializeUploadForm() {
   const fileInput = document.querySelector('input[type="file"]');
   const fileLabel = document.querySelector('.file-drop');
   const fileUI = document.getElementById('fileUI');
-  const uploadButton = document.querySelector('.btn-red');
+  const uploadButton = document.querySelector('.upload-submit .btn-red');
   const paperCodeInput = document.getElementById('paperCode');
   const examYearInput = document.getElementById('examYear');
   const yearValidationIcon = document.getElementById('yearValidationIcon');
