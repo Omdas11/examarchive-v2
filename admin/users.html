@@ -13,12 +13,13 @@
   <link rel="stylesheet" href="../css/profile-panel.css">
   <link rel="stylesheet" href="../css/avatar-popup.css">
   <link rel="stylesheet" href="../css/avatar.css">
+  <link rel="stylesheet" href="../css/dropdown.css">
   
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#d32f2f" />
 
   <style>
-    .users-page { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+    .users-page { max-width: 1400px; margin: 0 auto; padding: 2rem 1rem; }
     .users-page h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
     .users-page .subtitle { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
 
@@ -26,15 +27,23 @@
     .users-toolbar input[type="text"] { flex: 1; min-width: 200px; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); color: var(--text); font-size: 0.85rem; }
     .users-toolbar select { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); color: var(--text); font-size: 0.85rem; }
 
-    .users-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+    .users-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); -webkit-overflow-scrolling: touch; }
     .users-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     .users-table th, .users-table td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    .users-table th { background: var(--bg-soft); font-weight: 600; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
+    .users-table th { background: var(--bg-soft); font-weight: 600; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.3px; cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 2; }
     .users-table th:hover { color: var(--text); }
     .users-table th .sort-arrow { margin-left: 4px; opacity: 0.4; }
     .users-table th.sorted .sort-arrow { opacity: 1; }
     .users-table tr:hover { background: var(--bg-soft); }
-    .users-table td.uuid { font-family: monospace; font-size: 0.7rem; color: var(--text-muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+
+    .users-table td.uuid { font-family: monospace; font-size: 0.7rem; color: var(--text-muted); }
+    .uuid-wrap { display: flex; align-items: center; gap: 0.35rem; }
+    .uuid-text { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uuid-copy { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 5px; cursor: pointer; color: var(--text-muted); font-size: 0.65rem; line-height: 1; transition: color 0.2s, border-color 0.2s; flex-shrink: 0; }
+    .uuid-copy:hover { color: var(--text); border-color: var(--text); }
+
+    .user-avatar-cell { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background-color: var(--bg-soft); display: inline-block; vertical-align: middle; }
+    .user-avatar-initial { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent, #d32f2f); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; flex-shrink: 0; }
 
     .role-select { padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); color: var(--text); font-size: 0.8rem; cursor: pointer; }
     .role-select:focus { outline: 2px solid #d32f2f; outline-offset: 1px; }
@@ -60,9 +69,16 @@
 
     .no-results { padding: 2rem; text-align: center; color: var(--text-muted); }
 
+    .td-slno { color: var(--text-muted); font-size: 0.75rem; text-align: center; }
+
+    /* Role dropdown sizing in table */
+    .role-cell .ea-dropdown { min-width: 140px; }
+    .role-cell .ea-dropdown-trigger { padding: 0.3rem 0.5rem; font-size: 0.8rem; }
+
     @media (max-width: 768px) {
       .users-table { font-size: 0.75rem; }
       .users-table th, .users-table td { padding: 0.4rem 0.5rem; }
+      .uuid-text { max-width: 120px; }
     }
   </style>
 </head>
@@ -113,7 +129,9 @@
         <table class="users-table">
           <thead>
             <tr>
-              <th>Display Name</th>
+              <th>Sl.</th>
+              <th>Pic</th>
+              <th>Name</th>
               <th>Username</th>
               <th>UUID</th>
               <th>XP <span class="sort-arrow">↕</span></th>
@@ -162,6 +180,7 @@
   <script src="../js/supabase-client.js"></script>
   <script src="../js/core/auth-ready.js"></script>
   <script src="../js/core/debug.js"></script>
+  <script src="../js/dropdown.js"></script>
   <script src="../js/profile-panel.js"></script>
   <script src="../js/avatar-popup.js"></script>
   <script src="../js/theme.js"></script>
@@ -221,11 +240,22 @@
         var res = await supabase.rpc('list_all_users_full');
         if (res.error) throw res.error;
         allUsers = res.data || [];
+
+        // Supplement with avatar_url from roles table (not returned by RPC)
+        try {
+          var avatarRes = await supabase.from('roles').select('user_id, avatar_url');
+          if (!avatarRes.error && avatarRes.data) {
+            var avatarMap = {};
+            avatarRes.data.forEach(function(r) { avatarMap[r.user_id] = r.avatar_url; });
+            allUsers.forEach(function(u) { u.avatar_url = avatarMap[u.user_id] || null; });
+          }
+        } catch(e) {}
+
         renderTable(allUsers);
       } catch (err) {
         // Fallback: direct table query
         try {
-          var fallback = await supabase.from('roles').select('user_id, display_name, username, xp, level, primary_role, secondary_role, tertiary_role, custom_badges, last_login_date');
+          var fallback = await supabase.from('roles').select('user_id, display_name, username, xp, level, primary_role, secondary_role, tertiary_role, custom_badges, last_login_date, avatar_url');
           if (fallback.error) throw fallback.error;
           allUsers = (fallback.data || []).map(function(r) {
             return Object.assign({}, r, { uploads: 0, approved: 0, rejected: 0 });
@@ -250,21 +280,82 @@
 
       var roles = ['Visitor', 'Explorer', 'Contributor', 'Reviewer', 'Moderator', 'Senior Moderator', 'Admin', 'Founder'];
 
-      users.forEach(function(u) {
+      users.forEach(function(u, idx) {
         var tr = document.createElement('tr');
         tr.setAttribute('data-user-id', u.user_id);
 
+        // Build avatar cell
+        var avatarHtml = '';
+        var initial = u.display_name ? u.display_name[0].toUpperCase() : '?';
+        if (u.avatar_url) {
+          avatarHtml = '<img class="user-avatar-cell" src="' + escapeHtml(u.avatar_url) + '" alt="" loading="lazy" data-initial="' + escapeHtml(initial) + '" />';
+        } else {
+          avatarHtml = '<span class="user-avatar-initial">' + escapeHtml(initial) + '</span>';
+        }
+
+        // Build UUID cell with copy button
+        var uuidVal = u.user_id || '—';
+        var uuidHtml = '<div class="uuid-wrap"><span class="uuid-text" title="' + escapeHtml(uuidVal) + '">' + escapeHtml(uuidVal) + '</span>' +
+          '<button class="uuid-copy" data-uuid="' + escapeHtml(uuidVal) + '" title="Copy UUID">📋</button></div>';
+
+        // Format last login as full timestamp
+        var lastLogin = u.last_login_date || '—';
+        if (lastLogin !== '—') {
+          try {
+            var d = new Date(lastLogin);
+            if (!isNaN(d.getTime())) {
+              lastLogin = d.toLocaleString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }
+          } catch(e) {}
+        }
+
         tr.innerHTML =
+          '<td class="td-slno">' + (idx + 1) + '</td>' +
+          '<td>' + avatarHtml + '</td>' +
           '<td>' + escapeHtml(u.display_name || '—') + '</td>' +
           '<td>' + escapeHtml(u.username ? '@' + u.username : '—') + '</td>' +
-          '<td class="uuid" title="' + escapeHtml(u.user_id) + '">' + escapeHtml(u.user_id ? u.user_id.substring(0, 8) + '…' : '—') + '</td>' +
-          '<td>' + (u.xp || 0) + '</td>' +
-          '<td>' + (u.level || 0) + '</td>' +
+          '<td class="uuid">' + uuidHtml + '</td>' +
+          '<td data-field="xp">' + (u.xp || 0) + '</td>' +
+          '<td data-field="level">' + (u.level || 0) + '</td>' +
           '<td class="role-cell"></td>' +
           '<td>' + (u.uploads || 0) + '</td>' +
           '<td>' + (u.approved || 0) + '</td>' +
           '<td>' + (u.rejected || 0) + '</td>' +
-          '<td>' + (u.last_login_date || '—') + '</td>';
+          '<td>' + escapeHtml(lastLogin) + '</td>';
+
+        // UUID copy button handler
+        var copyBtn = tr.querySelector('.uuid-copy');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', function() {
+            var uuid = this.getAttribute('data-uuid');
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(uuid).then(function() {
+                showToast('UUID copied', 'success');
+              });
+            } else {
+              // Fallback
+              var ta = document.createElement('textarea');
+              ta.value = uuid;
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand('copy');
+              ta.remove();
+              showToast('UUID copied', 'success');
+            }
+          });
+        }
+
+        // Avatar image error fallback
+        var avatarImg = tr.querySelector('.user-avatar-cell');
+        if (avatarImg) {
+          avatarImg.addEventListener('error', function() {
+            var fallbackInitial = this.getAttribute('data-initial') || '?';
+            var span = document.createElement('span');
+            span.className = 'user-avatar-initial';
+            span.textContent = fallbackInitial;
+            this.parentNode.replaceChild(span, this);
+          });
+        }
 
         // Role dropdown
         var roleCell = tr.querySelector('.role-cell');
@@ -292,6 +383,12 @@
         });
 
         roleCell.appendChild(select);
+
+        // Enhance role select with custom dropdown
+        if (window.EaDropdown) {
+          window.EaDropdown.create(select);
+        }
+
         tbody.appendChild(tr);
       });
     }
@@ -327,11 +424,28 @@
           });
           if (res.error) throw res.error;
 
-          // Update local data and UI
+          // Re-fetch user data to get correct XP-derived level
+          var refetch = await supabaseClient.from('roles').select('xp, level').eq('user_id', userId).single();
+          var updatedXp = refetch.data ? refetch.data.xp : null;
+          var updatedLevel = refetch.data ? refetch.data.level : null;
+
+          // Update local data and UI (level derived from XP, not role)
           selectEl.setAttribute('data-original-role', newRole);
           for (var i = 0; i < allUsers.length; i++) {
             if (allUsers[i].user_id === userId) {
               allUsers[i].primary_role = newRole;
+              if (updatedXp !== null) allUsers[i].xp = updatedXp;
+              if (updatedLevel !== null) allUsers[i].level = updatedLevel;
+              // Update the level cell in the row
+              var row = document.querySelector('tr[data-user-id="' + userId + '"]');
+              if (row) {
+                var cells = row.querySelectorAll('td');
+                // Find and update XP and Level cells
+                for (var c = 0; c < cells.length; c++) {
+                  if (cells[c].getAttribute('data-field') === 'xp') cells[c].textContent = updatedXp !== null ? updatedXp : allUsers[i].xp;
+                  if (cells[c].getAttribute('data-field') === 'level') cells[c].textContent = updatedLevel !== null ? updatedLevel : allUsers[i].level;
+                }
+              }
               break;
             }
           }
