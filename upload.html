@@ -18,6 +18,7 @@
 
   <!-- Page-specific -->
   <link rel="stylesheet" href="css/upload.css">
+  <link rel="stylesheet" href="css/dropdown.css">
 
   <!-- Accessibility and SEO -->
   <meta name="description" content="Upload university question papers to help fellow students." />
@@ -101,7 +102,7 @@
 
         <label class="field">
           <span class="field-label">University</span>
-          <select id="university">
+          <select id="university" data-ea-dropdown>
             <option value="">Select University</option>
             <option value="assam-university">Assam University</option>
             <option value="other">Other</option>
@@ -110,7 +111,7 @@
 
         <label class="field">
           <span class="field-label">Stream</span>
-          <select id="stream">
+          <select id="stream" data-ea-dropdown>
             <option value="">Select Stream</option>
             <option value="science">Science</option>
             <option value="arts">Arts</option>
@@ -120,7 +121,7 @@
 
         <label class="field">
           <span class="field-label">Programme</span>
-          <select id="programme">
+          <select id="programme" data-ea-dropdown>
             <option value="">Select Programme</option>
             <option value="fyug">FYUG (4-Year)</option>
             <option value="pg">PG (Post Graduate)</option>
@@ -173,11 +174,50 @@
 
         <label class="field">
           <span class="field-label">Paper Type</span>
-          <select id="paperType">
+          <select id="paperType" data-ea-dropdown>
             <option value="main">Main Examination</option>
             <option value="supplementary">Supplementary</option>
             <option value="internal">Internal</option>
           </select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Semester</span>
+          <select id="semester" data-ea-dropdown>
+            <option value="">Select Semester</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Semester 3</option>
+            <option value="4">Semester 4</option>
+            <option value="5">Semester 5</option>
+            <option value="6">Semester 6</option>
+            <option value="7">Semester 7</option>
+            <option value="8">Semester 8</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Tags</span>
+          <input
+            id="tags"
+            type="text"
+            placeholder="e.g. mid-term, 2023, physics, unit-3"
+          />
+          <small class="field-hint">
+            Comma-separated tags to help others find this paper.
+          </small>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Rename File (optional)</span>
+          <input
+            id="fileRename"
+            type="text"
+            placeholder="e.g. PHYDSC102T-2023-main"
+          />
+          <small class="field-hint">
+            Custom filename for the uploaded file. Leave empty for auto-generated name.
+          </small>
         </label>
       </div>
 
@@ -273,6 +313,7 @@
   <script src="js/levelup.js"></script>
   <script src="js/avatar-popup.js"></script>
   <script src="js/upload.js"></script>
+  <script src="js/dropdown.js"></script>
   <script src="js/theme.js"></script>
 
 </body>

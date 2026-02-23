@@ -33,7 +33,7 @@
   <main class="about-page" id="main-content">
 
     <!-- =====================
-         INTRO
+         WHAT IS EXAMARCHIVE
          ===================== -->
     <section class="about-intro">
       <h1>About ExamArchive</h1>
@@ -45,29 +45,148 @@
       </p>
 
       <p>
-        This project is built with the assistance of <strong>AI tools</strong>, used as
-        development support. All architectural decisions, data organization, verification,
-        and academic direction are <strong>human-guided and reviewed</strong>.
-      </p>
-
-      <p>
-        ExamArchive began as a personal initiative to solve a practical problem faced by
-        students: scattered and unreliable access to previous-year question papers. It
-        continues to evolve as a structured and maintainable academic archive.
+        It solves a practical problem faced by students: scattered and unreliable access
+        to previous-year question papers. ExamArchive provides a structured, searchable,
+        and community-powered platform for sharing and discovering exam resources.
       </p>
     </section>
 
     <!-- =====================
-         CORE PRINCIPLES
+         MISSION
          ===================== -->
     <section class="about-principles">
-      <h2>Core Principles</h2>
+      <h2>Our Mission</h2>
+
+      <p>
+        To make quality academic resources freely available to every student, regardless
+        of their location, institution, or economic background.
+      </p>
 
       <ul>
         <li><strong>Accessibility first</strong> — Resources should be easy to find and usable on any device.</li>
         <li><strong>Clarity over clutter</strong> — Focused on exam relevance, not distractions.</li>
-        <li><strong>Sustainability-aware development</strong> — Built to remain maintainable over time.</li>
+        <li><strong>Community-powered</strong> — Students help students by sharing papers.</li>
         <li><strong>Built gradually, improved continuously</strong> — Stability over speed.</li>
+      </ul>
+    </section>
+
+    <!-- =====================
+         HOW IT WORKS
+         ===================== -->
+    <section class="about-how-it-works">
+      <h2>How It Works</h2>
+
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="how-step">1</div>
+          <h4>Upload</h4>
+          <p>Sign in and upload a PDF of your question paper with metadata (university, subject, year, code).</p>
+        </div>
+        <div class="how-card">
+          <div class="how-step">2</div>
+          <h4>Review</h4>
+          <p>Moderators review submissions for quality, accuracy, and completeness.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-step">3</div>
+          <h4>Publish</h4>
+          <p>Approved papers are published to the archive, searchable and free for all.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-step">4</div>
+          <h4>Discover</h4>
+          <p>Students browse, search, and download papers organized by subject and year.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================
+         ROLE SYSTEM
+         ===================== -->
+    <section class="about-roles">
+      <h2>Role System</h2>
+
+      <p>
+        ExamArchive uses a <strong>role-based permission system</strong>. Permissions depend
+        solely on your assigned role — never on XP or level.
+      </p>
+
+      <div class="role-table-wrap">
+        <table class="role-table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Dashboard</th>
+              <th>Approve</th>
+              <th>Upload</th>
+              <th>Browse</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Founder</strong></td><td>✅ Full</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td><strong>Admin</strong></td><td>✅ Full</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td><strong>Senior Moderator</strong></td><td>✅ Submissions</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td><strong>Moderator</strong></td><td>—</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td><strong>Reviewer</strong></td><td>—</td><td>—</td><td>✅</td><td>✅</td></tr>
+            <tr><td><strong>Contributor</strong></td><td>—</td><td>—</td><td>✅</td><td>✅</td></tr>
+            <tr><td><strong>Visitor</strong></td><td>—</td><td>—</td><td>—</td><td>✅</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="section-note" style="margin-top: 1rem;">
+        Roles are assigned by administrators. Functional badges and achievements are separate and cosmetic only.
+      </p>
+    </section>
+
+    <!-- =====================
+         ACHIEVEMENT & XP
+         ===================== -->
+    <section class="about-xp-system">
+      <h2>Achievements &amp; XP System</h2>
+
+      <p>
+        ExamArchive uses an <strong>experience point (XP)</strong> system to track and
+        reward user contributions. Your level is calculated automatically from your XP.
+        <strong>XP and levels are cosmetic only</strong> — they never affect permissions.
+      </p>
+
+      <div class="xp-table-wrap">
+        <table class="xp-table">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>XP Required</th>
+              <th>Title</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>0</td><td>0</td><td>Visitor</td></tr>
+            <tr><td>5</td><td>100</td><td>Explorer</td></tr>
+            <tr><td>10</td><td>300</td><td>Contributor</td></tr>
+            <tr><td>25</td><td>800</td><td>Veteran</td></tr>
+            <tr><td>50</td><td>1,500</td><td>Senior</td></tr>
+            <tr><td>90</td><td>3,000</td><td>Elite</td></tr>
+            <tr><td>100</td><td>5,000</td><td>Legend</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>How to Earn XP</h3>
+      <ul>
+        <li><strong>Upload a paper</strong> → +50 XP</li>
+        <li><strong>Paper approved</strong> → +100 XP</li>
+        <li><strong>Daily login streak</strong> → +5 XP per day</li>
+      </ul>
+
+      <h3>Achievement Badges</h3>
+      <p>Achievements are auto-earned and appear on your profile:</p>
+      <ul>
+        <li>📤 <strong>First Upload</strong> — Upload your first paper</li>
+        <li>🏆 <strong>10 Uploads</strong> — Reach 10 submissions</li>
+        <li>🔥 <strong>7-Day Streak</strong> — 7 consecutive daily logins</li>
+        <li>⚡ <strong>30-Day Streak</strong> — 30 consecutive daily logins</li>
+        <li>🌟 <strong>Early Adopter</strong> — Among the first 10 users</li>
       </ul>
     </section>
 
@@ -102,68 +221,6 @@
     </section>
 
     <!-- =====================
-         XP SYSTEM (Cosmetic Only)
-         ===================== -->
-    <section class="about-xp-system">
-      <h2>XP &amp; Level System</h2>
-
-      <p>
-        ExamArchive uses an <strong>experience point (XP)</strong> system to track and
-        reward user contributions. XP is earned by uploading papers, contributing resources,
-        and daily engagement. Your level is calculated automatically from your XP.
-      </p>
-
-      <p>
-        <strong>Note:</strong> XP levels are <em>cosmetic only</em>. System permissions
-        (Admin, Moderator, Reviewer) are assigned manually by administrators and are
-        separate from XP.
-      </p>
-
-      <div class="xp-table-wrap">
-        <table class="xp-table">
-          <thead>
-            <tr>
-              <th>Level</th>
-              <th>XP Required</th>
-              <th>Title</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>0</td><td>0</td><td>Visitor</td></tr>
-            <tr><td>5</td><td>100</td><td>Explorer</td></tr>
-            <tr><td>10</td><td>300</td><td>Contributor</td></tr>
-            <tr><td>25</td><td>800</td><td>Veteran</td></tr>
-            <tr><td>50</td><td>1,500</td><td>Senior</td></tr>
-            <tr><td>90</td><td>3,000</td><td>Elite</td></tr>
-            <tr><td>100</td><td>5,000</td><td>Legend</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>How to Earn XP</h3>
-      <ul>
-        <li><strong>Upload a paper</strong> → +50 XP</li>
-        <li><strong>Paper approved</strong> → +100 XP</li>
-        <li><strong>RQ contribution</strong> → +40 XP</li>
-        <li><strong>Notes upload</strong> → +30 XP</li>
-        <li><strong>Daily login streak</strong> → +5 XP per day</li>
-      </ul>
-
-      <h3>System Roles (Separate from XP)</h3>
-      <p>
-        System roles control permissions and are assigned by administrators:
-      </p>
-      <ul>
-        <li><strong>Founder</strong> — Full access (unique, one per platform)</li>
-        <li><strong>Admin</strong> — Full access</li>
-        <li><strong>Senior Moderator</strong> — Partial admin access (review &amp; publish)</li>
-        <li><strong>Reviewer</strong> — Limited moderation (approve/reject)</li>
-        <li><strong>Contributor</strong> — Can upload papers</li>
-        <li><strong>Visitor</strong> — Browse only</li>
-      </ul>
-    </section>
-
-    <!-- =====================
          ROADMAP / PHASE PROGRESS
          ===================== -->
     <section class="about-roadmap">
@@ -182,13 +239,30 @@
           <h4>Phase 3 <span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></h4>
           <p>Achievements, paper requests, drawer navigation, theme system</p>
         </div>
+        <div class="phase-card completed">
+          <h4>Phase 4 <span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></h4>
+          <p>XP system, profile redesign, admin unlock, role stabilization</p>
+        </div>
         <div class="phase-card active">
-          <h4>Phase 4 (Current)</h4>
-          <p>XP system, profile redesign, admin unlock, storage architecture</p>
+          <h4>Phase 5 (Current)</h4>
+          <p>Developer tools, stats dashboard, upload upgrade, about redesign</p>
         </div>
         <div class="phase-card upcoming">
-          <h4>Phase 5</h4>
+          <h4>Phase 6</h4>
           <p>Advanced search, syllabus integration, repeated questions, mobile optimization</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================
+         SYSTEM STATUS
+         ===================== -->
+    <section class="about-system-status">
+      <h2>System Status</h2>
+      <div class="live-stats-grid">
+        <div class="live-stat-card">
+          <strong data-stat="system-update">—</strong>
+          <span>Last System Update</span>
         </div>
       </div>
     </section>
@@ -201,46 +275,32 @@
 
       <p class="section-note">
         This timeline is generated automatically from verified project milestones.
-        No hardcoded dates — all data is dynamically loaded.
       </p>
 
       <div class="timeline"></div>
     </section>
 
     <!-- =====================
-         FUTURE DIRECTION
+         CONTRIBUTION GUIDE
          ===================== -->
-    <section class="about-future">
-      <h2>Looking Ahead</h2>
+    <section class="about-contribute">
+      <h2>How to Contribute</h2>
 
       <p>
-        ExamArchive is an ongoing project. Areas currently being explored include:
+        ExamArchive is a community project. Here's how you can help:
       </p>
 
       <ul>
-        <li>Expansion to additional subjects and streams</li>
-        <li>Improved accessibility and readability</li>
-        <li>Smarter search, filtering, and metadata organization</li>
-        <li>Long-term sustainability options for maintaining and expanding the archive</li>
+        <li><strong>Upload papers</strong> — Share question papers from your university</li>
+        <li><strong>Report issues</strong> — Found a bug? Let us know via the Support page</li>
+        <li><strong>Request papers</strong> — Can't find a paper? Submit a request</li>
+        <li><strong>Spread the word</strong> — Tell fellow students about ExamArchive</li>
       </ul>
 
       <p>
-        Development decisions will continue to prioritize
-        <strong>usefulness, clarity, and reliability</strong>.
-      </p>
-    </section>
-
-    <!-- =====================
-         TRANSPARENCY
-         ===================== -->
-    <section class="about-transparency">
-      <h2>Transparency</h2>
-
-      <p>
-        ExamArchive is developed using modern web tools and workflows, including
-        AI-assisted development. AI is treated as a <strong>support tool</strong>, not
-        an author — responsibility for structure, accuracy, and content decisions
-        remains human.
+        Development decisions prioritize <strong>usefulness, clarity, and reliability</strong>.
+        ExamArchive is built with AI-assisted development tools, with all architectural decisions
+        and content verification done by humans.
       </p>
     </section>
 

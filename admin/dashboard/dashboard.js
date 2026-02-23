@@ -103,11 +103,11 @@ async function initializeDashboard(primaryRole) {
     setupDemoReset();
   }
 
-  // Setup users table if user has admin access (using cached result)
-  if (currentUserIsAdmin) {
+  // Users tab: Founder/Admin only — Senior Moderator cannot see Users tab
+  if (primaryRole === 'Founder' || primaryRole === 'Admin') {
     setupUsersTable();
   } else {
-    // Hide Users tab if user doesn't have admin access
+    // Hide Users tab for Senior Moderator and others
     var usersTab = document.getElementById('mainTabUsers');
     if (usersTab) usersTab.style.display = 'none';
   }
@@ -302,6 +302,30 @@ function renderSubmissionCard(submission) {
           <strong>Paper Name</strong>
           <span>${escapeHtml(submission?.paper_name || '-')}</span>
         </div>
+        ${submission?.university ? `
+        <div class="detail-item">
+          <strong>University</strong>
+          <span>${escapeHtml(submission.university)}</span>
+        </div>
+        ` : ''}
+        ${submission?.subject ? `
+        <div class="detail-item">
+          <strong>Subject</strong>
+          <span>${escapeHtml(submission.subject)}</span>
+        </div>
+        ` : ''}
+        ${submission?.semester ? `
+        <div class="detail-item">
+          <strong>Semester</strong>
+          <span>${escapeHtml(String(submission.semester))}</span>
+        </div>
+        ` : ''}
+        ${submission?.tags && submission.tags.length ? `
+        <div class="detail-item">
+          <strong>Tags</strong>
+          <span>${submission.tags.map(function(t) { return escapeHtml(t); }).join(', ')}</span>
+        </div>
+        ` : ''}
         ${submission?.storage_path ? `
         <div class="detail-item">
           <strong>Storage Path</strong>
@@ -430,27 +454,69 @@ function setupModal() {
 }
 
 /**
- * Show review modal
+ * Show review modal with metadata editing
  */
 function showReviewModal(submission) {
   currentSubmission = submission;
   const modal = document.getElementById('review-modal');
   const modalInfo = document.getElementById('modal-submission-info');
   const reviewNotes = document.getElementById('review-notes');
+  const modalTitle = document.getElementById('modal-title');
+  const approveBtn = document.getElementById('approve-btn');
 
+  modalTitle.textContent = 'Review Submission';
+  approveBtn.style.display = '';
   reviewNotes.value = '';
+  reviewNotes.placeholder = 'Review notes (optional)...';
 
   modalInfo.innerHTML = `
     <div style="padding: 1rem; background: var(--bg-soft); border-radius: 8px; margin-bottom: 1rem;">
-      <h4 style="margin: 0 0 0.5rem 0;">${submission?.paper_code || 'Unknown'} - ${submission?.year || 'N/A'}</h4>
+      <h4 style="margin: 0 0 0.5rem 0;">${escapeHtml(submission?.paper_code || 'Unknown')} - ${escapeHtml(submission?.year || 'N/A')}</h4>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
-        <strong>File:</strong> ${submission?.original_filename || 'Unknown'} (${window.UploadHandler?.formatFileSize ? window.UploadHandler.formatFileSize(submission?.file_size ?? 0) : '0 B'})
+        <strong>File:</strong> ${escapeHtml(submission?.original_filename || 'Unknown')} (${window.UploadHandler?.formatFileSize ? window.UploadHandler.formatFileSize(submission?.file_size ?? 0) : '0 B'})
       </p>
       <p style="margin: 0.25rem 0; font-size: 0.85rem; color: var(--text-muted);">
         <strong>Submitted:</strong> ${submission?.created_at ? new Date(submission.created_at).toLocaleString() : 'Unknown'}
       </p>
+      ${submission?.university ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>University:</strong> ' + escapeHtml(submission.university) + '</p>' : ''}
+      ${submission?.subject ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>Subject:</strong> ' + escapeHtml(submission.subject) + '</p>' : ''}
+      ${submission?.semester ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>Semester:</strong> ' + escapeHtml(String(submission.semester)) + '</p>' : ''}
+      ${submission?.tags && submission.tags.length ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>Tags:</strong> ' + submission.tags.map(function(t){return escapeHtml(t);}).join(', ') + '</p>' : ''}
     </div>
+    <details style="margin-bottom:1rem;">
+      <summary style="cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--text);">✏️ Edit Metadata</summary>
+      <div style="padding:0.75rem;background:var(--bg-soft);border-radius:8px;margin-top:0.5rem;">
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Paper Code</strong>
+          <input type="text" id="editPaperCode" value="${escapeHtml(submission?.paper_code || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Year</strong>
+          <input type="number" id="editYear" value="${submission?.year || ''}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Rename File</strong>
+          <input type="text" id="editFilename" value="${escapeHtml(submission?.original_filename || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;margin-top:0.25rem;" data-save-meta="${escapeHtml(submission?.id || '')}">Save Changes</button>
+      </div>
+    </details>
+    ${submission?.storage_path ? '<div style="margin-bottom:1rem;"><button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;" data-preview-file="' + escapeHtml(submission.id) + '">📄 Preview PDF</button></div>' : ''}
   `;
+
+  // Attach event listeners programmatically instead of inline onclick
+  var saveBtn = modalInfo.querySelector('[data-save-meta]');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      saveMetadataEdit(saveBtn.dataset.saveMeta);
+    });
+  }
+  var previewBtn = modalInfo.querySelector('[data-preview-file]');
+  if (previewBtn) {
+    previewBtn.addEventListener('click', function() {
+      previewSubmissionFile(previewBtn.dataset.previewFile);
+    });
+  }
 
   modal.style.display = 'flex';
 }
@@ -769,6 +835,48 @@ function setupDemoReset() {
       showMessage('Failed to reset demo data: ' + (err.message || 'Unknown error'), 'error');
     }
   });
+}
+
+/**
+ * Save metadata edits for a submission (admin review flow)
+ */
+async function saveMetadataEdit(submissionId) {
+  try {
+    var supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    var updates = {};
+    var codeEl = document.getElementById('editPaperCode');
+    var yearEl = document.getElementById('editYear');
+    var filenameEl = document.getElementById('editFilename');
+
+    if (codeEl && codeEl.value.trim()) updates.paper_code = codeEl.value.trim();
+    if (yearEl && yearEl.value) updates.year = parseInt(yearEl.value);
+    if (filenameEl && filenameEl.value.trim()) updates.original_filename = filenameEl.value.trim();
+
+    if (Object.keys(updates).length === 0) {
+      showMessage('No changes to save.', 'info');
+      return;
+    }
+
+    var res = await supabase.from('submissions').update(updates).eq('id', submissionId);
+    if (res.error) throw res.error;
+
+    showMessage('Metadata updated successfully!', 'success');
+    await loadSubmissions();
+  } catch (err) {
+    showMessage('Failed to save: ' + (err.message || 'Unknown error'), 'error');
+  }
+}
+
+/**
+ * Preview PDF for a submission from the review modal
+ */
+async function previewSubmissionFile(submissionId) {
+  var submission = allSubmissions.find(function(s) { return s.id === submissionId; });
+  if (submission) {
+    await previewFile(submission);
+  }
 }
 
 /**
@@ -1107,7 +1215,7 @@ async function loadUsersTable(page, searchQuery) {
 
     if (error) throw error;
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;color:var(--text-muted);">No users found</td></tr>';
       if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
@@ -1116,7 +1224,8 @@ async function loadUsersTable(page, searchQuery) {
     const totalPages = Math.ceil(totalCount / 25);
 
     // Reuse cached admin access result for promote dropdown visibility
-    const canPromote = currentUserIsAdmin;
+    // Senior Moderators should NOT see promotion controls
+    const canPromote = currentUserIsAdmin && ['Founder', 'Admin'].includes(userPrimaryRoleGlobal);
 
     tbody.innerHTML = '';
     data.forEach(u => {
@@ -1135,26 +1244,89 @@ async function loadUsersTable(page, searchQuery) {
       avatarTd.appendChild(avatarDiv);
       tr.appendChild(avatarTd);
 
-      // Display Name, Username, XP, Level cells
-      const cells = [
-        { text: u.display_name || '—' },
-        { text: u.username || '—' },
-        { text: String(u.xp ?? 0) },
-        { text: String(u.level ?? 0) }
-      ];
+      // Display Name cell
+      var nameTd = document.createElement('td');
+      nameTd.style.cssText = 'padding:0.5rem;';
+      nameTd.textContent = u.display_name || '—';
+      tr.appendChild(nameTd);
 
-      cells.forEach(cell => {
-        const td = document.createElement('td');
-        td.style.cssText = 'padding:0.5rem;';
-        td.textContent = cell.text;
-        tr.appendChild(td);
-      });
+      // UUID cell
+      var uuidTd = document.createElement('td');
+      uuidTd.style.cssText = 'padding:0.5rem;font-size:0.65rem;font-family:monospace;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      uuidTd.textContent = u.user_id || '—';
+      uuidTd.title = u.user_id || '';
+      tr.appendChild(uuidTd);
+
+      // Username cell
+      var usernameTd = document.createElement('td');
+      usernameTd.style.cssText = 'padding:0.5rem;';
+      usernameTd.textContent = u.username || '—';
+      tr.appendChild(usernameTd);
+
+      // XP cell
+      var xpTd = document.createElement('td');
+      xpTd.style.cssText = 'padding:0.5rem;';
+      xpTd.textContent = String(u.xp ?? 0);
+      tr.appendChild(xpTd);
+
+      // Level cell
+      var levelTd = document.createElement('td');
+      levelTd.style.cssText = 'padding:0.5rem;';
+      levelTd.textContent = String(u.level ?? 0);
+      tr.appendChild(levelTd);
 
       // Primary Role text cell
       const roleTd = document.createElement('td');
-      roleTd.style.cssText = 'padding:0.5rem;';
+      roleTd.style.cssText = 'padding:0.5rem;font-weight:600;';
       roleTd.textContent = u.primary_role || 'Visitor';
       tr.appendChild(roleTd);
+
+      // Secondary Role cell
+      var secTd = document.createElement('td');
+      secTd.style.cssText = 'padding:0.5rem;font-size:0.8rem;';
+      secTd.textContent = u.secondary_role || '—';
+      tr.appendChild(secTd);
+
+      // Tertiary Role cell
+      var terTd = document.createElement('td');
+      terTd.style.cssText = 'padding:0.5rem;font-size:0.8rem;';
+      terTd.textContent = u.tertiary_role || '—';
+      tr.appendChild(terTd);
+
+      // Custom Badges cell
+      var badgesTd = document.createElement('td');
+      badgesTd.style.cssText = 'padding:0.5rem;font-size:0.75rem;';
+      var badges = u.custom_badges;
+      if (badges && Array.isArray(badges) && badges.length > 0) {
+        badgesTd.textContent = badges.join(', ');
+      } else {
+        badgesTd.textContent = '—';
+      }
+      tr.appendChild(badgesTd);
+
+      // Uploads count cell
+      var uploadsTd = document.createElement('td');
+      uploadsTd.style.cssText = 'padding:0.5rem;text-align:center;';
+      uploadsTd.textContent = String(u.uploads_count ?? 0);
+      tr.appendChild(uploadsTd);
+
+      // Approved count cell
+      var approvedTd = document.createElement('td');
+      approvedTd.style.cssText = 'padding:0.5rem;text-align:center;';
+      approvedTd.textContent = String(u.approved_count ?? 0);
+      tr.appendChild(approvedTd);
+
+      // Rejected count cell
+      var rejectedTd = document.createElement('td');
+      rejectedTd.style.cssText = 'padding:0.5rem;text-align:center;';
+      rejectedTd.textContent = String(u.rejected_count ?? 0);
+      tr.appendChild(rejectedTd);
+
+      // Last Login cell
+      var loginTd = document.createElement('td');
+      loginTd.style.cssText = 'padding:0.5rem;font-size:0.75rem;';
+      loginTd.textContent = u.last_login_date ? new Date(u.last_login_date).toLocaleDateString() : '—';
+      tr.appendChild(loginTd);
 
       // Promote column — dropdown only if has_admin_access() returns true
       const promoteTd = document.createElement('td');
@@ -1162,8 +1334,8 @@ async function loadUsersTable(page, searchQuery) {
       if (canPromote) {
         const roleSelect = document.createElement('select');
         roleSelect.style.cssText = 'padding:0.2rem 0.4rem;font-size:0.8rem;border:1px solid var(--border);border-radius:4px;background:var(--bg-soft);color:var(--text);';
-        // Founder must NOT be assignable
-        const roleOptions = ['Visitor', 'Explorer', 'Contributor', 'Moderator', 'Admin'];
+        // Founder must NOT be assignable from dropdown; Senior Moderator cannot assign roles
+        const roleOptions = ['Visitor', 'Explorer', 'Contributor', 'Moderator', 'Senior Moderator', 'Admin'];
         roleOptions.forEach(role => {
           const opt = document.createElement('option');
           opt.value = role;
@@ -1182,11 +1354,41 @@ async function loadUsersTable(page, searchQuery) {
         }
         roleSelect.addEventListener('change', async function() {
           const newRole = this.value;
+          const oldRole = u.primary_role || 'Visitor';
+          const selectEl = this;
+
+          // Prevent self-demotion of Founder
+          if (oldRole === 'Founder' && newRole !== 'Founder') {
+            const supabase2 = window.getSupabase ? window.getSupabase() : null;
+            if (supabase2) {
+              const { data: { session: s2 } } = await supabase2.auth.getSession();
+              if (s2 && s2.user.id === u.user_id) {
+                showMessage('Founder cannot demote themselves.', 'error');
+                selectEl.value = oldRole;
+                return;
+              }
+            }
+          }
+
+          // Only Founder can assign Founder
+          if (newRole === 'Founder' && userPrimaryRoleGlobal !== 'Founder') {
+            showMessage('Only Founder can assign the Founder role.', 'error');
+            selectEl.value = oldRole;
+            return;
+          }
+
+          // Confirmation modal
+          var userName = u.display_name || u.username || 'this user';
+          if (!confirm(`Change role of ${userName} from "${oldRole}" to "${newRole}"?`)) {
+            selectEl.value = oldRole;
+            return;
+          }
+
           try {
             const supabase = window.getSupabase ? window.getSupabase() : null;
             if (!supabase) throw new Error('Supabase not initialized');
-            const { error } = await supabase.rpc('promote_user', {
-              target_user: u.user_id,
+            const { error } = await supabase.rpc('update_user_role', {
+              target_user_id: u.user_id,
               new_primary_role: newRole
             });
             if (error) throw error;
@@ -1197,7 +1399,7 @@ async function loadUsersTable(page, searchQuery) {
             await loadUsersTable(usersCurrentPage, document.getElementById('usersSearchInput')?.value.trim());
           } catch (err) {
             showMessage('Failed: ' + (err.message || 'Unknown error'), 'error');
-            this.value = u.primary_role || 'Visitor';
+            selectEl.value = oldRole;
           }
         });
         promoteTd.appendChild(roleSelect);
@@ -1223,7 +1425,7 @@ async function loadUsersTable(page, searchQuery) {
     }
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="9" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="15" style="color:var(--color-error);">Error: ${err.message}</td></tr>`;
   }
 }
 
