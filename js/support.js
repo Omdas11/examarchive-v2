@@ -31,13 +31,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (supabase) {
-      const { data: existingRequest } = await supabase
-        .from("admin_requests")
-        .select("status, created_at")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
+      // Check both admin_requests and support_submissions
+      let existingRequest = null;
+      try {
+        const { data } = await supabase
+          .from("support_submissions")
+          .select("status, created_at")
+          .eq("user_id", user.id)
+          .eq("type", "admin_application")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+        existingRequest = data;
+      } catch(e) {}
+
+      // Fallback to legacy admin_requests table
+      if (!existingRequest) {
+        try {
+          const { data } = await supabase
+            .from("admin_requests")
+            .select("status, created_at")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+          existingRequest = data;
+        } catch(e) {}
+      }
 
       if (existingRequest) {
         const statusContainer = document.getElementById("admin-request-status-container");
@@ -46,8 +66,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           var SI = window.SvgIcons;
           const statusMap = {
             pending: (SI ? SI.inline('hourglass') : '') + " Pending review",
+            open: (SI ? SI.inline('hourglass') : '') + " Pending review",
             approved: "Approved",
-            rejected: "Rejected"
+            rejected: "Rejected",
+            closed: "Closed"
           };
           statusText.textContent = statusMap[existingRequest.status] || existingRequest.status;
           statusContainer.style.display = "block";
@@ -111,15 +133,33 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!reason) throw new Error("Please provide a reason");
       if (reason.length < 10) throw new Error("Please provide a more detailed reason (at least 10 characters)");
 
-      const { error } = await supabase.from("admin_requests").insert({
+      // Build message combining all fields
+      var message = reason;
+      if (subjectExpertise) message += '\n\nExpertise: ' + subjectExpertise;
+      if (experience) message += '\n\nExperience: ' + experience;
+      if (portfolioLink) message += '\n\nPortfolio: ' + portfolioLink;
+
+      // Insert into support_submissions table
+      const { error: supportError } = await supabase.from("support_submissions").insert({
         user_id: freshUser.id,
-        reason,
-        subject_expertise: subjectExpertise || null,
-        experience: experience || null,
-        portfolio_link: portfolioLink || null
+        type: "admin_application",
+        subject: "Admin Application",
+        message: message,
+        status: "open"
       });
 
-      if (error) throw error;
+      // Also insert into legacy admin_requests if table exists
+      try {
+        await supabase.from("admin_requests").insert({
+          user_id: freshUser.id,
+          reason,
+          subject_expertise: subjectExpertise || null,
+          experience: experience || null,
+          portfolio_link: portfolioLink || null
+        });
+      } catch(legacyErr) { /* table may not exist */ }
+
+      if (supportError) throw supportError;
 
       statusEl.textContent = "Application submitted successfully!";
       statusEl.style.display = "block";

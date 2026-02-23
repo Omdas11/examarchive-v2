@@ -1,190 +1,128 @@
-# Phase 5 — Implementation Guide
+# Phase 5 — Critical Fix Implementation Guide
 
 ## Overview
 
-Phase 5 is a comprehensive enforcement and polish pass across ExamArchive-v2. It addresses 12 mandatory fixes covering UI consistency, security, UX, and admin tooling.
+Phase 5 is a comprehensive enforcement and polish pass across ExamArchive-v2. It addresses 9 critical fixes covering promotion system integrity, UI consistency, security, UX, and admin tooling.
 
 ---
 
-## Changes Summary
+## All 9 Fixes — Status: COMPLETE
 
-### 1. Custom Dropdown Everywhere
+### 1. Promotion System Fixed
+
+**Problem**: Frontend `update_user_role` RPC calls used mismatched parameter names (`target_user` instead of `target_user_id`, `new_primary_role` instead of `new_role`), causing silent failures or bypassing the cooldown-enforced 2-param version from migration 16.
+
+**Fix**:
+- `admin/users.html`: Fixed `target_user` → `target_user_id` + `new_role`
+- `admin/dashboard/dashboard.js`: Fixed `new_primary_role` → `new_role` in inline promote handler
+- `admin/dashboard/dashboard.js`: Split `saveRoleChanges()` into 2-param RPC for primary role (cooldown-enforced) + direct table update for other fields
+- `admin/sql/15_phase5_migration.sql`: Fixed `target_user` → `target_user_id` in function signature for consistency
+- Added cooldown-specific error handling in all catch blocks
+
+**Cooldown enforcement**:
+- Founder: 2 hours
+- Admin: 3 hours
+- Senior Moderator: 6 hours
+- Moderator: 12 hours
+
+**Unique Founder constraint**: Enforced via unique partial index in migration 14 + pre-check in RPC.
+
+### 2. Custom Dropdown Complete
 
 All native `<select>` elements have been replaced with the custom `EaDropdown` component.
 
 - **Component**: `css/dropdown.css` + `js/dropdown.js`
 - **Usage**: Add `data-ea-dropdown` attribute to any `<select>` element
 - **API**: `window.EaDropdown.create(selectEl)` or `window.EaDropdown.initAll()`
-- **Features**: Themed, animated, accessible, keyboard navigable, close on outside click, mobile friendly
 
-**Files changed**:
-- `admin/users.html` — Sort dropdowns (`#sortBy`, `#sortDir`) enhanced
-- `admin/dashboard/index.html` — Role edit dropdown (`#roleEditPrimary`) enhanced
-- `admin/dashboard/dashboard.js` — `EaDropdown.initAll()` called after dashboard init
+**Static selects** (8 total): All have `data-ea-dropdown` attribute in HTML.
+**Dynamic selects** (3 total): All enhanced with `EaDropdown.create()` in JavaScript.
 
-### 2. SVG Icon System (No Emojis)
+### 3. Developer Page Fixed
 
-All emoji characters have been replaced with inline SVG icons from the centralized icon library (`js/svg-icons.js`).
+**Problem**: Infinite "Verifying Founder access..." spinner when auth takes too long.
 
-**Files changed**: `admin/users.html`, `developer/index.html`, `support.html`, `admin/stats.html`, `requests.html`, `upload.html`, `about.html`, `admin/dashboard/dashboard.js`
+**Fix**: Added 5-second `setTimeout` guard in `developer/index.html`:
+- Shows timeout error message if verification takes too long
+- `clearTimeout` called on all exit paths (success, denied, error)
+- Proper Founder role check via `roles.primary_role`
 
-**Icon library** at `js/svg-icons.js` provides: `SvgIcons.get(name)`, `SvgIcons.inline(name)`, `SvgIcons.el(name)`
+### 4. SVG Logo Placeholders
 
-### 3. UUID Fully Visible
+Created structured logo directories:
 
-Admin user table now shows full UUID without truncation.
+- `/assets/logos/svg/` — SVG logo files (examarchive.svg, university-default.svg, placeholder.svg)
+- `/assets/logos/png/` — PNG uploads directory
+- Icon fallback system in `js/icon-fallback.js` auto-applies `onerror` fallback to all icon/logo images
 
-- Removed `max-width`, `overflow: hidden`, `text-overflow: ellipsis` from `.uuid-text`
-- Added `word-break: break-all` and `min-width: 280px` on UUID column
-- Copy button functional with clipboard API + fallback
+### 5. Admin Button Removed from Homepage
 
-### 4. Admin Promotion Cooldown
+**Problem**: Homepage hero section had an Admin button that was role-gated but should not appear at all.
 
-**Backend** (SQL migration: `admin/sql/16_phase5_cooldown.sql`):
-- Added `last_role_change timestamptz` column to `roles` table
-- Modified `update_user_role()` RPC to enforce cooldowns:
-  - Founder → 2 hours
-  - Admin → 3 hours
-  - Senior Moderator → 6 hours
-  - Moderator → 12 hours
-- Raises exception with remaining time if cooldown is active
-- Updates `last_role_change = NOW()` on successful role change
+**Fix**: Removed the Admin button (`#heroAdminBtn`) and its associated role-checking JavaScript entirely from `index.html`. Admin access is available via the drawer navigation menu.
+
+### 6. Last Login: Real auth.users.last_sign_in_at
+
+**Problem**: `last_login_date` in the roles table was a static value, not the real authentication timestamp.
+
+**Fix** (SQL migration `17_phase5_lastlogin_support.sql`):
+- Created `get_user_last_sign_in(target_user_id uuid)` RPC — returns real `auth.users.last_sign_in_at`
+- Created `get_all_last_sign_ins()` RPC — batch version for admin table
+- Both RPCs are `SECURITY DEFINER` with Founder/Admin role checks
 
 **Frontend** (`admin/users.html`):
-- Success toast shows cooldown duration
-- Error handler detects cooldown messages
-- Custom dropdown reverts on failure
+- Prefers `real_last_sign_in` from auth.users over `last_login_date` from roles
+- Per-cell refresh button (🔄 icon) to re-fetch a single user's last sign-in
+- Auto-refresh every 60 minutes via `setInterval`
 
-### 5. Developer Page Verification Fix
+### 7. Badge & Achievement Display
 
-Fixed infinite "Verifying Founder access..." loop in `developer/index.html`.
+**Problem**: Admin users table showed only count numbers for badges and achievements.
 
-- Added 5-second `setTimeout` guard
-- `clearTimeout` called on all exit paths (success, denied, error)
-- Shows timeout error message if verification takes too long
+**Fix** (`admin/users.html`):
+- **Badges**: Hovering badge cell shows actual badge names as tooltip (e.g., "Subject Expert (Physics), Beta Tester")
+- **Achievements**: Hovering achievement cell shows actual achievement titles (e.g., "First Upload, 7-Day Streak")
+- Achievement type mapping: `first_upload` → "First Upload", `10_uploads` → "10 Uploads", `streak_7` → "7-Day Streak", etc.
+- Achievement details fetched from `achievements` table with `badge_type` and `awarded_at`
 
-### 6. Icon Fallback System
+### 8. Support Page & Submissions
 
-Created a robust icon fallback system:
+**Problem**: No `support_submissions` table; form data went only to `admin_requests`.
 
-- **Default icon**: `/assets/icons/system/default.svg`
-- **Custom icons folder**: `/assets/icons/custom/`
-- **Fallback script**: `js/icon-fallback.js`
-  - Uses `MutationObserver` to catch dynamically added images
-  - Applies `onerror` fallback to all icon-related `<img>` elements
-  - No empty icon areas possible
+**Fix**:
+- Created `support_submissions` table (SQL migration `17_phase5_lastlogin_support.sql`) with: id, user_id, type, subject, message, status, created_at, updated_at
+- RLS policies: Users can insert/view own; Admins can view/update all
+- `js/support.js`: Now inserts into `support_submissions` (with legacy `admin_requests` fallback)
+- Added **"Support Requests" tab** in admin dashboard (`admin/dashboard/index.html` + `dashboard.js`)
+- Tab only visible to Founder/Admin
 
-### 7. Tutorial Blur Fix
+### 9. Role Management Removed from Dashboard
 
-Fixed background remaining blurred after closing the tutorial overlay.
+**Problem**: Role Management panel duplicated functionality available in `admin/users.html`.
 
-In `js/tutorial.js` `dismiss()` function:
-- Removes `tutorial-active` class from body
-- Clears `filter`, `backdrop-filter`, `-webkit-backdrop-filter` from body and `#main-content`
-- Removes all tutorial DOM elements and styles
-
-### 8. Homepage Redesign
-
-Redesigned `index.html` with minimal layout:
-
-- **Typewriter animation** on "ExamArchive" title (plays once, then static)
-- **Streamlined buttons**: Browse Papers, Upload Paper, Login/Profile, Admin (auth-aware)
-- Removed Quick Access section (6 redundant buttons)
-- Auth-aware button visibility (Login shown for guests, Profile/Admin for authenticated users)
-
-### 9. Developer Pack Reset Expansion
-
-Added 7 new reset buttons to `developer/index.html`:
-
-| Button | Action | Description |
-|--------|--------|-------------|
-| Reset Level | `reset-level` | Sets user level to 0 |
-| Reset Role | `reset-role` | Sets role to Visitor |
-| Reset Username | `reset-username` | Clears username |
-| Reset Display Name | `reset-displayname` | Clears display name |
-| Reset Cooldown | `reset-cooldown` | Clears `last_role_change` |
-| Reset Upload Stats | `reset-uploads` | Deletes user submissions |
-| Reset Badges | `reset-badges` | Clears `custom_badges` |
-
-All use confirmation dialogs and show success/error toasts.
-
-### 10. Badge & Achievement Columns
-
-Added to admin user table (`admin/users.html`):
-
-- **Badges** column: Shows badge icon + count from `custom_badges` array
-- **Achievements** column: Shows trophy icon + count from `achievements` table
-- Data supplemented from separate queries after main user load
-
-### 11. Old User Table Removed
-
-Cleaned `admin/dashboard/`:
-- Removed Users tab button from main tab navigation
-- Removed Users panel HTML entirely
-- Commented out `setupMainTabs()` and `setupUsersTable()` calls
-- Dashboard now shows only Submissions analytics
-
-### 12. Last Login Timestamp Fix
-
-Fixed timestamp formatting in both admin pages:
-
-- `admin/users.html`: Uses `toLocaleString()` with `timeZoneName: 'short'`
-- `admin/dashboard/dashboard.js`: Same format
-- Output example: "Feb 23, 2026, 05:30 AM IST"
-- Each user shows their actual last login, not a shared timestamp
+**Fix**: Removed the entire Role Management HTML section from `admin/dashboard/index.html`. The `setupRoleManagement()` call was removed from dashboard init. Role management is done via the dedicated Users page at `admin/users.html`.
 
 ---
 
 ## Database Migrations
 
-### Migration: `admin/sql/16_phase5_cooldown.sql`
+### Migration 16: `admin/sql/16_phase5_cooldown.sql`
+- Adds `last_role_change` column to roles table
+- Replaces `update_user_role()` with cooldown-enforced 2-param version
 
-Run this migration to add cooldown enforcement:
-
-```sql
--- 1. Add column
-ALTER TABLE public.roles ADD COLUMN IF NOT EXISTS last_role_change timestamptz;
-
--- 2. Create/replace the RPC function
--- (See full SQL in admin/sql/16_phase5_cooldown.sql)
-```
+### Migration 17: `admin/sql/17_phase5_lastlogin_support.sql`
+- Creates `get_user_last_sign_in()` and `get_all_last_sign_ins()` RPCs
+- Creates `support_submissions` table with RLS policies
 
 ---
 
 ## Setup Steps
 
 1. Run `admin/sql/16_phase5_cooldown.sql` in Supabase SQL editor
-2. Verify `last_role_change` column exists in `roles` table
-3. Test role change cooldown by changing a user's role twice
-4. Verify icon fallback by temporarily using a broken image URL
-5. Clear `examarchive_tutorial_seen` from localStorage to test tutorial blur fix
-
----
-
-## Fallback Systems
-
-### Icon Fallback
-- Script: `js/icon-fallback.js`
-- Default: `/assets/icons/system/default.svg`
-- Custom: Upload to `/assets/icons/custom/`
-- Automatic: MutationObserver catches dynamically added images
-
-### Avatar Fallback
-- Priority: `roles.avatar_url` → OAuth avatar → Letter initial
-- Shimmer loading state while fetching
-
----
-
-## Cooldown Logic
-
-| Actor Role | Cooldown Duration |
-|-----------|-------------------|
-| Founder | 2 hours |
-| Admin | 3 hours |
-| Senior Moderator | 6 hours |
-| Moderator | 12 hours |
-| Other | 24 hours |
-
-- Enforced server-side via `update_user_role()` RPC
-- Frontend shows remaining time in error toast
-- Can be reset via Developer Tools (Founder only)
+2. Run `admin/sql/17_phase5_lastlogin_support.sql` in Supabase SQL editor
+3. Verify `last_role_change` column exists in `roles` table
+4. Verify `support_submissions` table exists
+5. Test role change cooldown by changing a user's role twice
+6. Test last login refresh button in admin users table
+7. Test support form submission from `/support.html`
+8. Verify support requests appear in admin dashboard Support tab

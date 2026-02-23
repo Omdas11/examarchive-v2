@@ -99,8 +99,10 @@ async function initializeDashboard(primaryRole) {
 
   // Setup role management panel (Founder/Admin only via primary_role)
   if (primaryRole === 'Founder' || primaryRole === 'Admin') {
-    setupRoleManagement();
     setupDemoReset();
+    // Show support tab
+    var supportTab = document.getElementById('mainTabSupport');
+    if (supportTab) supportTab.style.display = '';
   }
 
   if (window.EaDropdown) { window.EaDropdown.initAll(); }
@@ -121,6 +123,7 @@ function setupMainTabs(primaryRole) {
   var mainTabBtns = document.querySelectorAll('[data-main-tab]');
   var submissionsPanel = document.getElementById('submissions-panel');
   var usersPanel = document.getElementById('users-panel');
+  var supportPanel = document.getElementById('support-panel');
 
   mainTabBtns.forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -131,12 +134,14 @@ function setupMainTabs(primaryRole) {
       btn.classList.add('active');
 
       // Toggle panels
-      if (tab === 'users') {
-        if (submissionsPanel) submissionsPanel.style.display = 'none';
-        if (usersPanel) usersPanel.style.display = 'block';
-      } else {
-        if (submissionsPanel) submissionsPanel.style.display = 'block';
-        if (usersPanel) usersPanel.style.display = 'none';
+      if (submissionsPanel) submissionsPanel.style.display = (tab === 'submissions') ? 'block' : 'none';
+      if (usersPanel) usersPanel.style.display = (tab === 'users') ? 'block' : 'none';
+      if (supportPanel) supportPanel.style.display = (tab === 'support') ? 'block' : 'none';
+
+      // Load support requests on first tab click
+      if (tab === 'support' && !supportPanel._loaded) {
+        supportPanel._loaded = true;
+        loadSupportRequests();
       }
     });
   });
@@ -1124,17 +1129,31 @@ async function saveRoleChanges() {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
 
-    // Update role metadata via privileged RPC
-    const { error } = await supabase.rpc('update_user_role', {
-      target_user_id: userId,
-      new_level: isNaN(level) ? null : level,
-      new_primary_role: primaryRole,
-      new_secondary_role: secondaryRole,
-      new_tertiary_role: tertiaryRole,
-      new_custom_badges: customBadges
-    });
+    // If primary role changed, use the 2-param RPC (cooldown-enforced)
+    if (primaryRole) {
+      const { error: roleError } = await supabase.rpc('update_user_role', {
+        target_user_id: userId,
+        new_role: primaryRole
+      });
+      if (roleError) throw roleError;
+    }
 
-    if (error) throw error;
+    // Update other fields (level, secondary, tertiary, badges) via direct table update
+    // RLS policy "admins manage roles" allows Founder/Admin to update all rows
+    const otherUpdates = {};
+    if (!isNaN(level)) otherUpdates.level = level;
+    if (secondaryRole !== null) otherUpdates.secondary_role = secondaryRole;
+    if (tertiaryRole !== null) otherUpdates.tertiary_role = tertiaryRole;
+    if (customBadges.length > 0 || badgesStr === '') otherUpdates.custom_badges = customBadges;
+
+    if (Object.keys(otherUpdates).length > 0) {
+      otherUpdates.updated_at = new Date().toISOString();
+      const { error: updateError } = await supabase
+        .from('roles')
+        .update(otherUpdates)
+        .eq('user_id', userId);
+      if (updateError) throw updateError;
+    }
 
     showMessage('Role updated successfully!', 'success');
     document.getElementById('roleEditPanel').style.display = 'none';
@@ -1145,7 +1164,12 @@ async function saveRoleChanges() {
       await loadUsersTable();
     }
   } catch (err) {
-    showMessage('Failed to update role: ' + err.message, 'error');
+    var errMsg = err.message || 'Unknown error';
+    if (errMsg.toLowerCase().includes('cooldown')) {
+      showMessage('Cooldown active: ' + errMsg, 'error');
+    } else {
+      showMessage('Failed to update role: ' + errMsg, 'error');
+    }
   }
 }
 
@@ -1390,7 +1414,7 @@ async function loadUsersTable(page, searchQuery) {
             if (!supabase) throw new Error('Supabase not initialized');
             const { error } = await supabase.rpc('update_user_role', {
               target_user_id: u.user_id,
-              new_primary_role: newRole
+              new_role: newRole
             });
             if (error) throw error;
             u.primary_role = newRole;
@@ -1399,11 +1423,19 @@ async function loadUsersTable(page, searchQuery) {
             // Re-fetch users table
             await loadUsersTable(usersCurrentPage, document.getElementById('usersSearchInput')?.value.trim());
           } catch (err) {
-            showMessage('Failed: ' + (err.message || 'Unknown error'), 'error');
+            var errMsg = err.message || 'Unknown error';
+            if (errMsg.toLowerCase().includes('cooldown')) {
+              showMessage('Cooldown active: ' + errMsg, 'error');
+            } else {
+              showMessage('Failed: ' + errMsg, 'error');
+            }
             selectEl.value = oldRole;
           }
         });
         promoteTd.appendChild(roleSelect);
+        if (window.EaDropdown) {
+          window.EaDropdown.create(roleSelect);
+        }
       } else {
         promoteTd.textContent = '—';
       }
@@ -1443,3 +1475,55 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+/**
+ * Load support requests for admin dashboard
+ */
+async function loadSupportRequests() {
+  var listEl = document.getElementById('support-requests-list');
+  var emptyEl = document.getElementById('support-empty-state');
+  if (!listEl) return;
+
+  try {
+    var supabase = window.getSupabase ? window.getSupabase() : null;
+    if (!supabase) throw new Error('Supabase not initialized');
+
+    var { data, error } = await supabase
+      .from('support_submissions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      listEl.innerHTML = '';
+      if (emptyEl) emptyEl.style.display = 'block';
+      return;
+    }
+
+    if (emptyEl) emptyEl.style.display = 'none';
+
+    listEl.innerHTML = data.map(function(req) {
+      var date = new Date(req.created_at).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      var statusColor = req.status === 'open' ? '#f59e0b' : req.status === 'closed' ? '#22c55e' : '#64748b';
+      var safeSubject = escapeHtml(req.subject || 'Support Request');
+      var safeMessage = escapeHtml((req.message || '').substring(0, 300)).replace(/\n/g, '<br>');
+      var safeStatus = escapeHtml(req.status || 'open');
+      var safeType = escapeHtml(req.type || 'general');
+      return '<div class="submission-card" style="padding:1rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.75rem;background:var(--surface);">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">' +
+          '<strong>' + safeSubject + '</strong>' +
+          '<span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:4px;background:' + statusColor + ';color:#fff;">' + safeStatus + '</span>' +
+        '</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.5rem;">' + safeMessage + '</p>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+          '<span style="font-size:0.75rem;color:var(--text-muted);">' + date + '</span>' +
+          '<span style="font-size:0.7rem;color:var(--text-muted);">Type: ' + safeType + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+  } catch (err) {
+    listEl.innerHTML = '<p style="color:var(--color-error);text-align:center;padding:1rem;">Failed to load: ' + (err.message || 'Unknown error') + '</p>';
+  }
+}

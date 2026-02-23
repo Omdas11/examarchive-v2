@@ -71,7 +71,7 @@ $$;
 -- ============================================
 
 CREATE OR REPLACE FUNCTION update_user_role(
-  target_user uuid,
+  target_user_id uuid,
   new_role text
 )
 RETURNS void
@@ -95,7 +95,7 @@ BEGIN
 
   UPDATE roles
   SET primary_role = new_role
-  WHERE user_id = target_user;
+  WHERE user_id = target_user_id;
 END;
 $$;
 

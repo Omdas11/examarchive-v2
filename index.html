@@ -53,7 +53,6 @@
         <a href="upload.html" class="btn">Upload Paper</a>
         <a href="login.html" class="btn" id="heroLoginBtn">Login</a>
         <a href="profile.html" class="btn" id="heroProfileBtn" style="display:none;">Profile</a>
-        <a href="admin/dashboard/" class="btn" id="heroAdminBtn" style="display:none;">Admin</a>
       </div>
     </section>
 
@@ -192,7 +191,6 @@
     async function updateHeroButtons() {
       var loginBtn = document.getElementById('heroLoginBtn');
       var profileBtn = document.getElementById('heroProfileBtn');
-      var adminBtn = document.getElementById('heroAdminBtn');
       try {
         var supabase = window.getSupabase ? window.getSupabase() : null;
         if (!supabase) supabase = window.waitForSupabase ? await window.waitForSupabase() : null;
@@ -202,14 +200,6 @@
         if (session) {
           if (loginBtn) loginBtn.style.display = 'none';
           if (profileBtn) profileBtn.style.display = '';
-          // Check if user has admin access
-          try {
-            var roleRes = await supabase.from('roles').select('primary_role').eq('user_id', session.user.id).single();
-            var role = roleRes.data ? roleRes.data.primary_role : null;
-            if (role && ['Founder', 'Admin', 'Senior Moderator'].includes(role)) {
-              if (adminBtn) adminBtn.style.display = '';
-            }
-          } catch(e) {}
         }
       } catch(e) {}
     }

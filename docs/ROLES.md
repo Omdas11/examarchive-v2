@@ -112,8 +112,9 @@ Achievements are auto-earned based on user activity and stored in the `achieveme
 ### Achievement Display
 
 - Achievements appear on user profile page
-- Achievement count shown in admin user table
+- Achievement count shown in admin user table with hover tooltip showing actual titles
 - Trophy icon used for achievement indicators
+- Achievement titles shown on hover: "First Upload", "10 Uploads", "7-Day Streak", etc.
 
 ---
 

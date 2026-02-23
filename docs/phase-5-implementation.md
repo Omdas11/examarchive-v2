@@ -39,7 +39,7 @@ Full migration: `admin/sql/15_phase5_migration.sql`
 - **Security**: SECURITY DEFINER (no RLS bypass needed - function is the definer)
 - **Access**: Called from admin users page (Founder/Admin only via frontend check)
 
-### `update_user_role(target_user uuid, new_role text)`
+### `update_user_role(target_user_id uuid, new_role text)`
 - **Security**: SECURITY DEFINER with inline role check
 - **Access**: Founder/Admin only
 - **Restriction**: Only Founder can assign Founder role
