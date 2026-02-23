@@ -42,7 +42,7 @@
 
     <!-- ================= HERO ================= -->
     <section class="hero" aria-label="Welcome section">
-      <h1>ExamArchive</h1>
+      <h1 class="typewriter" id="heroTitle" aria-label="ExamArchive"></h1>
       <p>
         A simple and community-driven archive of university question papers.
         Browse, upload, and preserve papers for everyone.
@@ -51,7 +51,9 @@
       <div class="hero-actions" role="navigation" aria-label="Main actions">
         <a href="browse.html" class="btn btn-red">Browse Papers</a>
         <a href="upload.html" class="btn">Upload Paper</a>
-        <a href="about.html" class="btn">About Us</a>
+        <a href="login.html" class="btn" id="heroLoginBtn">Login</a>
+        <a href="profile.html" class="btn" id="heroProfileBtn" style="display:none;">Profile</a>
+        <a href="admin/dashboard/" class="btn" id="heroAdminBtn" style="display:none;">Admin</a>
       </div>
     </section>
 
@@ -89,20 +91,6 @@
       </div>
     </section>
 
-    <!-- ================= QUICK ACCESS ================= -->
-    <section class="quick-access" aria-label="Quick access navigation">
-      <h2>Quick Access</h2>
-
-      <div class="quick-grid" role="navigation" aria-label="Browse by category">
-        <a class="quick-btn" href="browse.html" aria-label="Browse papers by subject">By Subject</a>
-        <a class="quick-btn" href="browse.html" aria-label="Browse papers by university">By University</a>
-        <a class="quick-btn" href="browse.html#year" aria-label="Browse papers by year">By Year</a>
-        <a class="quick-btn" href="browse.html" aria-label="View repeated questions">Repeated Questions</a>
-        <a class="quick-btn" href="browse.html" aria-label="Access notes and resources">Notes & Resources</a>
-        <a class="quick-btn" href="browse.html" aria-label="View syllabus">Syllabus</a>
-      </div>
-    </section>
-
     <!-- ================= NOTICE BOARD ================= -->
     <section class="notice-board" aria-label="University notices">
       <h2>Notices & Updates</h2>
@@ -123,9 +111,9 @@
         <button class="toggle-btn" data-cat="other" onclick="filterCalendar('other', this)">Academic</button>
       </div>
       <div class="calendar-month-nav" style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
-        <button class="btn" id="calPrev" aria-label="Previous month">←</button>
+        <button class="btn" id="calPrev" aria-label="Previous month">&larr;</button>
         <strong id="calMonthLabel" style="min-width: 140px; text-align: center;"></strong>
-        <button class="btn" id="calNext" aria-label="Next month">→</button>
+        <button class="btn" id="calNext" aria-label="Next month">&rarr;</button>
       </div>
       <div id="calendarGrid" class="calendar-box" role="region" aria-live="polite">
         <p class="calendar-empty">Loading calendar...</p>
@@ -175,5 +163,61 @@
   <script src="js/notices-calendar.js"></script>
   <script src="js/tutorial.js"></script>
   <script src="js/visitor-counter.js"></script>
+  <script>
+  // Typewriter animation — plays once per page load, then static
+  (function() {
+    var el = document.getElementById('heroTitle');
+    if (!el) return;
+    var text = 'ExamArchive';
+    var i = 0;
+    function type() {
+      if (i <= text.length) {
+        el.textContent = text.slice(0, i);
+        i++;
+        setTimeout(type, 90);
+      } else {
+        el.classList.add('done');
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', type);
+    } else {
+      type();
+    }
+  })();
+
+  // Hero button visibility based on auth state
+  (function() {
+    async function updateHeroButtons() {
+      var loginBtn = document.getElementById('heroLoginBtn');
+      var profileBtn = document.getElementById('heroProfileBtn');
+      var adminBtn = document.getElementById('heroAdminBtn');
+      try {
+        var supabase = window.getSupabase ? window.getSupabase() : null;
+        if (!supabase) supabase = window.waitForSupabase ? await window.waitForSupabase() : null;
+        if (!supabase) return;
+        var res = await supabase.auth.getSession();
+        var session = res.data.session;
+        if (session) {
+          if (loginBtn) loginBtn.style.display = 'none';
+          if (profileBtn) profileBtn.style.display = '';
+          // Check if user has admin access
+          try {
+            var roleRes = await supabase.from('roles').select('primary_role').eq('user_id', session.user.id).single();
+            var role = roleRes.data ? roleRes.data.primary_role : null;
+            if (role && ['Founder', 'Admin', 'Senior Moderator'].includes(role)) {
+              if (adminBtn) adminBtn.style.display = '';
+            }
+          } catch(e) {}
+        }
+      } catch(e) {}
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { setTimeout(updateHeroButtons, 500); });
+    } else {
+      setTimeout(updateHeroButtons, 500);
+    }
+  })();
+  </script>
 </body>
 </html>
