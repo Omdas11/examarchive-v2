@@ -1404,6 +1404,9 @@ async function loadUsersTable(page, searchQuery) {
           }
         });
         promoteTd.appendChild(roleSelect);
+        if (window.EaDropdown) {
+          window.EaDropdown.create(roleSelect);
+        }
       } else {
         promoteTd.textContent = '—';
       }

@@ -454,7 +454,7 @@
         cleanup();
         try {
           var res = await supabaseClient.rpc('update_user_role', {
-            target_user: userId,
+            target_user_id: userId,
             new_role: newRole
           });
           if (res.error) throw res.error;
