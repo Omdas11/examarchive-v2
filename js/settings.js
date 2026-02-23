@@ -189,6 +189,17 @@ const settingsConfig = [
         label: "Account Information"
       },
       {
+        id: "week-start",
+        type: "select",
+        label: "Week Starts On",
+        description: "Streak calendar alignment",
+        options: [
+          { value: "Monday", label: "Monday" },
+          { value: "Sunday", label: "Sunday" }
+        ],
+        storageKey: "week-start"
+      },
+      {
         id: "sign-out",
         type: "button",
         label: "Sign Out",
@@ -1078,6 +1089,33 @@ function attachEventListeners() {
     });
   }
   
+  // ========== WEEK START PREFERENCE ==========
+  const weekStartSelect = document.getElementById("week-start");
+  if (weekStartSelect) {
+    // Load saved value from localStorage or default
+    var savedWeekStart = localStorage.getItem("week-start") || "Monday";
+    weekStartSelect.value = savedWeekStart;
+
+    weekStartSelect.addEventListener("change", async (e) => {
+      var val = e.target.value;
+      localStorage.setItem("week-start", val);
+
+      // Sync to Supabase roles table
+      try {
+        var supabase = window.getSupabase ? window.getSupabase() : null;
+        if (supabase) {
+          var sessionRes = await supabase.auth.getSession();
+          var session = sessionRes.data.session;
+          if (session) {
+            await supabase.from('roles').update({ week_start: val }).eq('user_id', session.user.id);
+          }
+        }
+      } catch (err) {
+        console.error("[SETTINGS] Failed to save week_start:", err);
+      }
+    });
+  }
+
   // Reset demo data button
   const resetDemoBtn = document.getElementById("reset-demo-data");
   if (resetDemoBtn) {
