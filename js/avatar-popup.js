@@ -206,27 +206,46 @@ function updateHeaderAvatar(user) {
 
   const avatarWrap = avatarMini.closest(".avatar-wrap");
 
+  // Role tier → SVG icon + color mapping for fallback placeholder
+  var tierSvgMap = {
+    'founder':          { icon: 'crown',    color: '#ffd700' },
+    'admin':            { icon: 'shield',   color: '#d32f2f' },
+    'senior-moderator': { icon: 'shield',   color: '#ff9800' },
+    'reviewer':         { icon: 'badge',    color: '#2196F3' },
+    'senior':           { icon: 'lightning', color: '#9c27b0' },
+    'veteran':          { icon: 'clipboard', color: '#00bcd4' },
+    'contributor':      { icon: 'sparkles', color: '#4CAF50' },
+    'explorer':         { icon: 'eye',      color: '#607d8b' },
+    'visitor':          { icon: 'user',     color: '#9e9e9e' },
+    'none':             { icon: 'user',     color: '#9e9e9e' }
+  };
+
   if (user) {
     const fullName = user.user_metadata?.full_name;
     const email = user.email;
     const oauthAvatarUrl = user.user_metadata?.avatar_url;
     const initial = fullName ? fullName[0].toUpperCase() : email ? email[0].toUpperCase() : "U";
 
-    function applyAvatar(url) {
+    function applyAvatar(url, ringType) {
       const sanitizedUrl = window.AvatarUtils?.sanitizeAvatarUrl
         ? window.AvatarUtils.sanitizeAvatarUrl(url)
         : url;
       if (sanitizedUrl) {
         avatarMini.textContent = "";
+        avatarMini.innerHTML = "";
         avatarMini.style.backgroundImage = `url("${sanitizedUrl}")`;
         avatarMini.style.backgroundSize = "cover";
         avatarMini.style.backgroundPosition = "center";
         avatarMini.style.backgroundColor = "";
         avatarMini.classList.remove("avatar-shimmer");
       } else {
-        avatarMini.textContent = initial;
+        // Colorful SVG placeholder based on role tier
+        var tier = tierSvgMap[ringType] || tierSvgMap['visitor'];
+        var svgHtml = window.SvgIcons ? window.SvgIcons.get(tier.icon, { size: 18 }) : initial;
+        avatarMini.innerHTML = svgHtml;
         avatarMini.style.backgroundImage = "none";
-        avatarMini.style.backgroundColor = "";
+        avatarMini.style.backgroundColor = tier.color;
+        avatarMini.style.color = "#fff";
         avatarMini.classList.remove("avatar-shimmer");
       }
     }
@@ -245,40 +264,46 @@ function updateHeaderAvatar(user) {
       supabase.from('roles').select('avatar_url, primary_role, level').eq('user_id', user.id).single().then(function(res) {
         headerAvatarFetchInProgress = false;
         var rolesAvatar = res.data?.avatar_url || null;
-        // Priority: roles avatar_url > OAuth avatar_url > initial fallback
-        applyAvatar(rolesAvatar || oauthAvatarUrl || null);
+
+        // Compute ring type first (needed for SVG fallback)
+        var role = res.data?.primary_role || '';
+        var level = res.data?.level || 0;
+        var ringType = 'none';
+        if (role === 'Founder') ringType = 'founder';
+        else if (role === 'Admin') ringType = 'admin';
+        else if (role === 'Senior Moderator') ringType = 'senior-moderator';
+        else if (role === 'Reviewer') ringType = 'reviewer';
+        else if (level >= 50) ringType = 'senior';
+        else if (level >= 25) ringType = 'veteran';
+        else if (level >= 10) ringType = 'contributor';
+        else if (level >= 5) ringType = 'explorer';
+        else ringType = 'visitor';
 
         // Set ring data attribute for animated gradient
         if (avatarWrap) {
-          var role = res.data?.primary_role || '';
-          var level = res.data?.level || 0;
-          var ringType = 'none';
-          if (role === 'Founder') ringType = 'founder';
-          else if (role === 'Admin') ringType = 'admin';
-          else if (role === 'Senior Moderator') ringType = 'senior-moderator';
-          else if (role === 'Reviewer') ringType = 'reviewer';
-          else if (level >= 50) ringType = 'senior';
-          else if (level >= 25) ringType = 'veteran';
-          else if (level >= 10) ringType = 'contributor';
-          else if (level >= 5) ringType = 'explorer';
-          else ringType = 'visitor';
           avatarWrap.setAttribute('data-ring', ringType);
         }
+
+        // Priority: roles avatar_url > OAuth avatar_url > colorful SVG fallback
+        applyAvatar(rolesAvatar || oauthAvatarUrl || null, ringType);
       }).catch(function() {
         headerAvatarFetchInProgress = false;
         // Fallback to OAuth avatar if roles fetch fails
-        applyAvatar(oauthAvatarUrl || null);
+        applyAvatar(oauthAvatarUrl || null, 'none');
         if (avatarWrap) avatarWrap.setAttribute('data-ring', 'none');
       });
     } else {
       headerAvatarFetchInProgress = false;
-      applyAvatar(oauthAvatarUrl || null);
+      applyAvatar(oauthAvatarUrl || null, 'none');
       if (avatarWrap) avatarWrap.setAttribute('data-ring', 'none');
     }
   } else {
-    avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get('user') : '';
+    // Guest: show visitor SVG placeholder
+    var guestTier = tierSvgMap['visitor'];
+    avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get(guestTier.icon, { size: 18 }) : '';
     avatarMini.style.backgroundImage = "none";
-    avatarMini.style.backgroundColor = "";
+    avatarMini.style.backgroundColor = guestTier.color;
+    avatarMini.style.color = "#fff";
     avatarMini.classList.remove("avatar-shimmer");
     avatarMini.title = "Visitor";
     if (avatarWrap) avatarWrap.setAttribute('data-ring', 'none');

@@ -224,6 +224,11 @@
         await loadUsers(supabase);
         initToolbar();
 
+        // Founder only: silently recalc levels if any mismatch detected
+        if (role === 'Founder') {
+          checkLevelMismatch(supabase);
+        }
+
       } catch (err) {
         console.error('[USERS] Access check failed:', err);
         showDenied();
@@ -516,6 +521,34 @@
       var div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
+    }
+
+    // XP-to-level calculation (mirrors DB function calculate_level_from_xp)
+    function calculateLevelFromXp(xp) {
+      if (xp >= 5000) return 100;
+      if (xp >= 3000) return 90;
+      if (xp >= 1500) return 50;
+      if (xp >= 800) return 25;
+      if (xp >= 300) return 10;
+      if (xp >= 100) return 5;
+      return 0;
+    }
+
+    // Founder only: detect XP/level mismatch and silently call recalc_levels()
+    async function checkLevelMismatch(supabase) {
+      try {
+        var hasMismatch = allUsers.some(function(u) {
+          var expected = calculateLevelFromXp(u.xp || 0);
+          return (u.level || 0) !== expected;
+        });
+        if (hasMismatch) {
+          await supabase.rpc('recalc_levels');
+          // Re-fetch to update UI with corrected levels
+          await loadUsers(supabase);
+        }
+      } catch (e) {
+        // Silent failure — Founder-only maintenance task
+      }
     }
   })();
   </script>
