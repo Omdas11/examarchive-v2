@@ -102,12 +102,12 @@ window.addEventListener('auth:ready', function(e) {
   'use strict';
 
   // Error store for mobile debug panel
+  var MAX_ERROR_HISTORY = 100;
   window.DEBUG_ERRORS = window.DEBUG_ERRORS || [];
-  var maxErrors = 100;
 
   function addError(entry) {
     window.DEBUG_ERRORS.push(entry);
-    if (window.DEBUG_ERRORS.length > maxErrors) {
+    if (window.DEBUG_ERRORS.length > MAX_ERROR_HISTORY) {
       window.DEBUG_ERRORS.shift();
     }
     updateErrorBadge();

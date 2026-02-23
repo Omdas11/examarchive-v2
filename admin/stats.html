@@ -267,6 +267,15 @@
     }
 
     async function loadFreeTierEstimate(supabase) {
+      // Supabase free tier limits
+      var DB_ROWS_LIMIT = 500000;
+      var DB_ROWS_WARNING = 400000;
+      var DB_ROWS_CAUTION = 300000;
+      var STORAGE_LIMIT_MB = 1000;
+      var STORAGE_WARNING_MB = 900;
+      var STORAGE_CAUTION_MB = 700;
+      var AVG_FILE_SIZE_MB = 0.5; // estimated average submission file size
+
       try {
         var rolesCount = await supabase.from('roles').select('*', { count: 'exact', head: true });
         var subsCount = await supabase.from('submissions').select('*', { count: 'exact', head: true });
@@ -274,18 +283,17 @@
         setText('s-db-rows', totalRows.toLocaleString());
         var dbTier = document.getElementById('s-db-tier');
         if (dbTier) {
-          if (totalRows > 400000) { dbTier.textContent = 'Over limit'; dbTier.className = 'tier-badge danger'; }
-          else if (totalRows > 300000) { dbTier.textContent = 'Warning'; dbTier.className = 'tier-badge warning'; }
+          if (totalRows > DB_ROWS_WARNING) { dbTier.textContent = 'Over limit'; dbTier.className = 'tier-badge danger'; }
+          else if (totalRows > DB_ROWS_CAUTION) { dbTier.textContent = 'Warning'; dbTier.className = 'tier-badge warning'; }
           else { dbTier.textContent = 'Free tier'; dbTier.className = 'tier-badge free'; }
         }
-        // Estimate storage: ~500KB per submission file on average
-        var estStorageMB = Math.round((subsCount.count || 0) * 0.5);
+        var estStorageMB = Math.round((subsCount.count || 0) * AVG_FILE_SIZE_MB);
         var storageEl = document.getElementById('s-storage-est');
         if (storageEl) storageEl.textContent = estStorageMB < 1024 ? estStorageMB + ' MB' : (estStorageMB / 1024).toFixed(1) + ' GB';
         var storageTier = document.getElementById('s-storage-tier');
         if (storageTier) {
-          if (estStorageMB > 900) { storageTier.textContent = 'Over limit'; storageTier.className = 'tier-badge danger'; }
-          else if (estStorageMB > 700) { storageTier.textContent = 'Warning'; storageTier.className = 'tier-badge warning'; }
+          if (estStorageMB > STORAGE_WARNING_MB) { storageTier.textContent = 'Over limit'; storageTier.className = 'tier-badge danger'; }
+          else if (estStorageMB > STORAGE_CAUTION_MB) { storageTier.textContent = 'Warning'; storageTier.className = 'tier-badge warning'; }
           else { storageTier.textContent = 'Free tier'; storageTier.className = 'tier-badge free'; }
         }
       } catch (err) {
