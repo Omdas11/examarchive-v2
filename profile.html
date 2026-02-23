@@ -82,14 +82,14 @@
       border-radius: 50%;
       z-index: 0;
     }
-    .ring-founder .profile-page-avatar-ring { background: conic-gradient(#ffd700, #ff8c00, #ffd700); animation: ring-spin 3s linear infinite; }
-    .ring-admin .profile-page-avatar-ring { background: conic-gradient(#d32f2f, #ff5252, #d32f2f); animation: ring-spin 3s linear infinite; }
-    .ring-senior-moderator .profile-page-avatar-ring { background: conic-gradient(#ff9800, #ffcc80, #ff9800); animation: ring-spin 3s linear infinite; }
-    .ring-reviewer .profile-page-avatar-ring { background: conic-gradient(#2196F3, #90caf9, #2196F3); animation: ring-spin 3s linear infinite; }
-    .ring-senior .profile-page-avatar-ring { background: conic-gradient(#9c27b0, #e040fb, #9c27b0); animation: ring-spin 3s linear infinite; }
-    .ring-veteran .profile-page-avatar-ring { background: conic-gradient(#00bcd4, #80deea, #00bcd4); animation: ring-spin 3s linear infinite; }
+    .ring-founder .profile-page-avatar-ring { background: conic-gradient(#ffd700, #ff8c00, #ffd700); animation: ring-spin 8s linear infinite; }
+    .ring-admin .profile-page-avatar-ring { background: conic-gradient(#d32f2f, #ff5252, #d32f2f); animation: ring-spin 8s linear infinite; }
+    .ring-senior-moderator .profile-page-avatar-ring { background: conic-gradient(#ff9800, #ffcc80, #ff9800); animation: ring-spin 8s linear infinite; }
+    .ring-reviewer .profile-page-avatar-ring { background: conic-gradient(#2196F3, #90caf9, #2196F3); animation: ring-spin 8s linear infinite; }
+    .ring-senior .profile-page-avatar-ring { background: conic-gradient(#9c27b0, #e040fb, #9c27b0); animation: ring-spin 8s linear infinite; }
+    .ring-veteran .profile-page-avatar-ring { background: conic-gradient(#00bcd4, #80deea, #00bcd4); animation: ring-spin 8s linear infinite; }
     .ring-contributor .profile-page-avatar-ring { background: none; }
-    .ring-explorer .profile-page-avatar-ring { background: conic-gradient(#607d8b, #b0bec5, #607d8b); animation: ring-spin 3s linear infinite; }
+    .ring-explorer .profile-page-avatar-ring { background: conic-gradient(#607d8b, #b0bec5, #607d8b); animation: ring-spin 8s linear infinite; }
     .ring-visitor .profile-page-avatar-ring { background: conic-gradient(#9e9e9e, #e0e0e0, #9e9e9e); animation: none; }
     @keyframes ring-spin {
       to { transform: translate(-50%, -50%) rotate(360deg); }
@@ -243,13 +243,15 @@
       display: flex;
       justify-content: center;
       gap: 0.5rem;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
     }
     .streak-day {
       width: 40px;
       height: 40px;
       border-radius: 50%;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-size: 0.8rem;
@@ -258,6 +260,14 @@
       color: var(--text-muted);
       background: var(--bg-soft);
       transition: all 0.3s;
+      position: relative;
+    }
+    .streak-day-label {
+      font-size: 0.5rem;
+      font-weight: 400;
+      position: absolute;
+      bottom: -16px;
+      color: var(--text-muted);
     }
     .streak-day.active {
       border-color: var(--red);
@@ -576,7 +586,7 @@
       var userXp = roleData.xp || 0;
       var userLevel = roleData.level || 0;
       var username = roleData.username || null;
-      var usernameUpdatedAt = roleData.username_updated_at || null;
+      var usernameUpdatedAt = roleData.username_last_changed || roleData.username_updated_at || null;
       var displayName = roleData.display_name || user.user_metadata?.full_name || user.email;
       var avatarUrl = roleData.avatar_url || null;
       window.debugLog('INFO', 'Fetched avatar_url: ' + avatarUrl);
@@ -707,12 +717,13 @@
       }, 100);
 
       // Streak
+      var userWeekStart = roleData.week_start || 'Monday';
       try {
         var streakRes = await supabase.rpc('update_daily_streak');
         if (streakRes.data && streakRes.data.length > 0) {
           var streak = streakRes.data[0].streak || 0;
           var longestStreak = streakRes.data[0].longest_streak || streak;
-          renderPageStreak(streak, longestStreak);
+          renderPageStreak(streak, longestStreak, userWeekStart);
         }
       } catch (_) {}
 
@@ -872,7 +883,7 @@
       }
     });
 
-    function renderPageStreak(streakCount, longestStreak) {
+    function renderPageStreak(streakCount, longestStreak, weekStart) {
       var section = document.getElementById('pageStreakSection');
       var circlesEl = document.getElementById('pageStreakCircles');
       var statsEl = document.getElementById('pageStreakStats');
@@ -881,10 +892,26 @@
       var days = 7;
       var active = Math.min(streakCount, days);
       circlesEl.innerHTML = '';
+
+      // Day labels aligned with week_start preference
+      var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      var startIdx = (weekStart === 'Sunday') ? 0 : 1;
+      var today = new Date();
+      var todayDow = today.getDay(); // 0=Sun, 1=Mon, ...
+      var todayOffset = (todayDow - startIdx + 7) % 7;
+
       for (var i = 0; i < days; i++) {
         var div = document.createElement('div');
-        div.className = 'streak-day' + (i < active ? ' active' : '') + (i === active - 1 && active > 0 ? ' current' : '');
-        div.innerHTML = i < active ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : String(i + 1);
+        var dayIdx = (startIdx + i) % 7;
+        var isCurrent = (i === todayOffset);
+        var isActive = (i <= todayOffset) && (todayOffset - i < active);
+        div.className = 'streak-day' + (isActive ? ' active' : '') + (isCurrent ? ' current' : '');
+        var labelSpan = '<span class="streak-day-label">' + dayNames[dayIdx] + '</span>';
+        if (isActive) {
+          div.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + labelSpan;
+        } else {
+          div.innerHTML = String(i + 1) + labelSpan;
+        }
         circlesEl.appendChild(div);
       }
 

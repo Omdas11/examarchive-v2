@@ -204,6 +204,8 @@ function updateHeaderAvatar(user) {
   const avatarMini = document.querySelector(".avatar-mini");
   if (!avatarMini) return;
 
+  const avatarWrap = avatarMini.closest(".avatar-wrap");
+
   if (user) {
     const fullName = user.user_metadata?.full_name;
     const email = user.email;
@@ -237,22 +239,41 @@ function updateHeaderAvatar(user) {
     if (headerAvatarFetchInProgress) return;
     headerAvatarFetchInProgress = true;
 
-    // Fetch avatar_url from roles table (uploaded avatar takes priority)
+    // Fetch avatar_url and role info from roles table
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (supabase) {
-      supabase.from('roles').select('avatar_url').eq('user_id', user.id).single().then(function(res) {
+      supabase.from('roles').select('avatar_url, primary_role, level').eq('user_id', user.id).single().then(function(res) {
         headerAvatarFetchInProgress = false;
         var rolesAvatar = res.data?.avatar_url || null;
         // Priority: roles avatar_url > OAuth avatar_url > initial fallback
         applyAvatar(rolesAvatar || oauthAvatarUrl || null);
+
+        // Set ring data attribute for animated gradient
+        if (avatarWrap) {
+          var role = res.data?.primary_role || '';
+          var level = res.data?.level || 0;
+          var ringType = 'none';
+          if (role === 'Founder') ringType = 'founder';
+          else if (role === 'Admin') ringType = 'admin';
+          else if (role === 'Senior Moderator') ringType = 'senior-moderator';
+          else if (role === 'Reviewer') ringType = 'reviewer';
+          else if (level >= 50) ringType = 'senior';
+          else if (level >= 25) ringType = 'veteran';
+          else if (level >= 10) ringType = 'contributor';
+          else if (level >= 5) ringType = 'explorer';
+          else ringType = 'visitor';
+          avatarWrap.setAttribute('data-ring', ringType);
+        }
       }).catch(function() {
         headerAvatarFetchInProgress = false;
         // Fallback to OAuth avatar if roles fetch fails
         applyAvatar(oauthAvatarUrl || null);
+        if (avatarWrap) avatarWrap.setAttribute('data-ring', 'none');
       });
     } else {
       headerAvatarFetchInProgress = false;
       applyAvatar(oauthAvatarUrl || null);
+      if (avatarWrap) avatarWrap.setAttribute('data-ring', 'none');
     }
   } else {
     avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get('user') : '';
@@ -260,6 +281,7 @@ function updateHeaderAvatar(user) {
     avatarMini.style.backgroundColor = "";
     avatarMini.classList.remove("avatar-shimmer");
     avatarMini.title = "Visitor";
+    if (avatarWrap) avatarWrap.setAttribute('data-ring', 'none');
   }
 }
 

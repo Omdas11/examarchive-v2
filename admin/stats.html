@@ -136,6 +136,23 @@
         </div>
       </div>
 
+      <!-- Free Tier Usage -->
+      <div class="charts-section">
+        <h2>Free Tier Usage Estimate</h2>
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+          <div class="stat-card">
+            <span class="stat-value" id="s-db-rows">—</span>
+            <span class="stat-label">Database Rows (est.)</span>
+            <span class="tier-badge free" id="s-db-tier" style="margin-top:0.5rem;">Free tier</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="s-storage-est">—</span>
+            <span class="stat-label">Storage (est.)</span>
+            <span class="tier-badge free" id="s-storage-tier" style="margin-top:0.5rem;">Free tier</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -202,34 +219,86 @@
     });
 
     async function loadStats(supabase) {
-      // Total Users
-      var usersRes = await supabase.from('roles').select('*', { count: 'exact', head: true });
-      setText('s-total-users', usersRes.count || 0);
+      try {
+        // Try RPC first
+        var rpcRes = await supabase.rpc('get_platform_stats');
+        if (rpcRes.error) throw rpcRes.error;
+        var stats = rpcRes.data;
+        setText('s-total-users', stats.total_users || 0);
+        setText('s-total-uploads', stats.total_uploads || 0);
+        setText('s-approved', stats.approved || 0);
+        setText('s-pending', stats.pending || 0);
+        setText('s-rejected', stats.rejected || 0);
+        setText('s-active-7d', stats.active_7 || 0);
+      } catch (rpcErr) {
+        // Fallback: direct queries
+        try {
+          var usersRes = await supabase.from('roles').select('*', { count: 'exact', head: true });
+          setText('s-total-users', usersRes.count || 0);
 
-      // Total Uploads
-      var uploadsRes = await supabase.from('submissions').select('*', { count: 'exact', head: true });
-      setText('s-total-uploads', uploadsRes.count || 0);
+          var uploadsRes = await supabase.from('submissions').select('*', { count: 'exact', head: true });
+          setText('s-total-uploads', uploadsRes.count || 0);
 
-      // Approved
-      var approvedRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).in('status', ['approved', 'published']);
-      setText('s-approved', approvedRes.count || 0);
+          var approvedRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).in('status', ['approved', 'published']);
+          setText('s-approved', approvedRes.count || 0);
 
-      // Pending
-      var pendingRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-      setText('s-pending', pendingRes.count || 0);
+          var pendingRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+          setText('s-pending', pendingRes.count || 0);
 
-      // Rejected
-      var rejectedRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'rejected');
-      setText('s-rejected', rejectedRes.count || 0);
+          var rejectedRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'rejected');
+          setText('s-rejected', rejectedRes.count || 0);
 
-      // Active users (logged in within 7 days)
-      var sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      var activeRes = await supabase.from('roles').select('*', { count: 'exact', head: true }).gte('last_login_date', sevenDaysAgo.toISOString().split('T')[0]);
-      setText('s-active-7d', activeRes.count || 0);
+          var sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+          var activeRes = await supabase.from('roles').select('*', { count: 'exact', head: true }).gte('last_login_date', sevenDaysAgo.toISOString().split('T')[0]);
+          setText('s-active-7d', activeRes.count || 0);
+        } catch (fallbackErr) {
+          setText('s-total-users', 'Error');
+          setText('s-total-uploads', 'Error');
+          console.error('[STATS] Failed to load stats:', fallbackErr);
+        }
+      }
 
       // Load charts
       loadCharts(supabase);
+
+      // Free tier usage estimate
+      loadFreeTierEstimate(supabase);
+    }
+
+    async function loadFreeTierEstimate(supabase) {
+      // Supabase free tier limits
+      var DB_ROWS_LIMIT = 500000;
+      var DB_ROWS_WARNING = 400000;
+      var DB_ROWS_CAUTION = 300000;
+      var STORAGE_LIMIT_MB = 1000;
+      var STORAGE_WARNING_MB = 900;
+      var STORAGE_CAUTION_MB = 700;
+      var AVG_FILE_SIZE_MB = 0.5; // estimated average submission file size
+
+      try {
+        var rolesCount = await supabase.from('roles').select('*', { count: 'exact', head: true });
+        var subsCount = await supabase.from('submissions').select('*', { count: 'exact', head: true });
+        var totalRows = (rolesCount.count || 0) + (subsCount.count || 0);
+        setText('s-db-rows', totalRows.toLocaleString());
+        var dbTier = document.getElementById('s-db-tier');
+        if (dbTier) {
+          if (totalRows > DB_ROWS_WARNING) { dbTier.textContent = 'Over limit'; dbTier.className = 'tier-badge danger'; }
+          else if (totalRows > DB_ROWS_CAUTION) { dbTier.textContent = 'Warning'; dbTier.className = 'tier-badge warning'; }
+          else { dbTier.textContent = 'Free tier'; dbTier.className = 'tier-badge free'; }
+        }
+        var estStorageMB = Math.round((subsCount.count || 0) * AVG_FILE_SIZE_MB);
+        var storageEl = document.getElementById('s-storage-est');
+        if (storageEl) storageEl.textContent = estStorageMB < 1024 ? estStorageMB + ' MB' : (estStorageMB / 1024).toFixed(1) + ' GB';
+        var storageTier = document.getElementById('s-storage-tier');
+        if (storageTier) {
+          if (estStorageMB > STORAGE_WARNING_MB) { storageTier.textContent = 'Over limit'; storageTier.className = 'tier-badge danger'; }
+          else if (estStorageMB > STORAGE_CAUTION_MB) { storageTier.textContent = 'Warning'; storageTier.className = 'tier-badge warning'; }
+          else { storageTier.textContent = 'Free tier'; storageTier.className = 'tier-badge free'; }
+        }
+      } catch (err) {
+        console.error('[STATS] Free tier estimate failed:', err);
+      }
     }
 
     async function loadCharts(supabase) {

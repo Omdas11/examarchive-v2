@@ -282,19 +282,54 @@ function initAdminDrawerLink() {
 }
 
 function updateAdminDrawerVisibility() {
-  const adminLink = document.getElementById("drawerAdminLink");
-  if (!adminLink) return;
+  var adminLink = document.getElementById("drawerAdminLink");
+  var usersLink = document.getElementById("drawerUsersLink");
+  var statsLink = document.getElementById("drawerStatsLink");
+  var devLink = document.getElementById("drawerDevLink");
   
   // Use primary_role for permission check — never use level
   if (window.AdminAuth?.isCurrentUserAdmin) {
-    window.AdminAuth.isCurrentUserAdmin().then(isAdmin => {
+    window.AdminAuth.isCurrentUserAdmin().then(function(isAdmin) {
       if (isAdmin) {
-        adminLink.removeAttribute("hidden");
+        if (adminLink) adminLink.removeAttribute("hidden");
       } else {
-        adminLink.setAttribute("hidden", "");
+        if (adminLink) adminLink.setAttribute("hidden", "");
       }
     });
   }
+
+  // Role-based visibility for Users, Stats, Developer links
+  var supabase = window.getSupabase ? window.getSupabase() : null;
+  if (!supabase) return;
+
+  supabase.auth.getSession().then(function(res) {
+    var session = res.data.session;
+    if (!session) return;
+
+    supabase.from('roles').select('primary_role').eq('user_id', session.user.id).single().then(function(roleRes) {
+      var role = roleRes.data ? roleRes.data.primary_role : null;
+      if (!role) return;
+
+      var isFounderOrAdmin = ['Founder', 'Admin'].includes(role);
+      var isSeniorMod = role === 'Senior Moderator';
+
+      // Users + Developer: Founder/Admin only
+      if (usersLink) {
+        if (isFounderOrAdmin) usersLink.removeAttribute("hidden");
+        else usersLink.setAttribute("hidden", "");
+      }
+      if (devLink) {
+        if (isFounderOrAdmin) devLink.removeAttribute("hidden");
+        else devLink.setAttribute("hidden", "");
+      }
+
+      // Stats: Founder/Admin/Senior Moderator
+      if (statsLink) {
+        if (isFounderOrAdmin || isSeniorMod) statsLink.removeAttribute("hidden");
+        else statsLink.setAttribute("hidden", "");
+      }
+    });
+  });
 }
 
 /* ===============================
