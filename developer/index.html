@@ -68,7 +68,7 @@
 
     <!-- Access Denied -->
     <div id="dev-denied" class="access-denied" style="display: none;">
-      <h2>🔒 Access Denied</h2>
+      <h2><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span> Access Denied</h2>
       <p class="text-muted">Only the Founder can access Developer Tools.</p>
       <a href="../index.html" class="btn btn-red" style="margin-top:1rem;">Go Home</a>
     </div>
@@ -76,7 +76,7 @@
     <!-- Developer Content -->
     <div id="dev-content" style="display: none;">
 
-      <h1>🛠️ Developer Tools</h1>
+      <h1><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span> Developer Tools</h1>
       <p class="subtitle">Founder-only system controls and diagnostics</p>
 
       <!-- Data Reset Controls -->
@@ -84,19 +84,19 @@
         <h2>Data Reset Controls <span class="badge">DESTRUCTIVE</span></h2>
         <div class="dev-grid">
           <button class="dev-btn danger" data-action="reset-xp" title="Reset XP for a single user">
-            ⚡ Reset User XP
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> Reset User XP
           </button>
           <button class="dev-btn danger" data-action="reset-achievements" title="Reset achievements for a single user">
-            🏆 Reset Achievements
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg></span> Reset Achievements
           </button>
           <button class="dev-btn danger" data-action="reset-streak" title="Reset streak for a single user">
-            🔥 Reset Streak
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4-2.5 7-6 7-10.5 0-3-1.5-5.5-4-7.5-.8 2-2 3-4 3-1.5 0-2.5-1-3-2.5C6 7 4 10 4 13c0 4.5 3 7.5 8 9z"/></svg></span> Reset Streak
           </button>
           <button class="dev-btn danger" data-action="reset-submissions" title="Reset submissions for a single user">
-            📄 Reset Submissions
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span> Reset Submissions
           </button>
           <button class="dev-btn danger" data-action="reset-database" title="Reset entire database (hard confirm)">
-            💀 Reset Entire Database
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></span> Reset Entire Database
           </button>
         </div>
       </div>
@@ -106,19 +106,19 @@
         <h2>Backend Triggers <span class="badge">SAFE</span></h2>
         <div class="dev-grid">
           <button class="dev-btn" data-action="recalc-xp">
-            ⚡ Recalculate XP
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> Recalculate XP
           </button>
           <button class="dev-btn" data-action="sync-levels">
-            📊 Re-sync Levels
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> Re-sync Levels
           </button>
           <button class="dev-btn" data-action="rebuild-achievements">
-            🏆 Rebuild Achievements
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg></span> Rebuild Achievements
           </button>
           <button class="dev-btn" data-action="recalc-stats">
-            📈 Recalculate Stats
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> Recalculate Stats
           </button>
           <button class="dev-btn" data-action="regen-search">
-            🔍 Regenerate Search Index
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span> Regenerate Search Index
           </button>
         </div>
       </div>
@@ -324,7 +324,7 @@ Type "help" for available commands.</div>
               break;
 
             case 'reset-database':
-              showConfirm('⚠️ RESET ENTIRE DATABASE', 'Type "RESET ALL" to confirm. This deletes ALL submissions, achievements, and resets all XP.', true, 'Type RESET ALL', async function(val) {
+              showConfirm('<span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span> RESET ENTIRE DATABASE', 'Type "RESET ALL" to confirm. This deletes ALL submissions, achievements, and resets all XP.', true, 'Type RESET ALL', async function(val) {
                 if (val !== 'RESET ALL') { showToast('Confirmation text did not match.', 'error'); return; }
                 btn.disabled = true;
                 try {

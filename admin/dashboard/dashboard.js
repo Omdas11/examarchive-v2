@@ -486,7 +486,7 @@ function showReviewModal(submission) {
       ${submission?.tags && submission.tags.length ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>Tags:</strong> ' + submission.tags.map(function(t){return escapeHtml(t);}).join(', ') + '</p>' : ''}
     </div>
     <details style="margin-bottom:1rem;">
-      <summary style="cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--text);">✏️ Edit Metadata</summary>
+      <summary style="cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--text);"><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> Edit Metadata</summary>
       <div style="padding:0.75rem;background:var(--bg-soft);border-radius:8px;margin-top:0.5rem;">
         <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
           <strong>Paper Code</strong>
@@ -503,7 +503,7 @@ function showReviewModal(submission) {
         <button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;margin-top:0.25rem;" data-save-meta="${escapeHtml(submission?.id || '')}">Save Changes</button>
       </div>
     </details>
-    ${submission?.storage_path ? '<div style="margin-bottom:1rem;"><button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;" data-preview-file="' + escapeHtml(submission.id) + '">📄 Preview PDF</button></div>' : ''}
+    ${submission?.storage_path ? '<div style="margin-bottom:1rem;"><button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;" data-preview-file="' + escapeHtml(submission.id) + '"><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span> Preview PDF</button></div>' : ''}
   `;
 
   // Attach event listeners programmatically instead of inline onclick
