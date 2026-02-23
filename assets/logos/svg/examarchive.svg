@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <rect width="120" height="120" rx="16" fill="#d32f2f"/>
+  <path d="M35 30h50a5 5 0 015 5v50a5 5 0 01-5 5H35a5 5 0 01-5-5V35a5 5 0 015-5z" fill="#fff" opacity="0.2"/>
+  <text x="60" y="68" text-anchor="middle" font-family="system-ui" font-weight="700" font-size="36" fill="#fff">EA</text>
+  <text x="60" y="88" text-anchor="middle" font-family="system-ui" font-size="10" fill="#fff" opacity="0.8">ExamArchive</text>
+</svg>

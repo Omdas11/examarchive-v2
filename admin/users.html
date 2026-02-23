@@ -226,6 +226,9 @@
         initToolbar();
         if (window.EaDropdown) { window.EaDropdown.initAll(); }
 
+        // Auto-refresh last login data every 60 minutes
+        setInterval(function() { loadUsers(supabase); }, 60 * 60 * 1000);
+
         // Founder only: silently recalc levels if any mismatch detected
         if (role === 'Founder') {
           checkLevelMismatch(supabase);
@@ -278,6 +281,31 @@
           }
         } catch(e) {}
 
+        // Supplement with real last_sign_in_at from auth.users via RPC
+        try {
+          var loginRes = await supabase.rpc('get_all_last_sign_ins');
+          if (!loginRes.error && loginRes.data) {
+            var loginMap = {};
+            loginRes.data.forEach(function(r) { loginMap[r.user_id] = r.last_sign_in; });
+            allUsers.forEach(function(u) {
+              if (loginMap[u.user_id]) u.real_last_sign_in = loginMap[u.user_id];
+            });
+          }
+        } catch(e) {}
+
+        // Supplement with achievement details (badge_type)
+        try {
+          var achDetailRes = await supabase.from('achievements').select('user_id, badge_type, awarded_at');
+          if (!achDetailRes.error && achDetailRes.data) {
+            var achDetailMap = {};
+            achDetailRes.data.forEach(function(a) {
+              if (!achDetailMap[a.user_id]) achDetailMap[a.user_id] = [];
+              achDetailMap[a.user_id].push({ badge_type: a.badge_type, awarded_at: a.awarded_at });
+            });
+            allUsers.forEach(function(u) { u.achievements_list = achDetailMap[u.user_id] || []; });
+          }
+        } catch(e) {}
+
         renderTable(allUsers);
       } catch (err) {
         // Fallback: direct table query
@@ -325,16 +353,34 @@
         var uuidHtml = '<div class="uuid-wrap"><span class="uuid-text" title="' + escapeHtml(uuidVal) + '">' + escapeHtml(uuidVal) + '</span>' +
           '<button class="uuid-copy" data-uuid="' + escapeHtml(uuidVal) + '" title="Copy UUID" aria-label="Copy UUID"><span class="svg-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span></button></div>';
 
-        // Format last login as full timestamp
-        var lastLogin = u.last_login_date || '—';
-        if (lastLogin !== '—') {
+        // Format last login — prefer real auth.users.last_sign_in_at
+        var lastLoginRaw = u.real_last_sign_in || u.last_login_date || null;
+        var lastLogin = '—';
+        if (lastLoginRaw) {
           try {
-            var d = new Date(lastLogin);
+            var d = new Date(lastLoginRaw);
             if (!isNaN(d.getTime())) {
               lastLogin = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
             }
           } catch(e) {}
         }
+
+        // Build badges display — show actual badge names as tooltip
+        var badgesList = u.custom_badges && u.custom_badges.length ? u.custom_badges : [];
+        var badgesTitle = badgesList.length ? badgesList.join(', ') : 'No badges';
+        var badgesHtml = '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg></span> ' + badgesList.length;
+
+        // Build achievements display — show actual achievement titles as tooltip
+        var achList = u.achievements_list || [];
+        var achTitleMap = { 'first_upload': 'First Upload', '10_uploads': '10 Uploads', 'first_approval': 'First Approval', 'streak_7': '7-Day Streak', 'streak_30': '30-Day Streak' };
+        var achNames = achList.map(function(a) { return achTitleMap[a.badge_type] || a.badge_type; });
+        var achTitle = achNames.length ? achNames.join(', ') : 'No achievements';
+        var achHtml = '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg></span> ' + achList.length;
+
+        // Build last login cell with refresh button
+        var lastLoginHtml = '<span class="last-login-text">' + escapeHtml(lastLogin) + '</span>' +
+          '<button class="login-refresh-btn" data-user-id="' + escapeHtml(u.user_id) + '" title="Refresh last login" aria-label="Refresh" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;">' +
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></button>';
 
         tr.innerHTML =
           '<td class="td-slno">' + (idx + 1) + '</td>' +
@@ -348,15 +394,9 @@
           '<td>' + (u.uploads || 0) + '</td>' +
           '<td>' + (u.approved || 0) + '</td>' +
           '<td>' + (u.rejected || 0) + '</td>' +
-          '<td class="badge-cell" style="text-align:center;" title="Custom badges">' +
-            '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg></span> ' +
-            (u.custom_badges && u.custom_badges.length ? u.custom_badges.length : 0) +
-          '</td>' +
-          '<td class="achievement-cell" style="text-align:center;" title="Achievements">' +
-            '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg></span> ' +
-            (u.achievements_count || 0) +
-          '</td>' +
-          '<td>' + escapeHtml(lastLogin) + '</td>';
+          '<td class="badge-cell" style="text-align:center;" title="' + escapeHtml(badgesTitle) + '">' + badgesHtml + '</td>' +
+          '<td class="achievement-cell" style="text-align:center;" title="' + escapeHtml(achTitle) + '">' + achHtml + '</td>' +
+          '<td class="last-login-cell" style="white-space:nowrap;">' + lastLoginHtml + '</td>';
 
         // UUID copy button handler
         var copyBtn = tr.querySelector('.uuid-copy');
@@ -389,6 +429,27 @@
             span.className = 'user-avatar-initial';
             span.textContent = fallbackInitial;
             this.parentNode.replaceChild(span, this);
+          });
+        }
+
+        // Last login refresh button handler
+        var refreshBtn = tr.querySelector('.login-refresh-btn');
+        if (refreshBtn) {
+          refreshBtn.addEventListener('click', async function() {
+            var uid = this.getAttribute('data-user-id');
+            var textEl = this.parentNode.querySelector('.last-login-text');
+            try {
+              var sb = window.getSupabase ? window.getSupabase() : null;
+              if (!sb) return;
+              var res = await sb.rpc('get_user_last_sign_in', { target_user_id: uid });
+              if (res.error) throw res.error;
+              if (res.data) {
+                var d = new Date(res.data);
+                textEl.textContent = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+              } else {
+                textEl.textContent = '—';
+              }
+            } catch(e) { showToast('Could not refresh: ' + (e.message || 'Error'), 'error'); }
           });
         }
 

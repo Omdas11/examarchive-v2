@@ -67,69 +67,11 @@
       <!-- Main Tab Navigation -->
       <section class="dashboard-tabs" id="mainTabsSection">
         <button class="tab-btn active" data-main-tab="submissions" id="mainTabSubmissions">Submissions</button>
+        <button class="tab-btn" data-main-tab="support" id="mainTabSupport" style="display:none;">Support Requests</button>
       </section>
 
       <!-- Submissions Panel -->
       <div id="submissions-panel">
-      <section id="role-management-panel" class="role-management-panel" style="display: none;">
-        <h2>Role Management</h2>
-        <p class="text-muted" style="margin-bottom: 1rem;">Search and manage user roles (Founder/Admin only)</p>
-
-        <div class="role-search-row">
-          <input type="text" id="roleSearchInput" placeholder="Search by username, email, or paste UUID..." class="role-search-input" />
-          <button class="btn btn-red" id="roleSearchBtn">Search</button>
-        </div>
-
-        <div id="roleSearchResults" class="role-search-results" style="display:none;">
-          <!-- Results rendered by JS -->
-        </div>
-
-        <div id="roleEditPanel" class="role-edit-panel" style="display:none;">
-          <h3 id="roleEditName">Edit User Role</h3>
-          <input type="hidden" id="roleEditUserId" />
-
-          <div class="role-edit-fields">
-            <div class="role-field">
-              <label for="roleEditXP">XP (cosmetic)</label>
-              <input type="number" id="roleEditXP" min="0" />
-            </div>
-            <div class="role-field">
-              <label for="roleEditLevel">Level (cosmetic)</label>
-              <input type="number" id="roleEditLevel" min="0" max="100" />
-            </div>
-            <div class="role-field">
-              <label for="roleEditPrimary">Primary Role (permissions)</label>
-              <select id="roleEditPrimary" data-ea-dropdown>
-                <option value="">— Select —</option>
-                <option value="Visitor">Visitor</option>
-                <option value="Contributor">Contributor</option>
-                <option value="Reviewer">Reviewer</option>
-                <option value="Moderator">Moderator</option>
-                <option value="Senior Moderator">Senior Moderator</option>
-                <option value="Admin">Admin</option>
-                <option value="Founder">Founder (unique)</option>
-              </select>
-            </div>
-            <div class="role-field">
-              <label for="roleEditSecondary">Secondary Role</label>
-              <input type="text" id="roleEditSecondary" placeholder="e.g. Contributor" />
-            </div>
-            <div class="role-field">
-              <label for="roleEditTertiary">Tertiary Role</label>
-              <input type="text" id="roleEditTertiary" placeholder="e.g. Reviewer" />
-            </div>
-            <div class="role-field">
-              <label for="roleEditBadges">Custom Badges (comma-separated)</label>
-              <input type="text" id="roleEditBadges" placeholder="e.g. Subject Expert (Physics), Beta Tester" />
-            </div>
-          </div>
-
-          <div class="role-edit-actions">
-            <button class="btn btn-outline" id="roleEditCancel">Cancel</button>
-            <button class="btn btn-red" id="roleEditSave">Save Changes</button>
-          </div>
-        </div>
-      </section>
 
       <!-- Demo Data Reset (Founder/Admin only) -->
       <section id="demo-reset-panel" class="demo-reset-panel" style="display: none;">
@@ -188,6 +130,20 @@
       </section>
 
       </div><!-- end submissions-panel -->
+
+      <!-- Support Requests Panel (Founder/Admin only) -->
+      <div id="support-panel" style="display:none;">
+        <section class="dashboard-header">
+          <h2>Support Requests</h2>
+          <p class="text-muted">Admin applications and support submissions</p>
+        </section>
+        <div id="support-requests-list" class="submissions-list">
+          <p class="text-muted" style="text-align:center;padding:2rem;">Loading support requests...</p>
+        </div>
+        <div id="support-empty-state" class="empty-state" style="display:none;">
+          <p class="text-muted">No support requests found</p>
+        </div>
+      </div>
 
 
 
