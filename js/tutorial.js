@@ -324,6 +324,17 @@
     if (tooltip) tooltip.remove();
     if (style) style.remove();
     if (highlightClone) highlightClone.remove();
+    // Ensure no blur remains on body or main content
+    document.body.classList.remove('tutorial-active');
+    document.body.style.removeProperty('filter');
+    document.body.style.removeProperty('backdrop-filter');
+    document.body.style.removeProperty('-webkit-backdrop-filter');
+    var mainEl = document.getElementById('main-content');
+    if (mainEl) {
+      mainEl.style.removeProperty('filter');
+      mainEl.style.removeProperty('backdrop-filter');
+      mainEl.style.removeProperty('-webkit-backdrop-filter');
+    }
   }
 
   if (document.readyState === 'loading') {

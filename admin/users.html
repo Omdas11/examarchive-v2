@@ -36,9 +36,9 @@
     .users-table th.sorted .sort-arrow { opacity: 1; }
     .users-table tr:hover { background: var(--bg-soft); }
 
-    .users-table td.uuid { font-family: monospace; font-size: 0.7rem; color: var(--text-muted); }
+    .users-table td.uuid { font-family: monospace; font-size: 0.7rem; color: var(--text-muted); min-width: 280px; }
     .uuid-wrap { display: flex; align-items: center; gap: 0.35rem; }
-    .uuid-text { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uuid-text { font-size: 0.68rem; word-break: break-all; white-space: normal; }
     .uuid-copy { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 5px; cursor: pointer; color: var(--text-muted); font-size: 0.65rem; line-height: 1; transition: color 0.2s, border-color 0.2s; flex-shrink: 0; }
     .uuid-copy:hover { color: var(--text); border-color: var(--text); }
 
@@ -78,7 +78,6 @@
     @media (max-width: 768px) {
       .users-table { font-size: 0.75rem; }
       .users-table th, .users-table td { padding: 0.4rem 0.5rem; }
-      .uuid-text { max-width: 120px; }
     }
   </style>
 </head>
@@ -112,14 +111,14 @@
 
       <div class="users-toolbar">
         <input type="text" id="userSearch" placeholder="Search by name, username, or UUID..." />
-        <select id="sortBy">
+        <select id="sortBy" data-ea-dropdown>
           <option value="display_name">Sort by Name</option>
           <option value="xp">Sort by XP</option>
           <option value="primary_role">Sort by Role</option>
           <option value="uploads">Sort by Uploads</option>
           <option value="last_login_date">Sort by Last Login</option>
         </select>
-        <select id="sortDir">
+        <select id="sortDir" data-ea-dropdown>
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
@@ -223,6 +222,7 @@
         content.style.display = 'block';
         await loadUsers(supabase);
         initToolbar();
+        if (window.EaDropdown) { window.EaDropdown.initAll(); }
 
         // Founder only: silently recalc levels if any mismatch detected
         if (role === 'Founder') {

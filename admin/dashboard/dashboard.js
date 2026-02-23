@@ -103,6 +103,8 @@ async function initializeDashboard(primaryRole) {
     setupDemoReset();
   }
 
+  if (window.EaDropdown) { window.EaDropdown.initAll(); }
+
   // Users tab: Founder/Admin only — Senior Moderator cannot see Users tab
   if (primaryRole === 'Founder' || primaryRole === 'Admin') {
     setupUsersTable();

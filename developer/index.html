@@ -179,30 +179,42 @@ Type "help" for available commands.</div>
       var denied = document.getElementById('dev-denied');
       var content = document.getElementById('dev-content');
 
+      // Add 5-second timeout for verification
+      var verifyTimeout = setTimeout(function() {
+        if (loading.style.display !== 'none') {
+          loading.style.display = 'none';
+          denied.querySelector('h2').innerHTML = window.SvgIcons ? window.SvgIcons.inline('lock') + ' Verification Timeout' : 'Verification Timeout';
+          denied.querySelector('p').textContent = 'Could not verify Founder access. Please check your connection and try again.';
+          denied.style.display = 'flex';
+        }
+      }, 5000);
+
       try {
         var supabase = window.getSupabase ? window.getSupabase() : null;
         if (!supabase) {
-          // Wait for supabase
           supabase = window.waitForSupabase ? await window.waitForSupabase() : null;
         }
-        if (!supabase) { showDenied(); return; }
+        if (!supabase) { clearTimeout(verifyTimeout); showDenied(); return; }
 
         var sessionRes = await supabase.auth.getSession();
         var session = sessionRes.data.session;
-        if (!session) { showDenied(); return; }
+        if (!session) { clearTimeout(verifyTimeout); showDenied(); return; }
 
         var roleRes = await supabase.from('roles').select('primary_role').eq('user_id', session.user.id).single();
         if (!roleRes.data || roleRes.data.primary_role !== 'Founder') {
+          clearTimeout(verifyTimeout);
           showDenied();
           return;
         }
 
         // Founder verified
+        clearTimeout(verifyTimeout);
         loading.style.display = 'none';
         content.style.display = 'block';
         initDevTools(supabase, session);
 
       } catch (err) {
+        clearTimeout(verifyTimeout);
         console.error('[DEV-TOOLS] Access check failed:', err);
         showDenied();
       }
