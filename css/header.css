@@ -205,13 +205,13 @@ body[data-theme="amoled"] .theme-icon-light { display: none; }
   to { transform: rotate(360deg); }
 }
 
-/* Level tier ring colors — complementary gradient pairs */
-.avatar-wrap[data-ring="founder"]::before    { background: conic-gradient(#ffd700, #ff8c00, #ff4d00, #ffd700); }
-.avatar-wrap[data-ring="admin"]::before      { background: conic-gradient(#d32f2f, #ff5252, #ff80ab, #d32f2f); }
-.avatar-wrap[data-ring="senior-moderator"]::before { background: conic-gradient(#ff9800, #ffcc80, #ff6d00, #ff9800); }
-.avatar-wrap[data-ring="reviewer"]::before   { background: conic-gradient(#2196F3, #90caf9, #00b0ff, #2196F3); }
-.avatar-wrap[data-ring="senior"]::before     { background: conic-gradient(#9c27b0, #e040fb, #d500f9, #9c27b0); }
-.avatar-wrap[data-ring="veteran"]::before    { background: conic-gradient(#00bcd4, #80deea, #00e5ff, #00bcd4); }
+/* Level tier ring colors — triadic gradient pairs (primary + 2 balanced triadic accents) */
+.avatar-wrap[data-ring="founder"]::before    { background: conic-gradient(#d4a520, #1ea896, #a040cc, #d4a520); }
+.avatar-wrap[data-ring="admin"]::before      { background: conic-gradient(#c23030, #2fa02f, #4455cc, #c23030); }
+.avatar-wrap[data-ring="senior-moderator"]::before { background: conic-gradient(#cc7711, #22b066, #8833bb, #cc7711); }
+.avatar-wrap[data-ring="reviewer"]::before   { background: conic-gradient(#1d6eb0, #b01d6e, #5a9018, #1d6eb0); }
+.avatar-wrap[data-ring="senior"]::before     { background: conic-gradient(#7733aa, #aa8833, #33aa77, #7733aa); }
+.avatar-wrap[data-ring="veteran"]::before    { background: conic-gradient(#1a8a99, #882299, #8a9918, #1a8a99); }
 .avatar-wrap[data-ring="contributor"]::before { background: none; animation: none; }
 /* explorer spins slower — subtle effect for mid-tier ring */
 .avatar-wrap[data-ring="explorer"]::before   { background: conic-gradient(#607d8b, #b0bec5, #78909c, #607d8b); animation: header-ring-spin 10s linear infinite; }
