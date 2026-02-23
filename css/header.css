@@ -215,10 +215,11 @@ body[data-theme="amoled"] .theme-icon-light { display: none; }
 
 /* Inner avatar */
 .avatar-mini {
+  position: relative;
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--avatar-bg);
+  background-color: var(--avatar-bg);
   color: var(--avatar-text);
 
   font-size: 0.75rem;
@@ -226,6 +227,9 @@ body[data-theme="amoled"] .theme-icon-light { display: none; }
 
   display: grid;
   place-items: center;
+
+  object-fit: cover;
+  overflow: hidden;
 }
 
 /* Loading shimmer for avatar */
