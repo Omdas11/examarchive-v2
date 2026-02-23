@@ -98,6 +98,27 @@
           <button class="dev-btn danger" data-action="reset-database" title="Reset entire database (hard confirm)">
             <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></span> Reset Entire Database
           </button>
+          <button class="dev-btn danger" data-action="reset-level" title="Reset level for a single user">
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> Reset Level
+          </button>
+          <button class="dev-btn danger" data-action="reset-role" title="Reset role to Visitor">
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span> Reset Role
+          </button>
+          <button class="dev-btn danger" data-action="reset-username" title="Reset username for a single user">
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Reset Username
+          </button>
+          <button class="dev-btn danger" data-action="reset-displayname" title="Reset display name for a single user">
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> Reset Display Name
+          </button>
+          <button class="dev-btn danger" data-action="reset-cooldown" title="Reset role change cooldown for a user">
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14M5 21h14M7 3v4a4 4 0 004 4 4 4 0 004-4V3M7 21v-4a4 4 0 014-4 4 4 0 014 4v4"/></svg></span> Reset Cooldown
+          </button>
+          <button class="dev-btn danger" data-action="reset-uploads" title="Reset upload stats for a single user">
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span> Reset Upload Stats
+          </button>
+          <button class="dev-btn danger" data-action="reset-badges" title="Reset custom badges for a single user">
+            <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg></span> Reset Badges
+          </button>
         </div>
       </div>
 
@@ -363,6 +384,96 @@ Type "help" for available commands.</div>
               break;
             case 'regen-search':
               showToast('Search index regeneration triggered.', 'success');
+              break;
+
+            case 'reset-level':
+              showConfirm('Reset Level', 'Enter user UUID to reset their level to 0.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                btn.disabled = true;
+                try {
+                  var res = await supabase.from('roles').update({ level: 0 }).eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Level reset for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
+              });
+              break;
+
+            case 'reset-role':
+              showConfirm('Reset Role', 'Enter user UUID to reset their role to Visitor.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                btn.disabled = true;
+                try {
+                  var res = await supabase.from('roles').update({ primary_role: 'Visitor', secondary_role: null, tertiary_role: null }).eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Role reset to Visitor for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
+              });
+              break;
+
+            case 'reset-username':
+              showConfirm('Reset Username', 'Enter user UUID to clear their username.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                btn.disabled = true;
+                try {
+                  var res = await supabase.from('roles').update({ username: null }).eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Username cleared for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
+              });
+              break;
+
+            case 'reset-displayname':
+              showConfirm('Reset Display Name', 'Enter user UUID to clear their display name.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                btn.disabled = true;
+                try {
+                  var res = await supabase.from('roles').update({ display_name: null }).eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Display name cleared for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
+              });
+              break;
+
+            case 'reset-cooldown':
+              showConfirm('Reset Cooldown', 'Enter user UUID to clear their role change cooldown.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                btn.disabled = true;
+                try {
+                  var res = await supabase.from('roles').update({ last_role_change: null }).eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Cooldown reset for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
+              });
+              break;
+
+            case 'reset-uploads':
+              showConfirm('Reset Upload Stats', 'Enter user UUID to delete all their submissions and reset upload counts.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                btn.disabled = true;
+                try {
+                  await supabase.from('submissions').delete().eq('uploaded_by', uuid);
+                  showToast('Upload stats reset for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
+              });
+              break;
+
+            case 'reset-badges':
+              showConfirm('Reset Badges', 'Enter user UUID to clear all custom badges.', true, 'User UUID', async function(uuid) {
+                if (!uuid) return;
+                btn.disabled = true;
+                try {
+                  var res = await supabase.from('roles').update({ custom_badges: [] }).eq('user_id', uuid);
+                  if (res.error) throw res.error;
+                  showToast('Badges cleared for ' + uuid, 'success');
+                } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+                finally { btn.disabled = false; }
+              });
               break;
           }
         });

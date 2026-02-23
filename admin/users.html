@@ -309,7 +309,7 @@
           try {
             var d = new Date(lastLogin);
             if (!isNaN(d.getTime())) {
-              lastLogin = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+              lastLogin = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
             }
           } catch(e) {}
         }

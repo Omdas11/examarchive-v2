@@ -82,8 +82,8 @@ async function initializeDashboard(primaryRole) {
   // Cache admin access result for reuse across the dashboard
   currentUserIsAdmin = await window.AdminAuth.isCurrentUserAdmin();
 
-  // Setup main tab switching (Submissions / Users)
-  setupMainTabs(primaryRole);
+  // Main tab switching disabled — Users panel removed
+  // setupMainTabs(primaryRole);
 
   // Setup tab switching
   setupTabs();
@@ -105,14 +105,13 @@ async function initializeDashboard(primaryRole) {
 
   if (window.EaDropdown) { window.EaDropdown.initAll(); }
 
-  // Users tab: Founder/Admin only — Senior Moderator cannot see Users tab
-  if (primaryRole === 'Founder' || primaryRole === 'Admin') {
-    setupUsersTable();
-  } else {
-    // Hide Users tab for Senior Moderator and others
-    var usersTab = document.getElementById('mainTabUsers');
-    if (usersTab) usersTab.style.display = 'none';
-  }
+  // Users tab removed — user management moved to admin/users.html
+  // if (primaryRole === 'Founder' || primaryRole === 'Admin') {
+  //   setupUsersTable();
+  // } else {
+  //   var usersTab = document.getElementById('mainTabUsers');
+  //   if (usersTab) usersTab.style.display = 'none';
+  // }
 }
 
 /**
@@ -1327,7 +1326,7 @@ async function loadUsersTable(page, searchQuery) {
       // Last Login cell
       var loginTd = document.createElement('td');
       loginTd.style.cssText = 'padding:0.5rem;font-size:0.75rem;';
-      loginTd.textContent = u.last_login_date ? new Date(u.last_login_date).toLocaleDateString() : '—';
+      loginTd.textContent = u.last_login_date ? new Date(u.last_login_date).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }) : '—';
       tr.appendChild(loginTd);
 
       // Promote column — dropdown only if has_admin_access() returns true
