@@ -238,6 +238,23 @@
       var confirmCancel = document.getElementById('confirmCancel');
       var pendingAction = null;
 
+      var UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+      // Resolve email, username, or UUID → UUID
+      async function resolveIdentifier(identifier) {
+        var val = identifier.trim();
+        if (!val) return null;
+        if (UUID_RE.test(val)) return val;
+        // Use RPC to look up by username or email
+        var res = await supabase.rpc('lookup_user_by_identifier', { identifier: val });
+        if (res.error) throw new Error('Lookup failed: ' + res.error.message);
+        if (!res.data) throw new Error('User not found: ' + val);
+        return res.data;
+      }
+
+      var USER_INPUT_DESC = 'Enter email, username, or UUID.';
+      var USER_INPUT_PLACEHOLDER = 'Email, username, or UUID';
+
       function showConfirm(title, desc, needsInput, placeholder, cb) {
         confirmTitle.innerHTML = title;
         confirmDesc.textContent = desc;
@@ -276,10 +293,11 @@
 
           switch(action) {
             case 'reset-xp':
-              showConfirm('Reset User XP', 'Enter the user UUID to reset their XP to 0.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset User XP', 'Reset XP to 0. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.rpc('reset_user_xp', { target: uuid });
                   if (res.error) throw res.error;
                   showToast('XP reset for ' + uuid, 'success');
@@ -289,10 +307,11 @@
               break;
 
             case 'reset-achievements':
-              showConfirm('Reset Achievements', 'Enter user UUID to clear all achievements.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Achievements', 'Clear all achievements. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.rpc('reset_achievements', { target: uuid });
                   if (res.error) throw res.error;
                   showToast('Achievements cleared for ' + uuid, 'success');
@@ -302,10 +321,11 @@
               break;
 
             case 'reset-streak':
-              showConfirm('Reset Streak', 'Enter user UUID to reset their login streak.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Streak', 'Reset login streak. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.rpc('reset_streak', { target: uuid });
                   if (res.error) throw res.error;
                   showToast('Streak reset for ' + uuid, 'success');
@@ -315,10 +335,11 @@
               break;
 
             case 'reset-submissions':
-              showConfirm('Reset Submissions', 'Enter user UUID to delete all their submissions.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Submissions', 'Delete all submissions. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.rpc('reset_submissions', { target: uuid });
                   if (res.error) throw res.error;
                   showToast('Submissions deleted for ' + uuid, 'success');
@@ -370,10 +391,11 @@
               break;
 
             case 'reset-level':
-              showConfirm('Reset Level', 'Enter user UUID to reset their level to 0.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Level', 'Reset level to 0. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.from('roles').update({ level: 0 }).eq('user_id', uuid);
                   if (res.error) throw res.error;
                   showToast('Level reset for ' + uuid, 'success');
@@ -383,10 +405,11 @@
               break;
 
             case 'reset-role':
-              showConfirm('Reset Role', 'Enter user UUID to reset their role to Visitor.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Role', 'Reset role to Visitor. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.from('roles').update({ primary_role: 'Visitor', secondary_role: null, tertiary_role: null }).eq('user_id', uuid);
                   if (res.error) throw res.error;
                   showToast('Role reset to Visitor for ' + uuid, 'success');
@@ -396,10 +419,11 @@
               break;
 
             case 'reset-username':
-              showConfirm('Reset Username', 'Enter user UUID to clear their username.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Username', 'Clear username. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.from('roles').update({ username: null }).eq('user_id', uuid);
                   if (res.error) throw res.error;
                   showToast('Username cleared for ' + uuid, 'success');
@@ -409,10 +433,11 @@
               break;
 
             case 'reset-displayname':
-              showConfirm('Reset Display Name', 'Enter user UUID to clear their display name.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Display Name', 'Clear display name. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.from('roles').update({ display_name: null }).eq('user_id', uuid);
                   if (res.error) throw res.error;
                   showToast('Display name cleared for ' + uuid, 'success');
@@ -422,10 +447,11 @@
               break;
 
             case 'reset-cooldown':
-              showConfirm('Reset Cooldown', 'Enter user UUID to clear their role change cooldown.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Cooldown', 'Clear role change cooldown. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.from('roles').update({ last_role_change: null }).eq('user_id', uuid);
                   if (res.error) throw res.error;
                   showToast('Cooldown reset for ' + uuid, 'success');
@@ -435,10 +461,11 @@
               break;
 
             case 'reset-uploads':
-              showConfirm('Reset Upload Stats', 'Enter user UUID to delete all their submissions and reset upload counts.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Upload Stats', 'Delete all submissions. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   await supabase.from('submissions').delete().eq('uploaded_by', uuid);
                   showToast('Upload stats reset for ' + uuid, 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
@@ -447,10 +474,11 @@
               break;
 
             case 'reset-badges':
-              showConfirm('Reset Badges', 'Enter user UUID to clear all custom badges.', true, 'User UUID', async function(uuid) {
-                if (!uuid) return;
+              showConfirm('Reset Badges', 'Clear all custom badges. ' + USER_INPUT_DESC, true, USER_INPUT_PLACEHOLDER, async function(raw) {
+                if (!raw) return;
                 btn.disabled = true;
                 try {
+                  var uuid = await resolveIdentifier(raw);
                   var res = await supabase.from('roles').update({ custom_badges: [] }).eq('user_id', uuid);
                   if (res.error) throw res.error;
                   showToast('Badges cleared for ' + uuid, 'success');

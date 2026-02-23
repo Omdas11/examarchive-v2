@@ -67,7 +67,7 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 9990;
   background: var(--surface, #fff);
   border: 1px solid var(--border, #e0e0e0);
   border-radius: 8px;
@@ -76,6 +76,11 @@
   overflow-y: auto;
   display: none;
   padding: 0.25rem 0;
+}
+
+.ea-dropdown-menu.ea-menu-fixed {
+  position: fixed;
+  right: auto;
 }
 
 .ea-dropdown.open .ea-dropdown-menu {

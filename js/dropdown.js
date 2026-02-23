@@ -3,10 +3,25 @@
 // CUSTOM DROPDOWN COMPONENT
 // Branded, keyboard accessible, mobile optimized
 // Replaces browser default <select> elements
+// Fixes: viewport-aware positioning (escapes overflow containers)
 // ============================================
 
 (function() {
   'use strict';
+
+  /**
+   * Detect if an element is inside a scroll/overflow clipping container
+   */
+  function isInsideScrollContainer(el) {
+    var parent = el.parentElement;
+    while (parent && parent !== document.documentElement) {
+      var cs = window.getComputedStyle(parent);
+      var ov = cs.overflow + ' ' + cs.overflowX + ' ' + cs.overflowY;
+      if (/auto|scroll/.test(ov)) return true;
+      parent = parent.parentElement;
+    }
+    return false;
+  }
 
   /**
    * Initialize a custom dropdown from a <select> element
@@ -92,10 +107,44 @@
       });
     }
 
+    function positionMenuFixed() {
+      var rect = trigger.getBoundingClientRect();
+      var menuMaxHeight = 240;
+      var spaceBelow = window.innerHeight - rect.bottom - 8;
+      var spaceAbove = rect.top - 8;
+
+      menu.classList.add('ea-menu-fixed');
+      menu.style.left = rect.left + 'px';
+      menu.style.width = rect.width + 'px';
+      menu.style.right = 'auto';
+
+      if (spaceBelow >= Math.min(menuMaxHeight, 120) || spaceBelow >= spaceAbove) {
+        menu.style.top = (rect.bottom + 4) + 'px';
+        menu.style.bottom = 'auto';
+      } else {
+        // Open upward
+        menu.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+        menu.style.top = 'auto';
+      }
+    }
+
+    function resetMenuPosition() {
+      menu.classList.remove('ea-menu-fixed');
+      menu.style.left = '';
+      menu.style.top = '';
+      menu.style.bottom = '';
+      menu.style.width = '';
+      menu.style.right = '';
+    }
+
     function openMenu() {
       wrapper.classList.add('open');
       trigger.setAttribute('aria-expanded', 'true');
       highlightedIndex = -1;
+      // Use fixed positioning to escape overflow/scroll containers
+      if (isInsideScrollContainer(wrapper)) {
+        positionMenuFixed();
+      }
     }
 
     function closeMenu() {
@@ -103,6 +152,7 @@
       trigger.setAttribute('aria-expanded', 'false');
       highlightedIndex = -1;
       clearHighlight();
+      resetMenuPosition();
     }
 
     function clearHighlight() {
@@ -196,9 +246,36 @@
           dd.classList.remove('open');
           var trig = dd.querySelector('.ea-dropdown-trigger');
           if (trig) trig.setAttribute('aria-expanded', 'false');
+          // Reset any fixed-position menu
+          var m = dd.querySelector('.ea-dropdown-menu');
+          if (m) {
+            m.classList.remove('ea-menu-fixed');
+            m.style.left = '';
+            m.style.top = '';
+            m.style.bottom = '';
+            m.style.width = '';
+            m.style.right = '';
+          }
         }
       });
     });
+    // Close dropdowns on scroll (important for fixed-position menus)
+    document.addEventListener('scroll', function() {
+      document.querySelectorAll('.ea-dropdown.open').forEach(function(dd) {
+        dd.classList.remove('open');
+        var trig = dd.querySelector('.ea-dropdown-trigger');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+        var m = dd.querySelector('.ea-dropdown-menu');
+        if (m) {
+          m.classList.remove('ea-menu-fixed');
+          m.style.left = '';
+          m.style.top = '';
+          m.style.bottom = '';
+          m.style.width = '';
+          m.style.right = '';
+        }
+      });
+    }, { passive: true, capture: true });
   }
 
   /**

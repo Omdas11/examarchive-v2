@@ -83,8 +83,6 @@
         inset: 0;
         z-index: 99998;
         background: rgba(0, 0, 0, 0.45);
-        backdrop-filter: blur(3px);
-        -webkit-backdrop-filter: blur(3px);
         animation: tutorialFadeIn 0.3s ease;
         pointer-events: auto;
       }
