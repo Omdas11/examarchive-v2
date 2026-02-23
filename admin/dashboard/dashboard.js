@@ -82,8 +82,8 @@ async function initializeDashboard(primaryRole) {
   // Cache admin access result for reuse across the dashboard
   currentUserIsAdmin = await window.AdminAuth.isCurrentUserAdmin();
 
-  // Main tab switching disabled — Users panel removed
-  // setupMainTabs(primaryRole);
+  // Main tab switching for submissions and support panels
+  setupMainTabs(primaryRole);
 
   // Setup tab switching
   setupTabs();

@@ -43,7 +43,11 @@
   width: 26px;
   height: 26px;
   border-radius: 7px;
-  background: var(--accent);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .logo-text {
