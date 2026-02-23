@@ -139,8 +139,9 @@
               <th>Uploads</th>
               <th>Approved</th>
               <th>Rejected</th>
-              <th>Badges</th>
+              <th>Manual</th>
               <th>Achievements</th>
+              <th>Custom</th>
               <th>Last Login</th>
             </tr>
           </thead>
@@ -369,21 +370,21 @@
           } catch(e) {}
         }
 
-        // Build badges display — show actual badge names with icons
+        // Build MANUAL badges display (custom_badges — manually assigned by admin)
         var badgesList = u.custom_badges && u.custom_badges.length ? u.custom_badges : [];
-        var badgesTitle = badgesList.length ? badgesList.join(', ') : 'No badges';
+        var badgesTitle = badgesList.length ? badgesList.join(', ') : 'No manual badges';
         var badgesHtml = '';
         if (badgesList.length > 0) {
           badgesHtml = badgesList.map(function(b) {
-            return '<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg-soft);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.7rem;margin:1px;">' +
-              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg>' +
+            return '<span style="display:inline-flex;align-items:center;gap:3px;background:#1565c015;border:1px solid #1565c055;border-radius:4px;padding:2px 6px;font-size:0.7rem;margin:1px;color:#1565c0;">' +
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg>' +
               ' ' + escapeHtml(b) + '</span>';
           }).join(' ');
         } else {
           badgesHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
         }
 
-        // Build achievements display — show actual achievement names with icons
+        // Build ACHIEVEMENTS display (system-earned, from achievements table)
         var achList = u.achievements_list || [];
         var achNames = achList.map(function(a) { return achTitleMap[a.badge_type] || a.badge_type; });
         var achTitle = achNames.length ? achNames.join(', ') : 'No achievements';
@@ -391,12 +392,26 @@
         if (achList.length > 0) {
           achHtml = achList.map(function(a) {
             var name = achTitleMap[a.badge_type] || a.badge_type;
-            return '<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg-soft);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.7rem;margin:1px;">' +
-              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg>' +
+            return '<span style="display:inline-flex;align-items:center;gap:3px;background:#f57c0015;border:1px solid #f57c0055;border-radius:4px;padding:2px 6px;font-size:0.7rem;margin:1px;color:#c46200;">' +
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg>' +
               ' ' + escapeHtml(name) + '</span>';
           }).join(' ');
         } else {
           achHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
+        }
+
+        // Build CUSTOM badges display (secondary_role + tertiary_role — role-based badges)
+        var customRoles = [u.secondary_role, u.tertiary_role].filter(Boolean);
+        var customTitle = customRoles.length ? customRoles.join(', ') : 'No custom badges';
+        var customHtml = '';
+        if (customRoles.length > 0) {
+          customHtml = customRoles.map(function(r) {
+            return '<span style="display:inline-flex;align-items:center;gap:3px;background:#7b1fa215;border:1px solid #7b1fa255;border-radius:4px;padding:2px 6px;font-size:0.7rem;margin:1px;color:#7b1fa2;">' +
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' +
+              ' ' + escapeHtml(r) + '</span>';
+          }).join(' ');
+        } else {
+          customHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
         }
 
         // Build last login cell with refresh button
@@ -416,8 +431,9 @@
           '<td>' + (u.uploads || 0) + '</td>' +
           '<td>' + (u.approved || 0) + '</td>' +
           '<td>' + (u.rejected || 0) + '</td>' +
-          '<td class="badge-cell" style="white-space:normal;max-width:200px;" title="' + escapeHtml(badgesTitle) + '">' + badgesHtml + '</td>' +
-          '<td class="achievement-cell" style="white-space:normal;max-width:200px;" title="' + escapeHtml(achTitle) + '">' + achHtml + '</td>' +
+          '<td class="badge-cell" style="white-space:normal;max-width:180px;" title="' + escapeHtml(badgesTitle) + '">' + badgesHtml + '</td>' +
+          '<td class="achievement-cell" style="white-space:normal;max-width:180px;" title="' + escapeHtml(achTitle) + '">' + achHtml + '</td>' +
+          '<td class="custom-badge-cell" style="white-space:normal;max-width:150px;" title="' + escapeHtml(customTitle) + '">' + customHtml + '</td>' +
           '<td class="last-login-cell" style="white-space:nowrap;">' + lastLoginHtml + '</td>';
 
         // UUID copy button handler
@@ -625,7 +641,13 @@
         );
       });
 
+      var ROLE_ORDER = { 'Founder': 6, 'Admin': 5, 'Senior Moderator': 4, 'Moderator': 3, 'Reviewer': 2, 'Visitor': 1 };
       filtered.sort(function(a, b) {
+        if (sortBy === 'primary_role') {
+          var rankA = ROLE_ORDER[a.primary_role] || 0;
+          var rankB = ROLE_ORDER[b.primary_role] || 0;
+          return sortDir === 'asc' ? rankA - rankB : rankB - rankA;
+        }
         var valA = a[sortBy];
         var valB = b[sortBy];
         if (valA == null) valA = '';
