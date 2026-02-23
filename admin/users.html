@@ -251,15 +251,18 @@
         if (res.error) throw res.error;
         allUsers = res.data || [];
 
-        // Supplement with avatar_url from roles table (not returned by RPC)
-        try {
-          var avatarRes = await supabase.from('roles').select('user_id, avatar_url');
-          if (!avatarRes.error && avatarRes.data) {
-            var avatarMap = {};
-            avatarRes.data.forEach(function(r) { avatarMap[r.user_id] = r.avatar_url; });
-            allUsers.forEach(function(u) { u.avatar_url = avatarMap[u.user_id] || null; });
-          }
-        } catch(e) {}
+        // avatar_url is now returned by the RPC (18_phase5_stabilization.sql)
+        // Fallback: supplement with avatar_url from roles table if RPC didn't return it
+        if (allUsers.length > 0 && allUsers[0].avatar_url === undefined) {
+          try {
+            var avatarRes = await supabase.from('roles').select('user_id, avatar_url');
+            if (!avatarRes.error && avatarRes.data) {
+              var avatarMap = {};
+              avatarRes.data.forEach(function(r) { avatarMap[r.user_id] = r.avatar_url; });
+              allUsers.forEach(function(u) { u.avatar_url = avatarMap[u.user_id] || null; });
+            }
+          } catch(e) {}
+        }
 
         // Supplement with achievement counts
         try {
@@ -334,6 +337,7 @@
       noResults.style.display = 'none';
 
       var roles = ['Visitor', 'Explorer', 'Contributor', 'Reviewer', 'Moderator', 'Senior Moderator', 'Admin', 'Founder'];
+      var achTitleMap = { 'first_upload': 'First Upload', '10_uploads': '10 Uploads', 'first_approval': 'First Approval', 'streak_7': '7-Day Streak', 'streak_30': '30-Day Streak', 'first_review': 'First Review', 'first_publish': 'First Publish', 'early_user': 'Early Adopter' };
 
       users.forEach(function(u, idx) {
         var tr = document.createElement('tr');
@@ -365,17 +369,35 @@
           } catch(e) {}
         }
 
-        // Build badges display — show actual badge names as tooltip
+        // Build badges display — show actual badge names with icons
         var badgesList = u.custom_badges && u.custom_badges.length ? u.custom_badges : [];
         var badgesTitle = badgesList.length ? badgesList.join(', ') : 'No badges';
-        var badgesHtml = '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg></span> ' + badgesList.length;
+        var badgesHtml = '';
+        if (badgesList.length > 0) {
+          badgesHtml = badgesList.map(function(b) {
+            return '<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg-soft);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.7rem;margin:1px;">' +
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg>' +
+              ' ' + escapeHtml(b) + '</span>';
+          }).join(' ');
+        } else {
+          badgesHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
+        }
 
-        // Build achievements display — show actual achievement titles as tooltip
+        // Build achievements display — show actual achievement names with icons
         var achList = u.achievements_list || [];
-        var achTitleMap = { 'first_upload': 'First Upload', '10_uploads': '10 Uploads', 'first_approval': 'First Approval', 'streak_7': '7-Day Streak', 'streak_30': '30-Day Streak' };
         var achNames = achList.map(function(a) { return achTitleMap[a.badge_type] || a.badge_type; });
         var achTitle = achNames.length ? achNames.join(', ') : 'No achievements';
-        var achHtml = '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg></span> ' + achList.length;
+        var achHtml = '';
+        if (achList.length > 0) {
+          achHtml = achList.map(function(a) {
+            var name = achTitleMap[a.badge_type] || a.badge_type;
+            return '<span style="display:inline-flex;align-items:center;gap:3px;background:var(--bg-soft);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.7rem;margin:1px;">' +
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg>' +
+              ' ' + escapeHtml(name) + '</span>';
+          }).join(' ');
+        } else {
+          achHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
+        }
 
         // Build last login cell with refresh button
         var lastLoginHtml = '<span class="last-login-text">' + escapeHtml(lastLogin) + '</span>' +
@@ -394,8 +416,8 @@
           '<td>' + (u.uploads || 0) + '</td>' +
           '<td>' + (u.approved || 0) + '</td>' +
           '<td>' + (u.rejected || 0) + '</td>' +
-          '<td class="badge-cell" style="text-align:center;" title="' + escapeHtml(badgesTitle) + '">' + badgesHtml + '</td>' +
-          '<td class="achievement-cell" style="text-align:center;" title="' + escapeHtml(achTitle) + '">' + achHtml + '</td>' +
+          '<td class="badge-cell" style="white-space:normal;max-width:200px;" title="' + escapeHtml(badgesTitle) + '">' + badgesHtml + '</td>' +
+          '<td class="achievement-cell" style="white-space:normal;max-width:200px;" title="' + escapeHtml(achTitle) + '">' + achHtml + '</td>' +
           '<td class="last-login-cell" style="white-space:nowrap;">' + lastLoginHtml + '</td>';
 
         // UUID copy button handler
@@ -432,7 +454,7 @@
           });
         }
 
-        // Last login refresh button handler
+        // Last login refresh button handler — use cached get_all_last_sign_ins
         var refreshBtn = tr.querySelector('.login-refresh-btn');
         if (refreshBtn) {
           refreshBtn.addEventListener('click', async function() {
@@ -441,10 +463,20 @@
             try {
               var sb = window.getSupabase ? window.getSupabase() : null;
               if (!sb) return;
-              var res = await sb.rpc('get_user_last_sign_in', { target_user_id: uid });
+              // Use batch RPC and find this user's last sign in
+              var res = await sb.rpc('get_all_last_sign_ins');
               if (res.error) throw res.error;
+              var found = null;
               if (res.data) {
-                var d = new Date(res.data);
+                for (var i = 0; i < res.data.length; i++) {
+                  if (res.data[i].user_id === uid) {
+                    found = res.data[i].last_sign_in;
+                    break;
+                  }
+                }
+              }
+              if (found) {
+                var d = new Date(found);
                 textEl.textContent = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
               } else {
                 textEl.textContent = '—';

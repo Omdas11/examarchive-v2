@@ -288,7 +288,7 @@ Type "help" for available commands.</div>
 
       // Button handlers
       document.querySelectorAll('[data-action]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
           var action = btn.dataset.action;
 
           switch(action) {
