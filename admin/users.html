@@ -337,6 +337,7 @@
       noResults.style.display = 'none';
 
       var roles = ['Visitor', 'Explorer', 'Contributor', 'Reviewer', 'Moderator', 'Senior Moderator', 'Admin', 'Founder'];
+      var achTitleMap = { 'first_upload': 'First Upload', '10_uploads': '10 Uploads', 'first_approval': 'First Approval', 'streak_7': '7-Day Streak', 'streak_30': '30-Day Streak', 'first_review': 'First Review', 'first_publish': 'First Publish', 'early_user': 'Early Adopter' };
 
       users.forEach(function(u, idx) {
         var tr = document.createElement('tr');
@@ -384,7 +385,6 @@
 
         // Build achievements display — show actual achievement names with icons
         var achList = u.achievements_list || [];
-        var achTitleMap = { 'first_upload': 'First Upload', '10_uploads': '10 Uploads', 'first_approval': 'First Approval', 'streak_7': '7-Day Streak', 'streak_30': '30-Day Streak', 'first_review': 'First Review', 'first_publish': 'First Publish', 'early_user': 'Early Adopter' };
         var achNames = achList.map(function(a) { return achTitleMap[a.badge_type] || a.badge_type; });
         var achTitle = achNames.length ? achNames.join(', ') : 'No achievements';
         var achHtml = '';
