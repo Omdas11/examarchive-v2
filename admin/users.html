@@ -139,6 +139,8 @@
               <th>Uploads</th>
               <th>Approved</th>
               <th>Rejected</th>
+              <th>Badges</th>
+              <th>Achievements</th>
               <th>Last Login</th>
             </tr>
           </thead>
@@ -256,6 +258,26 @@
           }
         } catch(e) {}
 
+        // Supplement with achievement counts
+        try {
+          var achRes = await supabase.from('achievements').select('user_id');
+          if (!achRes.error && achRes.data) {
+            var achMap = {};
+            achRes.data.forEach(function(a) { achMap[a.user_id] = (achMap[a.user_id] || 0) + 1; });
+            allUsers.forEach(function(u) { u.achievements_count = achMap[u.user_id] || 0; });
+          }
+        } catch(e) {}
+
+        // Supplement with custom_badges from roles if not already present
+        try {
+          var badgeRes = await supabase.from('roles').select('user_id, custom_badges');
+          if (!badgeRes.error && badgeRes.data) {
+            var badgeMap = {};
+            badgeRes.data.forEach(function(r) { badgeMap[r.user_id] = r.custom_badges || []; });
+            allUsers.forEach(function(u) { if (!u.custom_badges) u.custom_badges = badgeMap[u.user_id] || []; });
+          }
+        } catch(e) {}
+
         renderTable(allUsers);
       } catch (err) {
         // Fallback: direct table query
@@ -326,6 +348,14 @@
           '<td>' + (u.uploads || 0) + '</td>' +
           '<td>' + (u.approved || 0) + '</td>' +
           '<td>' + (u.rejected || 0) + '</td>' +
+          '<td class="badge-cell" style="text-align:center;" title="Custom badges">' +
+            '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg></span> ' +
+            (u.custom_badges && u.custom_badges.length ? u.custom_badges.length : 0) +
+          '</td>' +
+          '<td class="achievement-cell" style="text-align:center;" title="Achievements">' +
+            '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg></span> ' +
+            (u.achievements_count || 0) +
+          '</td>' +
           '<td>' + escapeHtml(lastLogin) + '</td>';
 
         // UUID copy button handler
@@ -454,10 +484,22 @@
               break;
             }
           }
-          showToast('Role updated: ' + userName + ' → ' + newRole, 'success');
+          var cooldownMap = { 'Founder': 2, 'Admin': 3, 'Senior Moderator': 6, 'Moderator': 12 };
+          var cooldownHours = cooldownMap[currentUserRole] || 24;
+          showToast('Role updated: ' + userName + ' → ' + newRole + '. Cooldown active for ' + cooldownHours + ' hours.', 'success');
         } catch (err) {
           selectEl.value = selectEl.getAttribute('data-original-role');
-          showToast('Failed: ' + (err.message || 'Unknown error'), 'error');
+          // Refresh custom dropdown if available
+          if (window.EaDropdown) {
+            var ddInstance = selectEl._eaDropdown;
+            if (ddInstance) ddInstance.setValue(selectEl.getAttribute('data-original-role'));
+          }
+          var errMsg = err.message || 'Unknown error';
+          if (errMsg.toLowerCase().includes('cooldown')) {
+            showToast('Cooldown active: ' + errMsg, 'error');
+          } else {
+            showToast('Failed: ' + errMsg, 'error');
+          }
         }
       }
 
