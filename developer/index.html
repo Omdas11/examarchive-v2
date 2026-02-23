@@ -151,7 +151,7 @@
           <input type="text" class="cmd-input" id="cmdInput" placeholder="Type a command... (e.g. help, status, user-count)" />
           <div class="cmd-output" id="cmdOutput">ExamArchive Developer Console v1.0
 Type "help" for available commands.</div>
-          <div class="cmd-hint">Available: help, status, stats, user-count, promote &lt;uuid&gt; &lt;role&gt;, reset-demo, version</div>
+          <div class="cmd-hint">Available: help, status, stats, user-count, promote &lt;uuid&gt; &lt;role&gt;, version</div>
         </div>
       </div>
 
@@ -483,7 +483,7 @@ Type "help" for available commands.</div>
       var cmdInput = document.getElementById('cmdInput');
       var cmdOutput = document.getElementById('cmdOutput');
       var COMMANDS = {
-        'help': function() { return 'Available commands:\n  help             - Show this help\n  status           - System status\n  stats            - Platform statistics\n  user-count       - Total registered users\n  submission-count - Total submissions\n  promote          - Promote/demote a user role (promote <uuid> <role>)\n  reset-demo       - Reset demo data\n  version          - System version'; },
+        'help': function() { return 'Available commands:\n  help             - Show this help\n  status           - System status\n  stats            - Platform statistics\n  user-count       - Total registered users\n  submission-count - Total submissions\n  promote          - Promote/demote a user role (promote <uuid> <role>)\n  version          - System version'; },
         'version': function() { return 'ExamArchive v2 · Phase 5 · Supabase Backend'; },
       };
 
