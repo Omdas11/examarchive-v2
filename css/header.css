@@ -197,7 +197,7 @@ body[data-theme="amoled"] .theme-icon-light { display: none; }
   inset: -3px;
   border-radius: 50%;
   background: conic-gradient(var(--avatar-ring, #9e9e9e), var(--avatar-ring-end, #e0e0e0), var(--avatar-ring, #9e9e9e));
-  animation: header-ring-spin 8s linear infinite;
+  animation: header-ring-spin 6s linear infinite;
   pointer-events: none;
 }
 
@@ -205,17 +205,18 @@ body[data-theme="amoled"] .theme-icon-light { display: none; }
   to { transform: rotate(360deg); }
 }
 
-/* Level tier ring colors */
-.avatar-wrap[data-ring="founder"]::before { background: conic-gradient(#ffd700, #ff8c00, #ffd700); }
-.avatar-wrap[data-ring="admin"]::before { background: conic-gradient(#d32f2f, #ff5252, #d32f2f); }
-.avatar-wrap[data-ring="senior-moderator"]::before { background: conic-gradient(#ff9800, #ffcc80, #ff9800); }
-.avatar-wrap[data-ring="reviewer"]::before { background: conic-gradient(#2196F3, #90caf9, #2196F3); }
-.avatar-wrap[data-ring="senior"]::before { background: conic-gradient(#9c27b0, #e040fb, #9c27b0); }
-.avatar-wrap[data-ring="veteran"]::before { background: conic-gradient(#00bcd4, #80deea, #00bcd4); }
+/* Level tier ring colors — complementary gradient pairs */
+.avatar-wrap[data-ring="founder"]::before    { background: conic-gradient(#ffd700, #ff8c00, #ff4d00, #ffd700); }
+.avatar-wrap[data-ring="admin"]::before      { background: conic-gradient(#d32f2f, #ff5252, #ff80ab, #d32f2f); }
+.avatar-wrap[data-ring="senior-moderator"]::before { background: conic-gradient(#ff9800, #ffcc80, #ff6d00, #ff9800); }
+.avatar-wrap[data-ring="reviewer"]::before   { background: conic-gradient(#2196F3, #90caf9, #00b0ff, #2196F3); }
+.avatar-wrap[data-ring="senior"]::before     { background: conic-gradient(#9c27b0, #e040fb, #d500f9, #9c27b0); }
+.avatar-wrap[data-ring="veteran"]::before    { background: conic-gradient(#00bcd4, #80deea, #00e5ff, #00bcd4); }
 .avatar-wrap[data-ring="contributor"]::before { background: none; animation: none; }
-.avatar-wrap[data-ring="explorer"]::before { background: conic-gradient(#607d8b, #b0bec5, #607d8b); }
-.avatar-wrap[data-ring="visitor"]::before { background: conic-gradient(#9e9e9e, #e0e0e0, #9e9e9e); animation: none; }
-.avatar-wrap[data-ring="none"]::before { background: conic-gradient(#9e9e9e, #e0e0e0, #9e9e9e); animation: none; }
+/* explorer spins slower — subtle effect for mid-tier ring */
+.avatar-wrap[data-ring="explorer"]::before   { background: conic-gradient(#607d8b, #b0bec5, #78909c, #607d8b); animation: header-ring-spin 10s linear infinite; }
+.avatar-wrap[data-ring="visitor"]::before    { background: conic-gradient(#9e9e9e, #e0e0e0, #9e9e9e); animation: none; }
+.avatar-wrap[data-ring="none"]::before       { background: conic-gradient(#9e9e9e, #e0e0e0, #9e9e9e); animation: none; }
 
 /* Inner avatar */
 .avatar-mini {
