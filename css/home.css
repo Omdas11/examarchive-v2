@@ -24,6 +24,18 @@
   margin-bottom: 0.6rem;
 }
 
+/* ---------- TYPEWRITER ---------- */
+.hero h1.typewriter {
+  display: inline-block;
+  border-right: 2px solid var(--text, #333);
+  white-space: nowrap;
+  overflow: hidden;
+  min-height: 2.4rem;
+}
+.hero h1.typewriter.done {
+  border-right-color: transparent;
+}
+
 .hero p {
   font-size: 0.95rem;
   color: var(--text-muted);

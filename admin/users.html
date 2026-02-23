@@ -36,9 +36,9 @@
     .users-table th.sorted .sort-arrow { opacity: 1; }
     .users-table tr:hover { background: var(--bg-soft); }
 
-    .users-table td.uuid { font-family: monospace; font-size: 0.7rem; color: var(--text-muted); }
+    .users-table td.uuid { font-family: monospace; font-size: 0.7rem; color: var(--text-muted); min-width: 280px; }
     .uuid-wrap { display: flex; align-items: center; gap: 0.35rem; }
-    .uuid-text { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uuid-text { font-size: 0.68rem; word-break: break-all; white-space: normal; }
     .uuid-copy { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 5px; cursor: pointer; color: var(--text-muted); font-size: 0.65rem; line-height: 1; transition: color 0.2s, border-color 0.2s; flex-shrink: 0; }
     .uuid-copy:hover { color: var(--text); border-color: var(--text); }
 
@@ -78,7 +78,6 @@
     @media (max-width: 768px) {
       .users-table { font-size: 0.75rem; }
       .users-table th, .users-table td { padding: 0.4rem 0.5rem; }
-      .uuid-text { max-width: 120px; }
     }
   </style>
 </head>
@@ -99,7 +98,7 @@
 
     <!-- Access Denied -->
     <div id="users-denied" class="access-denied" style="display: none;">
-      <h2>🔒 Access Denied</h2>
+      <h2><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span> Access Denied</h2>
       <p class="text-muted">Only Founder and Admin roles can access User Management.</p>
       <a href="../index.html" class="btn btn-red" style="margin-top:1rem;">Go Home</a>
     </div>
@@ -107,19 +106,19 @@
     <!-- Users Content -->
     <div id="users-content" style="display: none;">
 
-      <h1>👥 User Management</h1>
+      <h1><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> User Management</h1>
       <p class="subtitle">View and manage all platform users</p>
 
       <div class="users-toolbar">
         <input type="text" id="userSearch" placeholder="Search by name, username, or UUID..." />
-        <select id="sortBy">
+        <select id="sortBy" data-ea-dropdown>
           <option value="display_name">Sort by Name</option>
           <option value="xp">Sort by XP</option>
           <option value="primary_role">Sort by Role</option>
           <option value="uploads">Sort by Uploads</option>
           <option value="last_login_date">Sort by Last Login</option>
         </select>
-        <select id="sortDir">
+        <select id="sortDir" data-ea-dropdown>
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
@@ -140,6 +139,8 @@
               <th>Uploads</th>
               <th>Approved</th>
               <th>Rejected</th>
+              <th>Badges</th>
+              <th>Achievements</th>
               <th>Last Login</th>
             </tr>
           </thead>
@@ -223,6 +224,7 @@
         content.style.display = 'block';
         await loadUsers(supabase);
         initToolbar();
+        if (window.EaDropdown) { window.EaDropdown.initAll(); }
 
         // Founder only: silently recalc levels if any mismatch detected
         if (role === 'Founder') {
@@ -253,6 +255,26 @@
             var avatarMap = {};
             avatarRes.data.forEach(function(r) { avatarMap[r.user_id] = r.avatar_url; });
             allUsers.forEach(function(u) { u.avatar_url = avatarMap[u.user_id] || null; });
+          }
+        } catch(e) {}
+
+        // Supplement with achievement counts
+        try {
+          var achRes = await supabase.from('achievements').select('user_id');
+          if (!achRes.error && achRes.data) {
+            var achMap = {};
+            achRes.data.forEach(function(a) { achMap[a.user_id] = (achMap[a.user_id] || 0) + 1; });
+            allUsers.forEach(function(u) { u.achievements_count = achMap[u.user_id] || 0; });
+          }
+        } catch(e) {}
+
+        // Supplement with custom_badges from roles if not already present
+        try {
+          var badgeRes = await supabase.from('roles').select('user_id, custom_badges');
+          if (!badgeRes.error && badgeRes.data) {
+            var badgeMap = {};
+            badgeRes.data.forEach(function(r) { badgeMap[r.user_id] = r.custom_badges || []; });
+            allUsers.forEach(function(u) { if (!u.custom_badges) u.custom_badges = badgeMap[u.user_id] || []; });
           }
         } catch(e) {}
 
@@ -301,7 +323,7 @@
         // Build UUID cell with copy button
         var uuidVal = u.user_id || '—';
         var uuidHtml = '<div class="uuid-wrap"><span class="uuid-text" title="' + escapeHtml(uuidVal) + '">' + escapeHtml(uuidVal) + '</span>' +
-          '<button class="uuid-copy" data-uuid="' + escapeHtml(uuidVal) + '" title="Copy UUID" aria-label="Copy UUID">📋</button></div>';
+          '<button class="uuid-copy" data-uuid="' + escapeHtml(uuidVal) + '" title="Copy UUID" aria-label="Copy UUID"><span class="svg-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span></button></div>';
 
         // Format last login as full timestamp
         var lastLogin = u.last_login_date || '—';
@@ -309,7 +331,7 @@
           try {
             var d = new Date(lastLogin);
             if (!isNaN(d.getTime())) {
-              lastLogin = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+              lastLogin = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
             }
           } catch(e) {}
         }
@@ -326,6 +348,14 @@
           '<td>' + (u.uploads || 0) + '</td>' +
           '<td>' + (u.approved || 0) + '</td>' +
           '<td>' + (u.rejected || 0) + '</td>' +
+          '<td class="badge-cell" style="text-align:center;" title="Custom badges">' +
+            '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5 3.6 9.3 9 10.5 5.4-1.2 9-5.5 9-10.5V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg></span> ' +
+            (u.custom_badges && u.custom_badges.length ? u.custom_badges.length : 0) +
+          '</td>' +
+          '<td class="achievement-cell" style="text-align:center;" title="Achievements">' +
+            '<span class="svg-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H3V4h3M18 9h3V4h-3"/><path d="M6 4h12v6a6 6 0 01-12 0V4z"/><path d="M12 16v3"/><path d="M8 22h8"/></svg></span> ' +
+            (u.achievements_count || 0) +
+          '</td>' +
           '<td>' + escapeHtml(lastLogin) + '</td>';
 
         // UUID copy button handler
@@ -454,10 +484,22 @@
               break;
             }
           }
-          showToast('Role updated: ' + userName + ' → ' + newRole, 'success');
+          var cooldownMap = { 'Founder': 2, 'Admin': 3, 'Senior Moderator': 6, 'Moderator': 12 };
+          var cooldownHours = cooldownMap[currentUserRole] || 24;
+          showToast('Role updated: ' + userName + ' → ' + newRole + '. Cooldown active for ' + cooldownHours + ' hours.', 'success');
         } catch (err) {
           selectEl.value = selectEl.getAttribute('data-original-role');
-          showToast('Failed: ' + (err.message || 'Unknown error'), 'error');
+          // Refresh custom dropdown if available
+          if (window.EaDropdown) {
+            var ddInstance = selectEl._eaDropdown;
+            if (ddInstance) ddInstance.setValue(selectEl.getAttribute('data-original-role'));
+          }
+          var errMsg = err.message || 'Unknown error';
+          if (errMsg.toLowerCase().includes('cooldown')) {
+            showToast('Cooldown active: ' + errMsg, 'error');
+          } else {
+            showToast('Failed: ' + errMsg, 'error');
+          }
         }
       }
 

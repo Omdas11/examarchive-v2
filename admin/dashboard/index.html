@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="../../css/avatar-popup.css">
   <link rel="stylesheet" href="../../css/avatar.css">
   
+  <link rel="stylesheet" href="../../css/dropdown.css">
+
   <!-- Page-specific -->
   <link rel="stylesheet" href="dashboard.css">
   
@@ -65,7 +67,6 @@
       <!-- Main Tab Navigation -->
       <section class="dashboard-tabs" id="mainTabsSection">
         <button class="tab-btn active" data-main-tab="submissions" id="mainTabSubmissions">Submissions</button>
-        <button class="tab-btn" data-main-tab="users" id="mainTabUsers">Users</button>
       </section>
 
       <!-- Submissions Panel -->
@@ -98,7 +99,7 @@
             </div>
             <div class="role-field">
               <label for="roleEditPrimary">Primary Role (permissions)</label>
-              <select id="roleEditPrimary">
+              <select id="roleEditPrimary" data-ea-dropdown>
                 <option value="">— Select —</option>
                 <option value="Visitor">Visitor</option>
                 <option value="Contributor">Contributor</option>
@@ -188,47 +189,7 @@
 
       </div><!-- end submissions-panel -->
 
-      <!-- Users Panel (shown when Users tab is active) -->
-      <div id="users-panel" style="display: none;">
-        <section id="users-table-panel" class="users-table-panel" style="display: none;">
-          <h2>All Users</h2>
-          <p class="text-muted" style="margin-bottom: 1rem;">View and manage all registered users</p>
 
-          <div class="role-search-row" style="margin-bottom: 1rem;">
-            <input type="text" id="usersSearchInput" placeholder="Search by username, email, or role..." class="role-search-input" />
-            <button class="btn btn-red" id="usersSearchBtn">Search</button>
-          </div>
-
-          <div style="overflow-x: auto;">
-            <table class="users-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-              <thead>
-                <tr style="border-bottom:2px solid var(--border);text-align:left;">
-                  <th style="padding:0.5rem;width:36px;"></th>
-                  <th style="padding:0.5rem;">Display Name</th>
-                  <th style="padding:0.5rem;font-size:0.7rem;">UUID</th>
-                  <th style="padding:0.5rem;">Username</th>
-                  <th style="padding:0.5rem;cursor:pointer;" data-sort="xp" role="button" aria-label="Sort by XP" aria-sort="none">XP ↕</th>
-                  <th style="padding:0.5rem;">Level</th>
-                  <th style="padding:0.5rem;cursor:pointer;" data-sort="primary_role" role="button" aria-label="Sort by Primary Role" aria-sort="none">Primary Role ↕</th>
-                  <th style="padding:0.5rem;">Secondary</th>
-                  <th style="padding:0.5rem;">Tertiary</th>
-                  <th style="padding:0.5rem;">Badges</th>
-                  <th style="padding:0.5rem;">Uploads</th>
-                  <th style="padding:0.5rem;">Approved</th>
-                  <th style="padding:0.5rem;">Rejected</th>
-                  <th style="padding:0.5rem;">Last Login</th>
-                  <th style="padding:0.5rem;">Promote</th>
-                </tr>
-              </thead>
-              <tbody id="usersTableBody">
-                <tr><td colspan="15" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div id="usersPagination" style="display:flex;justify-content:center;margin-top:1rem;"></div>
-        </section>
-      </div>
 
     </div><!-- end dashboard-content -->
 
@@ -291,6 +252,7 @@
   <script src="../../js/core/debug.js"></script>
   <script src="../../js/profile-panel.js"></script>
   <script src="../../js/avatar-popup.js"></script>
+  <script src="../../js/dropdown.js"></script>
   <script src="dashboard.js"></script>
   <script src="../../js/theme.js"></script>
 
