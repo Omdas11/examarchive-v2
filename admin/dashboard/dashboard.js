@@ -1124,17 +1124,31 @@ async function saveRoleChanges() {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
 
-    // Update role metadata via privileged RPC
-    const { error } = await supabase.rpc('update_user_role', {
-      target_user_id: userId,
-      new_level: isNaN(level) ? null : level,
-      new_primary_role: primaryRole,
-      new_secondary_role: secondaryRole,
-      new_tertiary_role: tertiaryRole,
-      new_custom_badges: customBadges
-    });
+    // If primary role changed, use the 2-param RPC (cooldown-enforced)
+    if (primaryRole) {
+      const { error: roleError } = await supabase.rpc('update_user_role', {
+        target_user_id: userId,
+        new_role: primaryRole
+      });
+      if (roleError) throw roleError;
+    }
 
-    if (error) throw error;
+    // Update other fields (level, secondary, tertiary, badges) via direct table update
+    // RLS policy "admins manage roles" allows Founder/Admin to update all rows
+    const otherUpdates = {};
+    if (!isNaN(level)) otherUpdates.level = level;
+    if (secondaryRole !== null) otherUpdates.secondary_role = secondaryRole;
+    if (tertiaryRole !== null) otherUpdates.tertiary_role = tertiaryRole;
+    if (customBadges.length > 0 || badgesStr === '') otherUpdates.custom_badges = customBadges;
+
+    if (Object.keys(otherUpdates).length > 0) {
+      otherUpdates.updated_at = new Date().toISOString();
+      const { error: updateError } = await supabase
+        .from('roles')
+        .update(otherUpdates)
+        .eq('user_id', userId);
+      if (updateError) throw updateError;
+    }
 
     showMessage('Role updated successfully!', 'success');
     document.getElementById('roleEditPanel').style.display = 'none';
@@ -1145,7 +1159,12 @@ async function saveRoleChanges() {
       await loadUsersTable();
     }
   } catch (err) {
-    showMessage('Failed to update role: ' + err.message, 'error');
+    var errMsg = err.message || 'Unknown error';
+    if (errMsg.toLowerCase().includes('cooldown')) {
+      showMessage('Cooldown active: ' + errMsg, 'error');
+    } else {
+      showMessage('Failed to update role: ' + errMsg, 'error');
+    }
   }
 }
 
@@ -1390,7 +1409,7 @@ async function loadUsersTable(page, searchQuery) {
             if (!supabase) throw new Error('Supabase not initialized');
             const { error } = await supabase.rpc('update_user_role', {
               target_user_id: u.user_id,
-              new_primary_role: newRole
+              new_role: newRole
             });
             if (error) throw error;
             u.primary_role = newRole;
@@ -1399,7 +1418,12 @@ async function loadUsersTable(page, searchQuery) {
             // Re-fetch users table
             await loadUsersTable(usersCurrentPage, document.getElementById('usersSearchInput')?.value.trim());
           } catch (err) {
-            showMessage('Failed: ' + (err.message || 'Unknown error'), 'error');
+            var errMsg = err.message || 'Unknown error';
+            if (errMsg.toLowerCase().includes('cooldown')) {
+              showMessage('Cooldown active: ' + errMsg, 'error');
+            } else {
+              showMessage('Failed: ' + errMsg, 'error');
+            }
             selectEl.value = oldRole;
           }
         });
