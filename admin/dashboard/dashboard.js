@@ -1506,15 +1506,19 @@ async function loadSupportRequests() {
     listEl.innerHTML = data.map(function(req) {
       var date = new Date(req.created_at).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
       var statusColor = req.status === 'open' ? '#f59e0b' : req.status === 'closed' ? '#22c55e' : '#64748b';
+      var safeSubject = escapeHtml(req.subject || 'Support Request');
+      var safeMessage = escapeHtml((req.message || '').substring(0, 300)).replace(/\n/g, '<br>');
+      var safeStatus = escapeHtml(req.status || 'open');
+      var safeType = escapeHtml(req.type || 'general');
       return '<div class="submission-card" style="padding:1rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.75rem;background:var(--surface);">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">' +
-          '<strong>' + (req.subject || 'Support Request') + '</strong>' +
-          '<span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:4px;background:' + statusColor + ';color:#fff;">' + (req.status || 'open') + '</span>' +
+          '<strong>' + safeSubject + '</strong>' +
+          '<span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:4px;background:' + statusColor + ';color:#fff;">' + safeStatus + '</span>' +
         '</div>' +
-        '<p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.5rem;">' + (req.message || '').replace(/\n/g, '<br>').substring(0, 300) + '</p>' +
+        '<p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.5rem;">' + safeMessage + '</p>' +
         '<div style="display:flex;justify-content:space-between;align-items:center;">' +
           '<span style="font-size:0.75rem;color:var(--text-muted);">' + date + '</span>' +
-          '<span style="font-size:0.7rem;color:var(--text-muted);">Type: ' + (req.type || 'general') + '</span>' +
+          '<span style="font-size:0.7rem;color:var(--text-muted);">Type: ' + safeType + '</span>' +
         '</div>' +
       '</div>';
     }).join('');
