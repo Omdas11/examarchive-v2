@@ -35,7 +35,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.AuthController) {
     window.AuthController.waitForAuthReady().then(handleUploadAuthState);
   } else {
-    window.addEventListener("auth:ready", (e) => handleUploadAuthState(e.detail.session), { once: true });
+    // AuthController not available: call getSession() directly to avoid
+    // missing an already-fired auth:ready event (race condition fix).
+    var supabaseClient = window.getSupabase ? window.getSupabase() : null;
+    if (supabaseClient) {
+      supabaseClient.auth.getSession().then(function(res) {
+        handleUploadAuthState(res.data && res.data.session ? res.data.session : null);
+      });
+    } else {
+      window.addEventListener("auth:ready", function(e) { handleUploadAuthState(e.detail.session); }, { once: true });
+    }
   }
 
   // Listen for subsequent auth changes (e.g. user signs in / out via popup)
