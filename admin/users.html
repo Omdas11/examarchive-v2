@@ -200,6 +200,7 @@
   <script src="../js/supabase-client.js"></script>
   <script src="../js/core/auth-ready.js"></script>
   <script src="../js/core/debug.js"></script>
+  <script src="../js/auth-controller.js"></script>
   <script src="../js/dropdown.js"></script>
   <script src="../js/profile-panel.js"></script>
   <script src="../js/avatar-popup.js"></script>
@@ -620,6 +621,7 @@
             target_user_id: userId,
             new_role: newRole
           });
+          console.log('[ROLE-CHANGE] RPC response:', res);
           if (res.error) throw res.error;
 
           // Re-fetch user data to get correct XP-derived level
@@ -653,6 +655,7 @@
         } catch (err) {
           // On any failure: revert dropdown and re-sync role from DB so the
           // displayed value always reflects the true DB state.
+          console.error('[ROLE-CHANGE] RPC error payload:', err);
           var errMsg = err.message || 'Unknown error';
           await syncRoleFromDb();
           if (errMsg.toLowerCase().includes('cooldown')) {

@@ -338,13 +338,18 @@ let avatarPopupAuthListenerSetup = false;
 document.addEventListener('app:ready', () => {
   if (avatarPopupAuthListenerSetup) return;
   avatarPopupAuthListenerSetup = true;
-  
+
+  // Update header avatar immediately using the resolved session
+  const initialUser = window.App?.session?.user || null;
+  updateHeaderAvatar(initialUser);
+
   const supabase = window.App.supabase;
   if (!supabase) return;
 
-  supabase.auth.onAuthStateChange(() => {
+  supabase.auth.onAuthStateChange((event, session) => {
     debug("[EVENT] Auth state changed, re-rendering avatar popup");
     renderAvatarPopup();
+    updateHeaderAvatar(session?.user || null);
   });
 });
 
