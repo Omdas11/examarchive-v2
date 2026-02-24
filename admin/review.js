@@ -1,7 +1,9 @@
 // admin/review.js
 // ============================================
 // REVIEW PANEL
-// Shows pending submissions, allows approve/reject
+// Phase 6: File storage migrated to Appwrite.
+// Approve/reject only updates Supabase DB status.
+// Reject deletes Appwrite file via appwrite_file_id.
 // ============================================
 
 let pendingSubmissions = [];
@@ -109,7 +111,8 @@ function renderPendingList() {
 
 /**
  * Approve a submission
- * Moves file from uploads-temp → uploads-approved, creates approved_papers row
+ * Phase 6: No file movement needed — file is already in Appwrite.
+ * Sets status to 'approved' and stores file_url as approved_path for compatibility.
  */
 async function approveSubmission(submissionId) {
   const supabase = window.getSupabase ? window.getSupabase() : null;
@@ -121,46 +124,19 @@ async function approveSubmission(submissionId) {
   try {
     showReviewMessage('Processing approval...', 'info');
 
-    // Download file from temp
-    const { data: tempFile, error: downloadErr } = await supabase.storage
-      .from('uploads-temp')
-      .download(submission.storage_path);
-
-    if (downloadErr) throw new Error('Failed to download temp file: ' + downloadErr.message);
-
-    // Upload to approved bucket
-    const approvedPath = `approved/${submission.paper_code}/${submission.year}/${submission.id}.pdf`;
-    const { error: uploadErr } = await supabase.storage
-      .from('uploads-approved')
-      .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
-
-    if (uploadErr) throw new Error('Failed to upload to approved bucket: ' + uploadErr.message);
-
-    // Insert into approved_papers
-    const { error: insertErr } = await supabase
-      .from('approved_papers')
-      .insert({
-        paper_code: submission.paper_code,
-        year: submission.year,
-        file_path: approvedPath,
-        uploaded_by: submission.user_id,
-        is_demo: false
-      });
-
-    if (insertErr) throw new Error('Failed to create approved paper record: ' + insertErr.message);
-
-    // Update submission status
+    // Update submission status — file stays in Appwrite, no movement needed
     const { error: updateErr } = await supabase
       .from('submissions')
-      .update({ status: 'approved' })
+      .update({
+        status: 'approved',
+        // Store file_url in approved_path for backwards compatibility
+        approved_path: submission.file_url || submission.approved_path || null
+      })
       .eq('id', submissionId);
 
     if (updateErr) throw new Error('Failed to update submission status: ' + updateErr.message);
 
-    // Clean up temp file
-    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
-
-    showReviewMessage('Submission approved! Paper is now visible in Browse.', 'success');
+    showReviewMessage('Submission approved! Awaiting publish.', 'success');
     await loadPendingSubmissions();
 
   } catch (error) {
@@ -171,7 +147,7 @@ async function approveSubmission(submissionId) {
 
 /**
  * Reject a submission
- * Deletes temp file and marks as rejected
+ * Phase 6: Deletes the Appwrite file via appwrite_file_id, then updates DB status.
  */
 async function rejectSubmission(submissionId) {
   const supabase = window.getSupabase ? window.getSupabase() : null;
@@ -183,8 +159,19 @@ async function rejectSubmission(submissionId) {
   try {
     showReviewMessage('Processing rejection...', 'info');
 
-    // Delete temp file
-    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
+    // Delete file from Appwrite if we have the file ID
+    if (submission.appwrite_file_id) {
+      try {
+        const appwrite = window.getAppwrite ? window.getAppwrite() : null;
+        if (appwrite) {
+          const bucketId = window.APPWRITE_PAPERS_BUCKET_ID || 'papers';
+          await appwrite.storage.deleteFile(bucketId, submission.appwrite_file_id);
+        }
+      } catch (deleteErr) {
+        console.warn('[REVIEW] Could not delete Appwrite file:', deleteErr.message);
+        // Continue — the DB update is more important
+      }
+    }
 
     // Update submission status
     const { error: updateErr } = await supabase

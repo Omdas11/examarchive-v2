@@ -1,7 +1,6 @@
 /**
  * ExamArchive v2 — Paper Page
- * Phase 4: Fully dynamic paper loading with syllabus, RQ, notes, resources
- * Loads from submissions table + storage buckets via subject_code
+ * Phase 6: Uses Appwrite file_url stored in DB (no Supabase signed URLs for PDFs)
  */
 
 const params = new URLSearchParams(window.location.search);
@@ -97,23 +96,15 @@ async function loadPaper() {
     if (selected.published_at) metaParts.push(`Published: ${new Date(selected.published_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}`);
     meta.innerHTML = `<span class="meta-line">${metaParts.join(' · ')}</span>`;
 
-    /* ---------- Latest PDF (signed URL) ---------- */
+    /* ---------- Latest PDF (Appwrite file_url) ---------- */
     const latestBtn = document.getElementById("latestPdfLink");
-    if (selected.approved_path) {
-      try {
-        const { data: signedData, error: signErr } = await supabase.storage
-          .from('uploads-approved')
-          .createSignedUrl(selected.approved_path, 3600);
+    const latestPdfUrl = selected.file_url || (selected.approved_path
+      ? await _getLegacySignedUrl(supabase, selected.approved_path)
+      : null);
 
-        if (!signErr && signedData?.signedUrl) {
-          latestBtn.href = signedData.signedUrl;
-          latestBtn.textContent = `Open PDF${selected.year ? ' (' + selected.year + ')' : ''} →`;
-        } else {
-          latestBtn.style.display = 'none';
-        }
-      } catch {
-        latestBtn.style.display = 'none';
-      }
+    if (latestPdfUrl) {
+      latestBtn.href = latestPdfUrl;
+      latestBtn.textContent = `Open PDF${selected.year ? ' (' + selected.year + ')' : ''} →`;
     } else {
       latestBtn.style.display = 'none';
     }
@@ -126,22 +117,15 @@ async function loadPaper() {
       const li = document.createElement('li');
       li.className = 'paper-row';
 
-      if (paper.approved_path) {
-        try {
-          const { data: sData } = await supabase.storage
-            .from('uploads-approved')
-            .createSignedUrl(paper.approved_path, 3600);
+      const pdfUrl = paper.file_url || (paper.approved_path
+        ? await _getLegacySignedUrl(supabase, paper.approved_path)
+        : null);
 
-          li.innerHTML = `
-            <span>${paper.year || 'N/A'} Question Paper</span>
-            <a href="${sData?.signedUrl || '#'}" target="_blank" class="link-red">Open →</a>
-          `;
-        } catch {
-          li.innerHTML = `
-            <span>${paper.year || 'N/A'} Question Paper</span>
-            <span class="text-muted">Unavailable</span>
-          `;
-        }
+      if (pdfUrl) {
+        li.innerHTML = `
+          <span>${paper.year || 'N/A'} Question Paper</span>
+          <a href="${pdfUrl}" target="_blank" class="link-red">Open →</a>
+        `;
       } else {
         li.innerHTML = `
           <span>${paper.year || 'N/A'} Question Paper</span>
@@ -168,6 +152,20 @@ async function loadPaper() {
 }
 
 /* ================= SYLLABUS ================= */
+/* ---------- Legacy helper: Supabase signed URL for pre-migration rows ---------- */
+async function _getLegacySignedUrl(supabase, path) {
+  if (!path || !supabase) return null;
+  try {
+    const { data, error } = await supabase.storage
+      .from('uploads-approved')
+      .createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) return null;
+    return data.signedUrl;
+  } catch {
+    return null;
+  }
+}
+
 async function loadSyllabus(supabase, subjectCode) {
   const container = document.getElementById('syllabus-container');
   const noSyllabus = document.getElementById('no-syllabus');
@@ -270,56 +268,8 @@ async function loadNotesResources(supabase, subjectCode) {
   const skeletonGroup = section.querySelector('.skeleton-group');
   const comingSoon = section.querySelector('.coming-soon');
 
-  // Try loading notes from storage
-  try {
-    const { data: notesList } = await supabase.storage
-      .from('uploads-approved')
-      .list(`notes/${subjectCode}`, { limit: 10 });
-
-    if (notesList && notesList.length > 0) {
-      if (skeletonGroup) skeletonGroup.style.display = 'none';
-      if (comingSoon) comingSoon.style.display = 'none';
-
-      // Generate signed URLs in parallel
-      const signedUrlPromises = notesList.map((file) =>
-        supabase.storage
-          .from('uploads-approved')
-          .createSignedUrl(`notes/${subjectCode}/${file.name}`, 3600)
-      );
-      const signedResults = await Promise.all(signedUrlPromises);
-
-      const notesContainer = document.createElement('div');
-      notesContainer.className = 'notes-list';
-
-      for (let i = 0; i < notesList.length; i++) {
-        const file = notesList[i];
-        const signedData = signedResults[i]?.data;
-
-        const item = document.createElement('div');
-        item.className = 'resource-item';
-
-        const nameSpan = document.createElement('span');
-        nameSpan.innerHTML = (window.SvgIcons ? window.SvgIcons.inline('file') : '') + ' ' + file.name;
-
-        const link = document.createElement('a');
-        link.href = signedData?.signedUrl || '#';
-        link.target = '_blank';
-        link.className = 'link-red';
-        link.textContent = 'Open →';
-
-        item.appendChild(nameSpan);
-        item.appendChild(link);
-        notesContainer.appendChild(item);
-      }
-
-      section.appendChild(notesContainer);
-      return;
-    }
-  } catch {
-    // No notes in storage
-  }
-
-  // Show coming soon state
+  // Notes & Resources are not yet stored in Appwrite.
+  // Show coming-soon state (feature planned for a future phase).
   if (skeletonGroup) skeletonGroup.style.display = 'none';
   if (comingSoon) comingSoon.style.display = 'block';
 }

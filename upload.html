@@ -286,8 +286,12 @@
   <!-- ⚡ BOOTSTRAP (MUST BE FIRST) -->
   <script src="js/bootstrap.js"></script>
   
-  <!-- Supabase SDK -->
+  <!-- Supabase SDK (Auth + DB only) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+
+  <!-- Appwrite SDK (File Storage) -->
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13/dist/iife/sdk.js"></script>
+  <script src="js/appwrite-client.js"></script>
   
   <!-- ⚡ SUPABASE CLIENT SINGLETON (Phase 1.4 - MUST LOAD BEFORE MODULES) -->
   <script src="js/supabase-client.js"></script>

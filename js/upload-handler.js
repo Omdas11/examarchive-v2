@@ -1,6 +1,8 @@
 // js/upload-handler.js
 // ============================================
-// UPLOAD HANDLER - Supabase Storage Integration
+// UPLOAD HANDLER - Appwrite Storage Integration (Phase 6)
+// File storage migrated from Supabase to Appwrite.
+// Supabase is still used for Auth, DB, RLS, RPC.
 // ============================================
 
 /**
@@ -40,10 +42,11 @@ async function handlePaperUpload(file, metadata, onProgress) {
   }
 
   uploadInProgress = true;
+  let appwriteFileId = null; // track for rollback
+
   try {
-    debugLog('info', 'Starting paper upload', { filename: file?.name });
-    
-    // Print auth status on upload start
+    debugLog('info', 'Starting paper upload (Appwrite)', { filename: file?.name });
+
     if (window.Debug && window.Debug.printAuthStatus) {
       window.Debug.printAuthStatus();
     }
@@ -51,174 +54,99 @@ async function handlePaperUpload(file, metadata, onProgress) {
     // Validate file
     if (!file || file.type !== 'application/pdf') {
       debugLog('error', 'Invalid file type — only PDF files are allowed', { type: file?.type });
-      console.error('[UPLOAD] Invalid file type', { type: file?.type });
       throw new Error('Only PDF files are allowed');
     }
-
     if (file.size > 50 * 1024 * 1024) {
       debugLog('error', 'File too large — must be less than 50MB', { size: file.size });
-      console.error('[UPLOAD] File too large', { size: file.size });
       throw new Error('File size must be less than 50MB');
     }
 
-    // Wait for Supabase client to be ready
+    // Wait for Supabase client (auth + DB only)
     if (window.waitForSupabase) {
       await window.waitForSupabase();
     }
-    
-    // Get Supabase client
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) {
       debugLog('error', 'Upload service unavailable. Please refresh the page.');
       throw new Error('Failed to initialize upload service. Please refresh and try again.');
     }
 
-    // AUTH LOCK - HARD REQUIRE USER BEFORE INSERT
+    // AUTH LOCK — require authenticated Supabase user before any storage action
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
     if (authError || !user) {
       debugLog('error', '[AUTH] User not authenticated. Blocking upload.');
       throw new Error('Please sign in before uploading.');
     }
-
     const userId = user.id;
-    debugLog('info', `[UPLOAD] Inserting submission for UID: ${userId}`);
+    debugLog('info', `[UPLOAD] Authenticated UID: ${userId}`);
 
     // Validate metadata
     if (!metadata || !metadata.paperCode || !metadata.examYear) {
       debugLog('error', 'Paper code and examination year are required');
       throw new Error('Paper code and examination year are required');
     }
-    const sanitizedFilename = sanitizeFilename(file.name);
-    const timestamp = Date.now();
-    // Generate structured filename: {paper_code}-{year}-{timestamp}.pdf
-    const sanitizedCode = String(metadata.paperCode).replace(/[^a-zA-Z0-9_-]/g, '_');
-    const sanitizedYear = String(metadata.examYear).replace(/[^0-9]/g, '');
-    const sanitizedUniversity = String(metadata.university || 'unknown').replace(/[^a-zA-Z0-9_-]/g, '_');
-    const sanitizedStream = String(metadata.stream || 'general').replace(/[^a-zA-Z0-9_-]/g, '_');
-    const sanitizedProgramme = String(metadata.programme || 'general').replace(/[^a-zA-Z0-9_-]/g, '_');
-    const sanitizedSubject = String(metadata.subject || sanitizedCode).replace(/[^a-zA-Z0-9_-]/g, '_');
-    const generatedFilename = `${sanitizedCode}-${sanitizedYear}-${timestamp}.pdf`;
-    // Structured storage path: {university}/{stream}/{programme}/{subject}/{year}/{filename}
-    const storagePath = metadata.university
-      ? `${sanitizedUniversity}/${sanitizedStream}/${sanitizedProgramme}/${sanitizedSubject}/${sanitizedYear}/${generatedFilename}`
-      : `${userId}/${generatedFilename}`;
-    const TEMP_BUCKET = 'uploads-temp';
-    const isDemo = metadata.uploadType === 'demo-paper';
 
-    // Upload to temp bucket
-    debugLog('info', '[UPLOAD] Storage Upload Starting', { bucket: TEMP_BUCKET, path: storagePath });
+    // -- Step 1: Upload file to Appwrite (BEFORE DB insert) --
+    const appwrite = window.getAppwrite ? window.getAppwrite() : null;
+    if (!appwrite) {
+      throw new Error('File storage service unavailable. Please refresh and try again.');
+    }
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(TEMP_BUCKET)
-      .upload(storagePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
+    appwriteFileId = window.generateAppwriteId
+      ? window.generateAppwriteId()
+      : (function() {
+          var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+          var id = ''; for (var i = 0; i < 20; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
+          return id;
+        })();
+    const bucketId = window.APPWRITE_PAPERS_BUCKET_ID || 'papers';
 
-    if (uploadError) {
-      const statusCode = uploadError.statusCode || uploadError.status;
-      const errorContext = {
-        bucket: TEMP_BUCKET,
-        path: storagePath,
-        error: uploadError,
-        statusCode: statusCode
-      };
-      
-      if (statusCode === 404) {
-        debugLog('error', `[STORAGE ERROR]\nBucket: ${TEMP_BUCKET}\nPath: ${storagePath}\nReason: Storage bucket not found.\nCheck: Contact the administrator.`, errorContext);
-        throw new Error(`Storage bucket "${TEMP_BUCKET}" not found. Please contact the administrator.`);
-      } else if (statusCode === 403) {
-        debugLog('error', `[STORAGE ERROR]\nBucket: ${TEMP_BUCKET}\nPath: ${storagePath}\nReason: Permission denied in uploads-temp bucket.\nCheck: User authenticated?`, errorContext);
-        throw new Error('Storage permission denied. Please ensure you are signed in.');
+    debugLog('info', '[UPLOAD] Appwrite upload starting', { bucketId, fileId: appwriteFileId });
+
+    let appwriteResult;
+    try {
+      appwriteResult = await appwrite.storage.createFile(bucketId, appwriteFileId, file);
+    } catch (storageErr) {
+      appwriteFileId = null; // not created — no rollback needed
+      const msg = storageErr.message || 'Unknown storage error';
+      debugLog('error', `[APPWRITE STORAGE ERROR] ${msg}`, storageErr);
+      if (msg.includes('401') || msg.includes('unauthorized')) {
+        throw new Error('Storage permission denied. Please contact the administrator.');
       }
-      debugLog('error', `[STORAGE ERROR]\nBucket: ${TEMP_BUCKET}\nPath: ${storagePath}\nReason: ${uploadError.message || 'Unknown storage error'}`, errorContext);
-      throw uploadError;
+      if (msg.includes('404') || msg.includes('not found')) {
+        throw new Error('Storage bucket not found. Please contact the administrator.');
+      }
+      throw new Error('File upload failed: ' + msg);
     }
 
     if (onProgress) onProgress(100);
-    debugLog('info', '[OK] Storage Upload Complete', { path: uploadData?.path || storagePath });
 
-    // Demo paper: upload directly to approved bucket, status = approved
-    if (isDemo) {
-      const approvedPath = `question-papers/${sanitizedCode}/${sanitizedYear}/${generatedFilename}`;
+    const fileUrl = window.getAppwriteFileViewUrl
+      ? window.getAppwriteFileViewUrl(bucketId, appwriteResult.$id || appwriteFileId)
+      : '#';
 
-      // Copy file to approved bucket
-      const { data: tempFile, error: downloadErr } = await supabase.storage
-        .from(TEMP_BUCKET)
-        .download(storagePath);
+    debugLog('info', '[OK] Appwrite upload complete', { fileId: appwriteResult.$id || appwriteFileId, fileUrl });
 
-      if (!downloadErr && tempFile) {
-        const { error: approvedUploadErr } = await supabase.storage
-          .from('uploads-approved')
-          .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
+    const isDemo = metadata.uploadType === 'demo-paper';
 
-        if (approvedUploadErr) {
-          const errorContext = {
-            bucket: 'uploads-approved',
-            path: approvedPath,
-            error: approvedUploadErr
-          };
-          debugLog('error', `[STORAGE ERROR]\nBucket: uploads-approved\nPath: ${approvedPath}\nReason: Failed to copy demo to approved bucket`, errorContext);
-        }
-      }
+    // -- Step 2: Insert submission record into Supabase DB --
+    const sanitizedCode = String(metadata.paperCode).replace(/[^a-zA-Z0-9_-]/g, '_');
 
-      // Create submission record with approved status
-      debugLog('info', '[SUBMIT] Submission Insert Starting (Demo Paper)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
-      
-      const { data: submission, error: submissionError } = await supabase
-        .from('submissions')
-        .insert({
-          user_id: userId,
-          paper_code: metadata.paperCode,
-          year: metadata.examYear,
-          storage_path: storagePath,
-          original_filename: file.name,
-          file_size: file.size,
-          content_type: file.type || 'application/pdf',
-          status: 'approved'
-        })
-        .select()
-        .single();
-
-      if (submissionError) {
-        debugLog('error', 'Submission insert failed:', submissionError);
-        if (window.debugError) window.debugError('SUBMISSION_INSERT_FAILED', submissionError);
-        
-        const errorMsg = submissionError.message?.toLowerCase() || '';
-        if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
-          debugLog('error', '[RLS] Insert blocked by policy.', submissionError);
-        }
-        
-        await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
-        throw submissionError;
-      }
-
-      debugLog('info', '[OK] Submission Insert Complete (Demo Paper)', { submissionId: submission.id });
-
-      debugLog('info', 'Demo paper uploaded and approved — visible in Browse');
-      return {
-        success: true,
-        submissionId: submission.id,
-        message: 'Demo paper uploaded! It is now visible in Browse.',
-        error: null
-      };
-    }
-
-    // Normal paper: create submission with pending status
-    debugLog('info', '[SUBMIT] Submission Insert Starting (Pending Review)', { paperCode: metadata.paperCode, examYear: metadata.examYear });
-    
     var submissionData = {
       user_id: userId,
       paper_code: metadata.paperCode,
       year: metadata.examYear,
-      storage_path: storagePath,
-      original_filename: metadata.fileRename ? (metadata.fileRename.replace(/[^a-zA-Z0-9_-]/g, '_') + '.pdf') : file.name,
+      appwrite_file_id: appwriteResult.$id || appwriteFileId,
+      file_url: fileUrl,
+      original_filename: metadata.fileRename
+        ? (metadata.fileRename.replace(/[^a-zA-Z0-9_-]/g, '_') + '.pdf')
+        : file.name,
       file_size: file.size,
       content_type: file.type || 'application/pdf',
-      status: 'pending'
+      status: isDemo ? 'approved' : 'pending'
     };
-    // Add optional metadata fields if the DB columns exist
+
+    // Optional metadata fields
     if (metadata.university) submissionData.university = metadata.university;
     if (metadata.stream) submissionData.stream = metadata.stream;
     if (metadata.programme) submissionData.programme = metadata.programme;
@@ -227,6 +155,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (metadata.semester) submissionData.semester = metadata.semester;
     if (metadata.tags && metadata.tags.length) submissionData.tags = metadata.tags;
 
+    debugLog('info', '[SUBMIT] DB insert starting', { paperCode: metadata.paperCode, examYear: metadata.examYear, isDemo });
+
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
       .insert(submissionData)
@@ -234,31 +164,37 @@ async function handlePaperUpload(file, metadata, onProgress) {
       .single();
 
     if (submissionError) {
-      debugLog('error', 'Submission insert failed:', submissionError);
+      debugLog('error', 'DB insert failed — rolling back Appwrite file', submissionError);
       if (window.debugError) window.debugError('SUBMISSION_INSERT_FAILED', submissionError);
-      
+
+      // -- Rollback: delete the Appwrite file --
+      try {
+        await appwrite.storage.deleteFile(bucketId, appwriteResult.$id || appwriteFileId);
+        debugLog('info', '[ROLLBACK] Appwrite file deleted successfully');
+      } catch (rollbackErr) {
+        debugLog('error', '[ROLLBACK] Failed to delete Appwrite file — may be orphaned', rollbackErr);
+      }
+      appwriteFileId = null;
+
       const errorMsg = submissionError.message?.toLowerCase() || '';
       if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
         debugLog('error', '[RLS] Insert blocked by policy.', submissionError);
       }
-      
-      // Clean up uploaded file
-      await supabase.storage.from(TEMP_BUCKET).remove([storagePath]);
       throw submissionError;
     }
 
-    debugLog('info', '[OK] Submission Insert Complete (Pending Review)', { submissionId: submission.id });
+    debugLog('info', '[OK] DB insert complete', { submissionId: submission.id, isDemo });
 
-    debugLog('info', 'Upload successful — pending review');
     return {
       success: true,
       submissionId: submission.id,
-      message: 'Upload successful! Your submission is pending review.',
+      message: isDemo
+        ? 'Demo paper uploaded! It is now visible in Browse.'
+        : 'Upload successful! Your submission is pending review.',
       error: null
     };
 
   } catch (error) {
-    // Human-readable RLS error handling (case-insensitive)
     const errorMsg = error.message?.toLowerCase() || '';
     if (errorMsg.includes('row-level security') || errorMsg.includes('policy')) {
       debugLog('error', '[RLS] Insert blocked by policy.');
@@ -269,7 +205,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
         error
       };
     }
-    
+
     debugLog('error', `[UPLOAD] ${error.message || 'Unknown error'}`, error);
 
     let userMessage = 'Upload failed. Please try again.';
@@ -278,8 +214,8 @@ async function handlePaperUpload(file, metadata, onProgress) {
     } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
       userMessage = 'Network error. Please check your connection and try again.';
     } else if (error.message) {
-      const friendlyErrors = ['PDF', 'size', 'signed in', 'allowed', 'refresh', 'bucket', 'authenticated'];
-      if (friendlyErrors.some(term => error.message.includes(term))) {
+      const friendlyTerms = ['PDF', 'size', 'signed in', 'allowed', 'refresh', 'bucket', 'authenticated', 'storage', 'contact'];
+      if (friendlyTerms.some(t => error.message.includes(t))) {
         userMessage = error.message;
       }
     }
