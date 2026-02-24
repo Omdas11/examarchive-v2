@@ -237,16 +237,38 @@
 
   // Single delegated document click listener for all dropdowns
   var globalListenerAttached = false;
+
+  /**
+   * Close every open dropdown immediately.
+   * Useful for navigation, modals, and programmatic triggers.
+   */
+  function closeAllDropdowns() {
+    document.querySelectorAll('.ea-dropdown.open').forEach(function(dd) {
+      dd.classList.remove('open');
+      var trig = dd.querySelector('.ea-dropdown-trigger');
+      if (trig) trig.setAttribute('aria-expanded', 'false');
+      var m = dd.querySelector('.ea-dropdown-menu');
+      if (m) {
+        m.classList.remove('ea-menu-fixed');
+        m.style.left = '';
+        m.style.top = '';
+        m.style.bottom = '';
+        m.style.width = '';
+        m.style.right = '';
+      }
+    });
+  }
+
   function ensureGlobalListener() {
     if (globalListenerAttached) return;
     globalListenerAttached = true;
     document.addEventListener('click', function(e) {
+      // Close only the dropdowns that don't contain the clicked element
       document.querySelectorAll('.ea-dropdown.open').forEach(function(dd) {
         if (!dd.contains(e.target)) {
           dd.classList.remove('open');
           var trig = dd.querySelector('.ea-dropdown-trigger');
           if (trig) trig.setAttribute('aria-expanded', 'false');
-          // Reset any fixed-position menu
           var m = dd.querySelector('.ea-dropdown-menu');
           if (m) {
             m.classList.remove('ea-menu-fixed');
@@ -259,22 +281,9 @@
         }
       });
     });
-    // Close dropdowns on scroll (important for fixed-position menus)
+    // Close all dropdowns on scroll (important for fixed-position menus)
     document.addEventListener('scroll', function() {
-      document.querySelectorAll('.ea-dropdown.open').forEach(function(dd) {
-        dd.classList.remove('open');
-        var trig = dd.querySelector('.ea-dropdown-trigger');
-        if (trig) trig.setAttribute('aria-expanded', 'false');
-        var m = dd.querySelector('.ea-dropdown-menu');
-        if (m) {
-          m.classList.remove('ea-menu-fixed');
-          m.style.left = '';
-          m.style.top = '';
-          m.style.bottom = '';
-          m.style.width = '';
-          m.style.right = '';
-        }
-      });
+      closeAllDropdowns();
     }, { passive: true, capture: true });
   }
 
@@ -290,7 +299,8 @@
   // Expose globally
   window.EaDropdown = {
     create: createDropdown,
-    initAll: initAllDropdowns
+    initAll: initAllDropdowns,
+    closeAll: closeAllDropdowns
   };
 
   // Auto-init on DOMContentLoaded
