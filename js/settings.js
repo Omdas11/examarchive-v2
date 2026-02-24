@@ -262,6 +262,9 @@ async function renderSettings() {
     // Attach event listeners
     attachEventListeners();
 
+    // Initialize custom dropdowns for any dynamically-rendered selects
+    if (window.EaDropdown) window.EaDropdown.initAll();
+
     if (window.Debug) window.Debug.logInfo(window.Debug.DebugModule.SETTINGS, 'Settings UI rendered successfully');
   } catch (err) {
     console.error('Settings render error:', err);
@@ -555,6 +558,7 @@ function createSelect(setting) {
         class="setting-select" 
         id="${setting.id}"
         data-setting-id="${setting.id}"
+        data-ea-dropdown
         ${setting.requiresApply ? 'data-requires-apply="true"' : ''}
       >
         ${setting.options.map(opt => `
