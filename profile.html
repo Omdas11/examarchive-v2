@@ -452,6 +452,9 @@
   <!-- Scripts -->
   <script src="js/bootstrap.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <!-- Appwrite SDK (File Storage) -->
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13/dist/iife/sdk.js"></script>
+  <script src="js/appwrite-client.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/core/debug.js"></script>
   <script type="module" src="js/app.module.js"></script>
@@ -828,14 +831,19 @@
             return;
           }
           var currentUserId = freshAuth.data.user.id;
-          var filePath = currentUserId + '/avatar.png';
-          var uploadRes = await supabase.storage
-            .from('avatars')
-            .upload(filePath, file, { upsert: true, cacheControl: '3600' });
-          if (uploadRes.error) throw uploadRes.error;
 
-          var urlRes = supabase.storage.from('avatars').getPublicUrl(filePath);
-          var publicUrl = urlRes.data.publicUrl + '?t=' + Date.now();
+          // Phase 6: Upload avatar to Appwrite
+          var appwrite = window.getAppwrite ? window.getAppwrite() : null;
+          if (!appwrite) throw new Error('Storage service unavailable. Please refresh.');
+          var avatarBucket = window.APPWRITE_AVATARS_BUCKET_ID || 'avatars';
+          // Use a deterministic, length-safe Appwrite file ID for this user's avatar.
+          // 'av' prefix (2) + UUID without hyphens (32) = 34 chars — within Appwrite's 36-char limit.
+          var avatarFileId = ('av' + currentUserId.replace(/-/g, '')).substring(0, 36);
+          try { await appwrite.storage.deleteFile(avatarBucket, avatarFileId); } catch (_) { /* file may not exist yet */ }
+          var avatarResult = await appwrite.storage.createFile(avatarBucket, avatarFileId, file);
+          var publicUrl = window.getAppwriteFileViewUrl
+            ? window.getAppwriteFileViewUrl(avatarBucket, avatarResult.$id) + '&t=' + Date.now()
+            : '#';
 
           await supabase.from('roles').update({ avatar_url: publicUrl }).eq('user_id', currentUserId);
 

@@ -415,7 +415,7 @@ function showRejectModal(submission) {
 }
 
 /**
- * Approve submission and publish
+ * Approve submission and publish (Phase 6: no file movement)
  */
 async function approveSubmission(submission, notes = '') {
   try {
@@ -426,22 +426,8 @@ async function approveSubmission(submission, notes = '') {
       throw new Error('Supabase not available');
     }
 
-    // Move file from temp to approved bucket
-    const approvedPath = `approved/${submission.paper_code}/${submission.year}/${Date.now()}.pdf`;
-
-    // Download from temp
-    const { data: tempFile, error: dlErr } = await supabase.storage
-      .from('uploads-temp')
-      .download(submission.storage_path);
-
-    if (dlErr) throw new Error('Failed to download temp file: ' + dlErr.message);
-
-    // Upload to approved
-    const { error: ulErr } = await supabase.storage
-      .from('uploads-approved')
-      .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
-
-    if (ulErr) throw new Error('Failed to upload to approved: ' + ulErr.message);
+    // Phase 6: No file movement needed — file is in Appwrite.
+    const approvedPath = submission.file_url || submission.approved_path || null;
 
     // Insert into approved_papers
     await supabase.from('approved_papers').insert({
@@ -460,9 +446,6 @@ async function approveSubmission(submission, notes = '') {
 
     if (updateError) throw updateError;
 
-    // Clean up temp file
-    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
-
     showMessage('Submission approved!', 'success');
     await loadSubmissions();
 
@@ -473,7 +456,7 @@ async function approveSubmission(submission, notes = '') {
 }
 
 /**
- * Reject submission
+ * Reject submission (Phase 6: deletes Appwrite file, then updates DB)
  */
 async function rejectSubmission(submission, notes = '') {
   try {
@@ -484,8 +467,19 @@ async function rejectSubmission(submission, notes = '') {
       throw new Error('Supabase not available');
     }
 
-    // Delete file from temp storage
-    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
+    // Delete file from Appwrite if we have the file ID
+    if (submission.appwrite_file_id) {
+      try {
+        const appwrite = window.getAppwrite ? window.getAppwrite() : null;
+        if (appwrite) {
+          const bucketId = window.APPWRITE_PAPERS_BUCKET_ID || 'papers';
+          await appwrite.storage.deleteFile(bucketId, submission.appwrite_file_id);
+        }
+      } catch (deleteErr) {
+        console.warn('[REVIEW] Could not delete Appwrite file:', deleteErr.message);
+        // Continue — DB update is more important
+      }
+    }
 
     // Update submission status
     const { error: updateError } = await supabase
@@ -505,7 +499,7 @@ async function rejectSubmission(submission, notes = '') {
 }
 
 /**
- * Delete submission (admin only)
+ * Delete submission (admin only — also deletes Appwrite file)
  */
 async function deleteSubmission(submission) {
   if (!confirm(`Delete submission ${submission.paper_code} - ${submission.year}?\n\nThis action cannot be undone.`)) {
@@ -520,9 +514,18 @@ async function deleteSubmission(submission) {
       throw new Error('Supabase not available');
     }
 
-    // Delete file from temp storage if present
-    if (submission.storage_path) {
-      await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
+    // Delete file from Appwrite if we have the file ID
+    if (submission.appwrite_file_id) {
+      try {
+        const appwrite = window.getAppwrite ? window.getAppwrite() : null;
+        if (appwrite) {
+          const bucketId = window.APPWRITE_PAPERS_BUCKET_ID || 'papers';
+          await appwrite.storage.deleteFile(bucketId, submission.appwrite_file_id);
+        }
+      } catch (deleteErr) {
+        console.warn('[ADMIN] Could not delete Appwrite file:', deleteErr.message);
+        // Continue — DB delete is more important
+      }
     }
 
     // Delete submission record

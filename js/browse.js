@@ -1,15 +1,11 @@
 /**
  * ExamArchive v2 — Browse Page
- * Phase 2: Fully database-driven from Supabase submissions table
+ * Phase 6: Uses Appwrite file_url stored in DB (no signed URLs)
  */
 
 /* -------------------- State -------------------- */
 let allPapers = [];
 let view = [];
-
-// Cache for signed URLs (path → { url, expiresAt })
-const signedUrlCache = new Map();
-const SIGNED_URL_TTL = 3600; // 1 hour
 
 let filters = {
   programme: "ALL",
@@ -45,37 +41,26 @@ const closeSortBtn = document.getElementById("closeSort");
 const cancelSortBtn = document.getElementById("cancelSort");
 const currentSortLabel = document.getElementById("currentSort");
 
-/* -------------------- Signed URL -------------------- */
+/* -------------------- PDF URL -------------------- */
 /**
- * Get a signed URL for a file in uploads-approved bucket
- * Uses cache and auto-refreshes when expired
+ * Resolve the PDF URL for a submission.
+ * Phase 6: uses file_url (Appwrite) stored in DB.
+ * Falls back to legacy approved_path via Supabase signed URL for pre-migration rows.
  */
-async function getSignedUrl(supabase, filePath) {
-  if (!filePath) return '#';
+async function getPdfUrl(supabase, submission) {
+  // Phase 6: use stored Appwrite URL
+  if (submission.file_url) return submission.file_url;
 
-  const cached = signedUrlCache.get(filePath);
-  if (cached && Date.now() < cached.expiresAt) {
-    return cached.url;
-  }
+  // Legacy fallback: generate Supabase signed URL for pre-migration rows
+  const path = submission.approved_path || submission.storage_path;
+  if (!path || !supabase) return '#';
 
   try {
+    const bucket = submission.approved_path ? 'uploads-approved' : 'uploads-temp';
     const { data, error } = await supabase.storage
-      .from('uploads-approved')
-      .createSignedUrl(filePath, SIGNED_URL_TTL);
-
-    if (error || !data?.signedUrl) {
-      return '#';
-    }
-
-    signedUrlCache.set(filePath, {
-      url: data.signedUrl,
-      expiresAt: Date.now() + (SIGNED_URL_TTL - 60) * 1000 // refresh 60s before expiry (converting seconds to ms)
-    });
-
-    if (window.Debug) {
-      window.Debug.logInfo('storage', 'Signed URL generated', { path: filePath });
-    }
-
+      .from(bucket)
+      .createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) return '#';
     return data.signedUrl;
   } catch {
     return '#';
@@ -108,12 +93,10 @@ async function loadPapers() {
       return;
     }
 
-    // Map submissions to display format with signed URLs
+    // Map submissions to display format with Appwrite URLs
     // Filter out demo papers — only show real uploads
     const papers = await Promise.all((data || []).filter(s => !s.is_demo).map(async (s) => {
-      const pdfUrl = s.approved_path
-        ? await getSignedUrl(supabase, s.approved_path)
-        : '#';
+      const pdfUrl = await getPdfUrl(supabase, s);
 
       return {
         paper_codes: [s.paper_code],

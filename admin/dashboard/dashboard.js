@@ -556,7 +556,7 @@ function showRejectModal(submission) {
 }
 
 /**
- * Approve submission (move file, set status to approved)
+ * Approve submission (Phase 6: no file movement — Appwrite file stays in place)
  * Reviewer+ (via primary_role) can approve
  */
 async function approveSubmission(submission, notes = '') {
@@ -569,23 +569,9 @@ async function approveSubmission(submission, notes = '') {
     const { data: { session } } = await supabase.auth.getSession();
     const reviewerId = session.user.id;
 
-    // Move file from temp to approved bucket
-    const timestamp = Date.now();
-    const approvedPath = `approved/${submission.paper_code}/${submission.year}/${timestamp}.pdf`;
-
-    // Download from temp
-    const { data: tempFile, error: dlErr } = await supabase.storage
-      .from('uploads-temp')
-      .download(submission.storage_path);
-
-    if (dlErr) throw new Error('Failed to download temp file: ' + dlErr.message);
-
-    // Upload to approved
-    const { error: ulErr } = await supabase.storage
-      .from('uploads-approved')
-      .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
-
-    if (ulErr) throw new Error('Failed to upload to approved: ' + ulErr.message);
+    // Phase 6: No file movement needed — file is in Appwrite.
+    // Store file_url as approved_path for backwards compatibility.
+    const approvedPath = submission.file_url || submission.approved_path || null;
 
     // Update submission status to approved (not published)
     const { error: updateError } = await supabase
@@ -601,9 +587,6 @@ async function approveSubmission(submission, notes = '') {
 
     if (updateError) throw updateError;
 
-    // Clean up temp file
-    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
-
     showMessage('Submission approved! Awaiting publish by Senior Moderator+ admin.', 'success');
     
     // Reload submissions
@@ -616,7 +599,7 @@ async function approveSubmission(submission, notes = '') {
 }
 
 /**
- * Approve and publish in one step
+ * Approve and publish in one step (Phase 6: no file movement)
  * Senior Moderator+ (via primary_role) can approve & publish
  */
 async function approveAndPublishSubmission(submission, notes = '') {
@@ -629,23 +612,8 @@ async function approveAndPublishSubmission(submission, notes = '') {
     const { data: { session } } = await supabase.auth.getSession();
     const reviewerId = session.user.id;
 
-    // Move file from temp to approved bucket
-    const timestamp = Date.now();
-    const approvedPath = `approved/${submission.paper_code}/${submission.year}/${timestamp}.pdf`;
-
-    // Download from temp
-    const { data: tempFile, error: dlErr } = await supabase.storage
-      .from('uploads-temp')
-      .download(submission.storage_path);
-
-    if (dlErr) throw new Error('Failed to download temp file: ' + dlErr.message);
-
-    // Upload to approved
-    const { error: ulErr } = await supabase.storage
-      .from('uploads-approved')
-      .upload(approvedPath, tempFile, { cacheControl: '3600', upsert: false });
-
-    if (ulErr) throw new Error('Failed to upload to approved: ' + ulErr.message);
+    // Phase 6: No file movement needed — file is in Appwrite.
+    const approvedPath = submission.file_url || submission.approved_path || null;
 
     // Insert into approved_papers table
     await supabase.from('approved_papers').insert({
@@ -671,9 +639,6 @@ async function approveAndPublishSubmission(submission, notes = '') {
 
     if (updateError) throw updateError;
 
-    // Clean up temp file
-    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
-
     showMessage('Submission approved & published!', 'success');
     
     // Reload submissions
@@ -686,7 +651,7 @@ async function approveAndPublishSubmission(submission, notes = '') {
 }
 
 /**
- * Reject submission
+ * Reject submission (Phase 6: deletes Appwrite file, then updates DB)
  */
 async function rejectSubmission(submission, notes = '') {
   try {
@@ -698,8 +663,19 @@ async function rejectSubmission(submission, notes = '') {
     const { data: { session } } = await supabase.auth.getSession();
     const reviewerId = session.user.id;
 
-    // Delete file from temp storage
-    await supabase.storage.from('uploads-temp').remove([submission.storage_path]);
+    // Delete file from Appwrite if we have the file ID
+    if (submission.appwrite_file_id) {
+      try {
+        const appwrite = window.getAppwrite ? window.getAppwrite() : null;
+        if (appwrite) {
+          const bucketId = window.APPWRITE_PAPERS_BUCKET_ID || 'papers';
+          await appwrite.storage.deleteFile(bucketId, submission.appwrite_file_id);
+        }
+      } catch (deleteErr) {
+        console.warn('[REVIEW] Could not delete Appwrite file:', deleteErr.message);
+        // Continue — DB update is more important
+      }
+    }
 
     // Update submission
     const { error: updateError } = await supabase
@@ -726,20 +702,26 @@ async function rejectSubmission(submission, notes = '') {
 }
 
 /**
- * Preview file in a new tab
+ * Preview file in a new tab (Phase 6: uses Appwrite file_url)
  */
 async function previewFile(submission) {
   try {
+    // Phase 6: use stored Appwrite URL
+    const fileUrl = submission.file_url || submission.approved_path;
+    if (fileUrl) {
+      window.open(fileUrl, '_blank');
+      return;
+    }
+
+    // Legacy fallback: generate Supabase signed URL for pre-migration rows
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
-
-    const bucket = submission.approved_path ? 'uploads-approved' : 'uploads-temp';
-    const path = submission.approved_path || submission.storage_path;
+    const path = submission.storage_path;
+    if (!path) throw new Error('No file path available');
 
     const { data, error } = await supabase.storage
-      .from(bucket)
-      .createSignedUrl(path, 300); // 5 min URL
-
+      .from('uploads-temp')
+      .createSignedUrl(path, 300);
     if (error) throw error;
     window.open(data.signedUrl, '_blank');
   } catch (err) {
@@ -757,7 +739,7 @@ async function publishSubmission(submission) {
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (!supabase) throw new Error('Supabase not initialized');
 
-    // File is already in uploads-approved; just update status
+    // File is already in Appwrite; just update DB status
     const { error: updateError } = await supabase
       .from('submissions')
       .update({
