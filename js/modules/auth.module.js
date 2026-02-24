@@ -30,17 +30,9 @@ export async function initAuth() {
       }
     });
     
-    // Set up auth state listener
-    supabase.auth.onAuthStateChange((event, session) => {
-      console.log('[AUTH-MODULE] Auth state changed:', event);
-      if (window.App) {
-        window.App.session = session;
-      }
-      
-      window.dispatchEvent(new CustomEvent('auth-state-changed', {
-        detail: { event, session }
-      }));
-    });
+    // NOTE: auth-controller.js registers the single onAuthStateChange listener
+    // and fires the 'auth-state-changed' event.  Do NOT add another listener
+    // here to avoid duplicate events that cause double re-renders.
     
   } catch (err) {
     console.error('[AUTH-MODULE] Fatal error during auth init:', err);

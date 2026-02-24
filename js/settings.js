@@ -1275,19 +1275,9 @@ function showLoginRequiredMessage() {
 
 let settingsInitialized = false;
 
-// Initialize settings when DOM is ready
-// Show loading state initially
-document.addEventListener("DOMContentLoaded", () => {
-  if (settingsInitialized) return;
-  settingsInitialized = true;
-  showLoadingState();
-});
-
-// Wait for auth:ready event before checking auth
-window.addEventListener("auth:ready", async (e) => {
+// Centralised handler — renders or gates based on auth state
+async function handleSettingsAuthState(session) {
   try {
-    const session = e.detail.session;
-    
     if (!session) {
       showLoginRequiredMessage();
     } else {
@@ -1300,21 +1290,28 @@ window.addEventListener("auth:ready", async (e) => {
       renderErrorMessage(container, 'Error Loading Settings', 'Something went wrong. Please try refreshing the page.');
     }
   }
-});
+}
 
-// Listen to auth state changes (single listener via event)
-window.addEventListener("auth-state-changed", async (e) => {
-  try {
-    const session = e.detail.session;
-    
-    if (!session) {
-      showLoginRequiredMessage();
-    } else {
-      renderSettings();
-    }
-  } catch (err) {
-    console.error('Settings re-render error:', err);
+// Initialize settings when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  if (settingsInitialized) return;
+  settingsInitialized = true;
+
+  // Show loading spinner immediately so there is no blank flash
+  showLoadingState();
+
+  // Use waitForAuthReady() so we never miss the auth:ready event even if it
+  // already fired before DOMContentLoaded ran (race condition on fast loads).
+  if (window.AuthController) {
+    window.AuthController.waitForAuthReady().then(handleSettingsAuthState);
+  } else {
+    window.addEventListener("auth:ready", (e) => handleSettingsAuthState(e.detail.session), { once: true });
   }
+
+  // Listen to subsequent auth state changes (sign in / sign out)
+  window.addEventListener("auth-state-changed", (e) => {
+    handleSettingsAuthState(e.detail.session);
+  });
 });
 
 // ===============================

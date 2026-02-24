@@ -33,26 +33,31 @@ function initializeAvatarPopup() {
 
   debug("[OK] avatar popup DOM ready");
 
-  // Avatar click navigates directly to profile (logged-in) or login (guest)
-  avatarTrigger?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    
-    // Close mobile menu if open
-    const mobileNav = document.getElementById("mobileNav");
-    if (mobileNav?.classList.contains("open")) {
-      mobileNav.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }
-    
-    const session = window.AuthController?.getSession?.() || window.App?.session;
-    if (session?.user) {
-      window.location.href = "/profile.html";
-    } else {
-      window.location.href = "/login.html";
-    }
-  });
+  // Only attach click handler if the trigger element actually exists.
+  // Guard with avatarPopupLoaded AFTER successful attachment so a missing
+  // element on first call doesn't permanently block future attempts.
+  if (avatarTrigger) {
+    // Avatar click navigates directly to profile (logged-in) or login (guest)
+    avatarTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      
+      // Close mobile menu if open
+      const mobileNav = document.getElementById("mobileNav");
+      if (mobileNav?.classList.contains("open")) {
+        mobileNav.classList.remove("open");
+        document.body.classList.remove("menu-open");
+      }
+      
+      const session = window.AuthController?.getSession?.() || window.App?.session;
+      if (session?.user) {
+        window.location.href = "/profile.html";
+      } else {
+        window.location.href = "/login.html";
+      }
+    });
 
-  avatarPopupLoaded = true;
+    avatarPopupLoaded = true;
+  }
 }
 
 /* ===============================
@@ -200,6 +205,10 @@ document.addEventListener("header:loaded", () => {
    =============================== */
 let headerAvatarFetchInProgress = false;
 
+// In-memory cache so avatar doesn't re-fetch on every navigation/re-render.
+// Keyed by user id; stores { avatarUrl, ringType }.
+var _headerAvatarCache = {};
+
 function updateHeaderAvatar(user) {
   const avatarMini = document.querySelector(".avatar-mini");
   if (!avatarMini) return;
@@ -223,7 +232,6 @@ function updateHeaderAvatar(user) {
   if (user) {
     const fullName = user.user_metadata?.full_name;
     const email = user.email;
-    const oauthAvatarUrl = user.user_metadata?.avatar_url;
     const initial = fullName ? fullName[0].toUpperCase() : email ? email[0].toUpperCase() : "U";
 
     function applyAvatar(url, ringType) {
@@ -250,6 +258,14 @@ function updateHeaderAvatar(user) {
       }
     }
 
+    // Serve from cache to avoid shimmer flicker on navigation/refresh
+    if (_headerAvatarCache[user.id]) {
+      var cached = _headerAvatarCache[user.id];
+      if (avatarWrap) avatarWrap.setAttribute('data-ring', cached.ringType);
+      applyAvatar(cached.avatarUrl, cached.ringType);
+      return;
+    }
+
     // Show shimmer while loading
     avatarMini.textContent = "";
     avatarMini.classList.add("avatar-shimmer");
@@ -258,11 +274,12 @@ function updateHeaderAvatar(user) {
     if (headerAvatarFetchInProgress) return;
     headerAvatarFetchInProgress = true;
 
-    // Fetch avatar_url and role info from roles table
+    // Fetch avatar_url and role info from roles table (authoritative source)
     const supabase = window.getSupabase ? window.getSupabase() : null;
     if (supabase) {
       supabase.from('roles').select('avatar_url, primary_role, level').eq('user_id', user.id).single().then(function(res) {
         headerAvatarFetchInProgress = false;
+        // Use only roles.avatar_url — do NOT fall back to OAuth metadata
         var rolesAvatar = res.data?.avatar_url || null;
 
         // Compute ring type first (needed for SVG fallback)
@@ -279,26 +296,29 @@ function updateHeaderAvatar(user) {
         else if (level >= 5) ringType = 'explorer';
         else ringType = 'visitor';
 
+        // Cache the result so subsequent renders are instant
+        _headerAvatarCache[user.id] = { avatarUrl: rolesAvatar, ringType: ringType };
+
         // Set ring data attribute for animated gradient
         if (avatarWrap) {
           avatarWrap.setAttribute('data-ring', ringType);
         }
 
-        // Priority: roles avatar_url > OAuth avatar_url > colorful SVG fallback
-        applyAvatar(rolesAvatar || oauthAvatarUrl || null, ringType);
+        applyAvatar(rolesAvatar, ringType);
       }).catch(function() {
         headerAvatarFetchInProgress = false;
-        // Fallback to OAuth avatar if roles fetch fails
-        applyAvatar(oauthAvatarUrl || null, 'none');
+        // On error: show SVG fallback without caching so it retries next time
+        applyAvatar(null, 'none');
         if (avatarWrap) avatarWrap.setAttribute('data-ring', 'none');
       });
     } else {
       headerAvatarFetchInProgress = false;
-      applyAvatar(oauthAvatarUrl || null, 'none');
+      applyAvatar(null, 'none');
       if (avatarWrap) avatarWrap.setAttribute('data-ring', 'none');
     }
   } else {
-    // Guest: show visitor SVG placeholder
+    // Guest: show visitor SVG placeholder; clear any stale cache
+    _headerAvatarCache = {};
     var guestTier = tierSvgMap['visitor'];
     avatarMini.innerHTML = window.SvgIcons ? window.SvgIcons.get(guestTier.icon, { size: 18 }) : '';
     avatarMini.style.backgroundImage = "none";
