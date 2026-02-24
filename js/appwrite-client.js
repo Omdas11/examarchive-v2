@@ -7,8 +7,8 @@
 // ============================================
 
 // ---- Configuration (public values only, no secrets) ----
-const APPWRITE_ENDPOINT = "https://cloud.appwrite.io/v1";
-const APPWRITE_PROJECT_ID = "6857f1810039a2a4d7b6"; // Appwrite Project ID
+const APPWRITE_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
+const APPWRITE_PROJECT_ID = "699d283c001f0011b1b0"; // Appwrite Project ID
 const APPWRITE_PAPERS_BUCKET_ID = "papers";           // Bucket for paper PDFs
 const APPWRITE_AVATARS_BUCKET_ID = "avatars";         // Bucket for user avatars
 
