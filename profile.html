@@ -847,6 +847,16 @@
 
           await supabase.from('roles').update({ avatar_url: publicUrl }).eq('user_id', currentUserId);
 
+          // Override OAuth avatar metadata so Google picture no longer takes precedence
+          try {
+            await supabase.auth.updateUser({ data: { avatar_url: publicUrl, picture: publicUrl } });
+          } catch (_) { /* non-critical */ }
+
+          // Keep user_profiles in sync (clean-architecture table)
+          try {
+            await supabase.from('user_profiles').upsert({ id: currentUserId, avatar_url: publicUrl }, { onConflict: 'id' });
+          } catch (_) { /* non-critical */ }
+
           safeSetAvatar(publicUrl, null, null);
           if (statusEl) { statusEl.textContent = 'Photo updated!'; statusEl.style.color = 'var(--color-success)'; }
           setTimeout(function() { if (statusEl) statusEl.textContent = ''; }, 2000);

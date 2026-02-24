@@ -73,6 +73,11 @@
         window.App.session = session;
       }
       
+      // Track last login in user_profiles on sign-in or session restore
+      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
+        supabaseClient.rpc('update_last_login').catch(() => {});
+      }
+
       // Emit custom event for UI components
       window.dispatchEvent(new CustomEvent('auth-state-changed', {
         detail: { event, session }
