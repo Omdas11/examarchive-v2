@@ -617,11 +617,20 @@
       async function onConfirm() {
         cleanup();
         try {
+          // Validate target UUID format
+          var uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (!userId || !uuidRegex.test(userId)) {
+            showToast('Invalid user UUID: ' + (userId || '(empty)'), 'error');
+            revertDropdown(selectEl.getAttribute('data-original-role'));
+            return;
+          }
+
+          console.log('[ROLE-CHANGE] Calling RPC update_user_role', { target_user_id: userId, new_role: newRole, actor_role: currentUserRole });
           var res = await supabaseClient.rpc('update_user_role', {
             target_user_id: userId,
             new_role: newRole
           });
-          console.log('[ROLE-CHANGE] RPC response:', res);
+          console.log('[ROLE-CHANGE] RPC response:', JSON.stringify({ data: res.data, error: res.error, status: res.status, statusText: res.statusText }));
           if (res.error) throw res.error;
 
           // Re-fetch user data to get correct XP-derived level

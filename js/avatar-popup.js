@@ -38,7 +38,7 @@ function initializeAvatarPopup() {
   // element on first call doesn't permanently block future attempts.
   if (avatarTrigger) {
     // Avatar click navigates directly to profile (logged-in) or login (guest)
-    avatarTrigger.addEventListener("click", (e) => {
+    avatarTrigger.addEventListener("click", async (e) => {
       e.stopPropagation();
       
       // Close mobile menu if open
@@ -48,7 +48,13 @@ function initializeAvatarPopup() {
         document.body.classList.remove("menu-open");
       }
       
-      const session = window.AuthController?.getSession?.() || window.App?.session;
+      // Wait for resolved session, not cached state
+      let session = null;
+      if (window.AuthController?.waitForAuthReady) {
+        session = await window.AuthController.waitForAuthReady();
+      } else {
+        session = window.AuthController?.getSession?.() || window.App?.session;
+      }
       if (session?.user) {
         window.location.href = "/profile.html";
       } else {
@@ -69,8 +75,13 @@ async function renderAvatarPopup() {
   const handleSwitchAccount = window.AvatarUtils.handleSwitchAccount;
   const handleSignIn = window.AvatarUtils.handleSignIn;
   
-  // Use AuthController as single source of truth
-  const session = window.AuthController?.getSession?.() || window.App?.session;
+  // Use AuthController as single source of truth; await if not ready
+  let session = null;
+  if (window.AuthController && window.AuthController.waitForAuthReady) {
+    session = await window.AuthController.waitForAuthReady();
+  } else {
+    session = window.AuthController?.getSession?.() || window.App?.session;
+  }
   const user = session?.user;
 
   const popup = document.getElementById("avatar-popup");
@@ -339,9 +350,25 @@ document.addEventListener('app:ready', () => {
   if (avatarPopupAuthListenerSetup) return;
   avatarPopupAuthListenerSetup = true;
 
+  // Prefer AuthController resolved session over potentially-stale window.App.session
+  function getResolvedUser() {
+    var session = (window.AuthController && window.AuthController.getSession
+      ? window.AuthController.getSession()
+      : null) || window.App?.session;
+    return session?.user || null;
+  }
+
   // Update header avatar immediately using the resolved session
-  const initialUser = window.App?.session?.user || null;
-  updateHeaderAvatar(initialUser);
+  var initialUser = getResolvedUser();
+
+  // If auth is not yet ready, wait for it before overriding the default avatar
+  if (!initialUser && window.AuthController && window.AuthController.waitForAuthReady) {
+    window.AuthController.waitForAuthReady().then(function(session) {
+      updateHeaderAvatar(session?.user || null);
+    });
+  } else {
+    updateHeaderAvatar(initialUser);
+  }
 
   const supabase = window.App.supabase;
   if (!supabase) return;

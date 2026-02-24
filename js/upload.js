@@ -62,6 +62,11 @@ function disableUploadForm() {
   const authWall = document.getElementById('upload-auth-wall');
   if (authWall) authWall.style.display = 'block';
 
+  // Show intro (always visible)
+  document.querySelectorAll('.upload-intro').forEach(el => {
+    el.style.display = '';
+  });
+
   // Hide upload form sections
   document.querySelectorAll('.upload-type-selector, .upload-card, .upload-info').forEach(el => {
     el.style.display = 'none';
@@ -82,8 +87,8 @@ function enableUploadForm() {
   const authWall = document.getElementById('upload-auth-wall');
   if (authWall) authWall.style.display = 'none';
 
-  // Show upload form sections
-  document.querySelectorAll('.upload-type-selector, .upload-card, .upload-info').forEach(el => {
+  // Show upload form sections (including intro)
+  document.querySelectorAll('.upload-intro, .upload-type-selector, .upload-card, .upload-info').forEach(el => {
     el.style.display = '';
   });
 
