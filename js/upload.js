@@ -8,46 +8,39 @@ let isUploading = false;
 let uploadFormInitialized = false;
 let authReady = false;
 
+// Centralised handler — called once auth state is known
+function handleUploadAuthState(session) {
+  authReady = true;
+  if (window.Debug) {
+    window.Debug.logInfo('auth', '[AUTH] Auth ready event received.');
+    window.Debug.printAuthStatus?.();
+  }
+  if (!session) {
+    disableUploadForm();
+  } else {
+    enableUploadForm();
+    initializeUploadTypeSelector();
+    if (!uploadFormInitialized) {
+      initializeUploadForm();
+      uploadFormInitialized = true;
+    }
+    loadUserSubmissions();
+  }
+}
+
 // Wrap everything in DOMContentLoaded to ensure page is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Wait for auth:ready event before checking auth
-  window.addEventListener("auth:ready", async (e) => {
-    authReady = true;
-    const session = e.detail.session;
-    
-    if (window.Debug) {
-      window.Debug.logInfo('auth', '[AUTH] Auth ready event received.');
-      // Print auth status on page load
-      window.Debug.printAuthStatus();
-    }
-    
-    if (!session) {
-      disableUploadForm();
-    } else {
-      enableUploadForm();
-      initializeUploadTypeSelector();
-      if (!uploadFormInitialized) {
-        initializeUploadForm();
-        uploadFormInitialized = true;
-      }
-      loadUserSubmissions();
-    }
-  });
+  // Use waitForAuthReady() so we never miss the auth:ready event even if it
+  // already fired before DOMContentLoaded ran (race condition on fast loads).
+  if (window.AuthController) {
+    window.AuthController.waitForAuthReady().then(handleUploadAuthState);
+  } else {
+    window.addEventListener("auth:ready", (e) => handleUploadAuthState(e.detail.session), { once: true });
+  }
 
-  // Listen for auth changes (e.g. user signs in via popup)
+  // Listen for subsequent auth changes (e.g. user signs in / out via popup)
   window.addEventListener("auth-state-changed", (e) => {
-    const session = e.detail.session;
-    if (session) {
-      enableUploadForm();
-      initializeUploadTypeSelector();
-      if (!uploadFormInitialized) {
-        initializeUploadForm();
-        uploadFormInitialized = true;
-      }
-      loadUserSubmissions();
-    } else {
-      disableUploadForm();
-    }
+    handleUploadAuthState(e.detail.session);
   });
 });
 

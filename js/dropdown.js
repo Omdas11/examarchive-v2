@@ -138,6 +138,8 @@
     }
 
     function openMenu() {
+      // Close any other open dropdowns first, then open this one
+      closeAllDropdowns();
       wrapper.classList.add('open');
       trigger.setAttribute('aria-expanded', 'true');
       highlightedIndex = -1;
@@ -169,6 +171,12 @@
       items[highlightedIndex].classList.add('highlighted');
       items[highlightedIndex].scrollIntoView({ block: 'nearest' });
     }
+
+    // Prevent touchstart on the wrapper from bubbling to the document-level
+    // click handler, which would close the dropdown before the tap registers.
+    wrapper.addEventListener('touchstart', function(e) {
+      e.stopPropagation();
+    }, { passive: true });
 
     // Toggle on click
     trigger.addEventListener('click', function(e) {
@@ -281,8 +289,13 @@
         }
       });
     });
-    // Close all dropdowns on scroll (important for fixed-position menus)
-    document.addEventListener('scroll', function() {
+    // Close all dropdowns on scroll — but NOT when scrolling inside a dropdown menu
+    // (the menu itself is scrollable for long option lists)
+    document.addEventListener('scroll', function(e) {
+      if (e.target && typeof e.target.closest === 'function' &&
+          e.target.closest('.ea-dropdown-menu')) {
+        return;
+      }
       closeAllDropdowns();
     }, { passive: true, capture: true });
   }
