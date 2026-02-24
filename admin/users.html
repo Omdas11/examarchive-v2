@@ -544,9 +544,9 @@
 
         roleCell.appendChild(select);
 
-        // Enhance role select with custom dropdown
+        // Enhance role select with custom dropdown; store controller for revert
         if (window.EaDropdown) {
-          window.EaDropdown.create(select);
+          select._eaDropdownController = window.EaDropdown.create(select);
         }
 
         tbody.appendChild(tr);
@@ -570,8 +570,46 @@
         modal.classList.remove('open');
       }
 
+      // Revert the dropdown to a given role value without triggering the
+      // change-event dialog. Uses the stored EaDropdown controller's refresh()
+      // so the custom UI syncs with the native select value.
+      function revertDropdown(role) {
+        selectEl.value = role;
+        var ctrl = selectEl._eaDropdownController;
+        if (ctrl && ctrl.refresh) ctrl.refresh();
+      }
+
+      // Re-fetch the user's actual role from DB and apply it as the new
+      // source-of-truth for the dropdown (guards against stale local state).
+      async function syncRoleFromDb() {
+        try {
+          var refetch = await supabaseClient
+            .from('roles')
+            .select('primary_role')
+            .eq('user_id', userId)
+            .single();
+          if (refetch.data && refetch.data.primary_role) {
+            var dbRole = refetch.data.primary_role;
+            selectEl.setAttribute('data-original-role', dbRole);
+            revertDropdown(dbRole);
+            // Keep allUsers cache in sync
+            for (var i = 0; i < allUsers.length; i++) {
+              if (allUsers[i].user_id === userId) {
+                allUsers[i].primary_role = dbRole;
+                break;
+              }
+            }
+          } else {
+            revertDropdown(selectEl.getAttribute('data-original-role'));
+          }
+        } catch (_e) {
+          console.error('Failed to sync role from DB after error:', _e);
+          revertDropdown(selectEl.getAttribute('data-original-role'));
+        }
+      }
+
       function onCancel() {
-        selectEl.value = selectEl.getAttribute('data-original-role');
+        revertDropdown(selectEl.getAttribute('data-original-role'));
         cleanup();
       }
 
@@ -613,13 +651,10 @@
           var cooldownHours = cooldownMap[currentUserRole] || 24;
           showToast('Role updated: ' + userName + ' → ' + newRole + '. Cooldown active for ' + cooldownHours + ' hours.', 'success');
         } catch (err) {
-          selectEl.value = selectEl.getAttribute('data-original-role');
-          // Refresh custom dropdown if available
-          if (window.EaDropdown) {
-            var ddInstance = selectEl._eaDropdown;
-            if (ddInstance) ddInstance.setValue(selectEl.getAttribute('data-original-role'));
-          }
+          // On any failure: revert dropdown and re-sync role from DB so the
+          // displayed value always reflects the true DB state.
           var errMsg = err.message || 'Unknown error';
+          await syncRoleFromDb();
           if (errMsg.toLowerCase().includes('cooldown')) {
             showToast('Cooldown active: ' + errMsg, 'error');
           } else {
