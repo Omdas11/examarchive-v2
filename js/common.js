@@ -38,6 +38,31 @@ const DebugModule = {
 };
 
 /* ===============================
+   Global Auth Bootstrap
+   =============================== */
+
+/**
+ * Single global auth bootstrap.
+ * Always await this before rendering session-dependent UI.
+ * Sets window.__SESSION__ and returns the resolved session (or null).
+ */
+async function initAuth() {
+  let session = null;
+  if (window.AuthController && window.AuthController.waitForAuthReady) {
+    session = await window.AuthController.waitForAuthReady();
+  } else {
+    const supabase = window.getSupabase ? window.getSupabase() : null;
+    if (supabase) {
+      const { data } = await supabase.auth.getSession();
+      session = data.session;
+    }
+  }
+  window.__SESSION__ = session;
+  return session;
+}
+window.initAuth = initAuth;
+
+/* ===============================
    Apply saved theme early (GLOBAL)
    =============================== */
 (function () {

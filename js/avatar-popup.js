@@ -209,6 +209,13 @@ document.addEventListener("header:loaded", () => {
   debug("[OK] header loaded event received");
   avatarPopupHeaderLoaded = true;
   initializeAvatarPopup();
+  // Cover the race condition where auth:ready fired before the header partial
+  // was injected into the DOM (avatar-mini didn't exist yet).
+  if (window.AuthController && window.AuthController.waitForAuthReady) {
+    window.AuthController.waitForAuthReady().then(function(session) {
+      updateHeaderAvatar(session?.user || null);
+    });
+  }
 });
 
 /* ===============================
@@ -350,27 +357,17 @@ document.addEventListener('app:ready', () => {
   if (avatarPopupAuthListenerSetup) return;
   avatarPopupAuthListenerSetup = true;
 
-  // Prefer AuthController resolved session over potentially-stale window.App.session
-  function getResolvedUser() {
-    var session = (window.AuthController && window.AuthController.getSession
-      ? window.AuthController.getSession()
-      : null) || window.App?.session;
-    return session?.user || null;
-  }
-
-  // Update header avatar immediately using the resolved session
-  var initialUser = getResolvedUser();
-
-  // If auth is not yet ready, wait for it before overriding the default avatar
-  if (!initialUser && window.AuthController && window.AuthController.waitForAuthReady) {
+  // Always await auth resolution — never use potentially stale sync session state.
+  // waitForAuthReady() returns immediately if auth is already resolved.
+  if (window.AuthController && window.AuthController.waitForAuthReady) {
     window.AuthController.waitForAuthReady().then(function(session) {
       updateHeaderAvatar(session?.user || null);
     });
   } else {
-    updateHeaderAvatar(initialUser);
+    updateHeaderAvatar(window.App?.session?.user || null);
   }
 
-  const supabase = window.App.supabase;
+  const supabase = window.App?.supabase;
   if (!supabase) return;
 
   supabase.auth.onAuthStateChange((event, session) => {
