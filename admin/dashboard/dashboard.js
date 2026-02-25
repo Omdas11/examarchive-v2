@@ -1113,11 +1113,13 @@ async function saveRoleChanges() {
 
     // If primary role changed, use the 2-param RPC (cooldown-enforced)
     if (primaryRole) {
-      const { error: roleError } = await supabase.rpc('update_user_role', {
+      console.log('[ROLE-CHANGE] Calling RPC update_user_role', { target_user_id: userId, new_role: primaryRole });
+      const rpcRes = await supabase.rpc('update_user_role', {
         target_user_id: userId,
         new_role: primaryRole
       });
-      if (roleError) throw roleError;
+      console.log('[ROLE-CHANGE] RPC response:', JSON.stringify({ data: rpcRes.data, error: rpcRes.error }));
+      if (rpcRes.error) throw rpcRes.error;
     }
 
     // Update other fields (level, secondary, tertiary, badges) via direct table update
@@ -1394,17 +1396,20 @@ async function loadUsersTable(page, searchQuery) {
           try {
             const supabase = window.getSupabase ? window.getSupabase() : null;
             if (!supabase) throw new Error('Supabase not initialized');
-            const { error } = await supabase.rpc('update_user_role', {
+            console.log('[ROLE-CHANGE] Calling RPC update_user_role', { target_user_id: u.user_id, new_role: newRole });
+            const rpcRes = await supabase.rpc('update_user_role', {
               target_user_id: u.user_id,
               new_role: newRole
             });
-            if (error) throw error;
+            console.log('[ROLE-CHANGE] RPC response:', JSON.stringify({ data: rpcRes.data, error: rpcRes.error }));
+            if (rpcRes.error) throw rpcRes.error;
             u.primary_role = newRole;
             roleTd.textContent = newRole;
             showMessage('Role updated to ' + newRole, 'success');
             // Re-fetch users table
             await loadUsersTable(usersCurrentPage, document.getElementById('usersSearchInput')?.value.trim());
           } catch (err) {
+            console.error('[ROLE-CHANGE] RPC error payload:', err);
             var errMsg = err.message || 'Unknown error';
             if (errMsg.toLowerCase().includes('cooldown')) {
               showMessage('Cooldown active: ' + errMsg, 'error');
