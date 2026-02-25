@@ -242,6 +242,7 @@ async function getUserSubmissions(status = null) {
     if (!supabase) return [];
 
     const { data: { session } } = await supabase.auth.getSession();
+    console.log('[UPLOAD-HANDLER] getUserSubmissions — session:', session ? 'exists' : 'null', ', uid:', session?.user?.id || '(none)');
     if (!session) return [];
 
     let query = supabase
@@ -257,9 +258,11 @@ async function getUserSubmissions(status = null) {
     const { data, error } = await query;
     if (error) {
       console.error('[UPLOAD-HANDLER] Error fetching submissions:', error);
+      console.log('[UPLOAD-HANDLER] Submissions error details — message:', error.message, '| code:', error.code, '| hint:', error.hint);
       return [];
     }
 
+    console.log('[UPLOAD-HANDLER] Submissions fetched:', data?.length ?? 0);
     return data || [];
   } catch (error) {
     console.error('[UPLOAD-HANDLER] Error in getUserSubmissions:', error);

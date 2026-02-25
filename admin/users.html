@@ -660,17 +660,21 @@
           }
           var cooldownMap = { 'Founder': 2, 'Admin': 3, 'Senior Moderator': 6, 'Moderator': 12 };
           var cooldownHours = cooldownMap[currentUserRole] || 24;
-          showToast('Role updated: ' + userName + ' → ' + newRole + '. Cooldown active for ' + cooldownHours + ' hours.', 'success');
+          showToast('Role updated: ' + userName + ' → ' + newRole + '. (Next change available in ' + cooldownHours + 'h)', 'success');
         } catch (err) {
           // On any failure: revert dropdown and re-sync role from DB so the
           // displayed value always reflects the true DB state.
           console.error('[ROLE-CHANGE] RPC error payload:', err);
-          var errMsg = err.message || 'Unknown error';
+          console.error('[ROLE-CHANGE] Error details — message:', err.message, '| code:', err.code, '| details:', err.details, '| hint:', err.hint);
+          console.log('[ROLE-CHANGE] Target UUID was:', userId);
+          var errMsg = err.message || '';
           await syncRoleFromDb();
           if (errMsg.toLowerCase().includes('cooldown')) {
             showToast('Cooldown active: ' + errMsg, 'error');
+          } else if (errMsg) {
+            showToast('Role change failed: ' + errMsg, 'error');
           } else {
-            showToast('Failed: ' + errMsg, 'error');
+            showToast('Role change failed. Check console for details.', 'error');
           }
         }
       }

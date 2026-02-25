@@ -48,13 +48,24 @@ function initializeAvatarPopup() {
         document.body.classList.remove("menu-open");
       }
       
-      // Wait for resolved session, not cached state
+      // Use sync getSession() first (always returns latest currentSession),
+      // fall back to waitForAuthReady() only if auth hasn't resolved yet.
       let session = null;
-      if (window.AuthController?.waitForAuthReady) {
-        session = await window.AuthController.waitForAuthReady();
-      } else {
-        session = window.AuthController?.getSession?.() || window.App?.session;
+      if (window.AuthController) {
+        session = window.AuthController.getSession();
+        if (session === null && !window.AuthController.isAuthenticated()) {
+          // Auth might not be ready yet — await resolution
+          session = await window.AuthController.waitForAuthReady();
+        }
       }
+      // Final fallback: check window.App.session
+      if (!session) {
+        session = window.App?.session || null;
+      }
+
+      // Phase 6 diagnostic logging
+      console.log('[AVATAR-CLICK] session:', session ? 'exists' : 'null', 'user:', session?.user?.id || '(none)');
+
       if (session?.user) {
         window.location.href = "/profile.html";
       } else {

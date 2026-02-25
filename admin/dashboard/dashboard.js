@@ -1148,11 +1148,15 @@ async function saveRoleChanges() {
       await loadUsersTable();
     }
   } catch (err) {
-    var errMsg = err.message || 'Unknown error';
+    console.error('[ROLE-CHANGE] Error details — message:', err.message, '| code:', err.code, '| details:', err.details, '| hint:', err.hint);
+    console.log('[ROLE-CHANGE] Target UUID was:', userId);
+    var errMsg = err.message || '';
     if (errMsg.toLowerCase().includes('cooldown')) {
       showMessage('Cooldown active: ' + errMsg, 'error');
+    } else if (errMsg) {
+      showMessage('Role change failed: ' + errMsg, 'error');
     } else {
-      showMessage('Failed to update role: ' + errMsg, 'error');
+      showMessage('Role change failed. Check console for details.', 'error');
     }
   }
 }
@@ -1410,11 +1414,15 @@ async function loadUsersTable(page, searchQuery) {
             await loadUsersTable(usersCurrentPage, document.getElementById('usersSearchInput')?.value.trim());
           } catch (err) {
             console.error('[ROLE-CHANGE] RPC error payload:', err);
-            var errMsg = err.message || 'Unknown error';
+            console.error('[ROLE-CHANGE] Error details — message:', err.message, '| code:', err.code, '| details:', err.details, '| hint:', err.hint);
+            console.log('[ROLE-CHANGE] Target UUID was:', u.user_id);
+            var errMsg = err.message || '';
             if (errMsg.toLowerCase().includes('cooldown')) {
               showMessage('Cooldown active: ' + errMsg, 'error');
+            } else if (errMsg) {
+              showMessage('Role change failed: ' + errMsg, 'error');
             } else {
-              showMessage('Failed: ' + errMsg, 'error');
+              showMessage('Role change failed. Check console for details.', 'error');
             }
             selectEl.value = oldRole;
           }

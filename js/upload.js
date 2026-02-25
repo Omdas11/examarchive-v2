@@ -11,10 +11,15 @@ let authReady = false;
 // Centralised handler — called once auth state is known
 function handleUploadAuthState(session) {
   authReady = true;
+
+  // Phase 6 diagnostic logging
+  console.log('[UPLOAD-AUTH] handleUploadAuthState called, session:', session ? 'exists' : 'null');
+  console.log('[UPLOAD-AUTH] session?.user?.id:', session?.user?.id || '(none)');
   if (window.Debug) {
-    window.Debug.logInfo('auth', '[AUTH] Auth ready event received.');
+    window.Debug.logInfo('auth', '[AUTH] Auth ready event received. session=' + (session ? 'exists' : 'null') + ', uid=' + (session?.user?.id || '(none)'));
     window.Debug.printAuthStatus?.();
   }
+
   if (!session) {
     disableUploadForm();
   } else {
@@ -24,7 +29,8 @@ function handleUploadAuthState(session) {
       initializeUploadForm();
       uploadFormInitialized = true;
     }
-    loadUserSubmissions();
+    // Wrap in try-catch so a submissions fetch failure can never lock the form
+    try { loadUserSubmissions(); } catch (_e) { console.warn('[UPLOAD] loadUserSubmissions error (non-blocking):', _e); }
   }
 }
 
@@ -483,12 +489,19 @@ function showMessage(message, type = 'info') {
  * Load and display user's submissions
  */
 async function loadUserSubmissions() {
-  const getUserSubmissions = window.UploadHandler.getUserSubmissions;
-  const submissions = await getUserSubmissions();
-  
-  if (submissions.length === 0) {
-    return;
-  }
+  try {
+    const getUserSubmissions = window.UploadHandler.getUserSubmissions;
+    const submissions = await getUserSubmissions();
+    
+    // Phase 6 diagnostic logging
+    console.log('[UPLOAD] loadUserSubmissions response:', submissions?.length ?? 0, 'submissions');
+    if (window.Debug) {
+      window.Debug.logInfo('upload', '[SUBMISSIONS] Fetched ' + (submissions?.length ?? 0) + ' submissions');
+    }
+    
+    if (submissions.length === 0) {
+      return;
+    }
 
   // Create submissions section if it doesn't exist
   let submissionsSection = document.getElementById('submissions-section');
@@ -509,6 +522,12 @@ async function loadUserSubmissions() {
       ${submissions.map(submission => renderSubmission(submission)).join('')}
     </div>
   `;
+  } catch (err) {
+    console.warn('[UPLOAD] loadUserSubmissions error (non-blocking):', err);
+    if (window.Debug) {
+      window.Debug.logWarn('upload', '[SUBMISSIONS] Error loading submissions: ' + (err.message || err));
+    }
+  }
 }
 
 /**
