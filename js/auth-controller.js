@@ -51,6 +51,9 @@
     try {
       const { data, error } = await supabaseClient.auth.getSession();
       
+      // Phase 6 diagnostic logging
+      console.log('[AUTH-CONTROLLER] getSession result — data.session:', data?.session ? 'exists' : 'null', ', uid:', data?.session?.user?.id || '(none)', ', error:', error || 'none');
+
       if (error) {
         console.error('[AUTH-CONTROLLER] Error getting session:', error);
         currentSession = null;
@@ -66,6 +69,7 @@
 
     // Set up auth state change listener (SINGLE LISTENER)
     supabaseClient.auth.onAuthStateChange((event, session) => {
+      console.log('[AUTH-CONTROLLER] onAuthStateChange — event:', event, ', session:', session ? 'exists' : 'null', ', uid:', session?.user?.id || '(none)');
       currentSession = session;
       
       // Update window.App session for backward compatibility
@@ -86,6 +90,7 @@
 
     // Mark auth as ready and emit event
     authReady = true;
+    console.log('[AUTH-CONTROLLER] Auth ready, emitting auth:ready. session:', currentSession ? 'exists' : 'null', ', uid:', currentSession?.user?.id || '(none)');
     emitAuthReady(currentSession);
   }
 
