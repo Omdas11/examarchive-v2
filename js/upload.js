@@ -150,7 +150,7 @@ function initializeUploadTypeSelector() {
       typeOptions.forEach(opt => opt.classList.remove('active'));
       option.classList.add('active');
       
-      // Update selected type
+      // Update selected type (only question-paper is supported)
       selectedUploadType = input.value;
     });
   });

@@ -1,6 +1,6 @@
 /**
  * ExamArchive v2 — Browse Page
- * Phase 6: Uses Appwrite file_url stored in DB (no signed URLs)
+ * Pre-Phase 7: Displays real DB fields, card flip with stats.
  */
 
 /* -------------------- State -------------------- */
@@ -93,25 +93,57 @@ async function loadPapers() {
       return;
     }
 
+    // Map university stored value to display label
+    function mapUniversity(val) {
+      if (!val || val === 'assam-university') return 'Assam University';
+      if (val === 'other') return 'Other';
+      return val;
+    }
+
+    // Map programme stored value to display label
+    function mapProgramme(val) {
+      const map = { fyug: 'FYUG', cbcs: 'CBCS', pg: 'PG', honours: 'Honours', general: 'General' };
+      if (!val) return 'CBCS';
+      return map[val.toLowerCase()] || val.toUpperCase();
+    }
+
+    // Map stream stored value to display label
+    function mapStream(val) {
+      if (!val) return 'Science';
+      return val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+    }
+
+    // Map paper name: prefer subject, then original_filename, then paper_code
+    function mapPaperName(s) {
+      if (s.subject && s.subject.trim()) return s.subject.trim();
+      if (s.original_filename) return s.original_filename.replace(/\.pdf$/i, '');
+      return s.paper_code || '—';
+    }
+
     // Map submissions to display format with Appwrite URLs
     // Filter out demo papers — only show real uploads
     const papers = await Promise.all((data || []).filter(s => !s.is_demo).map(async (s) => {
       const pdfUrl = await getPdfUrl(supabase, s);
+      const semesterNum = s.semester ? parseInt(s.semester, 10) : 0;
 
       return {
+        id: s.id,
         paper_codes: [s.paper_code],
-        paper_names: [s.original_filename ? s.original_filename.replace(/\.pdf$/i, '') : s.paper_code],
+        paper_names: [mapPaperName(s)],
         year: s.year,
-        stream: 'Science',
-        programme: 'ALL',
-        university: 'ExamArchive',
-        semester: 0,
+        stream: mapStream(s.stream),
+        programme: mapProgramme(s.programme),
+        university: mapUniversity(s.university),
+        semester: semesterNum,
         pdf: pdfUrl,
-        is_demo: s.is_demo || false,
+        is_demo: false,
         file_size: s.file_size,
         published_at: s.published_at,
-        approved_path: s.approved_path,
         original_filename: s.original_filename,
+        user_id: s.user_id,
+        uploader_name: s.uploader_name || null,
+        views: s.views || 0,
+        downloads: s.downloads || 0,
         is_published: true
       };
     }));
@@ -264,53 +296,61 @@ function render() {
   }
 
   view.forEach(p => {
+    const semRoman = p.semester ? toRoman(p.semester) : '—';
+    const uploaderDisplay = p.uploader_name
+      ? p.uploader_name
+      : (p.user_id ? 'User' : 'Anonymous');
+
     const card = document.createElement("div");
-    card.className = "paper-card";
-    card.onclick = () => {
-      window.location.href =
-        `paper.html?code=${p.paper_codes[0]}&year=${p.year}`;
-    };
-
-    const badges = `
-  <div class="availability-badges">
-    ${
-      p.is_demo
-        ? `<span class="availability-badge subtle" style="background: var(--accent-soft); color: var(--accent);">${window.SvgIcons ? window.SvgIcons.inline('flask', {size: 14}) : ''} DEMO PAPER</span>`
-        : ""
-    }
-    ${
-      p.has_rq
-        ? `<span class="availability-badge subtle">Repeated Questions</span>`
-        : ""
-    }
-    ${
-      p.has_notes
-        ? `<span class="availability-badge subtle">Notes</span>`
-        : ""
-    }
-  </div>
-`;
-
-    const fileSizeStr = p.file_size ? ` • ${formatFileSize(p.file_size)}` : '';
-    const publishedStr = p.published_at
-      ? ` • ${new Date(p.published_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`
-      : '';
+    card.className = "paper-card-flip-wrap";
 
     card.innerHTML = `
-      <h3 class="paper-name">${p.paper_names.join(" / ")}</h3>
-      <div class="paper-code">${p.paper_codes.join(" / ")}</div>
-      <div class="paper-meta">
-        ${p.university} • ${p.programme} • ${p.stream.toUpperCase()}
-        • ${p.year}${fileSizeStr}${publishedStr}
+      <div class="paper-card-inner">
+        <div class="paper-card paper-card-front">
+          <h3 class="paper-name">${p.paper_names.join(" / ")}</h3>
+          <div class="paper-code">${p.paper_codes.join(" / ")}</div>
+          <div class="paper-meta">
+            ${p.university} &bull; ${p.programme} &bull; ${p.stream}
+            &bull; Sem ${semRoman} &bull; ${p.year}
+          </div>
+          <a class="open-pdf"
+             href="${p.pdf}"
+             target="_blank"
+             onclick="event.stopPropagation()">
+            Open PDF &rarr;
+          </a>
+        </div>
+        <div class="paper-card paper-card-back">
+          <div class="paper-back-info">
+            <div class="paper-back-row">
+              <span class="paper-back-label">Uploaded by</span>
+              <span class="paper-back-value">${uploaderDisplay}</span>
+            </div>
+            <div class="paper-back-row">
+              <span class="paper-back-label">Views</span>
+              <span class="paper-back-value">${p.views}</span>
+            </div>
+            <div class="paper-back-row">
+              <span class="paper-back-label">Downloads</span>
+              <span class="paper-back-value">${p.downloads}</span>
+            </div>
+          </div>
+          <a class="open-pdf"
+             href="${p.pdf}"
+             target="_blank"
+             onclick="event.stopPropagation()">
+            Open PDF &rarr;
+          </a>
+        </div>
       </div>
-      ${badges}
-      <a class="open-pdf"
-         href="${p.pdf}"
-         target="_blank"
-         onclick="event.stopPropagation()">
-        Open PDF →
-      </a>
     `;
+
+    // Click anywhere on the card (not the PDF link) to flip
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.open-pdf')) return;
+      card.classList.toggle('flipped');
+    });
+
     list.appendChild(card);
   });
 }

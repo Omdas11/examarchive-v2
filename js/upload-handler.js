@@ -127,7 +127,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     debugLog('info', '[OK] Appwrite upload complete', { fileId: appwriteResult.$id || appwriteFileId, fileUrl });
 
-    const isDemo = metadata.uploadType === 'demo-paper';
+    const isDemo = false; // Demo uploads removed in pre-Phase 7 cleanup
 
     // -- Step 2: Insert submission record into Supabase DB --
     const sanitizedCode = String(metadata.paperCode).replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -143,7 +143,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
         : file.name,
       file_size: file.size,
       content_type: file.type || 'application/pdf',
-      status: isDemo ? 'approved' : 'pending'
+      status: 'pending'
     };
 
     // Optional metadata fields
@@ -188,9 +188,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     return {
       success: true,
       submissionId: submission.id,
-      message: isDemo
-        ? 'Demo paper uploaded! It is now visible in Browse.'
-        : 'Upload successful! Your submission is pending review.',
+      message: 'Upload successful! Your submission is pending review.',
       error: null
     };
 
