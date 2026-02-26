@@ -92,32 +92,20 @@
 
     <!-- ================= NOTICE BOARD ================= -->
     <section class="notice-board" aria-label="University notices">
-      <h2>Notices & Updates</h2>
+      <h2>Notices &amp; Updates</h2>
       <div class="notice-box" role="region" aria-live="polite">
         <p class="notice-empty">
-          University notices and important academic updates will appear here.
+          No notices available at this time.
         </p>
       </div>
     </section>
 
     <!-- ================= ACADEMIC CALENDAR ================= -->
     <section class="academic-calendar" aria-label="Academic calendar">
-      <h2>Academic Calendar — 2026</h2>
-      <div class="calendar-controls" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-        <button class="toggle-btn active" data-cat="all" onclick="filterCalendar('all', this)">All</button>
-        <button class="toggle-btn" data-cat="gazetted" onclick="filterCalendar('gazetted', this)">Gazetted</button>
-        <button class="toggle-btn" data-cat="restricted" onclick="filterCalendar('restricted', this)">Restricted</button>
-        <button class="toggle-btn" data-cat="other" onclick="filterCalendar('other', this)">Academic</button>
+      <h2>Academic Calendar</h2>
+      <div class="calendar-box" role="region" aria-live="polite">
+        <p class="calendar-empty">Calendar coming soon.</p>
       </div>
-      <div class="calendar-month-nav" style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
-        <button class="btn" id="calPrev" aria-label="Previous month">&larr;</button>
-        <strong id="calMonthLabel" style="min-width: 140px; text-align: center;"></strong>
-        <button class="btn" id="calNext" aria-label="Next month">&rarr;</button>
-      </div>
-      <div id="calendarGrid" class="calendar-box" role="region" aria-live="polite">
-        <p class="calendar-empty">Loading calendar...</p>
-      </div>
-      <div id="calendarEventDetail" style="margin-top: 1rem; display: none;"></div>
     </section>
 
   </main>
@@ -160,7 +148,6 @@
   <script src="js/avatar-popup.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/home-search.js"></script>
-  <script src="js/notices-calendar.js"></script>
   <script src="js/tutorial.js"></script>
   <script src="js/visitor-counter.js"></script>
   <script>

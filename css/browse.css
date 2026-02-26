@@ -160,10 +160,35 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.9rem;
+  /* Ensure flip wrappers have room */
+  align-items: start;
 }
 
-/* ---------- Paper Card ---------- */
+/* ---------- Card Flip Wrapper ---------- */
+.paper-card-flip-wrap {
+  perspective: 1000px;
+  cursor: pointer;
+  min-height: 180px;
+  height: 180px;
+}
+
+.paper-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.45s ease;
+  transform-style: preserve-3d;
+}
+
+.paper-card-flip-wrap.flipped .paper-card-inner {
+  transform: rotateY(180deg);
+}
+
 .paper-card {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 1rem;
@@ -171,14 +196,45 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.paper-card-front {
+  /* front face — no extra rotation needed */
+}
+
+.paper-card-back {
+  transform: rotateY(180deg);
+  background: var(--bg-soft);
+  justify-content: space-between;
 }
 
 .paper-card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+}
+
+/* ---------- Back Side ---------- */
+.paper-back-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.paper-back-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.paper-back-label {
+  color: var(--text-muted);
+}
+
+.paper-back-value {
+  font-weight: 600;
+  color: var(--text);
 }
 
 .paper-name {
