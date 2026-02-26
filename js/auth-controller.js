@@ -79,7 +79,14 @@
       
       // Track last login in user_profiles on sign-in or session restore
       if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
-        supabaseClient.rpc('update_last_login').catch(() => {});
+        (async () => {
+          try {
+            const { error } = await supabaseClient.rpc('update_last_login');
+            if (error) console.error('[RPC RESPONSE ERROR] update_last_login:', error);
+          } catch (err) {
+            console.error('[RPC EXCEPTION] update_last_login:', err);
+          }
+        })();
       }
 
       // Emit custom event for UI components
