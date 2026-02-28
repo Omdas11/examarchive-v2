@@ -1295,12 +1295,6 @@ async function loadUsersTable(page, searchQuery) {
       rejectedTd.textContent = String(u.rejected_count ?? 0);
       tr.appendChild(rejectedTd);
 
-      // Last Login cell
-      var loginTd = document.createElement('td');
-      loginTd.style.cssText = 'padding:0.5rem;font-size:0.75rem;';
-      loginTd.textContent = u.last_login_date ? new Date(u.last_login_date).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }) : '—';
-      tr.appendChild(loginTd);
-
       // Promote column — dropdown only if has_admin_access() returns true
       const promoteTd = document.createElement('td');
       promoteTd.style.cssText = 'padding:0.5rem;';
