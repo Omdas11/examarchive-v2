@@ -77,10 +77,28 @@ function getBadgeIcon(badgeName) {
     'Campus Ambassador': inline ? inline('megaphone') : '',
     'Community Lead': inline ? inline('handshake') : '',
     'Content Curator': inline ? inline('books') : '',
-    // Legacy / general
+    // Preset custom roles
     'Top Contributor': inline ? inline('trophy') : '',
-    'Early Adopter': inline ? inline('star') : '',
+    'Elite Uploader': inline ? inline('sparkles') : '',
+    'Verified Reviewer': inline ? inline('clipboard') : '',
+    'Community Helper': inline ? inline('handshake') : '',
+    'Physics Star': inline ? inline('flask') : '',
+    'Maths Mentor': inline ? inline('ruler') : '',
+    'Chemistry Guide': inline ? inline('flask') : '',
+    'Active Member': inline ? inline('lightning') : '',
+    'Early Supporter': inline ? inline('star') : '',
+    'Research Contributor': inline ? inline('chart') : '',
+    'QA Specialist': inline ? inline('microscope') : '',
+    'Senior Helper': inline ? inline('handshake') : '',
     'Beta Tester': inline ? inline('microscope') : '',
+    'Legacy Member': inline ? inline('star') : '',
+    'Bug Hunter': inline ? inline('microscope') : '',
+    'Documentation Lead': inline ? inline('books') : '',
+    'Mentor': inline ? inline('graduation') : '',
+    'Power User': inline ? inline('lightning') : '',
+    'Event Contributor': inline ? inline('megaphone') : '',
+    // Legacy / general
+    'Early Adopter': inline ? inline('star') : '',
     'Top Reviewer': inline ? inline('edit') : ''
   };
   // Support partial matching (e.g., "Subject Expert (Physics)")

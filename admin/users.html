@@ -82,7 +82,7 @@
     .badge-primary.role-explorer { background: rgba(120, 25, 150, 0.12); color: #6e1a8a; border: 1px solid rgba(120, 25, 150, 0.38); }
     .badge-primary.role-visitor { background: rgba(90, 90, 90, 0.10); color: #555; border: 1px solid rgba(90, 90, 90, 0.35); }
 
-    .badge-custom { display: inline-flex; align-items: center; gap: 3px; background: linear-gradient(135deg, #7b1fa215, #e040fb15); border: 1px solid #7b1fa255; border-radius: 20px; padding: 3px 8px; font-size: 0.7rem; font-weight: 500; color: #7b1fa2; white-space: nowrap; }
+    .badge-custom { display: inline-flex; align-items: center; gap: 3px; background: linear-gradient(135deg, rgba(123, 31, 162, 0.12), rgba(224, 64, 251, 0.10)); border: 1px solid rgba(123, 31, 162, 0.35); border-radius: 20px; padding: 3px 8px; font-size: 0.7rem; font-weight: 600; color: #7b1fa2; white-space: nowrap; }
     .badge-achievement { display: inline-flex; align-items: center; gap: 3px; background: linear-gradient(135deg, #f57c0015, #ffa72615); border: 1px solid #f57c0055; border-radius: 20px; padding: 3px 8px; font-size: 0.7rem; font-weight: 500; color: #c46200; white-space: nowrap; margin: 1px; }
 
     /* Achievement cell: expand inline, no wrap */
@@ -96,6 +96,19 @@
       .users-table { font-size: 0.75rem; }
       .users-table th, .users-table td { padding: 0.4rem 0.5rem; }
     }
+
+    /* Custom Badge Modal */
+    .badge-modal { position: fixed; inset: 0; z-index: 10002; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
+    .badge-modal.open { display: flex; }
+    .badge-modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; max-width: 400px; width: 90%; }
+    .badge-modal-box h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+    .badge-modal-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .badge-modal-box select { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); color: var(--text); font-size: 0.85rem; margin-bottom: 1rem; }
+    .badge-modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .badge-modal-actions button { padding: 0.5rem 1.25rem; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 0.85rem; }
+    .badge-modal-actions .btn-cancel { background: var(--bg-soft); color: var(--text); }
+    .badge-modal-actions .btn-save { background: #7b1fa2; color: #fff; border-color: #7b1fa2; }
+    .badge-modal-actions .btn-save:hover { background: #6a1b9a; }
   </style>
 </head>
 <body>
@@ -184,6 +197,21 @@
     </div>
   </div>
 
+  <!-- Custom Badge Assignment Modal -->
+  <div class="badge-modal" id="badgeModal">
+    <div class="badge-modal-box">
+      <h3 id="badgeModalTitle">Assign Custom Role</h3>
+      <p id="badgeModalDesc">Select a preset role from the dropdown.</p>
+      <select id="badgeModalSelect">
+        <option value="">— Clear Badge —</option>
+      </select>
+      <div class="badge-modal-actions">
+        <button class="btn-cancel" id="badgeModalCancel">Cancel</button>
+        <button class="btn-save" id="badgeModalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <div id="footer"></div>
   <div id="avatar-portal"></div>
   <div id="profile-panel-portal"></div>
@@ -209,6 +237,17 @@
   <script>
   (function() {
     'use strict';
+
+    // Single source of truth: Preset custom roles for badge assignment
+    var PRESET_CUSTOM_ROLES = [
+      'Top Contributor', 'Elite Uploader', 'Verified Reviewer',
+      'Community Helper', 'Subject Expert', 'Physics Star',
+      'Maths Mentor', 'Chemistry Guide', 'Active Member',
+      'Early Supporter', 'Research Contributor', 'QA Specialist',
+      'Content Curator', 'Senior Helper', 'Beta Tester',
+      'Legacy Member', 'Bug Hunter', 'Documentation Lead',
+      'Mentor', 'Power User', 'Campus Ambassador', 'Event Contributor'
+    ];
 
     var allUsers = [];
     var currentUserRole = null;
@@ -404,7 +443,7 @@
           ? '<span class="badge-custom"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' + escapeHtml(u.secondary_role) + '</span>'
           : '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
         if (canAssignBadges) {
-          customRole1Html += '<button class="badge-edit-btn" data-user-id="' + escapeHtml(u.user_id) + '" data-field="secondary_role" data-current="' + escapeHtml(u.secondary_role || '') + '" title="Edit Custom Badge 1" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;font-size:0.7rem;">✏️</button>';
+          customRole1Html += '<button class="badge-edit-btn" data-user-id="' + escapeHtml(u.user_id) + '" data-field="secondary_role" data-current="' + escapeHtml(u.secondary_role || '') + '" data-other="' + escapeHtml(u.tertiary_role || '') + '" title="Edit Custom Badge 1" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;font-size:0.7rem;">✏️</button>';
         }
 
         // Build CUSTOM ROLE 2 (tertiary_role — Senior Moderator+ assignable)
@@ -412,7 +451,7 @@
           ? '<span class="badge-custom"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' + escapeHtml(u.tertiary_role) + '</span>'
           : '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
         if (canAssignBadges) {
-          customRole2Html += '<button class="badge-edit-btn" data-user-id="' + escapeHtml(u.user_id) + '" data-field="tertiary_role" data-current="' + escapeHtml(u.tertiary_role || '') + '" title="Edit Custom Badge 2" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;font-size:0.7rem;">✏️</button>';
+          customRole2Html += '<button class="badge-edit-btn" data-user-id="' + escapeHtml(u.user_id) + '" data-field="tertiary_role" data-current="' + escapeHtml(u.tertiary_role || '') + '" data-other="' + escapeHtml(u.secondary_role || '') + '" title="Edit Custom Badge 2" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;font-size:0.7rem;">✏️</button>';
         }
 
 
@@ -473,25 +512,9 @@
             var uid = this.getAttribute('data-user-id');
             var field = this.getAttribute('data-field');
             var current = this.getAttribute('data-current') || '';
-            var label = field === 'secondary_role' ? 'Custom Badge 1' : 'Custom Badge 2';
-            var newVal = prompt(label + ' for this user (leave empty to clear):', current);
-            if (newVal === null) return; // cancelled
-            newVal = newVal.trim();
-            var sb = window.getSupabase ? window.getSupabase() : null;
-            if (!sb) return;
-            var params = { target_user_id: uid };
-            if (field === 'secondary_role') params.new_secondary_role = newVal || null;
-            else params.new_tertiary_role = newVal || null;
-            sb.rpc('assign_custom_badges', params).then(function(res) {
-              if (res.error) { showToast('Error: ' + res.error.message, 'error'); return; }
-              var data = res.data;
-              if (data && data.success) {
-                showToast(label + ' updated successfully', 'success');
-                loadAllUsers();
-              } else {
-                showToast('Failed: ' + (data && data.error ? data.error : 'Unknown error'), 'error');
-              }
-            });
+            var otherRole = this.getAttribute('data-other') || '';
+            var label = field === 'secondary_role' ? 'Custom Role 1' : 'Custom Role 2';
+            openBadgeModal(uid, field, current, otherRole, label);
           });
         });
 
@@ -708,6 +731,67 @@
       });
 
       renderTable(filtered);
+    }
+
+    // --- Custom Badge Dropdown Modal ---
+    function openBadgeModal(userId, field, currentVal, otherRole, label) {
+      var modal = document.getElementById('badgeModal');
+      var titleEl = document.getElementById('badgeModalTitle');
+      var descEl = document.getElementById('badgeModalDesc');
+      var selectEl = document.getElementById('badgeModalSelect');
+      var saveBtn = document.getElementById('badgeModalSave');
+      var cancelBtn = document.getElementById('badgeModalCancel');
+
+      titleEl.textContent = 'Assign ' + label;
+      descEl.textContent = 'Select a preset role for this user.';
+
+      // Populate dropdown with preset roles, excluding the other assigned role
+      selectEl.innerHTML = '<option value="">— Clear Badge —</option>';
+      PRESET_CUSTOM_ROLES.forEach(function(role) {
+        if (role === otherRole) return; // prevent duplicate assignment
+        var opt = document.createElement('option');
+        opt.value = role;
+        opt.textContent = role;
+        if (role === currentVal) opt.selected = true;
+        selectEl.appendChild(opt);
+      });
+
+      modal.classList.add('open');
+
+      function cleanup() {
+        modal.classList.remove('open');
+        saveBtn.removeEventListener('click', onSave);
+        cancelBtn.removeEventListener('click', onCancel);
+        modal.removeEventListener('click', onBackdrop);
+      }
+
+      function onCancel() { cleanup(); }
+
+      function onBackdrop(e) { if (e.target === modal) cleanup(); }
+
+      function onSave() {
+        var newVal = selectEl.value;
+        cleanup();
+        var sb = window.getSupabase ? window.getSupabase() : null;
+        if (!sb) return;
+        var params = { target_user_id: userId };
+        if (field === 'secondary_role') params.new_secondary_role = newVal || null;
+        else params.new_tertiary_role = newVal || null;
+        sb.rpc('assign_custom_badges', params).then(function(res) {
+          if (res.error) { showToast('Error: ' + res.error.message, 'error'); return; }
+          var data = res.data;
+          if (data && data.success) {
+            showToast(label + ' updated successfully', 'success');
+            if (supabaseClient) loadUsers(supabaseClient);
+          } else {
+            showToast('Failed: ' + (data && data.error ? data.error : 'Unknown error'), 'error');
+          }
+        });
+      }
+
+      saveBtn.addEventListener('click', onSave);
+      cancelBtn.addEventListener('click', onCancel);
+      modal.addEventListener('click', onBackdrop);
     }
 
     function showToast(msg, type) {
