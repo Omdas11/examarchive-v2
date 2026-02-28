@@ -1,0 +1,13 @@
+# ExamArchive — robots.txt
+User-agent: *
+Allow: /
+
+# Private / admin pages
+Disallow: /admin/
+Disallow: /developer/
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /profile.html
+Disallow: /settings.html
+
+Sitemap: https://examarchive.in/sitemap.xml
