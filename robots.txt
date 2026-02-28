@@ -10,4 +10,4 @@ Disallow: /register.html
 Disallow: /profile.html
 Disallow: /settings.html
 
-Sitemap: https://examarchive.in/sitemap.xml
+Sitemap: https://examarchive.dev/sitemap.xml
