@@ -168,13 +168,6 @@ const settingsConfig = [
         label: "Clear Debug Logs",
         buttonText: "Clear Logs",
         buttonClass: "btn-outline"
-      },
-      {
-        id: "reset-demo-data",
-        type: "button",
-        label: "Reset Upload Demo Data",
-        buttonText: "Reset Demo Data",
-        buttonClass: "btn-outline-red"
       }
     ]
   },
@@ -1120,49 +1113,6 @@ function attachEventListeners() {
     });
   }
 
-  // Reset demo data button
-  const resetDemoBtn = document.getElementById("reset-demo-data");
-  if (resetDemoBtn) {
-    resetDemoBtn.addEventListener("click", async () => {
-      if (!confirm("Are you sure you want to reset all demo upload data? This will delete all pending/approved/rejected submissions.")) {
-        return;
-      }
-      
-      try {
-        resetDemoBtn.disabled = true;
-        resetDemoBtn.textContent = "Resetting...";
-        
-        // Get supabase client
-        const supabase = window.getSupabase ? window.getSupabase() : null;
-        if (!supabase) {
-          throw new Error('Supabase not initialized');
-        }
-        
-        // Delete all submissions (admin only - protected by RLS)
-        const { error } = await supabase
-          .from('submissions')
-          .delete()
-          .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
-        
-        if (error) {
-          throw error;
-        }
-        
-        resetDemoBtn.textContent = "Reset Complete!";
-        
-        setTimeout(() => {
-          resetDemoBtn.disabled = false;
-          resetDemoBtn.textContent = "Reset Demo Data";
-        }, 2000);
-      } catch (err) {
-        console.error("[ERROR] Error resetting demo data:", err);
-        alert("Failed to reset demo data: " + err.message);
-        resetDemoBtn.disabled = false;
-        resetDemoBtn.textContent = "Reset Demo Data";
-      }
-    });
-  }
-  
   // Sign out button (uses shared auth helper)
   const signOutBtn = document.getElementById("sign-out");
   if (signOutBtn) {

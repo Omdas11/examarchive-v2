@@ -20,14 +20,30 @@
   <meta name="keywords" content="exam archive, question papers, university papers, previous year papers, Assam University, FYUG, exam preparation" />
   <meta name="author" content="ExamArchive" />
   <meta name="theme-color" content="#d32f2f" />
-  <link rel="canonical" href="https://examarchive.in/" />
+  <link rel="canonical" href="https://examarchive.dev/" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="ExamArchive — University Question Paper Archive" />
   <meta property="og:description" content="Browse, upload, and preserve university question papers. Community-driven, mobile-first academic archive." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://examarchive.in/" />
+  <meta property="og:url" content="https://examarchive.dev/" />
   <meta property="og:site_name" content="ExamArchive" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ExamArchive",
+    "url": "https://examarchive.dev/",
+    "description": "A community-driven archive of university question papers. Browse, upload, and preserve previous year papers.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://examarchive.dev/browse.html?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 <body>
 
@@ -49,7 +65,7 @@
       </p>
 
       <div class="hero-actions" role="navigation" aria-label="Main actions">
-        <a href="browse.html" class="btn btn-red">Browse Papers</a>
+        <a href="browse.html" class="btn btn-primary">Browse Papers</a>
         <a href="upload.html" class="btn">Upload Paper</a>
         <a href="login.html" class="btn" id="heroLoginBtn">Login</a>
         <a href="profile.html" class="btn" id="heroProfileBtn" style="display:none;">Profile</a>
@@ -72,7 +88,7 @@
             Universal
           </button>
 
-          <button type="button" class="btn btn-red search-btn" aria-label="Perform search">
+          <button type="button" class="btn btn-primary search-btn" aria-label="Perform search">
             Search
           </button>
         </div>

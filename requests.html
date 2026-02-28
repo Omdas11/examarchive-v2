@@ -18,6 +18,14 @@
   <!-- Accessibility and SEO -->
   <meta name="description" content="Request question papers that aren't in the archive yet. Vote on requests to prioritize them." />
   <meta name="theme-color" content="#d32f2f" />
+  <link rel="canonical" href="https://examarchive.dev/requests.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Paper Requests | ExamArchive" />
+  <meta property="og:description" content="Request and vote for university question papers you need." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://examarchive.dev/requests.html" />
+  <meta property="og:site_name" content="ExamArchive" />
 
   <style>
     .requests-page { max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem; }
@@ -36,9 +44,9 @@
     .requests-list { display: flex; flex-direction: column; gap: 0.75rem; }
     .request-card { background: var(--surface, #fff); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; display: flex; align-items: flex-start; gap: 1rem; }
     .request-vote { display: flex; flex-direction: column; align-items: center; min-width: 48px; }
-    .request-vote button { background: none; border: 1px solid var(--border); border-radius: 6px; width: 36px; height: 36px; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: all 0.15s; }
-    .request-vote button:hover { border-color: var(--brand-primary, #d32f2f); color: var(--brand-primary, #d32f2f); }
-    .request-vote button.voted { border-color: var(--brand-primary, #d32f2f); color: var(--brand-primary, #d32f2f); background: rgba(211, 47, 47, 0.08); }
+    .request-vote button { background: none; border: 1px solid var(--border); border-radius: 6px; width: 44px; height: 44px; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: all 0.15s; }
+    .request-vote button:hover { border-color: var(--accent); color: var(--accent); }
+    .request-vote button.voted { border-color: var(--accent); color: var(--accent); background: var(--accent-soft, rgba(211, 47, 47, 0.08)); }
     .request-vote .vote-count { font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem; color: var(--text-primary); }
     .request-body { flex: 1; }
     .request-body h3 { margin: 0 0 0.2rem; font-size: 1rem; }

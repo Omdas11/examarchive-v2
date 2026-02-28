@@ -52,7 +52,7 @@
       <p class="text-muted">
         You don't have permission to access the admin dashboard.
       </p>
-      <a href="../../index.html" class="btn btn-red">Go Home</a>
+      <a href="../../index.html" class="btn btn-primary">Go Home</a>
     </div>
 
     <!-- Dashboard Content -->
@@ -72,18 +72,6 @@
 
       <!-- Submissions Panel -->
       <div id="submissions-panel">
-
-      <!-- Demo Data Reset (Founder/Admin only) -->
-      <section id="demo-reset-panel" class="demo-reset-panel" style="display: none;">
-        <h2>Production Cleanup</h2>
-        <p class="text-muted" style="margin-bottom: 1rem;">Reset demo submissions and prepare for real question papers. This action is irreversible.</p>
-        <button class="btn btn-danger" id="resetDemoDataBtn" style="background:#d32f2f;color:#fff;border:none;padding:0.6rem 1.2rem;border-radius:8px;cursor:pointer;">
-          <span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></span> Reset Demo Data
-        </button>
-        <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.8rem;">
-          This will delete all demo submissions and reset associated data.
-        </p>
-      </section>
 
       <!-- Stats -->
       <section class="dashboard-stats">
@@ -125,6 +113,7 @@
         </div>
         
         <div id="empty-state" class="empty-state" style="display: none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 0.75rem;opacity:0.35;"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
           <p class="text-muted">No submissions found</p>
         </div>
       </section>
@@ -141,6 +130,7 @@
           <p class="text-muted" style="text-align:center;padding:2rem;">Loading support requests...</p>
         </div>
         <div id="support-empty-state" class="empty-state" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 0.75rem;opacity:0.35;"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           <p class="text-muted">No support requests found</p>
         </div>
       </div>
