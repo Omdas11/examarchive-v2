@@ -1,155 +1,150 @@
-# ExamArchive — Roles & Permissions
+# ExamArchive — Roles & Permissions (Phase 7)
 
-## Role Hierarchy
-
-| # | Role | Scope | Assigned By |
-|---|------|-------|-------------|
-| 1 | **Founder** | Full system access, unique role | System |
-| 2 | **Admin** | Full management access | Founder |
-| 3 | **Senior Moderator** | Submission review + stats | Founder, Admin |
-| 4 | **Moderator** | Submission approval | Founder, Admin |
-| 5 | **Reviewer** | Upload papers | Auto / Admin |
-| 6 | **Contributor** | Upload papers | Auto (XP-based title) |
-| 7 | **Explorer** | Browse papers | Auto (XP-based title) |
-| 8 | **Visitor** | Browse only | Default |
+> **Golden Rule:** Permissions depend **ONLY** on `roles.primary_role`.
+> XP and level are cosmetic. Functional badges do NOT grant permissions.
 
 ---
 
-## Permissions Matrix
+## 1. Three Separate Systems
 
-| Permission | Visitor | Explorer | Contributor | Reviewer | Moderator | Senior Mod | Admin | Founder |
-|-----------|---------|----------|-------------|----------|-----------|-----------|-------|---------|
-| Browse papers | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| Upload papers | — | — | Yes | Yes | Yes | Yes | Yes | Yes |
-| Approve submissions | — | — | — | — | Yes | Yes | Yes | Yes |
-| View admin dashboard | — | — | — | — | — | Yes | Yes | Yes |
-| View submissions tab | — | — | — | — | — | Yes | Yes | Yes |
-| View stats page | — | — | — | — | — | Yes | Yes | Yes |
-| Manage user roles | — | — | — | — | — | — | Yes | Yes |
-| View users page | — | — | — | — | — | — | Yes | Yes |
-| Access developer tools | — | — | — | — | — | — | — | Yes |
-| Assign Founder role | — | — | — | — | — | — | — | Yes |
-| Assign Admin role | — | — | — | — | — | — | — | Yes |
+| System | Storage | Purpose | Grants Permissions? |
+|--------|---------|---------|---------------------|
+| **Permission Role** | `roles.primary_role` | Access control | ✅ YES — the ONLY source |
+| **Functional Roles** | `secondary_role`, `tertiary_role`, `custom_badges[]` | Display badges | ❌ NO |
+| **Achievement Badges** | `achievements` table | Gamification | ❌ NO |
 
 ---
 
-## Promotion Hierarchy
+## 2. Permission Role Hierarchy
 
-- **Founder** can promote to: Any role (including Admin and Founder)
-- **Admin** can promote to: Senior Moderator, Moderator, Reviewer, Contributor, Explorer, Visitor
-- **Senior Moderator**: Cannot promote users
-- **Moderator and below**: Cannot promote users
+| Tier | Role | Unique? | Dashboard | Users Tab | Approve | Review | Upload | Browse |
+|------|------|---------|-----------|-----------|---------|--------|--------|--------|
+| 0 | **Founder** | ✅ (1 only) | ✅ Full | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 1 | **Admin** | No | ✅ Full | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 2 | **Senior Moderator** | No | ✅ Submissions | ❌ | ✅ | ✅ | ✅ | ✅ |
+| 3 | **Moderator** | No | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| 4 | **Reviewer** | No | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| 5 | **Contributor** | No | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 6 | **Explorer** | No | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 7 | **Visitor** | No | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
-### Promotion Rules
+### Access Details
 
-1. Only Founder can assign the Founder role
-2. Only Founder can assign the Admin role
-3. Role changes are enforced server-side via `update_user_role()` RPC
-4. All role changes are subject to cooldown periods
-
----
-
-## Cooldown Rules
-
-After changing a user's role, the **actor** (person performing the change) must wait before making another role change.
-
-| Actor Role | Cooldown Duration |
-|-----------|-------------------|
-| Founder | 2 hours |
-| Admin | 3 hours |
-| Senior Moderator | 6 hours |
-| Moderator | 12 hours |
-
-- Cooldown is tracked via `last_role_change` column in the `roles` table
-- Enforced server-side — frontend cannot bypass
-- Cooldown applies to the actor, not the target user
-- Can be reset via Developer Tools (Founder only)
+- **Founder**: Full system access. Assign/remove any role including Admin. Reset system data. Enforced unique via `idx_unique_founder`.
+- **Admin**: Full admin dashboard. Manage users and roles (except Founder). Approve/reject/publish papers.
+- **Senior Moderator**: Dashboard limited to Submissions tab. Approve/reject submissions. Can assign Custom Badge 1 & 2 to roles ≤ their own tier.
+- **Moderator**: Review and approve submissions. No dashboard access.
+- **Reviewer**: Review submissions only. Cannot publish or approve.
+- **Contributor**: Upload papers. Track own submissions. Auto-assigned on first upload.
+- **Explorer**: Authenticated user. Browse and download.
+- **Visitor**: Default role. Browse published papers only.
 
 ---
 
-## Badge System
+## 3. Promotion Rules
 
-### Custom Badges
-
-Custom badges are stored in the `custom_badges` column (JSON array) in the `roles` table.
-
-- Assigned manually by Admin/Founder
-- Examples: "Subject Expert (Physics)", "Beta Tester", "Founding Member"
-- Displayed on user profile and in admin user table
-
-### Avatar Ring Badges
-
-Visual rings around user avatars indicate role/level:
-
-| Ring | Criteria | Color |
-|------|----------|-------|
-| Founder | Role = Founder | Gold |
-| Admin | Role = Admin | Red |
-| Senior Moderator | Role = Senior Moderator | Orange |
-| Reviewer | Role = Reviewer | Blue |
-| Senior | Level >= 50 | Purple |
-| Veteran | Level >= 25 | Teal |
-| Contributor | Level >= 10 | Green |
-| Explorer | Level >= 5 | Cyan |
-| Visitor | Default | Gray |
+- **Manual only** — Founder/Admin assign roles via Admin Dashboard or `update_user_role()` RPC
+- **Founder** can assign any role (including Admin and Founder)
+- **Admin** can assign Senior Moderator down to Visitor (not Founder)
+- **Senior Moderator and below** cannot assign roles
+- **Founder is unique** — enforced by `idx_unique_founder` partial index
+- **Auto-promotion exception** — Contributor is auto-assigned on first upload via DB trigger
 
 ---
 
-## Achievement System
+## 4. Custom Badge Assignment
 
-Achievements are auto-earned based on user activity and stored in the `achievements` table.
+Senior Moderator and above can assign **Custom Badge 1** (`secondary_role`) and **Custom Badge 2** (`tertiary_role`) to users whose role tier is ≤ their own.
 
-### Available Achievements
-
-| Achievement | Trigger | XP Reward |
-|------------|---------|-----------|
-| First Upload | Upload first paper | +50 XP |
-| 10 Uploads | Reach 10 submissions | +100 XP |
-| 7-Day Streak | 7 consecutive daily logins | +50 XP |
-| 30-Day Streak | 30 consecutive daily logins | +100 XP |
-| Early Adopter | Among first 10 users | +200 XP |
-
-### Achievement Display
-
-- Achievements appear on user profile page
-- Achievement count shown in admin user table with hover tooltip showing actual titles
-- Trophy icon used for achievement indicators
-- Achievement titles shown on hover: "First Upload", "10 Uploads", "7-Day Streak", etc.
+- No cooldown on badge assignment
+- Backend validated via `assign_custom_badges()` RPC
+- Badges are display-only — they never grant permissions
 
 ---
 
-## XP & Level System
+## 5. Functional Badges (Non-Permission)
 
-XP and levels are **cosmetic only** — they never affect permissions.
+### Academic
+| Badge | Description |
+|-------|-------------|
+| Subject Expert (*) | Domain expertise (Physics, Chemistry, etc.) |
+| Paper Analyzer | Paper pattern analysis |
+| Syllabus Architect | Syllabus mapping |
+| Question Curator | Question organization |
 
-### XP Sources
+### Technical
+| Badge | Description |
+|-------|-------------|
+| UI/UX Designer | Interface design |
+| Backend Engineer | Backend contributions |
+| Security Auditor | Security review |
+| Database Architect | Database design |
 
-| Action | XP Earned |
-|--------|-----------|
-| Upload a paper | +50 XP |
-| Paper approved | +100 XP |
-| Daily login streak | +5 XP/day |
-
-### Level Thresholds
-
-| Level | XP Required | Title |
-|-------|------------|-------|
-| 0 | 0 | Visitor |
-| 5 | 100 | Explorer |
-| 10 | 300 | Contributor |
-| 25 | 800 | Veteran |
-| 50 | 1,500 | Senior |
-| 90 | 3,000 | Elite |
-| 100 | 5,000 | Legend |
-
-Levels are calculated from XP via the `calculate_level_from_xp()` database function. The `recalc_levels()` RPC can be triggered by the Founder to fix any mismatches.
+### Community
+| Badge | Description |
+|-------|-------------|
+| University Coordinator | University content coordination |
+| Campus Ambassador | Campus promotion |
+| Community Lead | Community initiatives |
+| Content Curator | Content organization |
 
 ---
 
-## Security Notes
+## 6. Achievement System
 
-- All role changes are enforced via `SECURITY DEFINER` RPCs with `auth.uid()` checks
-- Frontend access checks are supplementary — never the sole enforcement
-- Row Level Security (RLS) policies restrict data access by role
-- Cooldown enforcement is server-side only
-- Developer tools are restricted to Founder role only
+Achievements are auto-earned and stored in the `achievements` table.
+
+| Badge Type | Display Name | Trigger |
+|------------|-------------|---------|
+| `first_upload` | First Upload | First paper submission |
+| `10_uploads` | 10 Uploads | 10 submissions |
+| `100_uploads` | 100 Uploads | 100 submissions |
+| `first_review` | First Review | First submission review |
+| `first_publish` | First Publish | First paper published |
+| `early_user` | Early Adopter | Among first 10 users |
+| `7_day_streak` | 7-Day Streak | 7 consecutive daily logins |
+| `30_day_streak` | 30-Day Streak | 30 consecutive daily logins |
+| `approval_90` | 90% Approval | 90%+ approval rate |
+| `top_contributor` | Top Contributor | Monthly top uploader |
+
+---
+
+## 7. XP & Level System (Cosmetic Only)
+
+| XP | Title | Level |
+|----|-------|-------|
+| 0 | Visitor | 0 |
+| 100 | Explorer | 5 |
+| 300 | Contributor | 10 |
+| 800 | Veteran | 25 |
+| 1,500 | Senior | 50 |
+| 3,000 | Elite | 90 |
+| 5,000 | Legend | 100 |
+
+⚠️ XP **never** changes `primary_role` or grants permissions.
+
+---
+
+## 8. RPC Reference
+
+| RPC | Required Role | Description |
+|-----|--------------|-------------|
+| `has_admin_access()` | — | Check Founder/Admin |
+| `has_moderator_access()` | — | Check Sr. Moderator+ |
+| `has_reviewer_access()` | — | Check Reviewer+ |
+| `update_user_role()` | Founder/Admin | Change user roles |
+| `assign_custom_badges()` | Sr. Moderator+ | Assign Custom Badge 1 & 2 |
+| `add_user_xp()` | Founder/Admin | Award/deduct XP |
+| `award_achievement()` | System | Auto-award achievements |
+| `get_current_user_primary_role()` | Authenticated | Get own role |
+
+---
+
+## 9. Security Notes
+
+1. **RLS enforced** — Row Level Security on all tables
+2. **Backend is authority** — frontend checks are UI-only; RPCs enforce access
+3. **SECURITY DEFINER RPCs** — elevated privileges with internal caller validation
+4. **No client-side role inference** — roles fetched from DB, never guessed from XP
+5. **Founder protected** — unique index + RPC pre-check
+6. **Cooldown enforcement** — server-side only for role changes
