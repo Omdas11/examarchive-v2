@@ -25,7 +25,7 @@ let uploadInProgress = false;
  * @param {Object} metadata - Paper metadata
  * @param {string} metadata.paperCode - Paper/subject code
  * @param {number} metadata.examYear - Examination year
- * @param {string} metadata.uploadType - 'question-paper' or 'demo-paper'
+ * @param {string} metadata.uploadType - 'question-paper'
  * @param {Function} onProgress - Progress callback (percent)
  * @returns {Promise<Object>} Result with submissionId and error
  */
@@ -127,8 +127,6 @@ async function handlePaperUpload(file, metadata, onProgress) {
 
     debugLog('info', '[OK] Appwrite upload complete', { fileId: appwriteResult.$id || appwriteFileId, fileUrl });
 
-    const isDemo = false; // Demo uploads removed in pre-Phase 7 cleanup
-
     // -- Step 2: Insert submission record into Supabase DB --
     const sanitizedCode = String(metadata.paperCode).replace(/[^a-zA-Z0-9_-]/g, '_');
 
@@ -155,7 +153,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
     if (metadata.semester) submissionData.semester = metadata.semester;
     if (metadata.tags && metadata.tags.length) submissionData.tags = metadata.tags;
 
-    debugLog('info', '[SUBMIT] DB insert starting', { paperCode: metadata.paperCode, examYear: metadata.examYear, isDemo });
+    debugLog('info', '[SUBMIT] DB insert starting', { paperCode: metadata.paperCode, examYear: metadata.examYear });
 
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
@@ -183,7 +181,7 @@ async function handlePaperUpload(file, metadata, onProgress) {
       throw submissionError;
     }
 
-    debugLog('info', '[OK] DB insert complete', { submissionId: submission.id, isDemo });
+    debugLog('info', '[OK] DB insert complete', { submissionId: submission.id });
 
     return {
       success: true,

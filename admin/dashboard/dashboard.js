@@ -99,7 +99,6 @@ async function initializeDashboard(primaryRole) {
 
   // Setup role management panel (Founder/Admin only via primary_role)
   if (primaryRole === 'Founder' || primaryRole === 'Admin') {
-    setupDemoReset();
     // Show support tab
     var supportTab = document.getElementById('mainTabSupport');
     if (supportTab) supportTab.style.display = '';
@@ -784,45 +783,6 @@ function setupRealtimeSubscriptions() {
   } catch (err) {
     console.error('[ADMIN-DASHBOARD] Realtime subscription error:', err);
   }
-}
-
-/**
- * Setup demo data reset button (Founder/Admin only)
- */
-function setupDemoReset() {
-  const panel = document.getElementById('demo-reset-panel');
-  if (!panel) return;
-  panel.style.display = 'block';
-
-  const resetBtn = document.getElementById('resetDemoDataBtn');
-  resetBtn?.addEventListener('click', async () => {
-    const confirmed = confirm(
-      'Are you sure you want to reset all demo data? This will delete all demo submissions. This action cannot be undone.'
-    );
-    if (!confirmed) return;
-
-    const doubleConfirm = confirm(
-      'FINAL CONFIRMATION: This will permanently delete demo submissions. Click OK to proceed.'
-    );
-    if (!doubleConfirm) return;
-
-    try {
-      const supabase = window.getSupabase ? window.getSupabase() : null;
-      if (!supabase) throw new Error('Supabase not initialized');
-
-      const { error } = await supabase
-        .from('submissions')
-        .delete()
-        .eq('upload_type', 'demo-paper');
-
-      if (error) throw error;
-
-      showMessage('Demo data reset successfully!', 'success');
-      await loadSubmissions();
-    } catch (err) {
-      showMessage('Failed to reset demo data: ' + (err.message || 'Unknown error'), 'error');
-    }
-  });
 }
 
 /**

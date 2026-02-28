@@ -121,8 +121,7 @@ async function loadPapers() {
     }
 
     // Map submissions to display format with Appwrite URLs
-    // Filter out demo papers — only show real uploads
-    const papers = await Promise.all((data || []).filter(s => !s.is_demo).map(async (s) => {
+    const papers = await Promise.all((data || []).map(async (s) => {
       const pdfUrl = await getPdfUrl(supabase, s);
       const semesterNum = s.semester ? parseInt(s.semester, 10) : 0;
 
@@ -136,7 +135,6 @@ async function loadPapers() {
         university: mapUniversity(s.university),
         semester: semesterNum,
         pdf: pdfUrl,
-        is_demo: false,
         file_size: s.file_size,
         published_at: s.published_at,
         original_filename: s.original_filename,
