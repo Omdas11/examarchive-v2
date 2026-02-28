@@ -220,8 +220,11 @@
 }
 
 .badge-custom {
-  background: rgba(156, 39, 176, 0.1);
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.12), rgba(224, 64, 251, 0.10));
   color: #7b1fa2;
+  border: 1px solid rgba(123, 31, 162, 0.3);
+  border-radius: 999px;
+  font-weight: 600;
 }
 
 .badge-senior_moderator {
@@ -666,8 +669,9 @@ body[data-theme="amoled"] .badge-founder {
 
 body[data-theme="dark"] .badge-custom,
 body[data-theme="amoled"] .badge-custom {
-  background: rgba(206, 147, 216, 0.15);
+  background: linear-gradient(135deg, rgba(206, 147, 216, 0.18), rgba(224, 64, 251, 0.12));
   color: #ce93d8;
+  border-color: rgba(206, 147, 216, 0.35);
 }
 
 /* ---------- Auth Form ---------- */

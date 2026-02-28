@@ -59,6 +59,36 @@ Senior Moderator and above can assign **Custom Badge 1** (`secondary_role`) and 
 - No cooldown on badge assignment
 - Backend validated via `assign_custom_badges()` RPC
 - Badges are display-only — they never grant permissions
+- Only preset roles from the list below are allowed (validated on backend)
+- Custom Role 1 and Custom Role 2 cannot be the same (duplicate prevention)
+- Frontend uses a dropdown select (no free-text input)
+
+### Preset Custom Roles (Single Source of Truth)
+
+| # | Role | Description |
+|---|------|-------------|
+| 1 | Top Contributor | Outstanding content contributions |
+| 2 | Elite Uploader | High-volume quality uploads |
+| 3 | Verified Reviewer | Trusted paper reviewer |
+| 4 | Community Helper | Active community support |
+| 5 | Subject Expert | Domain expertise across subjects |
+| 6 | Physics Star | Physics domain specialist |
+| 7 | Maths Mentor | Mathematics mentor/guide |
+| 8 | Chemistry Guide | Chemistry domain specialist |
+| 9 | Active Member | Consistently active participant |
+| 10 | Early Supporter | Early platform supporter |
+| 11 | Research Contributor | Research content contributions |
+| 12 | QA Specialist | Quality assurance specialist |
+| 13 | Content Curator | Content organization & curation |
+| 14 | Senior Helper | Senior-level community helper |
+| 15 | Beta Tester | Platform beta testing |
+| 16 | Legacy Member | Long-standing member |
+| 17 | Bug Hunter | Bug discovery & reporting |
+| 18 | Documentation Lead | Documentation contributions |
+| 19 | Mentor | Peer mentoring |
+| 20 | Power User | Advanced platform usage |
+| 21 | Campus Ambassador | Campus promotion & outreach |
+| 22 | Event Contributor | Event organization & participation |
 
 ---
 
