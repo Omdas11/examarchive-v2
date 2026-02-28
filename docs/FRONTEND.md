@@ -107,8 +107,6 @@ The upload flow in `js/upload.js` and `js/upload-handler.js`:
 
 ## Debug System
 
-See [DEBUG_SYSTEM.md](DEBUG_SYSTEM.md) for full details.
-
 The debug panel (`js/modules/debug.module.js`) provides:
 - Real-time log display with categorization
 - Auth status printing (session, user ID, role level)
