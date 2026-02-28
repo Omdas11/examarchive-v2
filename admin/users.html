@@ -398,15 +398,22 @@
           achHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
         }
 
-        // Build CUSTOM ROLE 1 (secondary_role — admin assignable)
+        // Build CUSTOM ROLE 1 (secondary_role — Senior Moderator+ assignable)
+        var canAssignBadges = ['Founder', 'Admin', 'Senior Moderator'].indexOf(currentUserRole) !== -1;
         var customRole1Html = u.secondary_role
           ? '<span class="badge-custom"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' + escapeHtml(u.secondary_role) + '</span>'
           : '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
+        if (canAssignBadges) {
+          customRole1Html += '<button class="badge-edit-btn" data-user-id="' + escapeHtml(u.user_id) + '" data-field="secondary_role" data-current="' + escapeHtml(u.secondary_role || '') + '" title="Edit Custom Badge 1" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;font-size:0.7rem;">✏️</button>';
+        }
 
-        // Build CUSTOM ROLE 2 (tertiary_role — admin assignable)
+        // Build CUSTOM ROLE 2 (tertiary_role — Senior Moderator+ assignable)
         var customRole2Html = u.tertiary_role
           ? '<span class="badge-custom"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' + escapeHtml(u.tertiary_role) + '</span>'
           : '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
+        if (canAssignBadges) {
+          customRole2Html += '<button class="badge-edit-btn" data-user-id="' + escapeHtml(u.user_id) + '" data-field="tertiary_role" data-current="' + escapeHtml(u.tertiary_role || '') + '" title="Edit Custom Badge 2" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;font-size:0.7rem;">✏️</button>';
+        }
 
 
         tr.innerHTML =
@@ -459,6 +466,34 @@
             this.parentNode.replaceChild(span, this);
           });
         }
+
+        // Badge edit button handlers (Senior Moderator+ can assign Custom Badge 1 & 2)
+        tr.querySelectorAll('.badge-edit-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var uid = this.getAttribute('data-user-id');
+            var field = this.getAttribute('data-field');
+            var current = this.getAttribute('data-current') || '';
+            var label = field === 'secondary_role' ? 'Custom Badge 1' : 'Custom Badge 2';
+            var newVal = prompt(label + ' for this user (leave empty to clear):', current);
+            if (newVal === null) return; // cancelled
+            newVal = newVal.trim();
+            var sb = window.getSupabase ? window.getSupabase() : null;
+            if (!sb) return;
+            var params = { target_user_id: uid };
+            if (field === 'secondary_role') params.new_secondary_role = newVal || null;
+            else params.new_tertiary_role = newVal || null;
+            sb.rpc('assign_custom_badges', params).then(function(res) {
+              if (res.error) { showToast('Error: ' + res.error.message, 'error'); return; }
+              var data = res.data;
+              if (data && data.success) {
+                showToast(label + ' updated successfully', 'success');
+                loadAllUsers();
+              } else {
+                showToast('Failed: ' + (data && data.error ? data.error : 'Unknown error'), 'error');
+              }
+            });
+          });
+        });
 
 
         // Role dropdown
