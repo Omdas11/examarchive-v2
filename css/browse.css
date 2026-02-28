@@ -43,8 +43,21 @@
 
 .toggle-row {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.toggle-row::-webkit-scrollbar {
+  display: none;
+}
+
+.toggle-row > .toggle-btn {
+  scroll-snap-align: start;
+  flex-shrink: 0;
 }
 
 /* Toggle Buttons */
@@ -256,9 +269,14 @@
 .open-pdf {
   margin-top: 0.4rem;
   font-size: 0.85rem;
-  color: var(--red);
+  color: var(--accent);
   font-weight: 500;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 44px;
+  padding: 0.4rem 0;
 }
 
 /* ---------- Skeleton ---------- */

@@ -59,7 +59,7 @@
         </div>
         <textarea id="reqDescription" placeholder="Describe which paper you need..." maxlength="300"></textarea>
         <div class="form-actions">
-          <button class="btn btn-red" id="submitRequestBtn">Submit Request</button>
+          <button class="btn btn-primary" id="submitRequestBtn">Submit Request</button>
         </div>
       </div>
     `;
@@ -121,7 +121,7 @@
       if (error) throw error;
 
       if (!data || data.length === 0) {
-        listEl.innerHTML = '<p class="empty-requests">No paper requests yet. Be the first to request one!</p>';
+        listEl.innerHTML = '<p class="empty-requests"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 0.5rem;opacity:0.4;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>No paper requests yet. Be the first to request one!</p>';
         return;
       }
 
