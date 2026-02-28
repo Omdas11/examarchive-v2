@@ -222,11 +222,15 @@ function initializeUploadForm() {
     const paperType = document.getElementById('paperType')?.value || 'main';
     const fileRenameEl = document.getElementById('fileRename');
     
-    if (code || year) {
-      var autoName = (code || '…') + '-' + (year || '…') + '-' + paperType;
+    if (code && year) {
+      var autoName = code + '-' + year + '-' + paperType;
       filenamePreview.style.display = 'block';
       filenamePreview.textContent = autoName;
       if (fileRenameEl) fileRenameEl.value = autoName;
+    } else if (code || year) {
+      filenamePreview.style.display = 'block';
+      filenamePreview.textContent = (code || '___') + '-' + (year || '____') + '-' + paperType;
+      if (fileRenameEl) fileRenameEl.value = '';
     } else {
       filenamePreview.style.display = 'none';
       if (fileRenameEl) fileRenameEl.value = '';

@@ -78,10 +78,19 @@ BEGIN
   END IF;
 
   -- Perform the update
+  -- NULL parameter = no change, empty string = clear badge
   UPDATE roles
   SET
-    secondary_role = COALESCE(new_secondary_role, secondary_role),
-    tertiary_role = COALESCE(new_tertiary_role, tertiary_role),
+    secondary_role = CASE
+      WHEN new_secondary_role IS NULL THEN secondary_role
+      WHEN new_secondary_role = '' THEN NULL
+      ELSE new_secondary_role
+    END,
+    tertiary_role = CASE
+      WHEN new_tertiary_role IS NULL THEN tertiary_role
+      WHEN new_tertiary_role = '' THEN NULL
+      ELSE new_tertiary_role
+    END,
     updated_at = now()
   WHERE user_id = target_user_id;
 
