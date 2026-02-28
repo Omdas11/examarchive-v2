@@ -6,6 +6,8 @@
 /* -------------------- State -------------------- */
 let allPapers = [];
 let view = [];
+const PAPERS_PER_PAGE = 12;
+let currentPage = 1;
 
 let filters = {
   programme: "ALL",
@@ -167,9 +169,11 @@ function buildYearToggle() {
   const allBtn = document.createElement("button");
   allBtn.className = "toggle-btn active";
   allBtn.textContent = "ALL";
+  allBtn.dataset.year = "ALL";
   allBtn.onclick = () => {
     setActive(yearToggle, allBtn);
     filters.year = "ALL";
+    currentPage = 1;
     applyFilters();
   };
   yearToggle.appendChild(allBtn);
@@ -178,9 +182,11 @@ function buildYearToggle() {
     const btn = document.createElement("button");
     btn.className = "toggle-btn";
     btn.textContent = y;
+    btn.dataset.year = String(y);
     btn.onclick = () => {
       setActive(yearToggle, btn);
       filters.year = String(y);
+      currentPage = 1;
       applyFilters();
     };
     yearToggle.appendChild(btn);
@@ -238,6 +244,30 @@ function closeSort() {
   sortSheet.hidden = true;
 }
 
+/* -------------------- URL Params -------------------- */
+function readFiltersFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('programme')) filters.programme = params.get('programme');
+  if (params.has('stream')) filters.stream = params.get('stream').toLowerCase();
+  if (params.has('year')) filters.year = params.get('year');
+  if (params.has('q')) filters.search = params.get('q').toLowerCase();
+  if (params.has('sort')) filters.sort = params.get('sort');
+  if (params.has('page')) currentPage = Math.max(1, parseInt(params.get('page'), 10) || 1);
+}
+
+function writeFiltersToURL() {
+  const params = new URLSearchParams();
+  if (filters.programme !== 'ALL') params.set('programme', filters.programme);
+  if (filters.stream !== 'science') params.set('stream', filters.stream);
+  if (filters.year !== 'ALL') params.set('year', filters.year);
+  if (filters.search) params.set('q', filters.search);
+  if (filters.sort !== 'year_desc') params.set('sort', filters.sort);
+  if (currentPage > 1) params.set('page', currentPage);
+  const qs = params.toString();
+  const url = window.location.pathname + (qs ? '?' + qs : '');
+  history.replaceState(null, '', url);
+}
+
 /* -------------------- Filters -------------------- */
 function applyFilters() {
   view = [...allPapers];
@@ -261,6 +291,7 @@ function applyFilters() {
   }
 
   applySort();
+  writeFiltersToURL();
   render();
 }
 
@@ -286,14 +317,21 @@ function render() {
   const count = document.getElementById("paperCount");
 
   list.innerHTML = "";
-  count.textContent = `Showing ${view.length} papers`;
+
+  const totalPages = Math.max(1, Math.ceil(view.length / PAPERS_PER_PAGE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * PAPERS_PER_PAGE;
+  const pageItems = view.slice(start, start + PAPERS_PER_PAGE);
+
+  count.textContent = `Showing ${start + 1}–${Math.min(start + PAPERS_PER_PAGE, view.length)} of ${view.length} papers`;
 
   if (!view.length) {
-    list.innerHTML = `<p class="empty">Be the first to upload a paper.</p>`;
+    count.textContent = `Showing 0 papers`;
+    list.innerHTML = `<p class="empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 0.5rem;opacity:0.35;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>No papers found. Try adjusting your filters.</p>`;
     return;
   }
 
-  view.forEach(p => {
+  pageItems.forEach(p => {
     const semRoman = p.semester ? toRoman(p.semester) : '—';
     const uploaderDisplay = p.uploader_name
       ? p.uploader_name
@@ -351,6 +389,26 @@ function render() {
 
     list.appendChild(card);
   });
+
+  // Pagination controls
+  if (totalPages > 1) {
+    const pag = document.createElement("div");
+    pag.className = "pagination";
+    pag.innerHTML = `
+      <button class="pagination-btn" ${currentPage <= 1 ? 'disabled' : ''} data-page="${currentPage - 1}">&laquo; Prev</button>
+      <span class="pagination-info">Page ${currentPage} of ${totalPages}</span>
+      <button class="pagination-btn" ${currentPage >= totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">Next &raquo;</button>
+    `;
+    pag.querySelectorAll("[data-page]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentPage = parseInt(btn.dataset.page, 10);
+        writeFiltersToURL();
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    list.appendChild(pag);
+  }
 }
 
 /* -------------------- UI Helpers -------------------- */
@@ -370,6 +428,7 @@ document.querySelectorAll("[data-programme]").forEach(btn => {
     document.querySelectorAll("[data-programme]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     filters.programme = btn.dataset.programme;
+    currentPage = 1;
     renderSortOptions();
     applyFilters();
   };
@@ -380,23 +439,42 @@ document.querySelectorAll("[data-stream]").forEach(btn => {
     document.querySelectorAll("[data-stream]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     filters.stream = btn.dataset.stream.toLowerCase();
+    currentPage = 1;
     applyFilters();
   };
 });
 
 document.getElementById("searchInput").addEventListener("input", e => {
   filters.search = norm(e.target.value);
+  currentPage = 1;
   applyFilters();
 });
 
 /* -------------------- Init -------------------- */
 (async function () {
   try {
+    readFiltersFromURL();
+
+    // Sync UI with restored filter state
+    document.querySelectorAll("[data-programme]").forEach(b => {
+      b.classList.toggle("active", b.dataset.programme === filters.programme);
+    });
+    document.querySelectorAll("[data-stream]").forEach(b => {
+      b.classList.toggle("active", b.dataset.stream.toLowerCase() === filters.stream);
+    });
+    const searchInput = document.getElementById("searchInput");
+    if (filters.search) searchInput.value = filters.search;
+
     await loadPapers();
     buildYearToggle();
+
+    // Sync year toggle after building
+    document.querySelectorAll("[data-year]").forEach(b => {
+      b.classList.toggle("active", b.dataset.year === filters.year);
+    });
+
     renderSortOptions();
     applyFilters();
-    document.getElementById("paperCount").textContent = `Showing ${view.length} papers`;
   } catch (error) {
     console.error("Failed to initialize browse page:", error);
     document.getElementById("paperCount").textContent = "Error loading papers. Please refresh the page.";

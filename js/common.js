@@ -275,6 +275,32 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+/* ===============================
+   Swipe gestures for drawer
+   =============================== */
+(function initSwipeGestures() {
+  let touchStartX = 0;
+  let touchStartY = 0;
+  const SWIPE_THRESHOLD = 60;
+
+  document.addEventListener("touchstart", (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener("touchend", (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dy) > Math.abs(dx)) return;
+
+    if (dx > 0 && !document.body.classList.contains("drawer-open") && touchStartX < 40) {
+      openDrawer();
+    } else if (dx < 0 && document.body.classList.contains("drawer-open")) {
+      closeDrawer();
+    }
+  }, { passive: true });
+})();
+
 // Highlight active drawer link
 function highlightActiveDrawerLink() {
   const pathname = window.location.pathname;

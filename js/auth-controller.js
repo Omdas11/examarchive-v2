@@ -212,6 +212,19 @@
 
     document.body.appendChild(notification);
 
+    // Swipe-to-dismiss support
+    let ntStartX = 0;
+    notification.addEventListener('touchstart', (e) => {
+      ntStartX = e.touches[0].clientX;
+    }, { passive: true });
+    notification.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - ntStartX;
+      if (dx > 60) {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, { passive: true });
+
     // Auto-remove after 8 seconds
     setTimeout(() => {
       notification.style.animation = 'slideOut 0.3s ease';
