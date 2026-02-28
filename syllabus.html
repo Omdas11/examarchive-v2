@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Syllabus | ExamArchive</title>
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/brand.css">
+  <link rel="stylesheet" href="css/avatar-popup.css">
+  <link rel="stylesheet" href="css/avatar.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/profile-panel.css">
+  <link rel="stylesheet" href="css/levelup.css">
+
+  <!-- Accessibility and SEO -->
+  <meta name="description" content="Browse university syllabi — university-wide and paper-wise syllabus documents on ExamArchive." />
+  <meta name="theme-color" content="#d32f2f" />
+  <link rel="canonical" href="https://examarchive.dev/syllabus.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Syllabus | ExamArchive" />
+  <meta property="og:description" content="Browse university syllabi — university-wide and paper-wise syllabus documents." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://examarchive.dev/syllabus.html" />
+  <meta property="og:site_name" content="ExamArchive" />
+
+  <style>
+    .syllabus-page { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .syllabus-page h1 { margin-bottom: 0.5rem; }
+    .syllabus-page .subtitle { color: var(--text-muted); margin-bottom: 2rem; }
+
+    .syllabus-filters { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .syllabus-filters select,
+    .syllabus-filters input { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 0.9rem; }
+    .syllabus-filters input { flex: 1; min-width: 200px; }
+
+    .syllabus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .syllabus-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; transition: box-shadow 0.2s; }
+    .syllabus-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .syllabus-card h3 { margin: 0 0 0.5rem 0; font-size: 1rem; }
+    .syllabus-card .meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .syllabus-card .meta span { display: inline-block; margin-right: 0.75rem; }
+    .syllabus-card .actions { display: flex; gap: 0.5rem; }
+    .syllabus-card .actions a { display: inline-flex; align-items: center; gap: 4px; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500; text-decoration: none; border: 1px solid var(--border); color: var(--text); background: var(--bg-soft); transition: background 0.2s; }
+    .syllabus-card .actions a:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+    .empty-state svg { margin-bottom: 1rem; opacity: 0.5; }
+  </style>
+</head>
+<body>
+
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="syllabus-page" id="main-content">
+    <h1>Syllabus</h1>
+    <p class="subtitle">Browse university-wide and paper-wise syllabi. Download PDF versions or view online.</p>
+
+    <!-- Filters -->
+    <div class="syllabus-filters">
+      <select id="syllabusUniversity">
+        <option value="">All Universities</option>
+        <option value="assam-university">Assam University</option>
+      </select>
+      <select id="syllabusProgramme">
+        <option value="">All Programmes</option>
+        <option value="fyug">FYUG (4-Year)</option>
+        <option value="pg">PG</option>
+        <option value="honours">Honours</option>
+        <option value="general">General</option>
+      </select>
+      <input type="text" id="syllabusSearch" placeholder="Search by paper name or code..." />
+    </div>
+
+    <!-- Syllabus Grid -->
+    <div class="syllabus-grid" id="syllabusGrid">
+      <div class="empty-state" id="syllabusEmpty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        </svg>
+        <p>Syllabi will appear here as they are added.<br>Check back soon or browse papers to find syllabus links.</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <script src="js/bootstrap.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <script src="js/supabase-client.js"></script>
+  <script type="module" src="js/app.module.js"></script>
+  <script src="js/utils/supabase-wait.js"></script>
+  <script src="js/auth-controller.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/icon-fallback.js"></script>
+  <script src="js/avatar-utils.js"></script>
+  <script src="js/utils/role-utils.js"></script>
+  <script src="js/svg-icons.js"></script>
+  <script src="js/roles.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/profile-panel.js"></script>
+  <script src="js/levelup.js"></script>
+  <script src="js/avatar-popup.js"></script>
+  <script src="js/theme.js"></script>
+
+  <script>
+    // Syllabus page logic — loads syllabus data from data/syllabus/ JSON files
+    (function() {
+      'use strict';
+      var grid = document.getElementById('syllabusGrid');
+      var emptyState = document.getElementById('syllabusEmpty');
+      var uniFilter = document.getElementById('syllabusUniversity');
+      var progFilter = document.getElementById('syllabusProgramme');
+      var searchInput = document.getElementById('syllabusSearch');
+
+      var allSyllabi = [];
+
+      async function loadSyllabi() {
+        try {
+          var res = await fetch('./data/syllabus/index.json');
+          if (!res.ok) throw new Error('No syllabus index found');
+          allSyllabi = await res.json();
+          renderSyllabi();
+        } catch (e) {
+          // No syllabus data yet — show empty state
+          emptyState.style.display = '';
+        }
+      }
+
+      function renderSyllabi() {
+        var uni = uniFilter.value;
+        var prog = progFilter.value;
+        var q = searchInput.value.trim().toLowerCase();
+
+        var filtered = allSyllabi.filter(function(s) {
+          if (uni && s.university !== uni) return false;
+          if (prog && s.programme !== prog) return false;
+          if (q && !(s.paper_name || '').toLowerCase().includes(q) && !(s.paper_code || '').toLowerCase().includes(q)) return false;
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          grid.innerHTML = '';
+          grid.appendChild(emptyState);
+          emptyState.style.display = '';
+          return;
+        }
+
+        emptyState.style.display = 'none';
+        grid.innerHTML = filtered.map(function(s) {
+          var pdfLink = s.pdf_url ? '<a href="' + s.pdf_url + '" target="_blank" rel="noopener"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</a>' : '';
+          return '<div class="syllabus-card">' +
+            '<h3>' + (s.paper_name || s.paper_code || 'Untitled') + '</h3>' +
+            '<div class="meta">' +
+              '<span>' + (s.university || '') + '</span>' +
+              '<span>' + (s.programme || '') + '</span>' +
+              (s.semester ? '<span>Sem ' + s.semester + '</span>' : '') +
+              (s.credits ? '<span>' + s.credits + ' Credits</span>' : '') +
+            '</div>' +
+            '<div class="actions">' + pdfLink + '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      uniFilter.addEventListener('change', renderSyllabi);
+      progFilter.addEventListener('change', renderSyllabi);
+      searchInput.addEventListener('input', renderSyllabi);
+
+      loadSyllabi();
+    })();
+  </script>
+
+</body>
+</html>
