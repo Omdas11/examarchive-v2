@@ -128,15 +128,15 @@
         </label>
 
         <label class="field">
-          <span class="field-label">Subject</span>
+          <span class="field-label">Subject / Paper Name</span>
           <input
             id="subject"
             type="text"
-            placeholder="e.g. Physics"
+            placeholder="e.g. Classical Mechanics"
             required
           />
           <small class="field-hint">
-            Enter the subject name as printed on the paper.
+            Enter the full paper/subject name as printed on the paper.
           </small>
         </label>
 
@@ -182,14 +182,14 @@
           <span class="field-label">Semester</span>
           <select id="semester" data-ea-dropdown>
             <option value="">Select Semester</option>
-            <option value="1">Semester 1</option>
-            <option value="2">Semester 2</option>
-            <option value="3">Semester 3</option>
-            <option value="4">Semester 4</option>
-            <option value="5">Semester 5</option>
-            <option value="6">Semester 6</option>
-            <option value="7">Semester 7</option>
-            <option value="8">Semester 8</option>
+            <option value="I">Semester I</option>
+            <option value="II">Semester II</option>
+            <option value="III">Semester III</option>
+            <option value="IV">Semester IV</option>
+            <option value="V">Semester V</option>
+            <option value="VI">Semester VI</option>
+            <option value="VII">Semester VII</option>
+            <option value="VIII">Semester VIII</option>
           </select>
         </label>
 
@@ -206,14 +206,28 @@
         </label>
 
         <label class="field">
-          <span class="field-label">Rename File (optional)</span>
+          <span class="field-label">File Name (auto-generated)</span>
           <input
             id="fileRename"
             type="text"
-            placeholder="e.g. PHYDSC102T-2023-main"
+            placeholder="Auto-generated from Paper Code + Year"
+            readonly
+            aria-readonly="true"
           />
           <small class="field-hint">
-            Custom filename for the uploaded file. Leave empty for auto-generated name.
+            File will be renamed automatically based on paper code and year.
+          </small>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Syllabus Link (optional)</span>
+          <input
+            id="syllabusLink"
+            type="url"
+            placeholder="e.g. https://examarchive.dev/syllabus.html?paper=PHYDSC102T"
+          />
+          <small class="field-hint">
+            Link to the syllabus for this paper (optional).
           </small>
         </label>
       </div>

@@ -1,0 +1,42 @@
+[
+  {
+    "paper_code": "COMDSC302T",
+    "paper_name": "Income Tax Law and Practice",
+    "university": "assam-university",
+    "programme": "cbcs",
+    "stream": "Commerce",
+    "semester": 3,
+    "credits": 4,
+    "pdf_url": "/assets/pdfs/syllabus/COMDSC302T-list.pdf"
+  },
+  {
+    "paper_code": "CHMDSC101T",
+    "paper_name": "Inorganic Chemistry - I",
+    "university": "assam-university",
+    "programme": "fyug",
+    "stream": "Science",
+    "semester": 1,
+    "credits": 3,
+    "pdf_url": "/assets/pdfs/syllabus/CHMDSC101T-list.pdf"
+  },
+  {
+    "paper_code": "PHYDSC101T",
+    "paper_name": "Mathematical Physics - I",
+    "university": "assam-university",
+    "programme": "fyug",
+    "stream": "Science",
+    "semester": 1,
+    "credits": 3,
+    "pdf_url": "/assets/pdfs/syllabus/PHYDSC101T-list.pdf"
+  },
+  {
+    "paper_code": "PHYDSC102T",
+    "paper_name": "Mechanics and Relativity",
+    "university": "assam-university",
+    "programme": "fyug",
+    "stream": "Science",
+    "semester": 1,
+    "credits": 3,
+    "pdf_url": "/assets/pdfs/syllabus/PHYDSC102T-list.pdf"
+  }
+]

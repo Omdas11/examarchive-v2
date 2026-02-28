@@ -219,17 +219,28 @@ function initializeUploadForm() {
   function updateFilenamePreview() {
     const code = paperCodeInput.value.trim().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '');
     const year = examYearInput.value.trim();
+    const paperType = document.getElementById('paperType')?.value || 'main';
+    const fileRenameEl = document.getElementById('fileRename');
     
-    if (code || year) {
+    if (code && year) {
+      var autoName = code + '-' + year + '-' + paperType;
       filenamePreview.style.display = 'block';
-      filenamePreview.textContent = (code || '…') + '-' + (year || '…') + '-';
+      filenamePreview.textContent = autoName;
+      if (fileRenameEl) fileRenameEl.value = autoName;
+    } else if (code || year) {
+      filenamePreview.style.display = 'block';
+      filenamePreview.textContent = (code || '___') + '-' + (year || '____') + '-' + paperType;
+      if (fileRenameEl) fileRenameEl.value = '';
     } else {
       filenamePreview.style.display = 'none';
+      if (fileRenameEl) fileRenameEl.value = '';
     }
   }
 
   paperCodeInput.addEventListener('input', updateFilenamePreview);
   examYearInput.addEventListener('input', updateFilenamePreview);
+  var paperTypeSelect = document.getElementById('paperType');
+  if (paperTypeSelect) paperTypeSelect.addEventListener('change', updateFilenamePreview);
 
   // --- Upload button state ---
   function updateUploadButtonState() {
@@ -315,8 +326,29 @@ function initializeUploadForm() {
     const tagsRaw = document.getElementById('tags')?.value.trim() || '';
     const tags = tagsRaw ? tagsRaw.split(',').map(function(t) { return t.trim(); }).filter(Boolean) : [];
     const fileRename = document.getElementById('fileRename')?.value.trim() || '';
+    const syllabusLink = document.getElementById('syllabusLink')?.value.trim() || '';
 
     // Validate inputs
+    if (!university) {
+      showMessage('Please select a university', 'error');
+      return;
+    }
+
+    if (!programme) {
+      showMessage('Please select a programme', 'error');
+      return;
+    }
+
+    if (!semester) {
+      showMessage('Please select a semester', 'error');
+      return;
+    }
+
+    if (!subject) {
+      showMessage('Please enter the paper/subject name', 'error');
+      return;
+    }
+
     if (!paperCode) {
       showMessage('Please enter a paper code', 'error');
       paperCodeInput.focus();
@@ -357,7 +389,8 @@ function initializeUploadForm() {
           paperType,
           semester,
           tags,
-          fileRename
+          fileRename,
+          syllabusLink
         },
         (progress) => {
           uploadButton.textContent = `Uploading ${progress}%`;
@@ -391,6 +424,8 @@ function initializeUploadForm() {
         if (semesterEl) semesterEl.value = '';
         if (tagsEl) tagsEl.value = '';
         if (fileRenameEl) fileRenameEl.value = '';
+        var syllabusLinkEl = document.getElementById('syllabusLink');
+        if (syllabusLinkEl) syllabusLinkEl.value = '';
         
         // Reload submissions
         setTimeout(() => {

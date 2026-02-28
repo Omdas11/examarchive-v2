@@ -57,7 +57,7 @@ In the Supabase SQL Editor, run these scripts **in order**:
 13. `admin/sql/13_phase4_migration.sql` — XP system, username, level auto-calc, search RPCs
 14. `admin/sql/14_phase4_restructure.sql` — Decouple XP from permissions, founder uniqueness, daily streak, role-based access control
 
-> **Important:** Scripts must be run in order. Phase 4 scripts depend on columns and functions created in earlier migrations. See [PHASE4_SETUP.md](PHASE4_SETUP.md) for detailed Phase 4 setup instructions.
+> **Important:** Scripts must be run in order. Phase 4 scripts depend on columns and functions created in earlier migrations. See [ROLES.md](ROLES.md) for role system details.
 
 ### 4. Configure Auth
 

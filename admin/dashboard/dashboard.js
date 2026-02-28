@@ -489,11 +489,31 @@ function showReviewModal(submission) {
       ${submission?.tags && submission.tags.length ? '<p style="margin:0.25rem 0;font-size:0.85rem;color:var(--text-muted);"><strong>Tags:</strong> ' + submission.tags.map(function(t){return escapeHtml(t);}).join(', ') + '</p>' : ''}
     </div>
     <details style="margin-bottom:1rem;">
-      <summary style="cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--text);"><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> Edit Metadata</summary>
+      <summary style="cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--text);"><span class="svg-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> Edit All Metadata</summary>
       <div style="padding:0.75rem;background:var(--bg-soft);border-radius:8px;margin-top:0.5rem;">
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>University</strong>
+          <input type="text" id="editUniversity" value="${escapeHtml(submission?.university || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Programme</strong>
+          <input type="text" id="editProgramme" value="${escapeHtml(submission?.programme || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Stream</strong>
+          <input type="text" id="editStream" value="${escapeHtml(submission?.stream || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Subject / Paper Name</strong>
+          <input type="text" id="editSubject" value="${escapeHtml(submission?.subject || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
         <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
           <strong>Paper Code</strong>
           <input type="text" id="editPaperCode" value="${escapeHtml(submission?.paper_code || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Semester</strong>
+          <input type="text" id="editSemester" value="${escapeHtml(String(submission?.semester || ''))}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" placeholder="e.g. I, II, III" />
         </label>
         <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
           <strong>Year</strong>
@@ -502,6 +522,10 @@ function showReviewModal(submission) {
         <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
           <strong>Rename File</strong>
           <input type="text" id="editFilename" value="${escapeHtml(submission?.original_filename || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" />
+        </label>
+        <label style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+          <strong>Syllabus Link (optional)</strong>
+          <input type="url" id="editSyllabusLink" value="${escapeHtml(submission?.syllabus_link || '')}" style="width:100%;padding:0.35rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font-size:0.85rem;margin-top:0.2rem;" placeholder="https://..." />
         </label>
         <button class="btn btn-outline" style="padding:0.3rem 0.75rem;font-size:0.8rem;margin-top:0.25rem;" data-save-meta="${escapeHtml(submission?.id || '')}">Save Changes</button>
       </div>
@@ -797,10 +821,22 @@ async function saveMetadataEdit(submissionId) {
     var codeEl = document.getElementById('editPaperCode');
     var yearEl = document.getElementById('editYear');
     var filenameEl = document.getElementById('editFilename');
+    var universityEl = document.getElementById('editUniversity');
+    var programmeEl = document.getElementById('editProgramme');
+    var streamEl = document.getElementById('editStream');
+    var subjectEl = document.getElementById('editSubject');
+    var semesterEl = document.getElementById('editSemester');
+    var syllabusLinkEl = document.getElementById('editSyllabusLink');
 
     if (codeEl && codeEl.value.trim()) updates.paper_code = codeEl.value.trim();
     if (yearEl && yearEl.value) updates.year = parseInt(yearEl.value);
     if (filenameEl && filenameEl.value.trim()) updates.original_filename = filenameEl.value.trim();
+    if (universityEl && universityEl.value.trim()) updates.university = universityEl.value.trim();
+    if (programmeEl && programmeEl.value.trim()) updates.programme = programmeEl.value.trim();
+    if (streamEl && streamEl.value.trim()) updates.stream = streamEl.value.trim();
+    if (subjectEl && subjectEl.value.trim()) updates.subject = subjectEl.value.trim();
+    if (semesterEl && semesterEl.value.trim()) updates.semester = semesterEl.value.trim();
+    if (syllabusLinkEl) updates.syllabus_link = syllabusLinkEl.value.trim() || null;
 
     if (Object.keys(updates).length === 0) {
       showMessage('No changes to save.', 'info');
@@ -1294,12 +1330,6 @@ async function loadUsersTable(page, searchQuery) {
       rejectedTd.style.cssText = 'padding:0.5rem;text-align:center;';
       rejectedTd.textContent = String(u.rejected_count ?? 0);
       tr.appendChild(rejectedTd);
-
-      // Last Login cell
-      var loginTd = document.createElement('td');
-      loginTd.style.cssText = 'padding:0.5rem;font-size:0.75rem;';
-      loginTd.textContent = u.last_login_date ? new Date(u.last_login_date).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }) : '—';
-      tr.appendChild(loginTd);
 
       // Promote column — dropdown only if has_admin_access() returns true
       const promoteTd = document.createElement('td');

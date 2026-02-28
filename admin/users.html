@@ -133,7 +133,7 @@
           <option value="xp">Sort by XP</option>
           <option value="primary_role">Sort by Role</option>
           <option value="uploads">Sort by Uploads</option>
-          <option value="last_login_date">Sort by Last Login</option>
+
         </select>
         <select id="sortDir" data-ea-dropdown>
           <option value="asc">Ascending</option>
@@ -160,7 +160,7 @@
               <th>Approved</th>
               <th>Rejected</th>
               <th>Achievements</th>
-              <th>Last Login</th>
+
             </tr>
           </thead>
           <tbody id="usersTableBody">
@@ -304,17 +304,6 @@
           }
         } catch(e) {}
 
-        // Supplement with real last_sign_in_at from auth.users via RPC
-        try {
-          var loginRes = await supabase.rpc('get_all_last_sign_ins');
-          if (!loginRes.error && loginRes.data) {
-            var loginMap = {};
-            loginRes.data.forEach(function(r) { loginMap[r.user_id] = r.last_sign_in; });
-            allUsers.forEach(function(u) {
-              if (loginMap[u.user_id]) u.real_last_sign_in = loginMap[u.user_id];
-            });
-          }
-        } catch(e) {}
 
         // Supplement with achievement details (badge_type)
         try {
@@ -333,7 +322,7 @@
       } catch (err) {
         // Fallback: direct table query
         try {
-          var fallback = await supabase.from('roles').select('user_id, display_name, username, xp, level, primary_role, secondary_role, tertiary_role, custom_badges, last_login_date, avatar_url');
+          var fallback = await supabase.from('roles').select('user_id, display_name, username, xp, level, primary_role, secondary_role, tertiary_role, custom_badges, avatar_url');
           if (fallback.error) throw fallback.error;
           allUsers = (fallback.data || []).map(function(r) {
             return Object.assign({}, r, { uploads: 0, approved: 0, rejected: 0 });
@@ -377,17 +366,6 @@
         var uuidHtml = '<div class="uuid-wrap"><span class="uuid-text" title="' + escapeHtml(uuidVal) + '">' + escapeHtml(uuidVal) + '</span>' +
           '<button class="uuid-copy" data-uuid="' + escapeHtml(uuidVal) + '" title="Copy UUID" aria-label="Copy UUID"><span class="svg-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span></button></div>';
 
-        // Format last login — prefer real auth.users.last_sign_in_at
-        var lastLoginRaw = u.real_last_sign_in || u.last_login_date || null;
-        var lastLogin = '—';
-        if (lastLoginRaw) {
-          try {
-            var d = new Date(lastLoginRaw);
-            if (!isNaN(d.getTime())) {
-              lastLogin = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
-            }
-          } catch(e) {}
-        }
 
         // Build PRIMARY badge (role-based, gradient style)
         var roleSlug = (u.primary_role || 'visitor').toLowerCase().replace(/\s+/g, '-');
@@ -420,20 +398,23 @@
           achHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
         }
 
-        // Build CUSTOM ROLE 1 (secondary_role — admin assignable)
+        // Build CUSTOM ROLE 1 (secondary_role — Senior Moderator+ assignable)
+        var canAssignBadges = ['Founder', 'Admin', 'Senior Moderator'].indexOf(currentUserRole) !== -1;
         var customRole1Html = u.secondary_role
           ? '<span class="badge-custom"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' + escapeHtml(u.secondary_role) + '</span>'
           : '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
+        if (canAssignBadges) {
+          customRole1Html += '<button class="badge-edit-btn" data-user-id="' + escapeHtml(u.user_id) + '" data-field="secondary_role" data-current="' + escapeHtml(u.secondary_role || '') + '" title="Edit Custom Badge 1" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;font-size:0.7rem;">✏️</button>';
+        }
 
-        // Build CUSTOM ROLE 2 (tertiary_role — admin assignable)
+        // Build CUSTOM ROLE 2 (tertiary_role — Senior Moderator+ assignable)
         var customRole2Html = u.tertiary_role
           ? '<span class="badge-custom"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' + escapeHtml(u.tertiary_role) + '</span>'
           : '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>';
+        if (canAssignBadges) {
+          customRole2Html += '<button class="badge-edit-btn" data-user-id="' + escapeHtml(u.user_id) + '" data-field="tertiary_role" data-current="' + escapeHtml(u.tertiary_role || '') + '" title="Edit Custom Badge 2" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;font-size:0.7rem;">✏️</button>';
+        }
 
-        // Build last login cell with refresh button
-        var lastLoginHtml = '<span class="last-login-text">' + escapeHtml(lastLogin) + '</span>' +
-          '<button class="login-refresh-btn" data-user-id="' + escapeHtml(u.user_id) + '" title="Refresh last login" aria-label="Refresh" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;color:var(--text-muted);vertical-align:middle;">' +
-          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></button>';
 
         tr.innerHTML =
           '<td class="td-slno">' + (idx + 1) + '</td>' +
@@ -450,8 +431,7 @@
           '<td>' + (u.uploads || 0) + '</td>' +
           '<td>' + (u.approved || 0) + '</td>' +
           '<td>' + (u.rejected || 0) + '</td>' +
-          '<td class="achievement-cell" title="' + escapeHtml(achTitle) + '">' + achHtml + '</td>' +
-          '<td class="last-login-cell" style="white-space:nowrap;">' + lastLoginHtml + '</td>';
+          '<td class="achievement-cell" title="' + escapeHtml(achTitle) + '">' + achHtml + '</td>';
 
         // UUID copy button handler
         var copyBtn = tr.querySelector('.uuid-copy');
@@ -487,36 +467,34 @@
           });
         }
 
-        // Last login refresh button handler — use cached get_all_last_sign_ins
-        var refreshBtn = tr.querySelector('.login-refresh-btn');
-        if (refreshBtn) {
-          refreshBtn.addEventListener('click', async function() {
+        // Badge edit button handlers (Senior Moderator+ can assign Custom Badge 1 & 2)
+        tr.querySelectorAll('.badge-edit-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
             var uid = this.getAttribute('data-user-id');
-            var textEl = this.parentNode.querySelector('.last-login-text');
-            try {
-              var sb = window.getSupabase ? window.getSupabase() : null;
-              if (!sb) return;
-              // Use batch RPC and find this user's last sign in
-              var res = await sb.rpc('get_all_last_sign_ins');
-              if (res.error) throw res.error;
-              var found = null;
-              if (res.data) {
-                for (var i = 0; i < res.data.length; i++) {
-                  if (res.data[i].user_id === uid) {
-                    found = res.data[i].last_sign_in;
-                    break;
-                  }
-                }
-              }
-              if (found) {
-                var d = new Date(found);
-                textEl.textContent = d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+            var field = this.getAttribute('data-field');
+            var current = this.getAttribute('data-current') || '';
+            var label = field === 'secondary_role' ? 'Custom Badge 1' : 'Custom Badge 2';
+            var newVal = prompt(label + ' for this user (leave empty to clear):', current);
+            if (newVal === null) return; // cancelled
+            newVal = newVal.trim();
+            var sb = window.getSupabase ? window.getSupabase() : null;
+            if (!sb) return;
+            var params = { target_user_id: uid };
+            if (field === 'secondary_role') params.new_secondary_role = newVal || null;
+            else params.new_tertiary_role = newVal || null;
+            sb.rpc('assign_custom_badges', params).then(function(res) {
+              if (res.error) { showToast('Error: ' + res.error.message, 'error'); return; }
+              var data = res.data;
+              if (data && data.success) {
+                showToast(label + ' updated successfully', 'success');
+                loadAllUsers();
               } else {
-                textEl.textContent = '—';
+                showToast('Failed: ' + (data && data.error ? data.error : 'Unknown error'), 'error');
               }
-            } catch(e) { showToast('Could not refresh: ' + (e.message || 'Error'), 'error'); }
+            });
           });
-        }
+        });
+
 
         // Role dropdown
         var roleCell = tr.querySelector('.role-cell');

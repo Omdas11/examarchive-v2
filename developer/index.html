@@ -359,7 +359,7 @@
                 try {
                   await supabase.from('submissions').delete().not('id', 'is', null);
                   await supabase.from('achievements').delete().not('id', 'is', null);
-                  await supabase.from('roles').update({ xp: 0, level: 0, streak_count: 0, last_login_date: null }).not('user_id', 'is', null);
+                  await supabase.from('roles').update({ xp: 0, level: 0, streak_count: 0 }).not('user_id', 'is', null);
                   showToast('Database reset complete.', 'success');
                 } catch(e) { showToast('Failed: ' + e.message, 'error'); }
                 finally { btn.disabled = false; }

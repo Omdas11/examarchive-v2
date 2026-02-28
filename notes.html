@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Notes &amp; References | ExamArchive</title>
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/brand.css">
+  <link rel="stylesheet" href="css/avatar-popup.css">
+  <link rel="stylesheet" href="css/avatar.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/profile-panel.css">
+  <link rel="stylesheet" href="css/levelup.css">
+
+  <!-- Accessibility and SEO -->
+  <meta name="description" content="Notes and reference materials for university courses — coming soon on ExamArchive." />
+  <meta name="theme-color" content="#d32f2f" />
+  <link rel="canonical" href="https://examarchive.dev/notes.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Notes & References | ExamArchive" />
+  <meta property="og:description" content="Notes and reference materials for university courses — coming soon." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://examarchive.dev/notes.html" />
+  <meta property="og:site_name" content="ExamArchive" />
+
+  <style>
+    .notes-page { max-width: 700px; margin: 3rem auto; padding: 0 1rem; text-align: center; }
+    .notes-page h1 { margin-bottom: 0.5rem; }
+    .notes-page .subtitle { color: var(--text-muted); margin-bottom: 2.5rem; }
+    .coming-soon-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 3rem 2rem; }
+    .coming-soon-card svg { margin-bottom: 1.5rem; color: var(--accent); opacity: 0.6; }
+    .coming-soon-card h2 { margin: 0 0 0.75rem 0; font-size: 1.4rem; }
+    .coming-soon-card p { color: var(--text-muted); max-width: 400px; margin: 0 auto 1.5rem; line-height: 1.6; }
+    .coming-soon-card .phase-tag { display: inline-block; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: rgba(211, 47, 47, 0.1); color: #d32f2f; border: 1px solid rgba(211, 47, 47, 0.2); }
+  </style>
+</head>
+<body>
+
+  <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+  <div id="night-layer"></div>
+  <div id="header"></div>
+
+  <main class="notes-page" id="main-content">
+    <h1>Notes &amp; References</h1>
+    <p class="subtitle">Study notes, reference materials, and curated resources for university courses.</p>
+
+    <div class="coming-soon-card">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        <line x1="8" y1="7" x2="16" y2="7"/>
+        <line x1="8" y1="11" x2="14" y2="11"/>
+      </svg>
+      <h2>Coming Soon</h2>
+      <p>
+        We're building a curated collection of study notes, textbook references, and
+        learning resources organized by university and subject. Stay tuned!
+      </p>
+      <span class="phase-tag">Phase 8</span>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <div id="avatar-portal"></div>
+  <div id="profile-panel-portal"></div>
+
+  <!-- Scripts -->
+  <script src="js/bootstrap.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.93.3"></script>
+  <script src="js/supabase-client.js"></script>
+  <script type="module" src="js/app.module.js"></script>
+  <script src="js/utils/supabase-wait.js"></script>
+  <script src="js/auth-controller.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/icon-fallback.js"></script>
+  <script src="js/avatar-utils.js"></script>
+  <script src="js/utils/role-utils.js"></script>
+  <script src="js/svg-icons.js"></script>
+  <script src="js/roles.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/profile-panel.js"></script>
+  <script src="js/levelup.js"></script>
+  <script src="js/avatar-popup.js"></script>
+  <script src="js/theme.js"></script>
+
+</body>
+</html>

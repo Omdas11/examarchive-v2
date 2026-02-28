@@ -219,7 +219,7 @@ async function renderAchievements(userId) {
       <h4 style="width:100%;margin:0 0 0.5rem;font-size:0.8rem;color:var(--text-muted);">Achievements</h4>
       ${data.map(a => {
         const info = achievementLabels[a.badge_type] || { label: a.badge_type, icon: SI ? SI.inline('medal') : '' };
-        return `<span class="achievement-pill" title="Earned ${new Date(a.awarded_at).toLocaleDateString()}">${info.icon} ${info.label}</span>`;
+        return `<span class="achievement-pill" data-type="${a.badge_type}" title="Earned ${new Date(a.awarded_at).toLocaleDateString()}">${info.icon} ${info.label}</span>`;
       }).join('')}
     `;
   } catch (err) {

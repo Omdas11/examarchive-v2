@@ -124,10 +124,6 @@
           <span class="stat-value loading" id="s-rejected">—</span>
           <span class="stat-label">Rejected</span>
         </div>
-        <div class="stat-card">
-          <span class="stat-value loading" id="s-active-7d">—</span>
-          <span class="stat-label">Active (7 days)</span>
-        </div>
       </div>
 
       <!-- Charts -->
@@ -254,7 +250,6 @@
         setText('s-approved', stats.approved || 0);
         setText('s-pending', stats.pending || 0);
         setText('s-rejected', stats.rejected || 0);
-        setText('s-active-7d', stats.active_7 || 0);
       } catch (rpcErr) {
         // Fallback: direct queries
         try {
@@ -273,10 +268,6 @@
           var rejectedRes = await supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'rejected');
           setText('s-rejected', rejectedRes.count || 0);
 
-          var sevenDaysAgo = new Date();
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-          var activeRes = await supabase.from('roles').select('*', { count: 'exact', head: true }).gte('last_login_date', sevenDaysAgo.toISOString().split('T')[0]);
-          setText('s-active-7d', activeRes.count || 0);
         } catch (fallbackErr) {
           setText('s-total-users', 'Error');
           setText('s-total-uploads', 'Error');

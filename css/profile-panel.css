@@ -271,6 +271,50 @@
   white-space: nowrap;
 }
 
+/* Colorful achievement pill variants */
+.achievement-pill[data-type="first_upload"] {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.12), rgba(129, 199, 132, 0.12));
+  color: #2e7d32;
+  border: 1px solid rgba(76, 175, 80, 0.25);
+}
+.achievement-pill[data-type="10_uploads"],
+.achievement-pill[data-type="100_uploads"] {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.12), rgba(255, 213, 79, 0.12));
+  color: #f57f17;
+  border: 1px solid rgba(255, 193, 7, 0.25);
+}
+.achievement-pill[data-type="first_review"] {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.12), rgba(100, 181, 246, 0.12));
+  color: #1565c0;
+  border: 1px solid rgba(33, 150, 243, 0.25);
+}
+.achievement-pill[data-type="first_publish"] {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.12), rgba(186, 104, 200, 0.12));
+  color: #7b1fa2;
+  border: 1px solid rgba(156, 39, 176, 0.25);
+}
+.achievement-pill[data-type="early_user"] {
+  background: linear-gradient(135deg, rgba(245, 124, 0, 0.12), rgba(255, 167, 38, 0.12));
+  color: #e65100;
+  border: 1px solid rgba(245, 124, 0, 0.25);
+}
+.achievement-pill[data-type="7_day_streak"],
+.achievement-pill[data-type="30_day_streak"] {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.12), rgba(239, 83, 80, 0.12));
+  color: #c62828;
+  border: 1px solid rgba(244, 67, 54, 0.25);
+}
+.achievement-pill[data-type="approval_90"] {
+  background: linear-gradient(135deg, rgba(0, 150, 136, 0.12), rgba(77, 182, 172, 0.12));
+  color: #00695c;
+  border: 1px solid rgba(0, 150, 136, 0.25);
+}
+.achievement-pill[data-type="top_contributor"] {
+  background: linear-gradient(135deg, rgba(210, 160, 20, 0.12), rgba(255, 215, 0, 0.12));
+  color: #a07818;
+  border: 1px solid rgba(210, 160, 20, 0.3);
+}
+
 /* ---------- XP Progress Bar ---------- */
 
 .profile-xp {
